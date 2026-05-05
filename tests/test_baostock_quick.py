@@ -69,7 +69,7 @@ def test_baostock_connection():
         try:
             import baostock as bs
             bs.logout()
-        except:
+        except Exception:
             pass
         return False
 

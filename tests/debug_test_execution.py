@@ -279,7 +279,7 @@ def main():
     print("诊断完成！按回车键退出...")
     try:
         input()
-    except:
+    except Exception:
         pass
 
 if __name__ == "__main__":
@@ -291,5 +291,5 @@ if __name__ == "__main__":
         print("\n按回车键退出...")
         try:
             input()
-        except:
+        except Exception:
             pass

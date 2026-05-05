@@ -573,7 +573,7 @@ def get_hk_stock_data_akshare(symbol: str, start_date: str | None = None, end_da
                     return default
                 try:
                     return f"{value:{format_str}}{suffix}"
-                except:
+                except Exception:
                     return default
 
             financial_section = f"""
@@ -754,7 +754,7 @@ def get_hk_stock_info_akshare(symbol: str) -> dict[str, Any]:
                             if value is None or value == '' or (isinstance(value, float) and value != value):  # NaN check
                                 return None
                             return float(value)
-                        except:
+                        except Exception:
                             return None
 
                     def safe_int(value):
@@ -762,7 +762,7 @@ def get_hk_stock_info_akshare(symbol: str) -> dict[str, Any]:
                             if value is None or value == '' or (isinstance(value, float) and value != value):  # NaN check
                                 return None
                             return int(value)
-                        except:
+                        except Exception:
                             return None
 
                     return {

@@ -1543,7 +1543,7 @@ class TushareProvider(BaseStockDataProvider):
                 return "annual"  # 年报
             else:
                 return "quarterly"  # 季报
-        except:
+        except Exception:
             return "quarterly"
 
     def _safe_float(self, value) -> float | None:

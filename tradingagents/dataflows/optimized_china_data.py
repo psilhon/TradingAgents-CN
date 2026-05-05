@@ -828,7 +828,7 @@ class OptimizedChinaDataProvider:
         # 提取价格数值
         try:
             price_value = float(current_price.replace('¥', '').replace(',', ''))
-        except:
+        except Exception:
             price_value = 10.0  # 默认值
 
         # 尝试获取真实财务数据
@@ -1894,7 +1894,7 @@ class OptimizedChinaDataProvider:
                     score += 1.0
                 elif roe > 5:
                     score += 0.5
-            except:
+            except Exception:
                 pass
 
         # 净利率评分
@@ -1906,7 +1906,7 @@ class OptimizedChinaDataProvider:
                     score += 1.0
                 elif net_margin > 10:
                     score += 0.5
-            except:
+            except Exception:
                 pass
 
         return min(score, 10.0)
@@ -1926,7 +1926,7 @@ class OptimizedChinaDataProvider:
                     score += 1.0
                 elif pe > 50:
                     score -= 1.0
-            except:
+            except Exception:
                 pass
 
         # PB评分
@@ -1940,7 +1940,7 @@ class OptimizedChinaDataProvider:
                     score += 0.5
                 elif pb > 5:
                     score -= 0.5
-            except:
+            except Exception:
                 pass
 
         return min(max(score, 1.0), 10.0)
@@ -1971,7 +1971,7 @@ class OptimizedChinaDataProvider:
                     return "中等"
                 else:
                     return "较低"
-            except:
+            except Exception:
                 pass
 
         # 根据行业判断

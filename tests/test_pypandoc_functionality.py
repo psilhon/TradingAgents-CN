@@ -47,7 +47,7 @@ def test_pandoc_download():
             version = pypandoc.get_pandoc_version()
             print(f"✅ Pandoc已存在: {version}")
             return True
-        except:
+        except Exception:
             print("⚠️ Pandoc不存在，尝试下载...")
 
         # 尝试下载
