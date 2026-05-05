@@ -10,6 +10,8 @@
 
 ### Changed
 
+- **CLAUDE.md 漂移修正**（OpenSpec change `claude-md-doc-drift`）：6 处与现状不符内容修正——版本号 `1.0.0-preview → 1.1.0`、阶段从"Phase 0 完成"更新为"v1.1.0 已发布，持续维护期"、删除不存在的 `docker-compose.hub.nginx.{,arm.}yml` 变体描述、删除已废弃 streamlit / chainlit 残留段、pre-commit 模式 `WARN-ONLY → STRICT`。spec `audit-tooling` 加 requirement "CLAUDE.md 必须反映项目当前状态"。
+
 - **测试 unit marker 批量补 1**（OpenSpec change `tests-mark-unit-batch-1`）：v1.1.0 后 review 发现 226 个 test 文件中标 `unit` 的 = 0 个，pre-commit hook `pytest -m unit` 永远 collect 0。本 change 给 5 个纯 mock / 纯函数 test 文件加 `pytestmark = pytest.mark.unit`：`test_trace_id` / `test_screening_roe_field` / `test_provider_keys` / `test_normalize_provider_keys_script` / `test_indicators_uil`，共 12 个 unit test。pre-commit hook 从 collect 0 → 12 passed。剩 5 个候选文件因 mock 漂移失败，作 follow-up backlog `tests-fix-stale-mocks`（service 实现变更 test 未跟上）。spec `lint-policy` 加 requirement "纯 mock test 必须显式标 unit"。
 
 - **`docker-compose.yml` 端口段位 + loopback**（OpenSpec change `docker-compose-loopback-baseline`）：base 文件 6 个 service 的端口映射全部加 `127.0.0.1:` 前缀 + 落入 54300-54309 段位（backend 54301 / frontend 54300 / mongo 54302 / redis 54303 / redis-commander 54304 / mongo-express 54305）。新机器 clone 后即合规，不再依赖未 tracked 的 `docker-compose.override.yml` 兜底。同步：`CORS_ORIGINS=http://localhost:54300`、`VITE_API_BASE_URL=http://localhost:54301`、image tag `v1.0.0-preview → v1.1.0`、删 deprecated `version: '3.8'`。新建 spec `loopback-binding-policy` 锁定铁律。

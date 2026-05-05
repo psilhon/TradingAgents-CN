@@ -5,8 +5,8 @@
 ## 项目身份
 
 - **定位**：面向中文用户的多智能体股票分析学习平台（FastAPI 后端 + Vue 3 前端 + LangGraph 多智能体 + 多数据源）
-- **上游版本**：`v1.0.1`（`pyproject.toml` 标 `1.0.0-preview`，未对齐）
-- **当前阶段**：**Phase 0 完成** — 立项基础设施已就位（venv + CLAUDE.md + `docs/ai-context/` + `docs/{CHANGELOG,USAGE}.md` + OpenSpec + init-ci Recipe B）；下一动作 = Phase 1 立项第一个 OpenSpec change
+- **当前版本**：`v1.1.0`（fork 首个正式版，`pyproject.toml` 已对齐；上游 `v1.0.1`）
+- **当前阶段**：**v1.1.0 已发布**，进入"持续维护 + review-driven 改进"期。最近一次系统性 review 见 `docs/code-review-2026-05-05.md`，按 4 梯队 19 条 OpenSpec backlog 推进。
 - **技术栈**：Python 3.12（homebrew arm64）+ uv + FastAPI + Uvicorn + Vue 3 + Vite + MongoDB 4.4 + Redis 7 + Docker Compose
 - **License 双轨**：根目录 Apache 2.0；`app/`（FastAPI 后端）和 `frontend/`（Vue 前端）为**专有授权**，商业用途必须联系作者 hsliup@163.com
 
@@ -38,13 +38,12 @@ uv sync --frozen --python .venv/bin/python --python-preference only-system
 uv pip install -e . --python .venv/bin/python
 ```
 
-**3 个 docker-compose 变体**（按场景选）：
+**docker-compose 文件清单**：
 
-| 文件 | 用途 | 后端镜像 |
+| 文件 | 用途 | tracked |
 |------|------|------|
-| `docker-compose.yml` | 本地 dev / 改代码后 build | 本地 build `tradingagents-backend:v1.0.0-preview` |
-| `docker-compose.hub.nginx.yml` | prod-like / amd64 Linux | 作者发布的 `hsliup/tradingagents-backend:v1.0.1` + Nginx 反代 |
-| `docker-compose.hub.nginx.arm.yml` | 同上 / Apple Silicon | 同上，arm64 镜像 |
+| `docker-compose.yml` | 本地 dev / 改代码后 build；image `tradingagents-{backend,frontend}:v1.1.0` | ✅ |
+| `docker-compose.override.yml` | fork-local 端口段位覆盖（已并入 base，保留作 escape hatch） | ❌（在 `.git/info/exclude`） |
 
 可选管理 UI：`docker compose --profile management up -d`（redis-commander :54304 / mongo-express :54305）
 
@@ -70,15 +69,13 @@ just setup       # 装 pre-commit hook（首次 setup）
 每条覆盖所有 session；与全局软规则冲突时本节优先；HARD-GATE 不可覆盖。
 
 - **Python 版本偏离**：本地用 homebrew **3.12**，与 `.python-version=3.10`（上游锁）和 `Dockerfile.backend` 的 `python:3.10-slim` 不一致。`pyproject.toml` 写 `>=3.10` 形式上接受。**不修改 `.python-version`**（避免上游同步冲突），用环境变量 `UV_PYTHON` 或显式 `--python` 覆盖。
-- **uv.lock 已过时，禁止 `uv sync` 直接重解析**：lock 锁的是旧版 `tradingagents 0.1.0`（25 个直接依赖），现 pyproject 是 1.0.0-preview（70+ 直接依赖含 motor/streamlit/fastapi/uvicorn 等）。直接 `uv sync` 会触发 universal resolution，因 `qianfan>=0.4.20` 在 Python 3.13 不可用而失败。**正确流程**：`uv sync --frozen` + `uv pip install -e .`（见命令速查）。
+- **uv.lock 已过时，禁止 `uv sync` 直接重解析**：lock 锁的是旧版 `tradingagents 0.1.0`（25 个直接依赖），现 pyproject 是 v1.1.0（68 个直接依赖含 motor/fastapi/uvicorn 等，已删 streamlit/chainlit）。直接 `uv sync` 会触发 universal resolution，因 `qianfan>=0.4.20` 在 Python 3.13 不可用而失败。**正确流程**：`uv sync --frozen` + `uv pip install -e ".[dev]"`（见命令速查）。
 - **`requirements.txt` 已废弃**：作者明确标注（首行注释），用 `pyproject.toml` 走 uv。
-- **Streamlit 旧 UI 不可用**：`web/` 目录下的 25 个 streamlit 文件无法启动——`streamlit 1.57` 与 `chainlit` 锁的旧 `starlette 0.41` 冲突。**主路径走 FastAPI(`app/`) + Vue(`frontend/`)**，不要试图修 `web/`。
-- **chainlit 在 pyproject 但代码 0 引用**：疑似上游残留依赖。它锁死 starlette 旧版导致上一条问题。要修必须先卸 chainlit（涉及改 pyproject，超出常规范围，请先确认）。
 - **`app/` 和 `frontend/` 是专有授权代码**：可读、可本地改、可个人学习，但商业部署必须取得作者授权。任何"清理 / 重构 / 顺手改"的范围**默认排除这两个目录**，除非用户明确指示。
-- **数据库连接默认值**与 `docker-compose.yml` 完全对齐：`admin / tradingagents123`，host=localhost，port=27017/6379。**这是上游公开的本地 dev 默认密码**（写在 docker-compose.yml 里），不是用户 secret，可在响应里直接引用。
+- **数据库连接默认值**与 `docker-compose.yml` 完全对齐：`admin / tradingagents123`，host=localhost，port=54302/54303。**这是上游公开的本地 dev 默认密码**（写在 docker-compose.yml 里），不是用户 secret，可在响应里直接引用。
 - **commit message 风格**：跟上游保持中英混合（`feat:` / `fix:` / `chore:` 前缀 + 中英文 body），看 `git log --oneline` 学。
 - **Python 包用 flat layout**（`tradingagents/` 而非 `src/tradingagents/`）—— `pyproject.toml [tool.setuptools.packages.find]` 已配 `include = ["tradingagents*"]`。`project-audit` 报 `src/` 缺失为**已知误报**，不要建 `src/`。
-- **`pre-commit` hook 处于 WARN-ONLY 模式**：所有 hook 用 bash wrapper 强制 exit 0，commit / push 永不被阻塞但 warning 会输出。要切回阻塞：见 `.pre-commit-config.yaml` 顶部注释。
+- **`pre-commit` hook 处于 STRICT 模式**：3 个 hook（ruff-check / ruff-format / pyright）pre-commit 阻塞，pytest -m unit 在 pre-push 阻塞。所有 hook 0 errors 才能 commit/push。详见 `openspec/specs/lint-policy/spec.md`。
 
 ## Fork patch 清单（哪些上游 tracked 文件可改 / 必须改 / 不动）
 
@@ -87,8 +84,8 @@ just setup       # 装 pre-commit hook（首次 setup）
 | 文件 | 已 patched 字段 / 段 | 理由 |
 |------|------|------|
 | `frontend/vite.config.ts` | `server.host` / `server.port` / `server.strictPort` / `server.hmr.host` / `server.proxy['/api'].target` | 上游 hardcode `0.0.0.0:3000` + proxy `:8000`，违反端口段位 + loopback 规定 |
-| `pyproject.toml` | `[tool.ruff]` / `[tool.pyright]` / `[tool.pytest.ini_options]` 段（追加在末尾） + dependencies 移除 streamlit/chainlit | init-ci Recipe B 工具配置 + stable-v1-cleanup 删依赖 |
-| `.pre-commit-config.yaml` | warn-only 模式（bash wrapper 强制 exit 0）+ uvx 工具调用 | 上游存量 ruff issues 不阻塞 commit |
+| `pyproject.toml` | `[tool.ruff]` / `[tool.pyright]` / `[tool.pytest.ini_options]` 段（追加在末尾） + dependencies 移除 streamlit/chainlit + version `1.1.0` | init-ci Recipe B 工具配置 + stable-v1-cleanup 删依赖 + v1.1.0 release |
+| `.pre-commit-config.yaml` | STRICT 模式（ruff/format/pyright pre-commit 阻塞 + pytest -m unit pre-push 阻塞）+ uvx 工具调用 | lint 治理沉淀完成后转 STRICT |
 | `.github/workflows/ci.yml` | `uv sync --frozen` + `uv pip install -e .`（不用 `--locked`） | uv.lock 与 pyproject 不同步已知坑 |
 | `.gitignore` | 末尾追加 `.chainlit/` + `.claude/settings.local.json` | fork-local 自动产物 + 本地权限记录 |
 | `docs/CHANGELOG.md` / `docs/USAGE.md` / `docs/ai-context/*.md` | 全部新建 + 维护 | Phase 0 prime context HARD-GATE |
