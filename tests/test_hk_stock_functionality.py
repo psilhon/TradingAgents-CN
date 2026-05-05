@@ -35,7 +35,7 @@ def test_stock_utils():
             market_info = StockUtils.get_market_info(ticker)
             print(
                 f"  {ticker}: {market_info['market_name']} ({market_info['currency_name']}) - {'✅' if expected in market_info['market_name'] else '❌'}"
-            )  # noqa: E501
+            )
 
             if expected == "港股" and not market_info["is_hk"]:
                 print(f"❌ {ticker} 应该被识别为港股")

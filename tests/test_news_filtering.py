@@ -130,7 +130,7 @@ def test_enhanced_news_filter():
                 print(f"{idx}. {row['新闻标题']}")
                 print(
                     f"   综合评分: {row['final_score']:.1f} (规则:{row['rule_score']:.1f}, 语义:{row['semantic_score']:.1f}, 分类:{row['classification_score']:.1f})"
-                )  # noqa: E501
+                )
 
         return True
 

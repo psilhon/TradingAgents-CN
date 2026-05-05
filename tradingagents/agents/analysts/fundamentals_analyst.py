@@ -160,7 +160,7 @@ def create_fundamentals_analyst(llm, toolkit):
         logger.debug(f"📊 [DEBUG] 股票类型检查: {ticker} -> {market_info['market_name']} ({market_info['currency_name']}")
         logger.debug(
             f"📊 [DEBUG] 详细市场信息: is_china={market_info['is_china']}, is_hk={market_info['is_hk']}, is_us={market_info['is_us']}"
-        )  # noqa: E501
+        )
         logger.debug(f"📊 [DEBUG] 工具配置检查: online_tools={toolkit.config['online_tools']}")
 
         # 获取公司名称
@@ -558,7 +558,7 @@ def create_fundamentals_analyst(llm, toolkit):
 
                 logger.info(
                     f"🔍 [重复调用检查] 汇总 - 工具结果数: {tool_call_count}, 已有工具结果: {has_tool_result}, 已有分析内容: {has_analysis_content}"
-                )  # noqa: E501
+                )
                 logger.info("📊 [基本面分析师] ===== 强制工具调用检查结束 =====")
 
                 # 如果已经有工具结果或已有分析内容，跳过强制调用

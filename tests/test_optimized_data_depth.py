@@ -79,7 +79,7 @@ def test_optimized_data_depth():
                 depth_name = depth_names[depth_levels.index(depth)]
                 print(
                     f"   级别 {depth} ({depth_name}): {result['module_count']} 模块, {result['line_count']} 行, {result['data_length']} 字符"
-                )  # noqa: E501
+                )
 
         # 检查优化效果
         print("\n🎯 优化效果验证:")

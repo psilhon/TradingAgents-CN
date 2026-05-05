@@ -239,7 +239,7 @@ class StockDataCache:
 
     def is_cache_valid(
         self, cache_key: str, max_age_hours: int | None = None, symbol: str | None = None, data_type: str | None = None
-    ) -> bool:  # noqa: E501
+    ) -> bool:
         """检查缓存是否有效 - 支持智能TTL配置"""
         metadata = self._load_metadata(cache_key)
         if not metadata:

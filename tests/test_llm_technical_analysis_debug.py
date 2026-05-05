@@ -176,7 +176,7 @@ def test_message_sequence_handling():
             ),
             ToolMessage(
                 content="股票代码: 600036\n股票名称: 招商银行\n当前价格: ¥47.13\n涨跌幅: -1.03%\n成交量: 61.5万手", tool_call_id="call_1"
-            ),  # noqa: E501
+            ),
             HumanMessage(
                 content="""现在请基于上述工具获取的数据，生成详细的技术分析报告。
 
