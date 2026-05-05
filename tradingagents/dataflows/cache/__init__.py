@@ -16,7 +16,7 @@
 """
 
 import os
-from typing import Union
+from typing import Union  # noqa: F401
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

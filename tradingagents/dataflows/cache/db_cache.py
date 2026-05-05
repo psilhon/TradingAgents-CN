@@ -23,7 +23,7 @@ logger = get_logger('agents')
 # MongoDB
 try:
     from pymongo import MongoClient
-    from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+    from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError  # noqa: F401
     MONGODB_AVAILABLE = True
 except ImportError:
     MONGODB_AVAILABLE = False
@@ -32,7 +32,7 @@ except ImportError:
 # Redis
 try:
     import redis
-    from redis.exceptions import ConnectionError as RedisConnectionError
+    from redis.exceptions import ConnectionError as RedisConnectionError  # noqa: F401
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False

@@ -106,7 +106,7 @@ class AKShareProvider(BaseStockDataProvider):
                     # 设置浏览器请求头
                     if 'headers' not in kwargs or kwargs['headers'] is None:
                         kwargs['headers'] = {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',  # noqa: E501
                             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
                             'Accept-Encoding': 'gzip, deflate, br',
@@ -116,7 +116,7 @@ class AKShareProvider(BaseStockDataProvider):
                     elif isinstance(kwargs['headers'], dict):
                         # 如果已有headers，确保包含必要的字段
                         if 'User-Agent' not in kwargs['headers']:
-                            kwargs['headers']['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                            kwargs['headers']['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  # noqa: E501
                         if 'Referer' not in kwargs['headers']:
                             kwargs['headers']['Referer'] = 'https://www.eastmoney.com/'
                         if 'Accept' not in kwargs['headers']:
@@ -737,7 +737,7 @@ class AKShareProvider(BaseStockDataProvider):
                     data_dict = dict(zip(bid_ask_df['item'], bid_ask_df['value'], strict=False))
                     logger.info(f"📊 转换后的字典: {data_dict}")
                     quotes = self._build_bid_ask_quotes(code, data_dict)
-                    logger.info(f"✅ {code} 实时行情获取成功: 来源=stock_bid_ask_em, 最新价={quotes['price']}, 涨跌幅={quotes['change_percent']}%, 成交量={quotes['volume']}, 成交额={quotes['amount']}")
+                    logger.info(f"✅ {code} 实时行情获取成功: 来源=stock_bid_ask_em, 最新价={quotes['price']}, 涨跌幅={quotes['change_percent']}%, 成交量={quotes['volume']}, 成交额={quotes['amount']}")  # noqa: E501
                     return quotes
 
                 logger.warning(f"⚠️ stock_bid_ask_em 未返回 {code} 的行情数据，尝试备份接口")
@@ -1300,7 +1300,7 @@ class AKShareProvider(BaseStockDataProvider):
                 # 如果在 Docker 环境中，尝试使用 curl_cffi 直接调用 API
                 if is_docker:
                     try:
-                        from curl_cffi import requests as curl_requests
+                        from curl_cffi import requests as curl_requests  # noqa: F401
                         self.logger.debug("🐳 检测到 Docker 环境，使用 curl_cffi 直接调用 API")
                         news_df = await asyncio.to_thread(
                             self._get_stock_news_direct,

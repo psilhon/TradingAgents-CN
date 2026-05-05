@@ -131,14 +131,14 @@ def test_tradingagents_with_new_apis():
 
         # 检查Google相关工具
         try:
-            from tradingagents.dataflows.googlenews_utils import get_google_news
+            from tradingagents.dataflows.googlenews_utils import get_google_news  # noqa: F401
             print("✅ Google News工具可用")
         except ImportError:
             print("❌ Google News工具不可用")
 
         # 检查Reddit相关工具
         try:
-            from tradingagents.dataflows.reddit_utils import get_reddit_sentiment
+            from tradingagents.dataflows.reddit_utils import get_reddit_sentiment  # noqa: F401
             print("✅ Reddit情绪分析工具可用")
         except ImportError:
             print("❌ Reddit情绪分析工具不可用")

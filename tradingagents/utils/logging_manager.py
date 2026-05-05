@@ -24,7 +24,7 @@ class ColoredFormatter(logging.Formatter):
     """彩色日志格式化器"""
 
     # ANSI颜色代码
-    COLORS = {
+    COLORS = {  # noqa: RUF012
         'DEBUG': '\033[36m',    # 青色
         'INFO': '\033[32m',     # 绿色
         'WARNING': '\033[33m',  # 黄色

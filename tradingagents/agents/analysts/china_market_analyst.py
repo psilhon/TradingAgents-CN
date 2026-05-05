@@ -7,7 +7,7 @@ from tradingagents.utils.logging_init import get_logger
 logger = get_logger("default")
 
 # 导入Google工具调用处理器
-from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
+from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler  # noqa: E402
 
 
 def _get_company_name_for_china_market(ticker: str, market_info: dict) -> str:

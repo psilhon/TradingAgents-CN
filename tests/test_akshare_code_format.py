@@ -17,7 +17,7 @@ def test_akshare_interfaces():
 
     try:
         import akshare as ak
-        import pandas as pd
+        import pandas as pd  # noqa: F401
     except ImportError:
         print("❌ AKShare 未安装，跳过测试")
         return

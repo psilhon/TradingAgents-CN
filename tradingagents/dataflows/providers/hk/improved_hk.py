@@ -603,7 +603,7 @@ def get_hk_stock_data_akshare(symbol: str, start_date: str | None = None, end_da
 **偿债能力**:
 - 资产负债率: {format_value(financial_indicators.get('debt_asset_ratio'), suffix='%')}
 - 流动比率: {format_value(financial_indicators.get('current_ratio'))}
-"""
+"""  # noqa: E501
 
         result = f"""## 港股历史数据 ({symbol})
 **数据源**: AKShare (新浪财经)
@@ -665,7 +665,7 @@ _akshare_hk_spot_cache = {
 }
 
 # 🔥 线程锁：防止多个线程同时调用 AKShare API
-import threading
+import threading  # noqa: E402
 
 _akshare_hk_spot_lock = threading.Lock()
 

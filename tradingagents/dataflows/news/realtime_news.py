@@ -342,11 +342,11 @@ class RealtimeNewsAggregator:
                                 if time_str:
                                     # 尝试解析时间格式，可能是'2023-01-01 12:34:56'格式
                                     try:
-                                        publish_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S').replace(tzinfo=ZoneInfo(get_timezone_name()))
+                                        publish_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S').replace(tzinfo=ZoneInfo(get_timezone_name()))  # noqa: E501
                                     except Exception:
                                         # 尝试其他可能的格式
                                         try:
-                                            publish_time = datetime.strptime(time_str, '%Y-%m-%d').replace(tzinfo=ZoneInfo(get_timezone_name()))
+                                            publish_time = datetime.strptime(time_str, '%Y-%m-%d').replace(tzinfo=ZoneInfo(get_timezone_name()))  # noqa: E501
                                         except Exception:
                                             logger.warning(f"[中文财经新闻] 无法解析时间格式: {time_str}，使用当前时间")
                                             publish_time = datetime.now(ZoneInfo(get_timezone_name()))
@@ -380,7 +380,7 @@ class RealtimeNewsAggregator:
                                 continue
 
                         em_time = (datetime.now(ZoneInfo(get_timezone_name())) - em_start_time).total_seconds()
-                        logger.info(f"[中文财经新闻] 东方财富新闻处理完成，成功: {processed_count}条，跳过: {skipped_count}条，错误: {error_count}条，耗时: {em_time:.2f}秒")
+                        logger.info(f"[中文财经新闻] 东方财富新闻处理完成，成功: {processed_count}条，跳过: {skipped_count}条，错误: {error_count}条，耗时: {em_time:.2f}秒")  # noqa: E501
             except Exception as ak_e:
                 logger.error(f"[中文财经新闻] 获取东方财富新闻失败: {ak_e}")
 
@@ -417,7 +417,7 @@ class RealtimeNewsAggregator:
 
             # 记录RSS获取总结
             rss_total_time = (datetime.now(ZoneInfo(get_timezone_name())) - rss_start_time).total_seconds()
-            logger.info(f"[中文财经新闻] RSS新闻获取完成，成功源: {rss_success_count}个，失败源: {rss_error_count}个，获取新闻: {total_rss_items}条，总耗时: {rss_total_time:.2f}秒")
+            logger.info(f"[中文财经新闻] RSS新闻获取完成，成功源: {rss_success_count}个，失败源: {rss_error_count}个，获取新闻: {total_rss_items}条，总耗时: {rss_total_time:.2f}秒")  # noqa: E501
 
             # 记录中文财经新闻获取总结
             total_time = (datetime.now(ZoneInfo(get_timezone_name())) - start_time).total_seconds()
@@ -618,7 +618,7 @@ class RealtimeNewsAggregator:
         low_urgency = [n for n in news_items if n.urgency == 'low']
 
         # 记录新闻分类情况
-        logger.info(f"[新闻报告] {ticker} 新闻分类统计: 高紧急度 {len(high_urgency)}条, 中紧急度 {len(medium_urgency)}条, 低紧急度 {len(low_urgency)}条")
+        logger.info(f"[新闻报告] {ticker} 新闻分类统计: 高紧急度 {len(high_urgency)}条, 中紧急度 {len(medium_urgency)}条, 低紧急度 {len(low_urgency)}条")  # noqa: E501
 
         # 记录新闻来源分布
         news_sources = {}
@@ -765,7 +765,7 @@ def get_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6) ->
                 logger.info(f"[新闻分析] 东方财富API返回DataFrame，是否为空: {news_df.empty}")
                 if not news_df.empty:
                     logger.info(f"[新闻分析] 东方财富API返回DataFrame形状: {news_df.shape}")
-                    logger.info(f"[新闻分析] 东方财富API返回DataFrame列名: {list(news_df.columns) if hasattr(news_df, 'columns') else '无列名'}")
+                    logger.info(f"[新闻分析] 东方财富API返回DataFrame列名: {list(news_df.columns) if hasattr(news_df, 'columns') else '无列名'}")  # noqa: E501
             else:
                 logger.info(f"[新闻分析] 东方财富API返回数据: {news_df}")
 
@@ -786,7 +786,7 @@ def get_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6) ->
                 logger.info("[新闻分析] 开始构建新闻报告")
                 for idx, (_, row) in enumerate(news_df.iterrows()):
                     if idx < 3:  # 只记录前3条的详细信息
-                        logger.info(f"[新闻分析] 第{idx+1}条新闻: 标题={row.get('新闻标题', '无标题')}, 时间={row.get('发布时间', '无时间')}")
+                        logger.info(f"[新闻分析] 第{idx+1}条新闻: 标题={row.get('新闻标题', '无标题')}, 时间={row.get('发布时间', '无时间')}")  # noqa: E501
                     report += f"### {row.get('新闻标题', '')}\n"
                     report += f"📅 {row.get('发布时间', '')}\n"
                     report += f"🔗 {row.get('新闻链接', '')}\n\n"

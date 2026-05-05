@@ -167,7 +167,7 @@ def test_data_source_availability():
     try:
         # 检查AKShare可用性
         try:
-            from tradingagents.dataflows.akshare_utils import get_hk_stock_info_akshare
+            from tradingagents.dataflows.akshare_utils import get_hk_stock_info_akshare  # noqa: F401
             print("✅ AKShare港股工具可用")
             akshare_available = True
         except ImportError as e:
@@ -176,7 +176,7 @@ def test_data_source_availability():
 
         # 检查Yahoo Finance可用性
         try:
-            from tradingagents.dataflows.hk_stock_utils import get_hk_stock_info
+            from tradingagents.dataflows.hk_stock_utils import get_hk_stock_info  # noqa: F401
             print("✅ Yahoo Finance港股工具可用")
             yf_available = True
         except ImportError as e:
@@ -185,7 +185,7 @@ def test_data_source_availability():
 
         # 检查统一接口
         try:
-            from tradingagents.dataflows.interface import AKSHARE_HK_AVAILABLE, HK_STOCK_AVAILABLE, get_hk_stock_info_unified
+            from tradingagents.dataflows.interface import AKSHARE_HK_AVAILABLE, HK_STOCK_AVAILABLE, get_hk_stock_info_unified  # noqa: F401
             print("✅ 统一港股接口可用")
             print(f"   AKShare可用标志: {AKSHARE_HK_AVAILABLE}")
             print(f"   Yahoo Finance可用标志: {HK_STOCK_AVAILABLE}")

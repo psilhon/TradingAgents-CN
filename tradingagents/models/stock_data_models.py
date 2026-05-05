@@ -61,7 +61,7 @@ class BaseStockModel(BaseModel):
 
     class Config:
         use_enum_values = True
-        json_encoders = {
+        json_encoders = {  # noqa: RUF012
             datetime: lambda v: v.isoformat(),
             date: lambda v: v.isoformat(),
             Decimal: lambda v: float(v)

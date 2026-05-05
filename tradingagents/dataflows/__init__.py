@@ -52,7 +52,7 @@ except ImportError:
         StockstatsUtils = None
         STOCKSTATS_AVAILABLE = False
 
-from .interface import (
+from .interface import (  # noqa: E402
     # Tushare data functions
     get_china_stock_data_tushare,
     # Unified China data functions (recommended)

@@ -207,12 +207,12 @@ def calculate_realtime_pe_pb(
                 # total_mv_yi 是昨天的市值，用 pre_close 反推股本
                 total_shares_wan = (total_mv_yi * 10000) / pre_close
                 yesterday_mv_yi = total_mv_yi
-                logger.info(f"   ✓ stock_basic_info 是昨天的数据，用 pre_close 反推总股本: {total_mv_yi:.2f}亿元 / {pre_close:.2f}元 = {total_shares_wan:.2f}万股")
+                logger.info(f"   ✓ stock_basic_info 是昨天的数据，用 pre_close 反推总股本: {total_mv_yi:.2f}亿元 / {pre_close:.2f}元 = {total_shares_wan:.2f}万股")  # noqa: E501
             else:
                 # total_mv_yi 是今天的市值，用 realtime_price 反推股本
                 total_shares_wan = (total_mv_yi * 10000) / realtime_price
                 yesterday_mv_yi = (total_shares_wan * pre_close) / 10000
-                logger.info(f"   ✓ stock_basic_info 是今天的数据，用 realtime_price 反推总股本: {total_mv_yi:.2f}亿元 / {realtime_price:.2f}元 = {total_shares_wan:.2f}万股")
+                logger.info(f"   ✓ stock_basic_info 是今天的数据，用 realtime_price 反推总股本: {total_mv_yi:.2f}亿元 / {realtime_price:.2f}元 = {total_shares_wan:.2f}万股")  # noqa: E501
                 logger.info(f"   ✓ 昨日市值: {total_shares_wan:.2f}万股 × {pre_close:.2f}元 / 10000 = {yesterday_mv_yi:.2f}亿元")
 
         # 方案3：只有 total_mv_yi，没有 pre_close（market_quotes 数据不完整）

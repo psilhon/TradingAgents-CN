@@ -10,15 +10,15 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from tradingagents.utils.logging_init import init_logging
+from tradingagents.utils.logging_init import init_logging  # noqa: E402
 
 init_logging()
 
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage  # noqa: E402
 
-from app.services.simple_analysis_service import create_analysis_config
-from tradingagents.agents.utils.agent_states import AgentState
-from tradingagents.graph.conditional_logic import ConditionalLogic
+from app.services.simple_analysis_service import create_analysis_config  # noqa: E402
+from tradingagents.agents.utils.agent_states import AgentState  # noqa: E402
+from tradingagents.graph.conditional_logic import ConditionalLogic  # noqa: E402
 
 
 def test_level3_deadlock():
@@ -66,9 +66,9 @@ def test_level3_deadlock():
     level1_config = configs[1]
 
     print("级别3相比级别1、2的差异:")
-    print(f"  - 风险讨论轮次: 级别1={level1_config['max_risk_discuss_rounds']}, 级别2={level2_config['max_risk_discuss_rounds']}, 级别3={level3_config['max_risk_discuss_rounds']}")
-    print(f"  - 记忆功能: 级别1={level1_config['memory_enabled']}, 级别2={level2_config['memory_enabled']}, 级别3={level3_config['memory_enabled']}")
-    print(f"  - 在线工具: 级别1={level1_config['online_tools']}, 级别2={level2_config['online_tools']}, 级别3={level3_config['online_tools']}")
+    print(f"  - 风险讨论轮次: 级别1={level1_config['max_risk_discuss_rounds']}, 级别2={level2_config['max_risk_discuss_rounds']}, 级别3={level3_config['max_risk_discuss_rounds']}")  # noqa: E501
+    print(f"  - 记忆功能: 级别1={level1_config['memory_enabled']}, 级别2={level2_config['memory_enabled']}, 级别3={level3_config['memory_enabled']}")  # noqa: E501
+    print(f"  - 在线工具: 级别1={level1_config['online_tools']}, 级别2={level2_config['online_tools']}, 级别3={level3_config['online_tools']}")  # noqa: E501
 
     # 3. 模拟基本面分析师的条件判断
     print("\n🤖 3. 基本面分析师条件判断模拟")
@@ -116,14 +116,14 @@ def test_level3_deadlock():
             "name": "场景4: 完整报告 + 有tool_calls",
             "state": {
                 "messages": [AIMessage(content="分析完成", tool_calls=[tool_call])],
-                "fundamentals_report": "这是一个完整的基本面分析报告，包含了详细的财务数据分析、估值模型计算、行业对比分析等内容，总长度超过100个字符，应该被认为是完成的报告。"
+                "fundamentals_report": "这是一个完整的基本面分析报告，包含了详细的财务数据分析、估值模型计算、行业对比分析等内容，总长度超过100个字符，应该被认为是完成的报告。"  # noqa: E501
             }
         },
         {
             "name": "场景5: 完整报告 + 无tool_calls",
             "state": {
                 "messages": [AIMessage(content="分析完成")],
-                "fundamentals_report": "这是一个完整的基本面分析报告，包含了详细的财务数据分析、估值模型计算、行业对比分析等内容，总长度超过100个字符，应该被认为是完成的报告。"
+                "fundamentals_report": "这是一个完整的基本面分析报告，包含了详细的财务数据分析、估值模型计算、行业对比分析等内容，总长度超过100个字符，应该被认为是完成的报告。"  # noqa: E501
             }
         }
     ]
@@ -134,7 +134,7 @@ def test_level3_deadlock():
         result = conditional_logic.should_continue_fundamentals(state)
 
         report_len = len(scenario['state']['fundamentals_report'])
-        has_tool_calls = len(scenario['state']['messages']) > 0 and hasattr(scenario['state']['messages'][-1], 'tool_calls') and scenario['state']['messages'][-1].tool_calls
+        has_tool_calls = len(scenario['state']['messages']) > 0 and hasattr(scenario['state']['messages'][-1], 'tool_calls') and scenario['state']['messages'][-1].tool_calls  # noqa: E501
 
         print(f"  - 报告长度: {report_len}")
         print(f"  - 有tool_calls: {has_tool_calls}")

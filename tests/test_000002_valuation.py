@@ -34,7 +34,7 @@ def test_000002_valuation():
     lines = result.split('\n')
 
     print("\n=== 000002股票基本信息 ===")
-    for i, line in enumerate(lines):
+    for i, line in enumerate(lines):  # noqa: B007
         if "股票名称" in line or "所属行业" in line or "市场板块" in line:
             print(line)
 
@@ -55,7 +55,7 @@ def test_000002_valuation():
     if not found_valuation:
         print("未找到估值指标部分，搜索相关关键词...")
         # 搜索包含PE、PB、PS的行
-        for i, line in enumerate(lines):
+        for i, line in enumerate(lines):  # noqa: B007
             if any(keyword in line for keyword in ["市盈率", "市净率", "市销率", "PE", "PB", "PS"]):
                 print(f"  {line}")
 

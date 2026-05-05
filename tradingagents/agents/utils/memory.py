@@ -16,7 +16,7 @@ class ChromaDBManager:
 
     _instance = None
     _lock = threading.Lock()
-    _collections: dict[str, any] = {}
+    _collections: dict[str, any] = {}  # noqa: RUF012
     _client = None
 
     def __new__(cls):
@@ -271,7 +271,7 @@ class FinancialSituationMemory:
                 try:
                     # 尝试使用阿里百炼嵌入
                     import dashscope
-                    from dashscope import TextEmbedding
+                    from dashscope import TextEmbedding  # noqa: F401
 
                     self.embedding = "text-embedding-v3"
                     self.client = None
@@ -666,7 +666,7 @@ if __name__ == "__main__":
         ),
         (
             "Tech sector showing high volatility with increasing institutional selling pressure",
-            "Reduce exposure to high-growth tech stocks. Look for value opportunities in established tech companies with strong cash flows.",
+            "Reduce exposure to high-growth tech stocks. Look for value opportunities in established tech companies with strong cash flows.",  # noqa: E501
         ),
         (
             "Strong dollar affecting emerging markets with increasing forex volatility",

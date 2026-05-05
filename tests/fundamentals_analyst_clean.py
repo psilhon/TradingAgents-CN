@@ -109,7 +109,7 @@ def create_fundamentals_analyst(llm, toolkit):
         prompt = prompt.partial(ticker=ticker)
 
         # 检测阿里百炼模型并创建新实例
-        if hasattr(llm, '__class__') and 'DashScope' in llm.__class__.__name__:
+        if hasattr(llm, '__class__') and 'DashScope' in llm.__class__.__name__:  # noqa: F823
             print("📊 [DEBUG] 检测到阿里百炼模型，创建新实例以避免工具缓存")
             from tradingagents.llm_adapters import ChatDashScopeOpenAI
 

@@ -13,9 +13,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-from tradingagents.dataflows.akshare_utils import get_akshare_provider
+from tradingagents.dataflows.akshare_utils import get_akshare_provider  # noqa: E402
 
-from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
+from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider  # noqa: E402
 
 
 def debug_full_flow():

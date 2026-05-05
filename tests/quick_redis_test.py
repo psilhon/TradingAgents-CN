@@ -53,7 +53,7 @@ def quick_redis_test(host=None, port=None, password=None):
 
         # PING操作测试
         ping_times = []
-        for i in range(10):
+        for i in range(10):  # noqa: B007
             start_time = time.time()
             r.ping()
             ping_time = (time.time() - start_time) * 1000

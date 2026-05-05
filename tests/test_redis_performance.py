@@ -121,7 +121,7 @@ class RedisPerformanceTester:
                         failed_count += 1
 
             elif operation_type == 'ping':
-                for i in range(operations):
+                for i in range(operations):  # noqa: B007
                     try:
                         self.redis_client.ping()
                     except Exception:

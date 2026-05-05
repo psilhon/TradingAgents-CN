@@ -6,7 +6,7 @@ from typing import Any
 from tradingagents.utils.logging_init import get_logger
 
 logger = get_logger("default")
-from tradingagents.agents.utils.agent_states import (
+from tradingagents.agents.utils.agent_states import (  # noqa: E402
     InvestDebateState,
     RiskDebateState,
 )

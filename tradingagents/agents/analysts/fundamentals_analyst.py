@@ -15,9 +15,9 @@ from tradingagents.utils.tool_logging import log_analyst_module
 logger = get_logger("default")
 
 # 导入Google工具调用处理器
-from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
-from tradingagents.agents.utils.instrument_utils import build_instrument_context
-from tradingagents.llm_clients import create_llm_client
+from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler  # noqa: E402
+from tradingagents.agents.utils.instrument_utils import build_instrument_context  # noqa: E402
+from tradingagents.llm_clients import create_llm_client  # noqa: E402
 
 
 def _get_company_name_for_fundamentals(ticker: str, market_info: dict) -> str:
@@ -153,7 +153,7 @@ def create_fundamentals_analyst(llm, toolkit):
         logger.info(f"🔍 [股票代码追踪] StockUtils.get_market_info 返回的市场信息: {market_info}")
 
         logger.debug(f"📊 [DEBUG] 股票类型检查: {ticker} -> {market_info['market_name']} ({market_info['currency_name']}")
-        logger.debug(f"📊 [DEBUG] 详细市场信息: is_china={market_info['is_china']}, is_hk={market_info['is_hk']}, is_us={market_info['is_us']}")
+        logger.debug(f"📊 [DEBUG] 详细市场信息: is_china={market_info['is_china']}, is_hk={market_info['is_hk']}, is_us={market_info['is_us']}")  # noqa: E501
         logger.debug(f"📊 [DEBUG] 工具配置检查: online_tools={toolkit.config['online_tools']}")
 
         # 获取公司名称
@@ -496,7 +496,7 @@ def create_fundamentals_analyst(llm, toolkit):
                 elif tool_call_count >= max_tool_calls:
                     # 达到最大调用次数，但还没有工具结果（不应该发生）
                     logger.warning(f"🔧 [异常情况] 达到最大工具调用次数 {max_tool_calls}，但没有工具结果")
-                    fallback_report = f"基本面分析（股票代码：{ticker}）\n\n由于达到最大工具调用次数限制，使用简化分析模式。建议检查数据源连接或降低分析复杂度。"
+                    fallback_report = f"基本面分析（股票代码：{ticker}）\n\n由于达到最大工具调用次数限制，使用简化分析模式。建议检查数据源连接或降低分析复杂度。"  # noqa: E501
                     return {
                         "messages": [result],
                         "fundamentals_report": fallback_report,
@@ -557,7 +557,7 @@ def create_fundamentals_analyst(llm, toolkit):
                 tool_call_count = sum(1 for msg in messages if isinstance(msg, ToolMessage))
                 logger.info(f"🔍 [统计] 历史工具调用次数: {tool_call_count}")
 
-                logger.info(f"🔍 [重复调用检查] 汇总 - 工具结果数: {tool_call_count}, 已有工具结果: {has_tool_result}, 已有分析内容: {has_analysis_content}")
+                logger.info(f"🔍 [重复调用检查] 汇总 - 工具结果数: {tool_call_count}, 已有工具结果: {has_tool_result}, 已有分析内容: {has_analysis_content}")  # noqa: E501
                 logger.info("📊 [基本面分析师] ===== 强制工具调用检查结束 =====")
 
                 # 如果已经有工具结果或已有分析内容，跳过强制调用

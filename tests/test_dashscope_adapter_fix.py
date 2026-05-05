@@ -12,7 +12,7 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from tradingagents.utils.logging_manager import get_logger
+from tradingagents.utils.logging_manager import get_logger  # noqa: E402
 
 logger = get_logger('test')
 

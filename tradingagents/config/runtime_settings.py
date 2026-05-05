@@ -178,7 +178,7 @@ def use_app_cache_enabled(default: bool = False) -> bool:
 
 
 # --- Timezone access helpers -------------------------------------------------
-from zoneinfo import ZoneInfo as _ZoneInfo
+from zoneinfo import ZoneInfo as _ZoneInfo  # noqa: E402
 
 
 def get_timezone_name(default: str = "Asia/Shanghai") -> str:

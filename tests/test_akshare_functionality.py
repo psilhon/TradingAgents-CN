@@ -78,7 +78,7 @@ def test_akshare_utils_file():
         print(f"✅ 找到AKShare工具文件: {akshare_utils_path}")
 
         try:
-            from tradingagents.dataflows.akshare_utils import get_akshare_provider
+            from tradingagents.dataflows.akshare_utils import get_akshare_provider  # noqa: F401
             print("✅ get_akshare_provider函数导入成功")
             return True
         except ImportError as e:

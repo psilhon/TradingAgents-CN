@@ -531,7 +531,7 @@ def get_user_selections():
     welcome_content += "[bold green]TradingAgents: 多智能体大语言模型金融交易框架 - CLI[/bold green]\n"
     welcome_content += "[bold green]Multi-Agents LLM Financial Trading Framework - CLI[/bold green]\n\n"
     welcome_content += "[bold]工作流程 | Workflow Steps:[/bold]\n"
-    welcome_content += "I. 分析师团队 | Analyst Team → II. 研究团队 | Research Team → III. 交易员 | Trader → IV. 风险管理 | Risk Management → V. 投资组合管理 | Portfolio Management\n\n"
+    welcome_content += "I. 分析师团队 | Analyst Team → II. 研究团队 | Research Team → III. 交易员 | Trader → IV. 风险管理 | Risk Management → V. 投资组合管理 | Portfolio Management\n\n"  # noqa: E501
     welcome_content += (
         "[dim]Built by [Tauric Research](https://github.com/TauricResearch)[/dim]"
     )
@@ -717,7 +717,7 @@ def get_ticker(market):
             logger.warning("用户输入空股票代码")
             continue
 
-        ticker_to_check = ticker if market['data_source'] != 'china_stock' else ticker
+        ticker_to_check = ticker if market['data_source'] != 'china_stock' else ticker  # noqa: RUF034
 
         if re.match(market['pattern'], ticker_to_check):
             # 对于A股，返回纯数字代码
@@ -1427,7 +1427,7 @@ def run_analysis():
                         # Update research report with final decision
                         message_buffer.update_report_section(
                             "investment_plan",
-                            f"{message_buffer.report_sections['investment_plan']}\n\n### Research Manager Decision\n{debate_state['judge_decision']}",
+                            f"{message_buffer.report_sections['investment_plan']}\n\n### Research Manager Decision\n{debate_state['judge_decision']}",  # noqa: E501
                         )
                         # Mark all research team members as completed
                         update_research_team_status("completed")

@@ -17,7 +17,7 @@ def test_pypandoc_import():
     """测试pypandoc导入"""
     print("🔍 测试pypandoc导入...")
     try:
-        import pypandoc
+        import pypandoc  # noqa: F401
         print("✅ pypandoc导入成功")
         return True
     except ImportError as e:

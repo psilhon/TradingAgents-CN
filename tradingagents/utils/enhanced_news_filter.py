@@ -85,7 +85,7 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
 
             # 尝试使用transformers库的中文分类模型
             try:
-                import torch
+                import torch  # noqa: F401
                 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
                 # 使用轻量级中文文本分类模型
@@ -355,4 +355,4 @@ if __name__ == "__main__":
         print("\n过滤后的新闻:")
         for _, row in filtered_news.iterrows():
             print(f"- {row['新闻标题']} (综合评分: {row['final_score']:.1f})")
-            print(f"  规则评分: {row['rule_score']:.1f}, 语义评分: {row['semantic_score']:.1f}, 分类评分: {row['classification_score']:.1f}")
+            print(f"  规则评分: {row['rule_score']:.1f}, 语义评分: {row['semantic_score']:.1f}, 分类评分: {row['classification_score']:.1f}")  # noqa: E501

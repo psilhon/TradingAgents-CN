@@ -50,7 +50,7 @@ def test_hk_validation():
                 print(f"  ✅ {symbol} ({market_type}): {'通过' if validation_passed else '失败'}")
                 passed += 1
             else:
-                print(f"  ❌ {symbol} ({market_type}): 期望{'通过' if should_pass else '失败'}, 实际{'通过' if validation_passed else '失败'}")
+                print(f"  ❌ {symbol} ({market_type}): 期望{'通过' if should_pass else '失败'}, 实际{'通过' if validation_passed else '失败'}")  # noqa: E501
                 if errors:
                     print(f"      错误: {errors}")
 

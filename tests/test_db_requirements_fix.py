@@ -45,7 +45,7 @@ def test_pickle_compatibility():
 
         # 检查是否错误安装了pickle5
         try:
-            import pickle5
+            import pickle5  # noqa: F401
             print("  ⚠️ 检测到pickle5包，建议卸载")
             return False
         except ImportError:

@@ -166,7 +166,7 @@ class UnifiedNewsAnalyzer:
                 }.get(sentiment, '➖')
 
                 report += f"## {i}. {sentiment_icon} {title}\n\n"
-                report += f"**来源**: {source} | **时间**: {publish_time.strftime('%Y-%m-%d %H:%M') if isinstance(publish_time, datetime) else publish_time}\n"
+                report += f"**来源**: {source} | **时间**: {publish_time.strftime('%Y-%m-%d %H:%M') if isinstance(publish_time, datetime) else publish_time}\n"  # noqa: E501
                 report += f"**情绪**: {sentiment}\n\n"
 
                 if content:

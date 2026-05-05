@@ -45,7 +45,7 @@ class StockstatsUtils:
                 )
                 df = wrap(data)
             except FileNotFoundError:
-                raise Exception("Stockstats fail: Yahoo Finance data not fetched yet!")
+                raise Exception("Stockstats fail: Yahoo Finance data not fetched yet!")  # noqa: B904
         else:
             # Get today's date as YYYY-mm-dd to add to cache
             today_date = pd.Timestamp.today()

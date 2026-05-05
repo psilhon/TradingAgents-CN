@@ -190,7 +190,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
             # 检查是否为 API Key 无效错误
             error_str = str(e)
             if 'API_KEY_INVALID' in error_str or 'API key not valid' in error_str:
-                error_content = "Google AI API Key 无效或未配置。\n\n请检查：\n1. GOOGLE_API_KEY 环境变量是否正确配置\n2. API Key 是否有效（访问 https://ai.google.dev/ 获取）\n3. 是否启用了 Gemini API\n\n建议：使用其他 AI 模型（如阿里百炼、DeepSeek）"
+                error_content = "Google AI API Key 无效或未配置。\n\n请检查：\n1. GOOGLE_API_KEY 环境变量是否正确配置\n2. API Key 是否有效（访问 https://ai.google.dev/ 获取）\n3. 是否启用了 Gemini API\n\n建议：使用其他 AI 模型（如阿里百炼、DeepSeek）"  # noqa: E501
             elif 'Connection' in error_str or 'Network' in error_str:
                 error_content = f"Google AI 网络连接失败: {error_str}\n\n请检查：\n1. 网络连接是否正常\n2. 是否需要科学上网\n3. 防火墙设置"
             else:

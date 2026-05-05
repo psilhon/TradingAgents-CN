@@ -28,7 +28,7 @@ def test_pricing_config():
     print(f"📊 加载了 {len(pricing_configs)} 个定价配置:")
     for pricing in pricing_configs:
         if pricing.provider == "deepseek":
-            print(f"   ✅ {pricing.provider}/{pricing.model_name}: 输入¥{pricing.input_price_per_1k}/1K, 输出¥{pricing.output_price_per_1k}/1K")
+            print(f"   ✅ {pricing.provider}/{pricing.model_name}: 输入¥{pricing.input_price_per_1k}/1K, 输出¥{pricing.output_price_per_1k}/1K")  # noqa: E501
 
 def test_cost_calculation():
     """测试成本计算"""

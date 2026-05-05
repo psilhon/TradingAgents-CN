@@ -124,7 +124,7 @@ def test_optimized_fundamentals():
 
     # 详细结果
     print("\n📋 各深度详细结果:")
-    for depth_name, result in results.items():
+    for depth_name, result in results.items():  # noqa: B007
         status = "✅ 成功" if result['success'] else "❌ 失败"
         print(f"   {result['description']:20} | {status} | {result['data_length']:6,} 字符")
 

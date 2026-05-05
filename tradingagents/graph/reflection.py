@@ -50,7 +50,7 @@ Your goal is to deliver detailed insights into investment decisions and highligh
    - Ensure the condensed sentence captures the essence of the lessons and reasoning for easy reference.
 
 Adhere strictly to these instructions, and ensure your output is detailed, accurate, and actionable. You will also be given objective descriptions of the market from a price movements, technical indicator, news, and sentiment perspective to provide more context for your analysis.
-"""
+"""  # noqa: E501
 
     def _extract_current_situation(self, current_state: dict[str, Any]) -> str:
         """Extract the current market situation from the state."""

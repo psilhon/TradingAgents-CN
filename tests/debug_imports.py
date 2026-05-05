@@ -100,7 +100,7 @@ def check_dependencies():
     for package, description in dependencies.items():
         try:
             if package == 'beautifulsoup4':
-                import bs4
+                import bs4  # noqa: F401
                 print(f"✅ {description}: 已安装")
             else:
                 __import__(package)
