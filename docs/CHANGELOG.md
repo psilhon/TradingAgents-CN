@@ -8,7 +8,9 @@
 
 ## [Unreleased]
 
-—（暂无）
+### Fixed
+
+- **🚀 HK 单股查询 60s → 0.5s**（OpenSpec change `eliminate-akshare-fullmarket-pull`，Tier 3 #3）：v1.1.0 修过 `favorites_service` A 股 60s 全市场拉取；v1.1.1 后 review 第三梯队继续清理同模式。深度探查（spawned audit agent）发现真正 agent path 违规在 HK 路径——`improved_hk.py:759/766/275` 单股查询调 `ak.stock_hk_spot()` 拉全 HK ~3000 行 + `threading.Lock(timeout=60)` 阻塞 event loop ≤60s。本 change 切换到单股 API：`ak.stock_hk_security_profile_em(symbol)`（取名/板块）+ `ak.stock_hk_hist(symbol, period="daily")` 取最近一日 K 线（取价/涨跌/成交）。同时删 A 股 worker fallback 死代码（`_get_realtime_quotes_data` 中 `stock_zh_a_spot` / `stock_zh_a_spot_em` 全市场分支，~70 行）+ HK `_akshare_hk_spot_cache` 全局 dict + `threading.Lock`。实测 0700.HK 单查 0.51s（vs 60s+），5 路并发总耗 0.76s（vs 串行上限 300s）。新建 capability `dataflow-performance` 锁定铁律——agent path 不得拉全市场快照 + HK 不得用 threading.Lock 阻塞 sync HTTP。`get_batch_stock_quotes`（worker 合法批量入 mongo）保留不动。
 
 ---
 
