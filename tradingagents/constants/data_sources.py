@@ -60,12 +60,12 @@ class DataSourceInfo:
     display_name: str  # 显示名称
     provider: str  # 提供商
     description: str  # 描述
-    supported_markets: List[str]  # 支持的市场（a_shares, us_stocks, hk_stocks, etc.）
+    supported_markets: list[str]  # 支持的市场（a_shares, us_stocks, hk_stocks, etc.）
     requires_api_key: bool  # 是否需要 API 密钥
     is_free: bool  # 是否免费
     official_website: Optional[str] = None  # 官方网站
     documentation_url: Optional[str] = None  # 文档地址
-    features: List[str] = None  # 特性列表
+    features: list[str] = None  # 特性列表
 
     def __post_init__(self):
         if self.features is None:
@@ -73,7 +73,7 @@ class DataSourceInfo:
 
 
 # ==================== 数据源注册表 ====================
-DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
+DATA_SOURCE_REGISTRY: dict[str, DataSourceInfo] = {
     # MongoDB 缓存
     DataSourceCode.MONGODB: DataSourceInfo(
         code=DataSourceCode.MONGODB,
@@ -292,7 +292,7 @@ def get_data_source_info(code: str) -> Optional[DataSourceInfo]:
     return DATA_SOURCE_REGISTRY.get(code)
 
 
-def list_all_data_sources() -> List[DataSourceInfo]:
+def list_all_data_sources() -> list[DataSourceInfo]:
     """
     列出所有数据源
     
@@ -302,7 +302,7 @@ def list_all_data_sources() -> List[DataSourceInfo]:
     return list(DATA_SOURCE_REGISTRY.values())
 
 
-def list_data_sources_by_market(market: str) -> List[DataSourceInfo]:
+def list_data_sources_by_market(market: str) -> list[DataSourceInfo]:
     """
     列出支持指定市场的数据源
     
@@ -318,7 +318,7 @@ def list_data_sources_by_market(market: str) -> List[DataSourceInfo]:
     ]
 
 
-def list_free_data_sources() -> List[DataSourceInfo]:
+def list_free_data_sources() -> list[DataSourceInfo]:
     """
     列出所有免费数据源
     

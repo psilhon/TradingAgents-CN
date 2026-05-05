@@ -17,7 +17,7 @@ class ChromaDBManager:
 
     _instance = None
     _lock = threading.Lock()
-    _collections: Dict[str, any] = {}
+    _collections: dict[str, any] = {}
     _client = None
 
     def __new__(cls):

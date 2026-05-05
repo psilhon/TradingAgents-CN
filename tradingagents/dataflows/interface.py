@@ -1841,7 +1841,7 @@ def get_hk_stock_data_unified(symbol: str, start_date: str = None, end_date: str
         return f"❌ 获取港股{symbol}数据失败: {e}"
 
 
-def get_hk_stock_info_unified(symbol: str) -> Dict:
+def get_hk_stock_info_unified(symbol: str) -> dict:
     """
     获取港股信息的统一接口（根据用户配置选择数据源）
 

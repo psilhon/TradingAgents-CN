@@ -80,7 +80,7 @@ class DataSourceConfig:
 
         logger.debug("✅ 数据源配置加载完成")
 
-    def get_provider_config(self, provider_name: str) -> Dict[str, Any]:
+    def get_provider_config(self, provider_name: str) -> dict[str, Any]:
         """
         获取指定提供器的配置
         
@@ -138,7 +138,7 @@ def get_data_source_config() -> DataSourceConfig:
         _config_instance = DataSourceConfig()
     return _config_instance
 
-def get_provider_config(provider_name: str) -> Dict[str, Any]:
+def get_provider_config(provider_name: str) -> dict[str, Any]:
     """获取指定提供器配置的便捷函数"""
     config = get_data_source_config()
     return config.get_provider_config(provider_name)

@@ -60,7 +60,7 @@ class TushareConfig:
 
         return True
 
-    def get_validation_result(self) -> Dict[str, Any]:
+    def get_validation_result(self) -> dict[str, Any]:
         """获取详细的验证结果"""
         result = {
             'valid': False,
@@ -90,7 +90,7 @@ class TushareConfig:
 
         return result
 
-    def get_env_debug_info(self) -> Dict[str, Any]:
+    def get_env_debug_info(self) -> dict[str, Any]:
         """获取环境变量调试信息"""
         env_vars = [
             "TUSHARE_TOKEN",
@@ -105,7 +105,7 @@ class TushareConfig:
 
         return debug_info
 
-    def test_boolean_parsing(self) -> Dict[str, Any]:
+    def test_boolean_parsing(self) -> dict[str, Any]:
         """测试布尔值解析的兼容性"""
         test_cases = [
             ("true", True),
@@ -146,7 +146,7 @@ class TushareConfig:
 
         return results
 
-    def fix_common_issues(self) -> Dict[str, str]:
+    def fix_common_issues(self) -> dict[str, str]:
         """修复常见配置问题"""
         fixes = {}
 
@@ -163,7 +163,7 @@ def get_tushare_config() -> TushareConfig:
     return TushareConfig()
 
 
-def check_tushare_compatibility() -> Dict[str, Any]:
+def check_tushare_compatibility() -> dict[str, Any]:
     """检查Tushare配置兼容性"""
     config = get_tushare_config()
 

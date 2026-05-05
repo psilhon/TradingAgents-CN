@@ -301,7 +301,7 @@ class ConfigManager:
             }
             self.save_settings(default_settings)
 
-    def load_models(self) -> List[ModelConfig]:
+    def load_models(self) -> list[ModelConfig]:
         """加载模型配置，优先使用.env中的API密钥"""
         try:
             with open(self.models_file, 'r', encoding='utf-8') as f:
@@ -337,7 +337,7 @@ class ConfigManager:
             logger.error(f"加载模型配置失败: {e}")
             return []
 
-    def save_models(self, models: List[ModelConfig]):
+    def save_models(self, models: list[ModelConfig]):
         """保存模型配置"""
         try:
             data = [asdict(model) for model in models]
@@ -346,7 +346,7 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"保存模型配置失败: {e}")
 
-    def load_pricing(self) -> List[PricingConfig]:
+    def load_pricing(self) -> list[PricingConfig]:
         """加载定价配置"""
         try:
             with open(self.pricing_file, 'r', encoding='utf-8') as f:
@@ -356,7 +356,7 @@ class ConfigManager:
             logger.error(f"加载定价配置失败: {e}")
             return []
 
-    def save_pricing(self, pricing: List[PricingConfig]):
+    def save_pricing(self, pricing: list[PricingConfig]):
         """保存定价配置"""
         try:
             data = [asdict(price) for price in pricing]
@@ -365,7 +365,7 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"保存定价配置失败: {e}")
 
-    def load_usage_records(self) -> List[UsageRecord]:
+    def load_usage_records(self) -> list[UsageRecord]:
         """加载使用记录"""
         try:
             if not self.usage_file.exists():
@@ -377,7 +377,7 @@ class ConfigManager:
             logger.error(f"加载使用记录失败: {e}")
             return []
 
-    def save_usage_records(self, records: List[UsageRecord]):
+    def save_usage_records(self, records: list[UsageRecord]):
         """保存使用记录"""
         try:
             data = [asdict(record) for record in records]
@@ -464,7 +464,7 @@ class ConfigManager:
 
         return 0.0, "CNY"
 
-    def load_settings(self) -> Dict[str, Any]:
+    def load_settings(self) -> dict[str, Any]:
         """加载设置，合并.env中的配置"""
         try:
             if self.settings_file.exists():
@@ -519,7 +519,7 @@ class ConfigManager:
 
         return settings
 
-    def get_env_config_status(self) -> Dict[str, Any]:
+    def get_env_config_status(self) -> dict[str, Any]:
         """获取.env配置状态"""
         return {
             "env_file_exists": (Path(__file__).parent.parent.parent / ".env").exists(),
@@ -537,7 +537,7 @@ class ConfigManager:
             }
         }
 
-    def save_settings(self, settings: Dict[str, Any]):
+    def save_settings(self, settings: dict[str, Any]):
         """保存设置"""
         try:
             with open(self.settings_file, 'w', encoding='utf-8') as f:
@@ -545,7 +545,7 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"保存设置失败: {e}")
 
-    def get_enabled_models(self) -> List[ModelConfig]:
+    def get_enabled_models(self) -> list[ModelConfig]:
         """获取启用的模型"""
         models = self.load_models()
         return [model for model in models if model.enabled and model.api_key]
@@ -558,7 +558,7 @@ class ConfigManager:
                 return model
         return None
 
-    def get_usage_statistics(self, days: int = 30) -> Dict[str, Any]:
+    def get_usage_statistics(self, days: int = 30) -> dict[str, Any]:
         """获取使用统计"""
         # 优先使用MongoDB获取统计
         if self.mongodb_storage and self.mongodb_storage.is_connected():
@@ -677,7 +677,7 @@ class ConfigManager:
         settings = self.load_settings()
         return settings.get("openai_enabled", False)
 
-    def get_openai_config_status(self) -> Dict[str, Any]:
+    def get_openai_config_status(self) -> dict[str, Any]:
         """获取OpenAI配置状态"""
         openai_key = os.getenv("OPENAI_API_KEY", "")
         key_valid = self.validate_openai_api_key_format(openai_key) if openai_key else False

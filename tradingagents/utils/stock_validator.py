@@ -32,7 +32,7 @@ class StockDataPreparationResult:
         self.data_period_days = data_period_days
         self.cache_status = cache_status
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """转换为字典格式"""
         return {
             'is_valid': self.is_valid,
@@ -606,7 +606,7 @@ class StockDataPreparer:
                 suggestion="请检查网络连接或数据源配置"
             )
 
-    def _check_database_data(self, stock_code: str, start_date: str, end_date: str) -> Dict:
+    def _check_database_data(self, stock_code: str, start_date: str, end_date: str) -> dict:
         """
         检查数据库中的数据是否存在和最新
 
@@ -699,7 +699,7 @@ class StockDataPreparer:
                 "message": f"检查失败: {str(e)}"
             }
 
-    def _trigger_data_sync_sync(self, stock_code: str, start_date: str, end_date: str) -> Dict:
+    def _trigger_data_sync_sync(self, stock_code: str, start_date: str, end_date: str) -> dict:
         """
         触发数据同步（同步包装器）
         在同步上下文中调用异步同步方法
@@ -751,7 +751,7 @@ class StockDataPreparer:
                 "data_source": None
             }
 
-    async def _trigger_data_sync_async(self, stock_code: str, start_date: str, end_date: str) -> Dict:
+    async def _trigger_data_sync_async(self, stock_code: str, start_date: str, end_date: str) -> dict:
         """
         触发数据同步（异步版本，根据数据库配置的数据源优先级）
         同步内容包括：历史数据、财务数据、实时行情

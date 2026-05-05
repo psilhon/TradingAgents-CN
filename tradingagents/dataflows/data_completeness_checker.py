@@ -26,7 +26,7 @@ class DataCompletenessChecker:
         start_date: str,
         end_date: str,
         market: str = "CN"
-    ) -> Tuple[bool, str, dict]:
+    ) -> tuple[bool, str, dict]:
         """
         检查数据完整性
         
@@ -221,7 +221,7 @@ class DataCompletenessChecker:
             self.logger.error(f"❌ 获取最新交易日失败: {e}")
             return None
 
-    def _check_data_gaps(self, df: pd.DataFrame, date_col: str) -> List[str]:
+    def _check_data_gaps(self, df: pd.DataFrame, date_col: str) -> list[str]:
         """检查数据缺口"""
         try:
             df = df.sort_values(date_col)

@@ -142,7 +142,7 @@ def create_llm_by_provider(provider: str, model: str, backend_url: str, temperat
 
 def _create_provider_pair(
     provider: str,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     quick_temperature: float,
     quick_max_tokens: int,
     quick_timeout: int,
@@ -151,9 +151,9 @@ def _create_provider_pair(
     deep_timeout: int,
     backend_url: Optional[str] = None,
     api_key: Optional[str] = None,
-    quick_extra_kwargs: Optional[Dict[str, Any]] = None,
-    deep_extra_kwargs: Optional[Dict[str, Any]] = None,
-) -> Tuple[Any, Any]:
+    quick_extra_kwargs: Optional[dict[str, Any]] = None,
+    deep_extra_kwargs: Optional[dict[str, Any]] = None,
+) -> tuple[Any, Any]:
     resolved_backend_url = backend_url if backend_url is not None else config.get("backend_url", "")
     shared_api_key = api_key or config.get("quick_api_key") or config.get("deep_api_key")
     quick_extra_kwargs = quick_extra_kwargs or {}
@@ -189,7 +189,7 @@ class TradingAgentsGraph:
         self,
         selected_analysts=["market", "social", "news", "fundamentals"],
         debug=False,
-        config: Dict[str, Any] = None,
+        config: dict[str, Any] = None,
     ):
         """Initialize the trading agents graph and components.
 
@@ -582,7 +582,7 @@ class TradingAgentsGraph:
         # Set up the graph
         self.graph = self.graph_setup.setup_graph(selected_analysts)
 
-    def _create_tool_nodes(self) -> Dict[str, ToolNode]:
+    def _create_tool_nodes(self) -> dict[str, ToolNode]:
         """Create tool nodes for different data sources.
 
         注意：ToolNode 包含所有可能的工具，但 LLM 只会调用它绑定的工具。
@@ -912,7 +912,7 @@ class TradingAgentsGraph:
         except Exception as e:
             logger.error(f"❌ 进度更新失败: {e}", exc_info=True)
 
-    def _build_performance_data(self, node_timings: Dict[str, float], total_elapsed: float) -> Dict[str, Any]:
+    def _build_performance_data(self, node_timings: dict[str, float], total_elapsed: float) -> dict[str, Any]:
         """构建性能数据结构
 
         Args:
@@ -1017,7 +1017,7 @@ class TradingAgentsGraph:
             }
         }
 
-    def _print_timing_summary(self, node_timings: Dict[str, float], total_elapsed: float):
+    def _print_timing_summary(self, node_timings: dict[str, float], total_elapsed: float):
         """打印详细的时间统计报告
 
         Args:
@@ -1065,7 +1065,7 @@ class TradingAgentsGraph:
                 other_nodes.append((node_name, elapsed))
 
         # 打印分类统计
-        def print_category(title: str, nodes: List[Tuple[str, float]]):
+        def print_category(title: str, nodes: list[tuple[str, float]]):
             if not nodes:
                 return
             logger.info(f"\n📊 {title}")

@@ -47,7 +47,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ MongoDB连接初始化失败: {e}")
             self.use_app_cache = False
 
-    def get_stock_basic_info(self, symbol: str) -> Optional[Dict[str, Any]]:
+    def get_stock_basic_info(self, symbol: str) -> Optional[dict[str, Any]]:
         """获取股票基础信息（按数据源优先级查询）"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -221,7 +221,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ 获取历史数据失败: {e}")
             return None
 
-    def get_financial_data(self, symbol: str, report_period: str = None) -> Optional[Dict[str, Any]]:
+    def get_financial_data(self, symbol: str, report_period: str = None) -> Optional[dict[str, Any]]:
         """获取财务数据，按数据源优先级查询"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -259,7 +259,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ [数据来源: MongoDB-财务数据] 获取财务数据失败: {e}")
             return None
 
-    def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> Optional[List[Dict[str, Any]]]:
+    def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> Optional[list[dict[str, Any]]]:
         """获取新闻数据"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -293,7 +293,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ [数据来源: MongoDB-新闻数据] 获取新闻数据失败: {e}")
             return None
 
-    def get_social_media_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> Optional[List[Dict[str, Any]]]:
+    def get_social_media_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> Optional[list[dict[str, Any]]]:
         """获取社媒数据"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -327,7 +327,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ 获取社媒数据失败: {e}")
             return None
 
-    def get_market_quotes(self, symbol: str) -> Optional[Dict[str, Any]]:
+    def get_market_quotes(self, symbol: str) -> Optional[dict[str, Any]]:
         """获取实时行情数据"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -398,7 +398,7 @@ def get_stock_data_with_fallback(symbol: str, start_date: str = None, end_date: 
     return None
 
 
-def get_financial_data_with_fallback(symbol: str, fallback_func=None) -> Union[Dict[str, Any], str, None]:
+def get_financial_data_with_fallback(symbol: str, fallback_func=None) -> Union[dict[str, Any], str, None]:
     """
     带降级的财务数据获取
     

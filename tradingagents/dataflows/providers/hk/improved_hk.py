@@ -292,7 +292,7 @@ class ImprovedHKStockProvider:
             clean_symbol = self._normalize_hk_symbol(symbol)
             return f"港股{clean_symbol}"
 
-    def get_financial_indicators(self, symbol: str) -> Dict[str, Any]:
+    def get_financial_indicators(self, symbol: str) -> dict[str, Any]:
         """
         获取港股财务指标
 
@@ -388,7 +388,7 @@ class ImprovedHKStockProvider:
             logger.error(f"❌ [港股财务指标] 获取失败: {symbol} - {e}")
             return {}
 
-    def get_stock_info(self, symbol: str) -> Dict[str, Any]:
+    def get_stock_info(self, symbol: str) -> dict[str, Any]:
         """
         获取港股基本信息
 
@@ -449,7 +449,7 @@ def get_hk_company_name_improved(symbol: str) -> str:
     return provider.get_company_name(symbol)
 
 
-def get_hk_stock_info_improved(symbol: str) -> Dict[str, Any]:
+def get_hk_stock_info_improved(symbol: str) -> dict[str, Any]:
     """
     获取港股信息的改进版本
 
@@ -463,7 +463,7 @@ def get_hk_stock_info_improved(symbol: str) -> Dict[str, Any]:
     return provider.get_stock_info(symbol)
 
 
-def get_hk_financial_indicators(symbol: str) -> Dict[str, Any]:
+def get_hk_financial_indicators(symbol: str) -> dict[str, Any]:
     """
     获取港股财务指标
 
@@ -670,7 +670,7 @@ import threading
 _akshare_hk_spot_lock = threading.Lock()
 
 
-def get_hk_stock_info_akshare(symbol: str) -> Dict[str, Any]:
+def get_hk_stock_info_akshare(symbol: str) -> dict[str, Any]:
     """
     兼容性函数：直接使用 akshare 获取港股信息（避免循环调用）
     🔥 使用全局缓存 + 线程锁，避免重复调用 ak.stock_hk_spot()

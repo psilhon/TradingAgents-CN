@@ -46,7 +46,7 @@ class RealtimeNewsAggregator:
         self.alpha_vantage_key = os.getenv('ALPHA_VANTAGE_API_KEY')
         self.newsapi_key = os.getenv('NEWSAPI_KEY')
 
-    def get_realtime_stock_news(self, ticker: str, hours_back: int = 6, max_news: int = 10) -> List[NewsItem]:
+    def get_realtime_stock_news(self, ticker: str, hours_back: int = 6, max_news: int = 10) -> list[NewsItem]:
         """
         获取实时股票新闻
         优先级：专业API > 新闻API > 搜索引擎
@@ -143,7 +143,7 @@ class RealtimeNewsAggregator:
 
         return sorted_news
 
-    def _get_finnhub_realtime_news(self, ticker: str, hours_back: int) -> List[NewsItem]:
+    def _get_finnhub_realtime_news(self, ticker: str, hours_back: int) -> list[NewsItem]:
         """获取FinnHub实时新闻"""
         if not self.finnhub_key:
             return []
@@ -193,7 +193,7 @@ class RealtimeNewsAggregator:
             logger.error(f"FinnHub新闻获取失败: {e}")
             return []
 
-    def _get_alpha_vantage_news(self, ticker: str, hours_back: int) -> List[NewsItem]:
+    def _get_alpha_vantage_news(self, ticker: str, hours_back: int) -> list[NewsItem]:
         """获取Alpha Vantage新闻"""
         if not self.alpha_vantage_key:
             return []
@@ -244,7 +244,7 @@ class RealtimeNewsAggregator:
             logger.error(f"Alpha Vantage新闻获取失败: {e}")
             return []
 
-    def _get_newsapi_news(self, ticker: str, hours_back: int) -> List[NewsItem]:
+    def _get_newsapi_news(self, ticker: str, hours_back: int) -> list[NewsItem]:
         """获取NewsAPI新闻"""
         try:
             # 构建搜索查询
@@ -299,7 +299,7 @@ class RealtimeNewsAggregator:
             logger.error(f"NewsAPI新闻获取失败: {e}")
             return []
 
-    def _get_chinese_finance_news(self, ticker: str, hours_back: int) -> List[NewsItem]:
+    def _get_chinese_finance_news(self, ticker: str, hours_back: int) -> list[NewsItem]:
         """获取中文财经新闻"""
         # 集成中文财经新闻API：财联社、东方财富等
         logger.info(f"[中文财经新闻] 开始获取 {ticker} 的中文财经新闻，回溯时间: {hours_back}小时")
@@ -430,7 +430,7 @@ class RealtimeNewsAggregator:
             logger.error(f"[中文财经新闻] 中文财经新闻获取失败: {e}")
             return []
 
-    def _parse_rss_feed(self, rss_url: str, ticker: str, hours_back: int) -> List[NewsItem]:
+    def _parse_rss_feed(self, rss_url: str, ticker: str, hours_back: int) -> list[NewsItem]:
         """解析RSS源"""
         logger.info(f"[RSS解析] 开始解析RSS源: {rss_url}，股票: {ticker}，回溯时间: {hours_back}小时")
         start_time = datetime.now(ZoneInfo(get_timezone_name()))
@@ -567,7 +567,7 @@ class RealtimeNewsAggregator:
         logger.debug(f"[相关性计算] 未检测到明确相关性，使用默认评分: 0.3，标题: {title[:50]}...")
         return 0.3  # 默认相关性
 
-    def _deduplicate_news(self, news_items: List[NewsItem]) -> List[NewsItem]:
+    def _deduplicate_news(self, news_items: list[NewsItem]) -> list[NewsItem]:
         """去重新闻"""
         logger.info(f"[新闻去重] 开始对 {len(news_items)} 条新闻进行去重处理")
         start_time = datetime.now(ZoneInfo(get_timezone_name()))
@@ -604,7 +604,7 @@ class RealtimeNewsAggregator:
 
         return unique_news
 
-    def format_news_report(self, news_items: List[NewsItem], ticker: str) -> str:
+    def format_news_report(self, news_items: list[NewsItem], ticker: str) -> str:
         """格式化新闻报告"""
         logger.info(f"[新闻报告] 开始为 {ticker} 生成新闻报告")
         start_time = datetime.now(ZoneInfo(get_timezone_name()))

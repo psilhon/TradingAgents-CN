@@ -21,7 +21,7 @@ try:
 except ImportError:
     print("⚠️ python-dotenv未安装，将使用系统环境变量")
 
-def get_mongodb_config() -> Dict[str, Any]:
+def get_mongodb_config() -> dict[str, Any]:
     """获取MongoDB配置"""
     return {
         'host': os.getenv('MONGODB_HOST', 'localhost'),

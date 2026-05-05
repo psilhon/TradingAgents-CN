@@ -82,7 +82,7 @@ class DatabaseManager:
 
 
 
-    def _detect_mongodb(self) -> Tuple[bool, str]:
+    def _detect_mongodb(self) -> tuple[bool, str]:
         """检测MongoDB是否可用"""
         # 首先检查是否启用
         if not self.mongodb_enabled:
@@ -122,7 +122,7 @@ class DatabaseManager:
         except Exception as e:
             return False, f"MongoDB连接失败: {str(e)}"
 
-    def _detect_redis(self) -> Tuple[bool, str]:
+    def _detect_redis(self) -> tuple[bool, str]:
         """检测Redis是否可用"""
         # 首先检查是否启用
         if not self.redis_enabled:
@@ -281,7 +281,7 @@ class DatabaseManager:
         """获取当前缓存后端"""
         return self.primary_backend
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """获取配置信息"""
         return {
             "mongodb": self.mongodb_config,
@@ -305,7 +305,7 @@ class DatabaseManager:
             }
         }
 
-    def get_status_report(self) -> Dict[str, Any]:
+    def get_status_report(self) -> dict[str, Any]:
         """获取状态报告"""
         return {
             "database_available": self.is_database_available(),
@@ -323,7 +323,7 @@ class DatabaseManager:
             "fallback_enabled": True  # 总是启用降级
         }
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """获取缓存统计信息"""
         stats = {
             "mongodb_available": self.mongodb_available,

@@ -21,7 +21,7 @@ def _safe_float(x) -> Optional[float]:
         return None
 
 
-def _get_tushare_snapshot(symbol: str) -> Dict[str, Optional[float]]:
+def _get_tushare_snapshot(symbol: str) -> dict[str, Optional[float]]:
     try:
         from .providers.china.tushare import get_tushare_provider
         provider = get_tushare_provider()
@@ -63,7 +63,7 @@ def _get_tushare_snapshot(symbol: str) -> Dict[str, Optional[float]]:
         return {}
 
 
-def get_cn_fund_snapshot(symbol: str) -> Dict[str, Optional[float]]:
+def get_cn_fund_snapshot(symbol: str) -> dict[str, Optional[float]]:
     """
     获取A股基础基本面快照（pe/pb/roe/market_cap）。
     优先Tushare，失败则返回空字典（后续可扩展AKShare/东方财富等）。

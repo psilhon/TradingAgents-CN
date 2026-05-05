@@ -115,7 +115,7 @@ class HKStockProvider:
             logger.error(f"❌ 港股数据获取异常: {e}")
             return None
 
-    def get_stock_info(self, symbol: str) -> Dict[str, Any]:
+    def get_stock_info(self, symbol: str) -> dict[str, Any]:
         """
         获取港股基本信息
 
@@ -166,7 +166,7 @@ class HKStockProvider:
                 'error': str(e)
             }
 
-    def get_real_time_price(self, symbol: str) -> Optional[Dict]:
+    def get_real_time_price(self, symbol: str) -> Optional[dict]:
         """
         获取港股实时价格
 
@@ -503,7 +503,7 @@ def get_hk_stock_data(symbol: str, start_date: str = None, end_date: str = None)
     return provider.format_stock_data(symbol, data, start_date, end_date)
 
 
-def get_hk_stock_info(symbol: str) -> Dict:
+def get_hk_stock_info(symbol: str) -> dict:
     """
     获取港股信息的便捷函数
 

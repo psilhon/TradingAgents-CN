@@ -177,7 +177,7 @@ class NewsRelevanceFilter:
 
         return filtered_df
 
-    def get_filter_statistics(self, original_df: pd.DataFrame, filtered_df: pd.DataFrame) -> Dict:
+    def get_filter_statistics(self, original_df: pd.DataFrame, filtered_df: pd.DataFrame) -> dict:
         """
         获取过滤统计信息
         

@@ -311,7 +311,7 @@ def test_cache_system():
     return results
 
 
-def analyze_results(all_results: Dict):
+def analyze_results(all_results: dict):
     """分析测试结果"""
     print("\n📊 测试结果分析")
     print("=" * 60)
@@ -375,7 +375,7 @@ def analyze_results(all_results: Dict):
     return success_rate >= 70  # 70%以上成功率认为通过
 
 
-def print_recommendations(all_results: Dict):
+def print_recommendations(all_results: dict):
     """打印优化建议"""
     print("\n💡 优化建议:")
     print("=" * 60)

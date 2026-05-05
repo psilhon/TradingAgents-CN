@@ -201,7 +201,7 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
             logger.error(f"[增强过滤器] 本地模型分类失败: {e}")
             return 0
 
-    def calculate_enhanced_relevance_score(self, title: str, content: str) -> Dict[str, float]:
+    def calculate_enhanced_relevance_score(self, title: str, content: str) -> dict[str, float]:
         """
         计算增强相关性评分（综合多种方法）
         

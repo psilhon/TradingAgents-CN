@@ -31,7 +31,7 @@ except ImportError as e:
     logger.warning(f"⚠️ 股票数据服务不可用: {e}")
     SERVICE_AVAILABLE = False
 
-def get_stock_info(stock_code: str) -> Dict[str, Any]:
+def get_stock_info(stock_code: str) -> dict[str, Any]:
     """
     获取单个股票的基础信息
     
@@ -64,7 +64,7 @@ def get_stock_info(stock_code: str) -> Dict[str, Any]:
 
     return result
 
-def get_all_stocks() -> List[Dict[str, Any]]:
+def get_all_stocks() -> list[dict[str, Any]]:
     """
     获取所有股票的基础信息
     
@@ -121,7 +121,7 @@ def get_stock_data(stock_code: str, start_date: str = None, end_date: str = None
     service = get_stock_data_service()
     return service.get_stock_data_with_fallback(stock_code, start_date, end_date)
 
-def search_stocks(keyword: str) -> List[Dict[str, Any]]:
+def search_stocks(keyword: str) -> list[dict[str, Any]]:
     """
     根据关键词搜索股票
     
@@ -157,7 +157,7 @@ def search_stocks(keyword: str) -> List[Dict[str, Any]]:
 
     return matches
 
-def get_market_summary() -> Dict[str, Any]:
+def get_market_summary() -> dict[str, Any]:
     """
     获取市场概览信息
     
@@ -204,7 +204,7 @@ def get_market_summary() -> Dict[str, Any]:
         'updated_at': datetime.now().isoformat()
     }
 
-def check_service_status() -> Dict[str, Any]:
+def check_service_status() -> dict[str, Any]:
     """
     检查服务状态
     

@@ -40,14 +40,14 @@ class GraphSetup:
         quick_thinking_llm: ChatOpenAI,
         deep_thinking_llm: ChatOpenAI,
         toolkit: Toolkit,
-        tool_nodes: Dict[str, ToolNode],
+        tool_nodes: dict[str, ToolNode],
         bull_memory,
         bear_memory,
         trader_memory,
         invest_judge_memory,
         risk_manager_memory,
         conditional_logic: ConditionalLogic,
-        config: Dict[str, Any] = None,
+        config: dict[str, Any] = None,
         react_llm = None,
     ):
         """Initialize with required components."""

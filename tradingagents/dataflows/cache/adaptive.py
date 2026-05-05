@@ -69,7 +69,7 @@ class AdaptiveCacheSystem:
         expiry_time = cache_time + timedelta(seconds=ttl_seconds)
         return datetime.now() < expiry_time
 
-    def _save_to_file(self, cache_key: str, data: Any, metadata: Dict) -> bool:
+    def _save_to_file(self, cache_key: str, data: Any, metadata: dict) -> bool:
         """保存到文件缓存"""
         try:
             cache_file = self.cache_dir / f"{cache_key}.pkl"
@@ -90,7 +90,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"文件缓存保存失败: {e}")
             return False
 
-    def _load_from_file(self, cache_key: str) -> Optional[Dict]:
+    def _load_from_file(self, cache_key: str) -> Optional[dict]:
         """从文件缓存加载"""
         try:
             cache_file = self.cache_dir / f"{cache_key}.pkl"
@@ -107,7 +107,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"文件缓存加载失败: {e}")
             return None
 
-    def _save_to_redis(self, cache_key: str, data: Any, metadata: Dict, ttl_seconds: int) -> bool:
+    def _save_to_redis(self, cache_key: str, data: Any, metadata: dict, ttl_seconds: int) -> bool:
         """保存到Redis缓存"""
         redis_client = self.db_manager.get_redis_client()
         if not redis_client:
@@ -131,7 +131,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"Redis缓存保存失败: {e}")
             return False
 
-    def _load_from_redis(self, cache_key: str) -> Optional[Dict]:
+    def _load_from_redis(self, cache_key: str) -> Optional[dict]:
         """从Redis缓存加载"""
         redis_client = self.db_manager.get_redis_client()
         if not redis_client:
@@ -155,7 +155,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"Redis缓存加载失败: {e}")
             return None
 
-    def _save_to_mongodb(self, cache_key: str, data: Any, metadata: Dict, ttl_seconds: int) -> bool:
+    def _save_to_mongodb(self, cache_key: str, data: Any, metadata: dict, ttl_seconds: int) -> bool:
         """保存到MongoDB缓存"""
         mongodb_client = self.db_manager.get_mongodb_client()
         if not mongodb_client:
@@ -192,7 +192,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"MongoDB缓存保存失败: {e}")
             return False
 
-    def _load_from_mongodb(self, cache_key: str) -> Optional[Dict]:
+    def _load_from_mongodb(self, cache_key: str) -> Optional[dict]:
         """从MongoDB缓存加载"""
         mongodb_client = self.db_manager.get_mongodb_client()
         if not mongodb_client:
@@ -314,7 +314,7 @@ class AdaptiveCacheSystem:
 
         return None
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """获取缓存统计信息"""
         # 标准统计格式
         stats = {

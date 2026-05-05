@@ -108,8 +108,8 @@ class ChatDeepSeek(ChatOpenAI):
 
     def _generate(
         self,
-        messages: List[BaseMessage],
-        stop: Optional[List[str]] = None,
+        messages: list[BaseMessage],
+        stop: Optional[list[str]] = None,
         run_manager: Optional[CallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> ChatResult:
@@ -191,7 +191,7 @@ class ChatDeepSeek(ChatOpenAI):
             logger.error(f"❌ [DeepSeek] 调用失败: {e}", exc_info=True)
             raise
 
-    def _estimate_input_tokens(self, messages: List[BaseMessage]) -> int:
+    def _estimate_input_tokens(self, messages: list[BaseMessage]) -> int:
         """
         估算输入token数量
         
@@ -232,8 +232,8 @@ class ChatDeepSeek(ChatOpenAI):
 
     def invoke(
         self,
-        input: Union[str, List[BaseMessage]],
-        config: Optional[Dict] = None,
+        input: Union[str, list[BaseMessage]],
+        config: Optional[dict] = None,
         **kwargs: Any,
     ) -> AIMessage:
         """

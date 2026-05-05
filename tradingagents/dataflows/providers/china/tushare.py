@@ -284,7 +284,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票列表失败: {e}")
             return None
 
-    async def get_stock_list(self, market: str = None) -> Optional[List[Dict[str, Any]]]:
+    async def get_stock_list(self, market: str = None) -> Optional[list[dict[str, Any]]]:
         """获取股票列表（异步版本）"""
         if not self.is_available():
             return None
@@ -324,7 +324,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票列表失败: {e}")
             return None
 
-    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[Dict[str, Any], List[Dict[str, Any]]]]:
+    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[dict[str, Any], list[dict[str, Any]]]]:
         """获取股票基础信息"""
         if not self.is_available():
             return None
@@ -351,7 +351,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票基础信息失败 symbol={symbol}: {e}")
             return None
 
-    async def get_stock_quotes(self, symbol: str) -> Optional[Dict[str, Any]]:
+    async def get_stock_quotes(self, symbol: str) -> Optional[dict[str, Any]]:
         """
         获取单只股票实时行情
 
@@ -414,7 +414,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取实时行情失败 symbol={symbol}: {e}")
             return None
 
-    async def get_realtime_quotes_batch(self) -> Optional[Dict[str, Dict[str, Any]]]:
+    async def get_realtime_quotes_batch(self) -> Optional[dict[str, dict[str, Any]]]:
         """
         批量获取全市场实时行情
         使用 rt_k 接口的通配符功能，一次性获取所有A股实时行情
@@ -652,7 +652,7 @@ class TushareProvider(BaseStockDataProvider):
             return None
 
     async def get_financial_data(self, symbol: str, report_type: str = "quarterly",
-                                period: str = None, limit: int = 4) -> Optional[Dict[str, Any]]:
+                                period: str = None, limit: int = 4) -> Optional[dict[str, Any]]:
         """
         获取财务数据
 
@@ -768,7 +768,7 @@ class TushareProvider(BaseStockDataProvider):
             return None
 
     async def get_stock_news(self, symbol: str = None, limit: int = 10,
-                           hours_back: int = 24, src: str = None) -> Optional[List[Dict[str, Any]]]:
+                           hours_back: int = 24, src: str = None) -> Optional[list[dict[str, Any]]]:
         """
         获取股票新闻（需要Tushare新闻权限）
 
@@ -874,7 +874,7 @@ class TushareProvider(BaseStockDataProvider):
             return None
 
     def _process_tushare_news(self, news_df: pd.DataFrame, source: str,
-                            symbol: str = None, limit: int = 10) -> List[Dict[str, Any]]:
+                            symbol: str = None, limit: int = 10) -> list[dict[str, Any]]:
         """处理Tushare新闻数据"""
         news_list = []
 
@@ -934,7 +934,7 @@ class TushareProvider(BaseStockDataProvider):
         # 简单的摘要生成：取前200个字符
         return content_str[:200] + "..."
 
-    def _is_news_relevant_to_symbol(self, news_item: Dict[str, Any], symbol: str) -> bool:
+    def _is_news_relevant_to_symbol(self, news_item: dict[str, Any], symbol: str) -> bool:
         """判断新闻是否与股票相关"""
         content = news_item.get("content", "").lower()
         title = news_item.get("title", "").lower()
@@ -950,7 +950,7 @@ class TushareProvider(BaseStockDataProvider):
             symbol in title
         ])
 
-    def _deduplicate_news(self, news_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _deduplicate_news(self, news_list: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """新闻去重"""
         seen_titles = set()
         unique_news = []
@@ -994,7 +994,7 @@ class TushareProvider(BaseStockDataProvider):
         else:
             return 'low'
 
-    def _extract_keywords(self, content: str, title: str) -> List[str]:
+    def _extract_keywords(self, content: str, title: str) -> list[str]:
         """提取关键词"""
         text = f"{title} {content}"
 
@@ -1038,7 +1038,7 @@ class TushareProvider(BaseStockDataProvider):
             return 'other'
 
     async def get_financial_data_by_period(self, symbol: str, start_period: str = None,
-                                         end_period: str = None, report_type: str = "quarterly") -> Optional[List[Dict[str, Any]]]:
+                                         end_period: str = None, report_type: str = "quarterly") -> Optional[list[dict[str, Any]]]:
         """
         按时间范围获取财务数据
 
@@ -1102,7 +1102,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 按期间获取Tushare财务数据失败 symbol={symbol}: {e}")
             return None
 
-    async def get_financial_indicators_only(self, symbol: str, limit: int = 4) -> Optional[Dict[str, Any]]:
+    async def get_financial_indicators_only(self, symbol: str, limit: int = 4) -> Optional[dict[str, Any]]:
         """
         仅获取财务指标数据（轻量级接口）
 
@@ -1145,7 +1145,7 @@ class TushareProvider(BaseStockDataProvider):
 
     # ==================== 数据标准化方法 ====================
 
-    def standardize_basic_info(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def standardize_basic_info(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """标准化股票基础信息"""
         ts_code = raw_data.get('ts_code', '')
         symbol = raw_data.get('symbol', ts_code.split('.')[0] if '.' in ts_code else ts_code)
@@ -1179,7 +1179,7 @@ class TushareProvider(BaseStockDataProvider):
             "updated_at": datetime.utcnow()
         }
 
-    def standardize_quotes(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def standardize_quotes(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """标准化实时行情数据"""
         ts_code = raw_data.get('ts_code', '')
         symbol = ts_code.split('.')[0] if '.' in ts_code else ts_code
@@ -1242,7 +1242,7 @@ class TushareProvider(BaseStockDataProvider):
 
         return symbol
 
-    def _determine_market_info_from_ts_code(self, ts_code: str) -> Dict[str, Any]:
+    def _determine_market_info_from_ts_code(self, ts_code: str) -> dict[str, Any]:
         """根据ts_code确定市场信息"""
         if '.SH' in ts_code:
             return {
@@ -1310,7 +1310,7 @@ class TushareProvider(BaseStockDataProvider):
 
         return df
 
-    def _standardize_tushare_financial_data(self, financial_data: Dict[str, Any], ts_code: str) -> Dict[str, Any]:
+    def _standardize_tushare_financial_data(self, financial_data: dict[str, Any], ts_code: str) -> dict[str, Any]:
         """
         标准化Tushare财务数据
 

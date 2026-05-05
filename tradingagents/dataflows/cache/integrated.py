@@ -226,7 +226,7 @@ class IntegratedCacheManager:
         cache_key = self.find_cached_fundamentals_data(symbol, data_source, max_age_hours)
         return cache_key is not None
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """获取缓存统计信息"""
         if self.use_adaptive:
             # 获取自适应缓存统计（已经是标准格式）
@@ -336,7 +336,7 @@ class IntegratedCacheManager:
         self.logger.info(f"🧹 总共清理了 {cleared_count} 条缓存记录")
         return cleared_count
 
-    def get_cache_backend_info(self) -> Dict[str, Any]:
+    def get_cache_backend_info(self) -> dict[str, Any]:
         """获取缓存后端信息"""
         if self.use_adaptive:
             return {

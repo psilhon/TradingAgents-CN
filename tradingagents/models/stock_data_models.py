@@ -137,10 +137,10 @@ class StockRealtimeQuote(BaseStockModel):
     volume: float = Field(..., description="成交量")
     amount: float = Field(..., description="成交额")
     turnover_rate: Optional[float] = Field(None, description="换手率")
-    bid_prices: List[float] = Field(default_factory=list, description="买1-5价")
-    bid_volumes: List[float] = Field(default_factory=list, description="买1-5量")
-    ask_prices: List[float] = Field(default_factory=list, description="卖1-5价")
-    ask_volumes: List[float] = Field(default_factory=list, description="卖1-5量")
+    bid_prices: list[float] = Field(default_factory=list, description="买1-5价")
+    bid_volumes: list[float] = Field(default_factory=list, description="买1-5量")
+    ask_prices: list[float] = Field(default_factory=list, description="卖1-5价")
+    ask_volumes: list[float] = Field(default_factory=list, description="卖1-5量")
     timestamp: datetime = Field(..., description="行情时间")
 
 
@@ -211,7 +211,7 @@ class StockFinancialData(BaseStockModel):
 class StockNews(BaseStockModel):
     """股票新闻模型"""
     symbol: Optional[str] = Field(None, description="相关股票代码")
-    symbols: List[str] = Field(default_factory=list, description="相关股票列表")
+    symbols: list[str] = Field(default_factory=list, description="相关股票列表")
     title: str = Field(..., description="新闻标题")
     content: Optional[str] = Field(None, description="新闻内容")
     summary: Optional[str] = Field(None, description="新闻摘要")
@@ -222,7 +222,7 @@ class StockNews(BaseStockModel):
     category: NewsCategory = Field(..., description="新闻类别")
     sentiment: Optional[SentimentType] = Field(None, description="情绪分析")
     sentiment_score: Optional[float] = Field(None, description="情绪得分", ge=-1, le=1)
-    keywords: List[str] = Field(default_factory=list, description="关键词")
+    keywords: list[str] = Field(default_factory=list, description="关键词")
     importance: str = Field(default="medium", description="重要性")
     language: str = Field(default="zh-CN", description="语言")
 
@@ -269,9 +269,9 @@ class DataSourceConfig(BaseStockModel):
     source_type: str = Field(..., description="数据源类型")
     priority: int = Field(..., description="优先级")
     status: str = Field(default="active", description="状态")
-    config: Dict[str, Any] = Field(default_factory=dict, description="配置信息")
-    supported_data_types: List[str] = Field(default_factory=list, description="支持的数据类型")
-    supported_markets: List[MarketType] = Field(default_factory=list, description="支持的市场")
+    config: dict[str, Any] = Field(default_factory=dict, description="配置信息")
+    supported_data_types: list[str] = Field(default_factory=list, description="支持的数据类型")
+    supported_markets: list[MarketType] = Field(default_factory=list, description="支持的市场")
     last_sync_time: Optional[datetime] = Field(None, description="最后同步时间")
 
 
@@ -280,7 +280,7 @@ class DataSyncLog(BaseStockModel):
     task_id: str = Field(..., description="任务ID")
     data_type: str = Field(..., description="数据类型")
     data_source: str = Field(..., description="数据源")
-    symbols: List[str] = Field(default_factory=list, description="同步的股票列表")
+    symbols: list[str] = Field(default_factory=list, description="同步的股票列表")
     sync_date: date = Field(..., description="同步日期")
     start_time: datetime = Field(..., description="开始时间")
     end_time: Optional[datetime] = Field(None, description="结束时间")
@@ -289,7 +289,7 @@ class DataSyncLog(BaseStockModel):
     success_records: int = Field(default=0, description="成功记录数")
     failed_records: int = Field(default=0, description="失败记录数")
     error_message: Optional[str] = Field(None, description="错误信息")
-    performance: Dict[str, Any] = Field(default_factory=dict, description="性能指标")
+    performance: dict[str, Any] = Field(default_factory=dict, description="性能指标")
 
 
 # 导出所有模型
