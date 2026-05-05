@@ -23,17 +23,17 @@ def test_stock_identification():
         "0700.HK",     # 港股代码
         "AAPL",        # 美股代码
     ]
-    
+
     print("🔍 股票市场识别测试")
     print("=" * 50)
-    
+
     for ticker in test_cases:
         market_info = StockUtils.get_market_info(ticker)
         print(f"股票代码: {ticker:12} | 市场: {market_info['market_name']:8} | 是否A股: {market_info['is_china']}")
-    
+
     print("\n" + "=" * 50)
     print("🎯 重点测试300750相关代码:")
-    
+
     # 重点测试300750
     for ticker in ["300750", "300750.SZ"]:
         market_info = StockUtils.get_market_info(ticker)

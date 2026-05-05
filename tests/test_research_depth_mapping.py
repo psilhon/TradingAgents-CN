@@ -19,7 +19,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         assert config["max_debate_rounds"] == 1
         assert config["max_risk_discuss_rounds"] == 1
         assert config["memory_enabled"] is False
@@ -35,7 +35,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         assert config["max_debate_rounds"] == 1
         assert config["max_risk_discuss_rounds"] == 1
         assert config["memory_enabled"] is True
@@ -51,7 +51,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         assert config["max_debate_rounds"] == 1
         assert config["max_risk_discuss_rounds"] == 2
         assert config["memory_enabled"] is True
@@ -67,7 +67,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         # 🔥 关键断言：4级应该有2轮辩论
         assert config["max_debate_rounds"] == 2, "4级深度分析应该有2轮辩论"
         assert config["max_risk_discuss_rounds"] == 2, "4级深度分析应该有2轮风险讨论"
@@ -84,7 +84,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         # 🔥 关键断言：5级应该有3轮辩论
         assert config["max_debate_rounds"] == 3, "5级全面分析应该有3轮辩论"
         assert config["max_risk_discuss_rounds"] == 3, "5级全面分析应该有3轮风险讨论"
@@ -101,7 +101,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         assert config["max_debate_rounds"] == 1
         assert config["max_risk_discuss_rounds"] == 1
         assert config["research_depth"] == "快速"
@@ -116,7 +116,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         assert config["max_debate_rounds"] == 2
         assert config["max_risk_discuss_rounds"] == 2
         assert config["research_depth"] == "深度"
@@ -131,7 +131,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         assert config["max_debate_rounds"] == 3
         assert config["max_risk_discuss_rounds"] == 3
         assert config["research_depth"] == "全面"
@@ -146,7 +146,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         assert config["max_debate_rounds"] == 2
         assert config["max_risk_discuss_rounds"] == 2
         assert config["research_depth"] == "深度"
@@ -161,7 +161,7 @@ class TestResearchDepthMapping:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         # 应该回退到标准分析
         assert config["max_debate_rounds"] == 1
         assert config["max_risk_discuss_rounds"] == 2
@@ -172,7 +172,7 @@ class TestResearchDepthMapping:
         levels = [1, 2, 3, 4, 5]
         expected_debate_rounds = [1, 1, 1, 2, 3]
         expected_risk_rounds = [1, 1, 2, 2, 3]
-        
+
         for level, expected_debate, expected_risk in zip(levels, expected_debate_rounds, expected_risk_rounds):
             config = create_analysis_config(
                 research_depth=level,
@@ -182,7 +182,7 @@ class TestResearchDepthMapping:
                 llm_provider="dashscope",
                 market_type="A股"
             )
-            
+
             assert config["max_debate_rounds"] == expected_debate, \
                 f"级别{level}的辩论轮次应该是{expected_debate}，实际是{config['max_debate_rounds']}"
             assert config["max_risk_discuss_rounds"] == expected_risk, \

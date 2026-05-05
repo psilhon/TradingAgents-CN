@@ -14,22 +14,22 @@ async def test_akshare_amount():
     print("=" * 80)
     print("测试 AKShare 成交额单位")
     print("=" * 80)
-    
+
     # 测试股票：300750 宁德时代
     test_code = "300750"
-    
+
     print(f"\n1️⃣ 测试股票: {test_code} (宁德时代)")
-    
+
     provider = get_akshare_provider()
     if not provider.is_available():
         print("   ❌ AKShare 不可用")
         return
-    
+
     print(f"\n2️⃣ 获取实时行情")
-    
+
     # 获取实时行情
     quotes = await provider.get_stock_quotes(test_code)
-    
+
     if quotes:
         print(f"   ✅ 获取成功")
         print(f"   最新价: {quotes.get('close')}")
@@ -41,24 +41,24 @@ async def test_akshare_amount():
             print(f"   成交额(万元): {amount / 1e4:.2f}")
     else:
         print(f"   ❌ 获取失败")
-    
+
     print(f"\n3️⃣ 获取历史数据")
-    
+
     # 获取历史数据（最近5天）
     from datetime import datetime, timedelta
     end_date = datetime.now()
     start_date = end_date - timedelta(days=5)
-    
+
     hist_df = await provider.get_historical_data(
         symbol=test_code,
         start_date=start_date,
         end_date=end_date,
         period="daily"
     )
-    
+
     if hist_df is not None and not hist_df.empty:
         print(f"   ✅ 获取到 {len(hist_df)} 条记录")
-        
+
         # 显示最新一条数据
         latest = hist_df.iloc[-1]
         print(f"\n   最新数据:")
@@ -72,7 +72,7 @@ async def test_akshare_amount():
             print(f"   成交额(万元): {amount / 1e4:.2f}")
     else:
         print(f"   ❌ 获取失败")
-    
+
     print("\n" + "=" * 80)
     print("💡 AKShare 官方文档说明:")
     print("   - stock_zh_a_spot_em(): 成交额单位是 元")

@@ -50,17 +50,17 @@ def get_stock_info(stock_code: str) -> Dict[str, Any]:
             'code': stock_code,
             'suggestion': '请检查服务配置'
         }
-    
+
     service = get_stock_data_service()
     result = service.get_stock_basic_info(stock_code)
-    
+
     if result is None:
         return {
             'error': f'未找到股票{stock_code}的信息',
             'code': stock_code,
             'suggestion': '请检查股票代码是否正确'
         }
-    
+
     return result
 
 def get_all_stocks() -> List[Dict[str, Any]]:
@@ -79,16 +79,16 @@ def get_all_stocks() -> List[Dict[str, Any]]:
             'error': '股票数据服务不可用',
             'suggestion': '请检查服务配置'
         }]
-    
+
     service = get_stock_data_service()
     result = service.get_stock_basic_info()
-    
+
     if result is None or (isinstance(result, dict) and 'error' in result):
         return [{
             'error': '无法获取股票列表',
             'suggestion': '请检查网络连接和数据库配置'
         }]
-    
+
     return result if isinstance(result, list) else [result]
 
 def get_stock_data(stock_code: str, start_date: str = None, end_date: str = None) -> str:
@@ -109,14 +109,14 @@ def get_stock_data(stock_code: str, start_date: str = None, end_date: str = None
     """
     if not SERVICE_AVAILABLE:
         return "❌ 股票数据服务不可用，请检查服务配置"
-    
+
     # 设置默认日期
     if end_date is None:
         end_date = datetime.now().strftime('%Y-%m-%d')
-    
+
     if start_date is None:
         start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
-    
+
     service = get_stock_data_service()
     return service.get_stock_data_with_fallback(stock_code, start_date, end_date)
 
@@ -136,24 +136,24 @@ def search_stocks(keyword: str) -> List[Dict[str, Any]]:
         logger.info(f"{stock["code']}: {stock['name']}")
     """
     all_stocks = get_all_stocks()
-    
+
     if not all_stocks or (len(all_stocks) == 1 and 'error' in all_stocks[0]):
         return all_stocks
-    
+
     # 搜索匹配的股票
     matches = []
     keyword_lower = keyword.lower()
-    
+
     for stock in all_stocks:
         if 'error' in stock:
             continue
-            
+
         code = stock.get('code', '').lower()
         name = stock.get('name', '').lower()
-        
+
         if keyword_lower in code or keyword_lower in name:
             matches.append(stock)
-    
+
     return matches
 
 def get_market_summary() -> Dict[str, Any]:
@@ -168,32 +168,32 @@ def get_market_summary() -> Dict[str, Any]:
         logger.info(f"沪市股票数量: {summary["shanghai_count']}")
     """
     all_stocks = get_all_stocks()
-    
+
     if not all_stocks or (len(all_stocks) == 1 and 'error' in all_stocks[0]):
         return {
             'error': '无法获取市场数据',
             'suggestion': '请检查网络连接和数据库配置'
         }
-    
+
     # 统计市场信息
     shanghai_count = 0
     shenzhen_count = 0
     category_stats = {}
-    
+
     for stock in all_stocks:
         if 'error' in stock:
             continue
-            
+
         market = stock.get('market', '')
         category = stock.get('category', '未知')
-        
+
         if market == '上海':
             shanghai_count += 1
         elif market == '深圳':
             shenzhen_count += 1
-        
+
         category_stats[category] = category_stats.get(category, 0) + 1
-    
+
     return {
         'total_count': len([s for s in all_stocks if 'error' not in s]),
         'shanghai_count': shanghai_count,
@@ -220,9 +220,9 @@ def check_service_status() -> Dict[str, Any]:
             'error': '股票数据服务不可用',
             'suggestion': '请检查服务配置和依赖'
         }
-    
+
     service = get_stock_data_service()
-    
+
     # 检查MongoDB状态
     mongodb_status = 'disconnected'
     if service.db_manager:
@@ -238,7 +238,7 @@ def check_service_status() -> Dict[str, Any]:
                 mongodb_status = 'unavailable'
         except Exception:
             mongodb_status = 'error'
-    
+
     # 检查统一数据接口状态
     unified_api_status = 'unavailable'
     try:
@@ -250,7 +250,7 @@ def check_service_status() -> Dict[str, Any]:
             unified_api_status = 'limited'
     except Exception:
         unified_api_status = 'error'
-    
+
     return {
         'service_available': True,
         'mongodb_status': mongodb_status,
@@ -270,13 +270,13 @@ if __name__ == '__main__':
     # 简单的命令行测试
     logger.debug(f"🔍 股票数据API测试")
     logger.info(f"=" * 50)
-    
+
     # 检查服务状态
     logger.info(f"\n📊 服务状态检查:")
     status_info = check_service_status()
     for key, value in status_info.items():
         logger.info(f"  {key}: {value}")
-    
+
     # 测试获取单个股票信息
     logger.info(f"\n🏢 获取平安银行信息:")
     stock_info = get_stock_info('000001')
@@ -288,7 +288,7 @@ if __name__ == '__main__':
         logger.info(f"  数据源: {stock_info.get('source')}")
     else:
         logger.error(f"  错误: {stock_info.get('error')}")
-    
+
     # 测试搜索功能
     logger.debug(f"\n🔍 搜索'平安'相关股票:")
     search_results = search_stocks('平安')

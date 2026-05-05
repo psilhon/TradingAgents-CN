@@ -10,27 +10,27 @@ sys.path.append('..')
 def test_finnhub_api():
     """测试FINNHUB API连接"""
     print("🔍 测试FINNHUB API连接...")
-    
+
     # 检查API密钥
     finnhub_key = os.getenv("FINNHUB_API_KEY")
     if not finnhub_key:
         print("❌ 请设置 FINNHUB_API_KEY 环境变量")
         return False
-    
+
     print(f"✅ FINNHUB API密钥已配置: {finnhub_key[:10]}...")
-    
+
     try:
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
-        
+
         # 创建配置
         config = DEFAULT_CONFIG.copy()
         config['online_tools'] = True
-        
+
         # 创建工具包
         toolkit = Toolkit()
         toolkit.update_config(config)
-        
+
         # 测试FINNHUB新闻API
         print(f"\n📰 测试FINNHUB新闻API...")
         try:
@@ -48,7 +48,7 @@ def test_finnhub_api():
                 print(f"新闻内容: {news_result}")
         except Exception as e:
             print(f"❌ FINNHUB新闻API调用失败: {e}")
-        
+
         # 测试Yahoo Finance数据API
         print(f"\n📊 测试Yahoo Finance数据API...")
         try:
@@ -66,7 +66,7 @@ def test_finnhub_api():
                 print(f"股票数据: {stock_result}")
         except Exception as e:
             print(f"❌ Yahoo Finance API调用失败: {e}")
-        
+
         # 测试OpenAI基本面API
         print(f"\n💼 测试OpenAI基本面API...")
         try:
@@ -83,9 +83,9 @@ def test_finnhub_api():
                 print(f"基本面数据: {fundamentals_result}")
         except Exception as e:
             print(f"❌ OpenAI基本面API调用失败: {e}")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
@@ -96,19 +96,19 @@ def test_china_stock_api():
     """测试中国股票API连接"""
     print("\n" + "="*50)
     print("🔍 测试中国股票API连接...")
-    
+
     try:
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
-        
+
         # 创建配置
         config = DEFAULT_CONFIG.copy()
         config['online_tools'] = True
-        
+
         # 创建工具包
         toolkit = Toolkit()
         toolkit.update_config(config)
-        
+
         # 测试中国股票数据API
         print(f"\n📊 测试中国股票数据API...")
         try:
@@ -126,7 +126,7 @@ def test_china_stock_api():
                 print(f"股票数据: {china_result}")
         except Exception as e:
             print(f"❌ 中国股票数据API调用失败: {e}")
-        
+
         # 测试中国股票基本面API
         print(f"\n💼 测试中国股票基本面API...")
         try:
@@ -143,9 +143,9 @@ def test_china_stock_api():
                 print(f"基本面数据: {china_fundamentals_result}")
         except Exception as e:
             print(f"❌ 中国股票基本面API调用失败: {e}")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
@@ -155,18 +155,18 @@ def test_china_stock_api():
 if __name__ == "__main__":
     print("🚀 开始API连接测试")
     print("="*50)
-    
+
     # 测试美股API
     result1 = test_finnhub_api()
-    
+
     # 测试中国股票API
     result2 = test_china_stock_api()
-    
+
     print("\n" + "="*50)
     print("🎯 测试总结:")
     print(f"美股API测试: {'✅ 成功' if result1 else '❌ 失败'}")
     print(f"中国股票API测试: {'✅ 成功' if result2 else '❌ 失败'}")
-    
+
     if result1 and result2:
         print("🎉 所有API连接正常，可以进行股票分析！")
     else:

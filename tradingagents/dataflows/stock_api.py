@@ -44,7 +44,7 @@ def get_all_stocks() -> List[Dict[str, Any]]:
     """
     service = get_stock_data_service()
     result = service.get_stock_basic_info()
-    
+
     if isinstance(result, list):
         return result
     elif isinstance(result, dict) and 'error' in result:
@@ -108,7 +108,7 @@ def check_data_sources() -> Dict[str, Any]:
         logger.info(f"统一数据接口可用: {status['unified_api_available']}")
     """
     service = get_stock_data_service()
-    
+
     return {
         'mongodb_available': service.db_manager is not None and service.db_manager.mongodb_db is not None,
         'unified_api_available': True,  # 统一接口总是可用

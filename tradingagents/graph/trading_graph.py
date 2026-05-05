@@ -428,25 +428,25 @@ class TradingAgentsGraph:
             # 🔥 优先使用数据库配置的 API Key，否则从环境变量读取
             zhipu_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv('ZHIPU_API_KEY')
             logger.info(f"🔑 [智谱AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}")
-            
+
             if not zhipu_api_key:
                 raise ValueError("使用智谱AI需要在数据库中配置API Key或设置ZHIPU_API_KEY环境变量")
-            
+
             # 🔧 从配置中读取模型参数（优先使用用户配置，否则使用默认值）
             quick_config = self.config.get("quick_model_config", {})
             deep_config = self.config.get("deep_model_config", {})
-            
+
             quick_max_tokens = quick_config.get("max_tokens", 4000)
             quick_temperature = quick_config.get("temperature", 0.7)
             quick_timeout = quick_config.get("timeout", 180)
-            
+
             deep_max_tokens = deep_config.get("max_tokens", 4000)
             deep_temperature = deep_config.get("temperature", 0.7)
             deep_timeout = deep_config.get("timeout", 180)
-            
+
             logger.info(f"🔧 [智谱AI-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")
             logger.info(f"🔧 [智谱AI-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s")
-            
+
             # 获取 backend_url（如果配置中有的话）
             backend_url = self.config.get("backend_url")
             if backend_url:
@@ -465,7 +465,7 @@ class TradingAgentsGraph:
                 backend_url=backend_url,
                 api_key=zhipu_api_key,
             )
-            
+
             logger.info("✅ [智谱AI] 已通过 llm_clients 初始化成功并应用用户配置的模型参数")
         else:
             provider_name = self.config['llm_provider']
@@ -528,7 +528,7 @@ class TradingAgentsGraph:
             )
 
             logger.info(f"✅ [自定义厂家 {provider_name}] 已配置自定义端点并应用用户配置的模型参数")
-        
+
         self.toolkit = Toolkit(config=self.config)
 
         # Initialize memories (如果启用)

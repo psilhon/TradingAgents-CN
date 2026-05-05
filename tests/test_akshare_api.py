@@ -14,9 +14,9 @@ def test_akshare_apis():
     print("=" * 60)
     print("🔍 直接测试AKShare财务数据API")
     print("=" * 60)
-    
+
     symbol = "600519"
-    
+
     # 1. 测试主要财务指标API
     print(f"\n1. 测试主要财务指标API: stock_financial_abstract")
     try:
@@ -30,7 +30,7 @@ def test_akshare_apis():
             print("❌ 主要财务指标为空")
     except Exception as e:
         print(f"❌ 主要财务指标API失败: {e}")
-    
+
     # 2. 测试资产负债表API
     print(f"\n2. 测试资产负债表API: stock_balance_sheet_by_report_em")
     try:
@@ -42,7 +42,7 @@ def test_akshare_apis():
             print("❌ 资产负债表为空")
     except Exception as e:
         print(f"❌ 资产负债表API失败: {e}")
-    
+
     # 3. 测试利润表API
     print(f"\n3. 测试利润表API: stock_profit_sheet_by_report_em")
     try:
@@ -54,7 +54,7 @@ def test_akshare_apis():
             print("❌ 利润表为空")
     except Exception as e:
         print(f"❌ 利润表API失败: {e}")
-    
+
     # 4. 测试现金流量表API
     print(f"\n4. 测试现金流量表API: stock_cash_flow_sheet_by_report_em")
     try:
@@ -66,7 +66,7 @@ def test_akshare_apis():
             print("❌ 现金流量表为空")
     except Exception as e:
         print(f"❌ 现金流量表API失败: {e}")
-    
+
     print("\n" + "=" * 60)
     print("✅ API测试完成")
     print("=" * 60)

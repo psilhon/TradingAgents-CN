@@ -1857,14 +1857,14 @@ class DataSourceManager:
             db_manager = get_database_manager()
             if not db_manager.is_mongodb_available():
                 return {}
-                
+
             client = db_manager.get_mongodb_client()
             db = client[db_manager.config.mongodb_config.database_name]
-            
+
             # 从stock_basic_info集合获取估值指标
             collection = db['stock_basic_info']
             result = collection.find_one({'ts_code': symbol})
-            
+
             if result:
                 return {
                     'pe': result.get('pe'),
@@ -1874,7 +1874,7 @@ class DataSourceManager:
                     'circ_mv': result.get('circ_mv')
                 }
             return {}
-            
+
         except Exception as e:
             logger.error(f"获取{symbol}估值指标失败: {e}")
             return {}
@@ -1900,19 +1900,19 @@ class DataSourceManager:
             revenue = latest.get('revenue') or latest.get('total_revenue')
             if revenue is not None:
                 report += f"   营业总收入: {revenue:,.2f}\n"
-            
+
             net_profit = latest.get('net_profit') or latest.get('net_income')
             if net_profit is not None:
                 report += f"   净利润: {net_profit:,.2f}\n"
-                
+
             total_assets = latest.get('total_assets')
             if total_assets is not None:
                 report += f"   总资产: {total_assets:,.2f}\n"
-                
+
             total_liab = latest.get('total_liab')
             if total_liab is not None:
                 report += f"   总负债: {total_liab:,.2f}\n"
-                
+
             total_equity = latest.get('total_equity')
             if total_equity is not None:
                 report += f"   股东权益: {total_equity:,.2f}\n"
@@ -1924,19 +1924,19 @@ class DataSourceManager:
                 pe = valuation_data.get('pe')
                 if pe is not None:
                     report += f"   市盈率(PE): {pe:.2f}\n"
-                    
+
                 pb = valuation_data.get('pb')
                 if pb is not None:
                     report += f"   市净率(PB): {pb:.2f}\n"
-                    
+
                 pe_ttm = valuation_data.get('pe_ttm')
                 if pe_ttm is not None:
                     report += f"   市盈率TTM(PE_TTM): {pe_ttm:.2f}\n"
-                    
+
                 total_mv = valuation_data.get('total_mv')
                 if total_mv is not None:
                     report += f"   总市值: {total_mv:.2f}亿元\n"
-                    
+
                 circ_mv = valuation_data.get('circ_mv')
                 if circ_mv is not None:
                     report += f"   流通市值: {circ_mv:.2f}亿元\n"
@@ -1945,11 +1945,11 @@ class DataSourceManager:
                 pe = latest.get('pe')
                 if pe is not None:
                     report += f"   市盈率(PE): {pe:.2f}\n"
-                    
+
                 pb = latest.get('pb')
                 if pb is not None:
                     report += f"   市净率(PB): {pb:.2f}\n"
-                    
+
                 ps = latest.get('ps')
                 if ps is not None:
                     report += f"   市销率(PS): {ps:.2f}\n"
@@ -1959,15 +1959,15 @@ class DataSourceManager:
             roe = latest.get('roe')
             if roe is not None:
                 report += f"   净资产收益率(ROE): {roe:.2f}%\n"
-                
+
             roa = latest.get('roa')
             if roa is not None:
                 report += f"   总资产收益率(ROA): {roa:.2f}%\n"
-                
+
             gross_margin = latest.get('gross_margin')
             if gross_margin is not None:
                 report += f"   毛利率: {gross_margin:.2f}%\n"
-                
+
             netprofit_margin = latest.get('netprofit_margin') or latest.get('net_margin')
             if netprofit_margin is not None:
                 report += f"   净利率: {netprofit_margin:.2f}%\n"
@@ -1977,11 +1977,11 @@ class DataSourceManager:
             if n_cashflow_act is not None:
                 report += "\n💰 现金流:\n"
                 report += f"   经营活动现金流: {n_cashflow_act:,.2f}\n"
-                
+
                 n_cashflow_inv_act = latest.get('n_cashflow_inv_act')
                 if n_cashflow_inv_act is not None:
                     report += f"   投资活动现金流: {n_cashflow_inv_act:,.2f}\n"
-                    
+
                 c_cash_equ_end_period = latest.get('c_cash_equ_end_period')
                 if c_cash_equ_end_period is not None:
                     report += f"   期末现金及等价物: {c_cash_equ_end_period:,.2f}\n"

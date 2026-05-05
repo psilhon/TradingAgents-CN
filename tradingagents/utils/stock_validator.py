@@ -57,7 +57,7 @@ class StockDataPreparer:
     def __init__(self, default_period_days: int = 30):
         self.timeout_seconds = 15  # 数据获取超时时间
         self.default_period_days = default_period_days  # 默认历史数据时长（天）
-    
+
     def prepare_stock_data(self, stock_code: str, market_type: str = "auto",
                           period_days: int = None, analysis_date: str = None) -> StockDataPreparationResult:
         """
@@ -92,11 +92,11 @@ class StockDataPreparer:
 
         # 3. 预获取数据并验证
         return self._prepare_data_by_market(stock_code, market_type, period_days, analysis_date)
-    
+
     def _validate_format(self, stock_code: str, market_type: str) -> StockDataPreparationResult:
         """验证股票代码格式"""
         stock_code = stock_code.strip()
-        
+
         if not stock_code:
             return StockDataPreparationResult(
                 is_valid=False,
@@ -112,7 +112,7 @@ class StockDataPreparer:
                 error_message="股票代码长度不能超过10个字符",
                 suggestion="请检查股票代码格式"
             )
-        
+
         # 根据市场类型验证格式
         if market_type == "A股":
             if not re.match(r'^\d{6}$', stock_code):
@@ -145,29 +145,29 @@ class StockDataPreparer:
                     error_message="美股代码格式错误，应为1-5位字母",
                     suggestion="请输入1-5位字母的美股代码，如：AAPL、TSLA"
                 )
-        
+
         return StockDataPreparationResult(
             is_valid=True,
             stock_code=stock_code,
             market_type=market_type
         )
-    
+
     def _detect_market_type(self, stock_code: str) -> str:
         """自动检测市场类型"""
         stock_code = stock_code.strip().upper()
-        
+
         # A股：6位数字
         if re.match(r'^\d{6}$', stock_code):
             return "A股"
-        
+
         # 港股：4-5位数字.HK 或 纯4-5位数字
         if re.match(r'^\d{4,5}\.HK$', stock_code) or re.match(r'^\d{4,5}$', stock_code):
             return "港股"
-        
+
         # 美股：1-5位字母
         if re.match(r'^[A-Z]{1,5}$', stock_code):
             return "美股"
-        
+
         return "未知"
 
     def _get_hk_network_limitation_suggestion(self) -> str:

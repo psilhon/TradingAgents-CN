@@ -47,7 +47,7 @@ def print_stats(stats):
     print(f"   财务记录: {stats.financial_records}条")
     print(f"   错误数量: {len(stats.errors)}")
     print(f"   总耗时: {stats.duration:.1f}秒")
-    
+
     if stats.errors:
         print("\n❌ 错误详情:")
         for i, error in enumerate(stats.errors[:5], 1):  # 只显示前5个错误
@@ -82,19 +82,19 @@ async def check_database_status():
     try:
         service = BaoStockInitService()
         status = await service.check_database_status()
-        
+
         print(f"  📋 股票基础信息: {status.get('basic_info_count', 0)}条")
         if status.get('basic_info_latest'):
             print(f"     最新更新: {status['basic_info_latest']}")
-        
+
         print(f"  📈 行情数据: {status.get('quotes_count', 0)}条")
         if status.get('quotes_latest'):
             print(f"     最新更新: {status['quotes_latest']}")
-        
+
         print(f"  ✅ 数据库状态: {status.get('status', 'unknown')}")
-        
+
         return status
-        
+
     except Exception as e:
         print(f"❌ 检查数据库状态失败: {e}")
         return None
@@ -103,19 +103,19 @@ async def check_database_status():
 async def run_full_initialization(historical_days: int = 365, force: bool = False):
     """运行完整初始化"""
     print(f"🚀 开始完整初始化 (历史数据: {historical_days}天, 强制: {force})...")
-    
+
     try:
         service = BaoStockInitService()
         stats = await service.full_initialization(historical_days=historical_days, force=force)
-        
+
         if stats.completed_steps == stats.total_steps:
             print("✅ 完整初始化成功完成")
         else:
             print(f"⚠️ 初始化部分完成: {stats.progress}")
-        
+
         print_stats(stats)
         return stats.completed_steps == stats.total_steps
-        
+
     except Exception as e:
         print(f"❌ 完整初始化失败: {e}")
         return False
@@ -124,19 +124,19 @@ async def run_full_initialization(historical_days: int = 365, force: bool = Fals
 async def run_basic_initialization():
     """运行基础初始化"""
     print("🚀 开始基础初始化...")
-    
+
     try:
         service = BaoStockInitService()
         stats = await service.basic_initialization()
-        
+
         if stats.completed_steps == stats.total_steps:
             print("✅ 基础初始化成功完成")
         else:
             print(f"⚠️ 初始化部分完成: {stats.progress}")
-        
+
         print_stats(stats)
         return stats.completed_steps == stats.total_steps
-        
+
     except Exception as e:
         print(f"❌ 基础初始化失败: {e}")
         return False
@@ -203,65 +203,65 @@ async def main():
         description="BaoStock数据初始化工具",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    
+
     # 操作选项
     parser.add_argument('--full', action='store_true', help='完整初始化')
     parser.add_argument('--basic-only', action='store_true', help='仅基础初始化')
     parser.add_argument('--check-only', action='store_true', help='仅检查数据库状态')
     parser.add_argument('--test-connection', action='store_true', help='测试BaoStock连接')
     parser.add_argument('--help-detail', action='store_true', help='显示详细帮助')
-    
+
     # 配置选项
     parser.add_argument('--historical-days', type=int, default=365, help='历史数据天数（默认365）')
     parser.add_argument('--force', action='store_true', help='强制重新初始化')
-    
+
     args = parser.parse_args()
-    
+
     # 显示详细帮助
     if args.help_detail:
         print_help_detail()
         return
-    
+
     # 如果没有指定任何操作，显示帮助
     if not any([args.full, args.basic_only, args.check_only, args.test_connection]):
         parser.print_help()
         print("\n💡 使用 --help-detail 查看详细说明")
         return
-    
+
     print_banner()
-    
+
     try:
         success = True
-        
+
         # 测试连接
         if args.test_connection:
             success = await test_connection()
-        
+
         # 检查数据库状态
         elif args.check_only:
             status = await check_database_status()
             success = status is not None
-        
+
         # 完整初始化
         elif args.full:
             success = await run_full_initialization(
                 historical_days=args.historical_days,
                 force=args.force
             )
-        
+
         # 基础初始化
         elif args.basic_only:
             success = await run_basic_initialization()
-        
+
         # 输出结果
         print("\n" + "=" * 50)
         if success:
             print("✅ 操作成功完成")
         else:
             print("❌ 操作失败，请检查日志文件")
-        
+
         return 0 if success else 1
-        
+
     except KeyboardInterrupt:
         print("\n⚠️ 操作被用户中断")
         return 1

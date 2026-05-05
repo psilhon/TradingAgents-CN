@@ -22,7 +22,7 @@ class StockMarket(Enum):
 
 class StockUtils:
     """股票工具类"""
-    
+
     @staticmethod
     def identify_stock_market(ticker: str) -> StockMarket:
         """
@@ -52,7 +52,7 @@ class StockUtils:
             return StockMarket.US
 
         return StockMarket.UNKNOWN
-    
+
     @staticmethod
     def is_china_stock(ticker: str) -> bool:
         """
@@ -65,7 +65,7 @@ class StockUtils:
             bool: 是否为中国A股
         """
         return StockUtils.identify_stock_market(ticker) == StockMarket.CHINA_A
-    
+
     @staticmethod
     def is_hk_stock(ticker: str) -> bool:
         """
@@ -78,7 +78,7 @@ class StockUtils:
             bool: 是否为港股
         """
         return StockUtils.identify_stock_market(ticker) == StockMarket.HONG_KONG
-    
+
     @staticmethod
     def is_us_stock(ticker: str) -> bool:
         """
@@ -91,7 +91,7 @@ class StockUtils:
             bool: 是否为美股
         """
         return StockUtils.identify_stock_market(ticker) == StockMarket.US
-    
+
     @staticmethod
     def get_currency_info(ticker: str) -> Tuple[str, str]:
         """
@@ -104,7 +104,7 @@ class StockUtils:
             Tuple[str, str]: (货币名称, 货币符号)
         """
         market = StockUtils.identify_stock_market(ticker)
-        
+
         if market == StockMarket.CHINA_A:
             return "人民币", "¥"
         elif market == StockMarket.HONG_KONG:
@@ -113,7 +113,7 @@ class StockUtils:
             return "美元", "$"
         else:
             return "未知", "?"
-    
+
     @staticmethod
     def get_data_source(ticker: str) -> str:
         """
@@ -126,7 +126,7 @@ class StockUtils:
             str: 数据源名称
         """
         market = StockUtils.identify_stock_market(ticker)
-        
+
         if market == StockMarket.CHINA_A:
             return "china_unified"  # 使用统一的中国股票数据源
         elif market == StockMarket.HONG_KONG:
@@ -135,7 +135,7 @@ class StockUtils:
             return "yahoo_finance"  # 美股使用Yahoo Finance
         else:
             return "unknown"
-    
+
     @staticmethod
     def normalize_hk_ticker(ticker: str) -> str:
         """
@@ -149,9 +149,9 @@ class StockUtils:
         """
         if not ticker:
             return ticker
-            
+
         ticker = str(ticker).strip().upper()
-        
+
         # 如果是纯4-5位数字，添加.HK后缀
         if re.match(r'^\d{4,5}$', ticker):
             return f"{ticker}.HK"
@@ -159,9 +159,9 @@ class StockUtils:
         # 如果已经是正确格式，直接返回
         if re.match(r'^\d{4,5}\.HK$', ticker):
             return ticker
-            
+
         return ticker
-    
+
     @staticmethod
     def get_market_info(ticker: str) -> Dict:
         """
@@ -176,14 +176,14 @@ class StockUtils:
         market = StockUtils.identify_stock_market(ticker)
         currency_name, currency_symbol = StockUtils.get_currency_info(ticker)
         data_source = StockUtils.get_data_source(ticker)
-        
+
         market_names = {
             StockMarket.CHINA_A: "中国A股",
             StockMarket.HONG_KONG: "港股",
             StockMarket.US: "美股",
             StockMarket.UNKNOWN: "未知市场"
         }
-        
+
         return {
             "ticker": ticker,
             "market": market.value,

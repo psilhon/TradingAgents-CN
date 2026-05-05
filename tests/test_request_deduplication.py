@@ -20,16 +20,16 @@ async def test_concurrent_hk_quote_requests():
     """
     # 创建服务实例
     service = ForeignStockService(db=None)
-    
+
     # Mock 数据源优先级
     async def mock_get_source_priority(market):
         return ['akshare']
-    
+
     service._get_source_priority = mock_get_source_priority
-    
+
     # Mock AKShare API调用（记录调用次数）
     call_count = 0
-    
+
     def mock_get_hk_quote_from_akshare(code):
         nonlocal call_count
         call_count += 1
@@ -48,25 +48,25 @@ async def test_concurrent_hk_quote_requests():
             'trade_date': '2025-11-12',
             'currency': 'HKD'
         }
-    
+
     service._get_hk_quote_from_akshare = mock_get_hk_quote_from_akshare
 
     # 同时发起10个请求（使用 force_refresh=True 绕过缓存）
     code = '00700'
     tasks = [service._get_hk_quote(code, force_refresh=True) for _ in range(10)]
-    
+
     # 等待所有请求完成
     results = await asyncio.gather(*tasks)
-    
+
     # 验证结果
     assert len(results) == 10, "应该返回10个结果"
     assert call_count == 1, f"应该只调用1次API，实际调用了{call_count}次"
-    
+
     # 验证所有结果相同
     for result in results:
         assert result['code'] == code
         assert result['price'] == 350.0
-    
+
     print(f"✅ 测试通过：10个并发请求只触发了{call_count}次API调用")
 
 
@@ -76,16 +76,16 @@ async def test_concurrent_us_quote_requests():
     测试并发美股行情请求的去重机制
     """
     service = ForeignStockService(db=None)
-    
+
     # Mock 数据源优先级
     async def mock_get_source_priority(market):
         return ['yahoo_finance']
-    
+
     service._get_source_priority = mock_get_source_priority
-    
+
     # Mock yfinance API调用
     call_count = 0
-    
+
     def mock_get_us_quote_from_yfinance(code):
         nonlocal call_count
         call_count += 1
@@ -103,24 +103,24 @@ async def test_concurrent_us_quote_requests():
             'trade_date': '2025-11-12',
             'currency': 'USD'
         }
-    
+
     service._get_us_quote_from_yfinance = mock_get_us_quote_from_yfinance
 
     # 同时发起10个请求（使用 force_refresh=True 绕过缓存）
     code = 'AAPL'
     tasks = [service._get_us_quote(code, force_refresh=True) for _ in range(10)]
-    
+
     # 等待所有请求完成
     results = await asyncio.gather(*tasks)
-    
+
     # 验证结果
     assert len(results) == 10
     assert call_count == 1, f"应该只调用1次API，实际调用了{call_count}次"
-    
+
     for result in results:
         assert result['code'] == code
         assert result['price'] == 180.0
-    
+
     print(f"✅ 测试通过：10个并发请求只触发了{call_count}次API调用")
 
 

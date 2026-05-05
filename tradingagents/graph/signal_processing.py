@@ -98,7 +98,7 @@ class SignalProcessor:
         if not messages or len(messages) == 0:
             logger.error(f"❌ [SignalProcessor] messages为空")
             return self._get_default_decision()
-        
+
         # 验证human消息内容
         human_content = messages[1][1] if len(messages) > 1 else ""
         if not human_content or len(human_content.strip()) == 0:
@@ -142,7 +142,7 @@ class SignalProcessor:
                     # 如果JSON中没有目标价格，尝试从reasoning和完整文本中提取
                     reasoning = decision_data.get('reasoning', '')
                     full_text = f"{reasoning} {full_signal}"  # 扩大搜索范围
-                    
+
                     # 增强的价格匹配模式
                     price_patterns = [
                         r'目标价[位格]?[：:]?\s*[¥\$]?(\d+(?:\.\d+)?)',  # 目标价位: 45.50
@@ -160,7 +160,7 @@ class SignalProcessor:
                         r'上涨[到至]\s*[¥\$]?(\d+(?:\.\d+)?)',        # 上涨到45.50
                         r'(\d+(?:\.\d+)?)\s*[¥\$]',                  # 45.50¥
                     ]
-                    
+
                     for pattern in price_patterns:
                         price_match = re.search(pattern, full_text, re.IGNORECASE)
                         if price_match:
@@ -216,11 +216,11 @@ class SignalProcessor:
     def _smart_price_estimation(self, text: str, action: str, is_china: bool) -> float:
         """智能价格推算方法"""
         import re
-        
+
         # 尝试从文本中提取当前价格和涨跌幅信息
         current_price = None
         percentage_change = None
-        
+
         # 提取当前价格
         current_price_patterns = [
             r'当前价[格位]?[：:]?\s*[¥\$]?(\d+(?:\.\d+)?)',
@@ -228,7 +228,7 @@ class SignalProcessor:
             r'股价[：:]?\s*[¥\$]?(\d+(?:\.\d+)?)',
             r'价格[：:]?\s*[¥\$]?(\d+(?:\.\d+)?)',
         ]
-        
+
         for pattern in current_price_patterns:
             match = re.search(pattern, text)
             if match:
@@ -237,7 +237,7 @@ class SignalProcessor:
                     break
                 except ValueError:
                     continue
-        
+
         # 提取涨跌幅信息
         percentage_patterns = [
             r'上涨\s*(\d+(?:\.\d+)?)%',
@@ -245,7 +245,7 @@ class SignalProcessor:
             r'增长\s*(\d+(?:\.\d+)?)%',
             r'(\d+(?:\.\d+)?)%\s*的?上涨',
         ]
-        
+
         for pattern in percentage_patterns:
             match = re.search(pattern, text)
             if match:
@@ -254,14 +254,14 @@ class SignalProcessor:
                     break
                 except ValueError:
                     continue
-        
+
         # 基于动作和信息推算目标价
         if current_price and percentage_change:
             if action == '买入':
                 return round(current_price * (1 + percentage_change), 2)
             elif action == '卖出':
                 return round(current_price * (1 - percentage_change), 2)
-        
+
         # 如果有当前价格但没有涨跌幅，使用默认估算
         if current_price:
             if action == '买入':
@@ -275,7 +275,7 @@ class SignalProcessor:
             else:  # 持有
                 # 持有建议使用当前价格
                 return current_price
-        
+
         return None
 
     def _extract_simple_decision(self, text: str) -> dict:

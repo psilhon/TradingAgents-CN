@@ -24,7 +24,7 @@ class AKShareProvider(BaseStockDataProvider):
     - 财务数据
     - 港股数据支持
     """
-    
+
     def __init__(self):
         super().__init__("AKShare")
         self.ak = None
@@ -32,7 +32,7 @@ class AKShareProvider(BaseStockDataProvider):
         self._stock_list_cache = None  # 缓存股票列表，避免重复获取
         self._cache_time = None  # 缓存时间
         self._initialize_akshare()
-    
+
     def _initialize_akshare(self):
         """初始化AKShare连接"""
         try:
@@ -272,7 +272,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.info("🔧 AKShare超时配置完成: 60秒")
         except Exception as e:
             logger.warning(f"⚠️ AKShare超时配置失败: {e}")
-    
+
     async def connect(self) -> bool:
         """连接到AKShare数据源"""
         return await self.test_connection()
@@ -287,7 +287,7 @@ class AKShareProvider(BaseStockDataProvider):
         # 实际的网络请求会在具体调用时进行，并有各自的错误处理
         logger.info("✅ AKShare连接测试成功（库已加载）")
         return True
-    
+
     def get_stock_list_sync(self) -> Optional[pd.DataFrame]:
         """获取股票列表（同步版本）"""
         if not self.connected:
@@ -346,7 +346,7 @@ class AKShareProvider(BaseStockDataProvider):
         except Exception as e:
             logger.error(f"❌ AKShare获取股票列表失败: {e}")
             return []
-    
+
     async def get_stock_basic_info(self, code: str) -> Optional[Dict[str, Any]]:
         """
         获取股票基础信息
@@ -359,17 +359,17 @@ class AKShareProvider(BaseStockDataProvider):
         """
         if not self.connected:
             return None
-        
+
         try:
             logger.debug(f"📊 获取{code}基础信息...")
-            
+
             # 获取股票基本信息
             stock_info = await self._get_stock_info_detail(code)
-            
+
             if not stock_info:
                 logger.warning(f"⚠️ 未找到{code}的基础信息")
                 return None
-            
+
             # 转换为标准化字典
             basic_info = {
                 "code": code,
@@ -385,14 +385,14 @@ class AKShareProvider(BaseStockDataProvider):
                 "last_sync": datetime.now(timezone.utc),
                 "sync_status": "success"
             }
-            
+
             logger.debug(f"✅ {code}基础信息获取成功")
             return basic_info
-            
+
         except Exception as e:
             logger.error(f"❌ 获取{code}基础信息失败: {e}")
             return None
-    
+
     async def _get_stock_list_cached(self):
         """获取缓存的股票列表（避免重复获取）"""
         from datetime import datetime, timedelta
@@ -477,7 +477,7 @@ class AKShareProvider(BaseStockDataProvider):
         except Exception as e:
             logger.debug(f"获取{code}详细信息失败: {e}")
             return {"code": code, "name": f"股票{code}", "industry": "未知", "area": "未知"}
-    
+
     def _determine_market(self, code: str) -> str:
         """根据股票代码判断市场"""
         if code.startswith(('60', '68')):
@@ -488,7 +488,7 @@ class AKShareProvider(BaseStockDataProvider):
             return "北京证券交易所"
         else:
             return "未知市场"
-    
+
     def _get_full_symbol(self, code: str) -> str:
         """
         获取完整股票代码
@@ -516,7 +516,7 @@ class AKShareProvider(BaseStockDataProvider):
         else:
             # 无法识别的代码，返回原始代码（确保不为空）
             return code if code else ""
-    
+
     def _get_market_info(self, code: str) -> Dict[str, Any]:
         """获取市场信息"""
         if code.startswith(('60', '68')):
@@ -551,7 +551,7 @@ class AKShareProvider(BaseStockDataProvider):
                 "currency": "CNY",
                 "timezone": "Asia/Shanghai"
             }
-    
+
     async def get_batch_stock_quotes(self, codes: List[str]) -> Dict[str, Dict[str, Any]]:
         """
         批量获取股票实时行情（优化版：一次获取全市场快照）
@@ -759,7 +759,7 @@ class AKShareProvider(BaseStockDataProvider):
         except Exception as e:
             logger.error(f"❌ 获取{code}实时行情失败: {e}", exc_info=True)
             return None
-    
+
     async def _get_realtime_quotes_data(self, code: str) -> Dict[str, Any]:
         """获取实时行情数据"""
         try:
@@ -946,7 +946,7 @@ class AKShareProvider(BaseStockDataProvider):
             "last_sync": datetime.now(timezone.utc),
             "sync_status": "success"
         }
-    
+
     def _safe_float(self, value: Any) -> float:
         """安全转换为浮点数"""
         try:
@@ -955,7 +955,7 @@ class AKShareProvider(BaseStockDataProvider):
             return float(value)
         except (ValueError, TypeError):
             return 0.0
-    
+
     def _safe_int(self, value: Any) -> int:
         """安全转换为整数"""
         try:
@@ -964,7 +964,7 @@ class AKShareProvider(BaseStockDataProvider):
             return int(float(value))
         except (ValueError, TypeError):
             return 0
-    
+
     def _safe_str(self, value: Any) -> str:
         """安全转换为字符串"""
         try:

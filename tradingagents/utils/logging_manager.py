@@ -21,7 +21,7 @@ _bootstrap_logger = logging.getLogger("tradingagents.logging_manager")
 
 class ColoredFormatter(logging.Formatter):
     """彩色日志格式化器"""
-    
+
     # ANSI颜色代码
     COLORS = {
         'DEBUG': '\033[36m',    # 青色
@@ -31,18 +31,18 @@ class ColoredFormatter(logging.Formatter):
         'CRITICAL': '\033[35m', # 紫色
         'RESET': '\033[0m'      # 重置
     }
-    
+
     def format(self, record):
         # 添加颜色
         if hasattr(record, 'levelname') and record.levelname in self.COLORS:
             record.levelname = f"{self.COLORS[record.levelname]}{record.levelname}{self.COLORS['RESET']}"
-        
+
         return super().format(record)
 
 
 class StructuredFormatter(logging.Formatter):
     """结构化日志格式化器（JSON格式）"""
-    
+
     def format(self, record):
         log_entry = {
             'timestamp': datetime.fromtimestamp(record.created).isoformat(),
@@ -53,7 +53,7 @@ class StructuredFormatter(logging.Formatter):
             'function': record.funcName,
             'line': record.lineno
         }
-        
+
         # 添加额外字段
         if hasattr(record, 'session_id'):
             log_entry['session_id'] = record.session_id
@@ -65,18 +65,18 @@ class StructuredFormatter(logging.Formatter):
             log_entry['cost'] = record.cost
         if hasattr(record, 'tokens'):
             log_entry['tokens'] = record.tokens
-            
+
         return json.dumps(log_entry, ensure_ascii=False)
 
 
 class TradingAgentsLogger:
     """TradingAgents统一日志管理器"""
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or self._load_default_config()
         self.loggers: Dict[str, logging.Logger] = {}
         self._setup_logging()
-    
+
     def _load_default_config(self) -> Dict[str, Any]:
         """加载默认日志配置"""
         # 尝试从配置文件加载
@@ -182,21 +182,21 @@ class TradingAgentsLogger:
             'security': logging_config.get('security', {}),
             'business': logging_config.get('business', {})
         }
-    
+
     def _setup_logging(self):
         """设置日志系统"""
         # 创建日志目录
         if self.config['handlers']['file']['enabled']:
             log_dir = Path(self.config['handlers']['file']['directory'])
             log_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # 设置根日志级别
         root_logger = logging.getLogger()
         root_logger.setLevel(getattr(logging, self.config['level']))
-        
+
         # 清除现有处理器
         root_logger.handlers.clear()
-        
+
         # 添加处理器
         self._add_console_handler(root_logger)
 
@@ -205,28 +205,28 @@ class TradingAgentsLogger:
             self._add_error_handler(root_logger)  # 🔧 添加错误日志处理器
             if self.config['handlers']['structured']['enabled']:
                 self._add_structured_handler(root_logger)
-        
+
         # 配置特定日志器
         self._configure_specific_loggers()
-    
+
     def _add_console_handler(self, logger: logging.Logger):
         """添加控制台处理器"""
         if not self.config['handlers']['console']['enabled']:
             return
-            
+
         console_handler = logging.StreamHandler(sys.stdout)
         console_level = getattr(logging, self.config['handlers']['console']['level'])
         console_handler.setLevel(console_level)
-        
+
         # 选择格式化器
         if self.config['handlers']['console']['colored'] and sys.stdout.isatty():
             formatter = ColoredFormatter(self.config['format']['console'])
         else:
             formatter = logging.Formatter(self.config['format']['console'])
-        
+
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
-    
+
     def _add_file_handler(self, logger: logging.Logger):
         """添加文件处理器"""
         if not self.config['handlers']['file']['enabled']:
@@ -281,33 +281,33 @@ class TradingAgentsLogger:
         formatter = logging.Formatter(self.config['format']['file'])
         error_handler.setFormatter(formatter)
         logger.addHandler(error_handler)
-    
+
     def _add_structured_handler(self, logger: logging.Logger):
         """添加结构化日志处理器"""
         log_dir = Path(self.config['handlers']['structured']['directory'])
         log_file = log_dir / 'tradingagents_structured.log'
-        
+
         structured_handler = logging.handlers.RotatingFileHandler(
             log_file,
             maxBytes=self._parse_size('10MB'),
             backupCount=3,
             encoding='utf-8'
         )
-        
+
         structured_level = getattr(logging, self.config['handlers']['structured']['level'])
         structured_handler.setLevel(structured_level)
-        
+
         formatter = StructuredFormatter()
         structured_handler.setFormatter(formatter)
         logger.addHandler(structured_handler)
-    
+
     def _configure_specific_loggers(self):
         """配置特定的日志器"""
         for logger_name, logger_config in self.config['loggers'].items():
             logger = logging.getLogger(logger_name)
             level = getattr(logging, logger_config['level'])
             logger.setLevel(level)
-    
+
     def _parse_size(self, size_str: str) -> int:
         """解析大小字符串（如'10MB'）为字节数"""
         size_str = size_str.upper()
@@ -319,13 +319,13 @@ class TradingAgentsLogger:
             return int(size_str[:-2]) * 1024 * 1024 * 1024
         else:
             return int(size_str)
-    
+
     def get_logger(self, name: str) -> logging.Logger:
         """获取指定名称的日志器"""
         if name not in self.loggers:
             self.loggers[name] = logging.getLogger(name)
         return self.loggers[name]
-    
+
     def log_analysis_start(self, logger: logging.Logger, stock_symbol: str, analysis_type: str, session_id: str):
         """记录分析开始"""
         logger.info(
@@ -407,7 +407,7 @@ class TradingAgentsLogger:
             },
             exc_info=True
         )
-    
+
     def log_token_usage(self, logger: logging.Logger, provider: str, model: str, 
                        input_tokens: int, output_tokens: int, cost: float, session_id: str):
         """记录Token使用"""

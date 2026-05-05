@@ -14,14 +14,14 @@ class TestConditionalLogicConfig:
     def test_conditional_logic_default_params(self):
         """测试 ConditionalLogic 默认参数"""
         logic = ConditionalLogic()
-        
+
         assert logic.max_debate_rounds == 1
         assert logic.max_risk_discuss_rounds == 1
 
     def test_conditional_logic_custom_params(self):
         """测试 ConditionalLogic 自定义参数"""
         logic = ConditionalLogic(max_debate_rounds=3, max_risk_discuss_rounds=2)
-        
+
         assert logic.max_debate_rounds == 3
         assert logic.max_risk_discuss_rounds == 2
 
@@ -31,12 +31,12 @@ class TestConditionalLogicConfig:
         config["max_debate_rounds"] = 2
         config["max_risk_discuss_rounds"] = 2
         config["research_depth"] = "深度"
-        
+
         graph = TradingAgentsGraph(
             selected_analysts=["market"],
             config=config
         )
-        
+
         # 🔥 关键断言：ConditionalLogic 应该接收到正确的配置
         assert graph.conditional_logic.max_debate_rounds == 2, \
             f"4级深度分析应该有2轮辩论，实际是{graph.conditional_logic.max_debate_rounds}"
@@ -49,12 +49,12 @@ class TestConditionalLogicConfig:
         config["max_debate_rounds"] = 3
         config["max_risk_discuss_rounds"] = 3
         config["research_depth"] = "全面"
-        
+
         graph = TradingAgentsGraph(
             selected_analysts=["market"],
             config=config
         )
-        
+
         # 🔥 关键断言：ConditionalLogic 应该接收到正确的配置
         assert graph.conditional_logic.max_debate_rounds == 3, \
             f"5级全面分析应该有3轮辩论，实际是{graph.conditional_logic.max_debate_rounds}"
@@ -64,7 +64,7 @@ class TestConditionalLogicConfig:
     def test_trading_graph_without_config(self):
         """测试 TradingGraph 不传配置时使用默认值"""
         graph = TradingAgentsGraph(selected_analysts=["market"])
-        
+
         # 应该使用默认配置
         assert graph.conditional_logic.max_debate_rounds == 1
         assert graph.conditional_logic.max_risk_discuss_rounds == 1
@@ -73,12 +73,12 @@ class TestConditionalLogicConfig:
         """测试 TradingGraph 部分配置"""
         config = DEFAULT_CONFIG.copy()
         config["max_debate_rounds"] = 5  # 只设置辩论轮次
-        
+
         graph = TradingAgentsGraph(
             selected_analysts=["market"],
             config=config
         )
-        
+
         assert graph.conditional_logic.max_debate_rounds == 5
         assert graph.conditional_logic.max_risk_discuss_rounds == 1  # 使用默认值
 
@@ -96,7 +96,7 @@ class TestDebateRoundsProgression:
     def test_debate_rounds_by_level(self, level, debate_rounds, risk_rounds):
         """测试不同级别的辩论轮次"""
         from app.services.simple_analysis_service import create_analysis_config
-        
+
         config_dict = create_analysis_config(
             research_depth=level,
             selected_analysts=["market"],
@@ -105,13 +105,13 @@ class TestDebateRoundsProgression:
             llm_provider="dashscope",
             market_type="A股"
         )
-        
+
         # 创建 TradingGraph 并验证配置传递
         graph = TradingAgentsGraph(
             selected_analysts=["market"],
             config=config_dict
         )
-        
+
         assert graph.conditional_logic.max_debate_rounds == debate_rounds, \
             f"级别{level}的辩论轮次应该是{debate_rounds}，实际是{graph.conditional_logic.max_debate_rounds}"
         assert graph.conditional_logic.max_risk_discuss_rounds == risk_rounds, \

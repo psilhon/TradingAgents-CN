@@ -498,7 +498,7 @@ def get_google_news(
     is_china_stock = False
     if any(code in query for code in ['SH', 'SZ', 'XSHE', 'XSHG']) or query.isdigit() or (len(query) == 6 and query[:6].isdigit()):
         is_china_stock = True
-    
+
     # 尝试使用StockUtils判断
     try:
         from tradingagents.utils.stock_utils import StockUtils
@@ -508,13 +508,13 @@ def get_google_news(
     except Exception:
         # 如果StockUtils判断失败，使用上面的简单判断
         pass
-    
+
     # 对A股查询添加中文关键词
     if is_china_stock:
         logger.info(f"[Google新闻] 检测到A股查询: {query}，使用中文搜索")
         if '股票' not in query and '股价' not in query and '公司' not in query:
             query = f"{query} 股票 公司 财报 新闻"
-    
+
     query = query.replace(" ", "+")
 
     start_date = datetime.strptime(curr_date, "%Y-%m-%d")
@@ -1027,43 +1027,43 @@ def get_fundamentals_finnhub(ticker, curr_date):
             if cached_data:
                 logger.debug(f"💾 [DEBUG] 从缓存加载Finnhub基本面数据: {ticker}")
                 return cached_data
-        
+
         # 获取Finnhub API密钥
         api_key = os.getenv('FINNHUB_API_KEY')
         if not api_key:
             return "错误：未配置FINNHUB_API_KEY环境变量"
-        
+
         # 初始化Finnhub客户端
         finnhub_client = finnhub.Client(api_key=api_key)
-        
+
         logger.debug(f"📊 [DEBUG] 使用Finnhub API获取 {ticker} 的基本面数据...")
-        
+
         # 获取基本财务数据
         try:
             basic_financials = finnhub_client.company_basic_financials(ticker, 'all')
         except Exception as e:
             logger.error(f"❌ [DEBUG] Finnhub基本财务数据获取失败: {str(e)}")
             basic_financials = None
-        
+
         # 获取公司概况
         try:
             company_profile = finnhub_client.company_profile2(symbol=ticker)
         except Exception as e:
             logger.error(f"❌ [DEBUG] Finnhub公司概况获取失败: {str(e)}")
             company_profile = None
-        
+
         # 获取收益数据
         try:
             earnings = finnhub_client.company_earnings(ticker, limit=4)
         except Exception as e:
             logger.error(f"❌ [DEBUG] Finnhub收益数据获取失败: {str(e)}")
             earnings = None
-        
+
         # 格式化报告
         report = f"# {ticker} 基本面分析报告（Finnhub数据源）\n\n"
         report += f"**数据获取时间**: {curr_date}\n"
         report += f"**数据来源**: Finnhub API\n\n"
-        
+
         # 公司概况部分
         if company_profile:
             report += "## 公司概况\n"
@@ -1073,14 +1073,14 @@ def get_fundamentals_finnhub(ticker, curr_date):
             report += f"- **货币**: {company_profile.get('currency', 'N/A')}\n"
             report += f"- **市值**: {company_profile.get('marketCapitalization', 'N/A')} 百万美元\n"
             report += f"- **流通股数**: {company_profile.get('shareOutstanding', 'N/A')} 百万股\n\n"
-        
+
         # 基本财务指标
         if basic_financials and 'metric' in basic_financials:
             metrics = basic_financials['metric']
             report += "## 关键财务指标\n"
             report += "| 指标 | 数值 |\n"
             report += "|------|------|\n"
-            
+
             # 估值指标
             if 'peBasicExclExtraTTM' in metrics:
                 report += f"| 市盈率 (PE) | {metrics['peBasicExclExtraTTM']:.2f} |\n"
@@ -1088,7 +1088,7 @@ def get_fundamentals_finnhub(ticker, curr_date):
                 report += f"| 市销率 (PS) | {metrics['psAnnual']:.2f} |\n"
             if 'pbAnnual' in metrics:
                 report += f"| 市净率 (PB) | {metrics['pbAnnual']:.2f} |\n"
-            
+
             # 盈利能力指标
             if 'roeTTM' in metrics:
                 report += f"| 净资产收益率 (ROE) | {metrics['roeTTM']:.2f}% |\n"
@@ -1096,15 +1096,15 @@ def get_fundamentals_finnhub(ticker, curr_date):
                 report += f"| 总资产收益率 (ROA) | {metrics['roaTTM']:.2f}% |\n"
             if 'netProfitMarginTTM' in metrics:
                 report += f"| 净利润率 | {metrics['netProfitMarginTTM']:.2f}% |\n"
-            
+
             # 财务健康指标
             if 'currentRatioAnnual' in metrics:
                 report += f"| 流动比率 | {metrics['currentRatioAnnual']:.2f} |\n"
             if 'totalDebt/totalEquityAnnual' in metrics:
                 report += f"| 负债权益比 | {metrics['totalDebt/totalEquityAnnual']:.2f} |\n"
-            
+
             report += "\n"
-        
+
         # 收益历史
         if earnings:
             report += "## 收益历史\n"
@@ -1117,27 +1117,27 @@ def get_fundamentals_finnhub(ticker, curr_date):
                 surprise = earning.get('surprise', 'N/A')
                 report += f"| {period} | {actual} | {estimate} | {surprise} |\n"
             report += "\n"
-        
+
         # 数据可用性说明
         report += "## 数据说明\n"
         report += "- 本报告使用Finnhub API提供的官方财务数据\n"
         report += "- 数据来源于公司财报和SEC文件\n"
         report += "- TTM表示过去12个月数据\n"
         report += "- Annual表示年度数据\n\n"
-        
+
         if not basic_financials and not company_profile and not earnings:
             report += "⚠️ **警告**: 无法获取该股票的基本面数据，可能原因：\n"
             report += "- 股票代码不正确\n"
             report += "- Finnhub API限制\n"
             report += "- 该股票暂无基本面数据\n"
-        
+
         # 保存到缓存
         if report and len(report) > 100:  # 只有当报告有实际内容时才缓存
             cache.save_fundamentals_data(ticker, report, data_source="finnhub")
-        
+
         logger.debug(f"📊 [DEBUG] Finnhub基本面数据获取完成，报告长度: {len(report)}")
         return report
-        
+
     except ImportError:
         return "错误：未安装finnhub-python库，请运行: pip install finnhub-python"
     except Exception as e:

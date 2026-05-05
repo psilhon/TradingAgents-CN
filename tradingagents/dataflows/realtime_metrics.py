@@ -290,7 +290,7 @@ def calculate_realtime_pe_pb(
 
         logger.info(f"✅ [动态PE计算-成功] 股票 {code6}: 动态PE_TTM={result['pe_ttm']}倍, PB={result['pb']}倍")
         return result
-        
+
     except Exception as e:
         logger.error(f"计算股票 {symbol} 的实时PE/PB失败: {e}", exc_info=True)
         return None
@@ -311,12 +311,12 @@ def validate_pe_pb(pe: Optional[float], pb: Optional[float]) -> bool:
     if pe is not None and (pe < -100 or pe > 1000):
         logger.warning(f"PE异常: {pe}")
         return False
-    
+
     # PB合理范围：0.1 到 100
     if pb is not None and (pb < 0.1 or pb > 100):
         logger.warning(f"PB异常: {pb}")
         return False
-    
+
     return True
 
 

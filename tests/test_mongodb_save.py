@@ -12,24 +12,24 @@ def check_mongodb_before_after():
     """检查MongoDB保存前后的数据"""
     print("🔍 测试MongoDB保存功能")
     print("=" * 60)
-    
+
     # 连接MongoDB
     try:
         client = MongoClient('mongodb://localhost:27017/')
         db = client['tradingagents']
         collection = db['analysis_reports']
-        
+
         # 检查保存前的记录数
         before_count = collection.count_documents({})
         print(f"📊 保存前analysis_reports记录数: {before_count}")
-        
+
     except Exception as e:
         print(f"❌ MongoDB连接失败: {e}")
         return False
-    
+
     # API基础URL
     base_url = "http://localhost:8000"
-    
+
     try:
         # 1. 登录获取token
         print("\n1. 登录获取token...")
@@ -37,12 +37,12 @@ def check_mongodb_before_after():
             "username": "admin",
             "password": "admin123"
         }
-        
+
         login_response = requests.post(
             f"{base_url}/api/auth/login",
             json=login_data
         )
-        
+
         if login_response.status_code == 200:
             login_result = login_response.json()
             access_token = login_result["data"]["access_token"]
@@ -50,7 +50,7 @@ def check_mongodb_before_after():
         else:
             print(f"❌ 登录失败: {login_response.status_code}")
             return False
-        
+
         # 2. 提交分析请求
         print("\n2. 提交分析请求...")
         analysis_request = {
@@ -67,18 +67,18 @@ def check_mongodb_before_after():
                 "deep_analysis_model": "qwen-max"
             }
         }
-        
+
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {access_token}"
         }
-        
+
         response = requests.post(
             f"{base_url}/api/analysis/single",
             json=analysis_request,
             headers=headers
         )
-        
+
         if response.status_code == 200:
             result = response.json()
             task_id = result["data"]["task_id"]
@@ -86,7 +86,7 @@ def check_mongodb_before_after():
         else:
             print(f"❌ 提交分析请求失败: {response.status_code}")
             return False
-        
+
         # 3. 等待任务完成
         print(f"\n3. 等待任务完成...")
         for i in range(60):  # 最多等待5分钟
@@ -94,33 +94,33 @@ def check_mongodb_before_after():
                 f"{base_url}/api/analysis/tasks/{task_id}/status",
                 headers=headers
             )
-            
+
             if status_response.status_code == 200:
                 status_data = status_response.json()
                 status = status_data["data"]["status"]
-                
+
                 if status == "completed":
                     print("✅ 分析任务完成!")
                     break
                 elif status == "failed":
                     print(f"❌ 分析任务失败")
                     return False
-            
+
             time.sleep(5)
         else:
             print(f"⏰ 任务执行超时")
             return False
-        
+
         # 4. 检查MongoDB保存结果
         print(f"\n4. 检查MongoDB保存结果...")
-        
+
         # 检查保存后的记录数
         after_count = collection.count_documents({})
         print(f"📊 保存后analysis_reports记录数: {after_count}")
-        
+
         if after_count > before_count:
             print(f"✅ MongoDB记录增加了 {after_count - before_count} 条")
-            
+
             # 获取最新的记录
             latest_record = collection.find().sort("created_at", -1).limit(1)
             for record in latest_record:
@@ -130,7 +130,7 @@ def check_mongodb_before_after():
                 print(f"   analysis_date: {record.get('analysis_date')}")
                 print(f"   status: {record.get('status')}")
                 print(f"   source: {record.get('source')}")
-                
+
                 # 检查reports字段
                 reports = record.get('reports', {})
                 if reports:
@@ -142,12 +142,12 @@ def check_mongodb_before_after():
                             print(f"   - {report_type}: {type(content)}")
                 else:
                     print(f"❌ 未找到reports字段或为空")
-                
+
                 return True
         else:
             print(f"❌ MongoDB记录数未增加")
             return False
-        
+
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False

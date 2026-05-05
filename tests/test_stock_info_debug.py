@@ -16,20 +16,20 @@ def test_stock_code_normalization():
     """测试股票代码标准化"""
     print("\n🔧 测试股票代码标准化")
     print("=" * 60)
-    
+
     try:
         from tradingagents.dataflows.tushare_utils import get_tushare_provider
-        
+
         provider = get_tushare_provider()
-        
+
         test_codes = ["000858", "600036", "000001", "300001"]
-        
+
         for code in test_codes:
             normalized = provider._normalize_symbol(code)
             print(f"📊 {code} -> {normalized}")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"❌ 股票代码标准化测试失败: {e}")
         return False
@@ -39,28 +39,28 @@ def test_tushare_api_direct():
     """直接测试Tushare API"""
     print("\n🔧 直接测试Tushare API")
     print("=" * 60)
-    
+
     try:
         import tushare as ts
         import os
-        
+
         token = os.getenv('TUSHARE_TOKEN')
         if not token:
             print("❌ TUSHARE_TOKEN未设置")
             return False
-        
+
         ts.set_token(token)
         pro = ts.pro_api()
-        
+
         # 测试获取000858的信息
         print("🔄 测试获取000858.SZ的基本信息...")
-        
+
         try:
             basic_info = pro.stock_basic(
                 ts_code='000858.SZ',
                 fields='ts_code,symbol,name,area,industry,market,list_date'
             )
-            
+
             if not basic_info.empty:
                 info = basic_info.iloc[0]
                 print(f"✅ 找到股票信息:")
@@ -71,7 +71,7 @@ def test_tushare_api_direct():
                 return True
             else:
                 print("❌ 未找到000858.SZ的信息")
-                
+
                 # 尝试搜索所有包含858的股票
                 print("🔄 搜索所有包含858的股票...")
                 all_stocks = pro.stock_basic(
@@ -79,7 +79,7 @@ def test_tushare_api_direct():
                     list_status='L',
                     fields='ts_code,symbol,name,area,industry,market,list_date'
                 )
-                
+
                 matches = all_stocks[all_stocks['symbol'].str.contains('858', na=False)]
                 if not matches.empty:
                     print(f"✅ 找到{len(matches)}只包含858的股票:")
@@ -87,13 +87,13 @@ def test_tushare_api_direct():
                         print(f"   {row['ts_code']} - {row['name']}")
                 else:
                     print("❌ 未找到任何包含858的股票")
-                
+
                 return False
-                
+
         except Exception as e:
             print(f"❌ API调用失败: {e}")
             return False
-        
+
     except Exception as e:
         print(f"❌ Tushare API测试失败: {e}")
         return False
@@ -103,46 +103,46 @@ def test_stock_list_search():
     """测试股票列表搜索"""
     print("\n🔧 测试股票列表搜索")
     print("=" * 60)
-    
+
     try:
         from tradingagents.dataflows.tushare_utils import get_tushare_provider
-        
+
         provider = get_tushare_provider()
-        
+
         if not provider.connected:
             print("❌ Tushare未连接")
             return False
-        
+
         # 获取股票列表
         print("🔄 获取完整股票列表...")
         stock_list = provider.get_stock_list()
-        
+
         if stock_list.empty:
             print("❌ 股票列表为空")
             return False
-        
+
         print(f"✅ 获取到{len(stock_list)}只股票")
-        
+
         # 搜索000858
         print("🔄 搜索000858...")
         matches = stock_list[stock_list['symbol'] == '000858']
-        
+
         if not matches.empty:
             print("✅ 找到000858:")
             for idx, row in matches.iterrows():
                 print(f"   {row['ts_code']} - {row['name']} - {row.get('industry', 'N/A')}")
         else:
             print("❌ 在股票列表中未找到000858")
-            
+
             # 搜索包含858的股票
             partial_matches = stock_list[stock_list['symbol'].str.contains('858', na=False)]
             if not partial_matches.empty:
                 print(f"✅ 找到{len(partial_matches)}只包含858的股票:")
                 for idx, row in partial_matches.head(5).iterrows():
                     print(f"   {row['ts_code']} - {row['name']}")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"❌ 股票列表搜索失败: {e}")
         import traceback
@@ -154,12 +154,12 @@ def test_alternative_stock_codes():
     """测试其他股票代码"""
     print("\n🔧 测试其他股票代码")
     print("=" * 60)
-    
+
     try:
         from tradingagents.dataflows.tushare_adapter import get_tushare_adapter
-        
+
         adapter = get_tushare_adapter()
-        
+
         # 测试几个已知的股票代码
         test_codes = [
             ("000001", "平安银行"),
@@ -168,12 +168,12 @@ def test_alternative_stock_codes():
             ("600519", "贵州茅台"),
             ("000858", "五粮液")  # 这个可能是问题代码
         ]
-        
+
         for code, expected_name in test_codes:
             print(f"🔄 测试 {code} (期望: {expected_name})...")
-            
+
             info = adapter.get_stock_info(code)
-            
+
             if info and info.get('name') and info['name'] != f'股票{code}':
                 print(f"✅ {code}: {info['name']}")
                 if expected_name in info['name']:
@@ -182,9 +182,9 @@ def test_alternative_stock_codes():
                     print(f"   ⚠️ 名称不匹配，期望: {expected_name}")
             else:
                 print(f"❌ {code}: 获取失败或返回未知")
-        
+
         return True
-        
+
     except Exception as e:
         print(f"❌ 其他股票代码测试失败: {e}")
         return False
@@ -200,7 +200,7 @@ def main():
     print("   - 验证Tushare API响应")
     print("   - 测试股票列表搜索")
     print("=" * 70)
-    
+
     # 运行所有测试
     tests = [
         ("股票代码标准化", test_stock_code_normalization),
@@ -208,7 +208,7 @@ def main():
         ("股票列表搜索", test_stock_list_search),
         ("其他股票代码测试", test_alternative_stock_codes)
     ]
-    
+
     results = []
     for test_name, test_func in tests:
         try:
@@ -217,21 +217,21 @@ def main():
         except Exception as e:
             print(f"❌ {test_name}测试异常: {e}")
             results.append((test_name, False))
-    
+
     # 总结
     print("\n📋 股票信息调试测试总结")
     print("=" * 60)
-    
+
     passed = 0
     for test_name, result in results:
         status = "✅ 通过" if result else "❌ 失败"
         print(f"{test_name}: {status}")
         if result:
             passed += 1
-    
+
     total = len(results)
     print(f"\n📊 测试结果: {passed}/{total} 通过")
-    
+
     if passed == total:
         print("\n🎉 所有测试通过！")
         print("💡 如果000858仍显示未知，可能是:")
@@ -240,7 +240,7 @@ def main():
         print("   3. 需要使用不同的查询方式")
     else:
         print("\n⚠️ 部分测试失败，请检查具体问题")
-    
+
     input("按回车键退出...")
 
 
