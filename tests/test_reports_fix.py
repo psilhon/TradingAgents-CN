@@ -77,7 +77,7 @@ def test_reports_and_analysts_fix():
 
         # 3. 等待任务完成
         print("\n3. 等待任务完成...")
-        for i in range(120):  # 最多等待10分钟（深度分析需要更长时间）
+        for _i in range(120):  # 最多等待10分钟（深度分析需要更长时间）
             status_response = requests.get(
                 f"{base_url}/api/analysis/tasks/{task_id}/status",
                 headers=headers

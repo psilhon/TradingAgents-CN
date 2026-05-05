@@ -27,7 +27,7 @@ def check_notification_code():
     found_issues = []
 
     # 遍历前端文件
-    for root, dirs, files in os.walk(frontend_dir):
+    for root, _dirs, files in os.walk(frontend_dir):
         for file in files:
             if file.endswith(('.vue', '.ts', '.js')):
                 file_path = os.path.join(root, file)

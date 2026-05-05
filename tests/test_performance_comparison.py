@@ -191,7 +191,7 @@ def compare_performance():
             print(f"{'策略':<25} | {'天数':<4} | {'数据量(字符)':<12} | {'时间(秒)':<8} | {'状态'}")
             print("-" * 70)
 
-            for depth, result in old_results.items():
+            for _depth, result in old_results.items():
                 status = "✅" if result['success'] else "❌"
                 data_len = f"{result['data_length']:,}" if result['success'] else "N/A"
                 proc_time = f"{result['processing_time']:.2f}" if result['success'] else "N/A"

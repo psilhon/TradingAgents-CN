@@ -80,7 +80,7 @@ def debug_baostock_query_all_stock():
 
                     if len(a_stocks) > 0:
                         print("   A股样本:")
-                        for i, row in a_stocks.head(5).iterrows():
+                        for _i, row in a_stocks.head(5).iterrows():
                             print(f"     {row['code']} - {row.get('code_name', 'N/A')}")
                     else:
                         print("   ❌ 没有找到匹配A股模式的股票!")
@@ -176,7 +176,7 @@ def test_baostock_adapter_stock_list():
             print(f"✅ 股票列表获取成功: {len(df)}条记录")
             print(f"   列名: {list(df.columns)}")
             print("   前5条记录:")
-            for i, row in df.head().iterrows():
+            for _i, row in df.head().iterrows():
                 print(f"     {row.get('symbol', 'N/A')} - {row.get('name', 'N/A')} - {row.get('ts_code', 'N/A')}")
         else:
             print("❌ 股票列表获取失败")

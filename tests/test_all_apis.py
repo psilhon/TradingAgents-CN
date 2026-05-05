@@ -177,7 +177,7 @@ def main():
     print("=" * 60)
 
     # 检查API密钥配置
-    configured, missing = check_all_api_keys()
+    configured, _missing = check_all_api_keys()
 
     # 测试各个API
     results = {}

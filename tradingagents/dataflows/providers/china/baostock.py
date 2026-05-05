@@ -139,7 +139,7 @@ class BaoStockProvider(BaseStockDataProvider):
                 finally:
                     self.bs.logout()
 
-            data_list, fields = await asyncio.to_thread(fetch_stock_list)
+            data_list, _fields = await asyncio.to_thread(fetch_stock_list)
 
             if not data_list:
                 logger.warning("⚠️ BaoStock股票列表为空")
@@ -259,7 +259,7 @@ class BaoStockProvider(BaseStockDataProvider):
                 finally:
                     self.bs.logout()
 
-            data_list, fields = await asyncio.to_thread(fetch_valuation_data)
+            data_list, _fields = await asyncio.to_thread(fetch_valuation_data)
 
             if not data_list:
                 logger.warning(f"⚠️ {code}估值数据为空")

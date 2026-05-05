@@ -175,12 +175,12 @@ def main():
 
     # 2. AKShare工具模块
     print("\n2️⃣ AKShare工具模块测试")
-    success, provider = check_akshare_utils()
+    success, _provider = check_akshare_utils()
     test_results['akshare_utils'] = success
 
     # 3. 数据源管理器
     print("\n3️⃣ 数据源管理器测试")
-    success, manager = check_data_source_manager()
+    success, _manager = check_data_source_manager()
     test_results['data_source_manager'] = success
 
     # 4. AKShare适配器

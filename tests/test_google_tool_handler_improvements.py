@@ -94,7 +94,7 @@ def test_google_tool_handler_improvements():
             "ticker": "600519"
         }
 
-        result, messages = GoogleToolCallHandler.handle_google_tool_calls(
+        result, _messages = GoogleToolCallHandler.handle_google_tool_calls(
             result=ai_message,
             llm=llm,
             tools=tools,

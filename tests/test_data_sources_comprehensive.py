@@ -384,8 +384,8 @@ def print_recommendations(all_results: dict):
     china_success_count = 0
     china_total_count = 0
 
-    for symbol, symbol_results in china_results.items():
-        for test_type, result in symbol_results.items():
+    for _symbol, symbol_results in china_results.items():
+        for _test_type, result in symbol_results.items():
             china_total_count += 1
             if result.get('success'):
                 china_success_count += 1
@@ -403,8 +403,8 @@ def print_recommendations(all_results: dict):
     us_success_count = 0
     us_total_count = 0
 
-    for symbol, symbol_results in us_results.items():
-        for test_type, result in symbol_results.items():
+    for _symbol, symbol_results in us_results.items():
+        for _test_type, result in symbol_results.items():
             us_total_count += 1
             if result.get('success'):
                 us_success_count += 1

@@ -481,7 +481,7 @@ def create_market_analyst(llm, toolkit):
                     # 返回包含工具调用和最终分析的完整消息序列
                     # 🔧 更新工具调用计数器
                     return {
-                        "messages": [result] + tool_messages + [final_result],
+                        "messages": [result, *tool_messages, final_result],
                         "market_report": report,
                         "market_tool_call_count": tool_call_count + 1
                     }

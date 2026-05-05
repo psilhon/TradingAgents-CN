@@ -203,7 +203,7 @@ def test_risk_assessment_integration():
 
         # 执行分析
         print("📊 开始风险评估测试...")
-        state, decision = graph.propagate("AAPL", "2025-06-27")
+        state, _decision = graph.propagate("AAPL", "2025-06-27")
 
         # 检查风险评估数据
         if 'risk_debate_state' in state:
