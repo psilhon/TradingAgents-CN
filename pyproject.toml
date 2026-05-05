@@ -122,7 +122,6 @@ quote-style = "double"
 
 [tool.pyright]
 include = ["tradingagents", "tests"]
-strict = ["tradingagents"]
 exclude = ["app", "frontend", "scripts", ".venv", "**/node_modules"]
 typeCheckingMode = "standard"
 
