@@ -65,11 +65,35 @@ def truncate_api_key(api_key: str | None) -> str | None:
 
     Returns:
         str: 缩略后的 API Key，如果输入为空或长度 <= 12 则返回原值
+
+    ⚠️ 不要用于 log / Rich 表格 / 错误信息——前缀泄露 6 字符违反 secret-handling spec。
+    新代码请用 ``redact_api_key()``。本函数保留仅用于已存在的 admin 内部场景。
     """
     if not api_key or len(api_key) <= 12:
         return api_key
 
     return f"{api_key[:6]}...{api_key[-6:]}"
+
+
+def redact_api_key(api_key: str | None) -> str:
+    """
+    脱敏 API Key 用于 log / 显示——不暴露任何前缀。
+
+    OpenSpec spec: secret-handling
+
+    返回形式：
+    - ``(missing)``：key 为 None / 空
+    - ``(len=N, ***)``：key 长度 ≤ 8（短到无法暴露任何字符）
+    - ``(len=N, ends ...XXXX)``：key 长度 > 8，仅显示末 4 字符
+    """
+    if not api_key:
+        return "(missing)"
+
+    n = len(api_key)
+    if n <= 8:
+        return f"(len={n}, ***)"
+
+    return f"(len={n}, ends ...{api_key[-4:]})"
 
 
 def get_env_api_key_for_provider(provider_name: str) -> str | None:
