@@ -14,9 +14,6 @@ from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.llm_clients import create_llm_client
 from tradingagents.llm_clients.provider_keys import env_key_for_provider, normalize_provider_key
 
-# 导入统一日志系统
-from tradingagents.utils.logging_init import get_logger
-
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
