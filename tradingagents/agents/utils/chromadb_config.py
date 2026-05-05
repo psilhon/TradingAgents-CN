@@ -11,7 +11,7 @@ from chromadb.config import Settings
 def is_windows_11() -> bool:
     """
     检测是否为 Windows 11
-    
+
     Returns:
         bool: 如果是 Windows 11 返回 True，否则返回 False
     """
@@ -36,7 +36,7 @@ def is_windows_11() -> bool:
 def get_win10_chromadb_client():
     """
     获取 Windows 10 兼容的 ChromaDB 客户端
-    
+
     Returns:
         chromadb.Client: ChromaDB 客户端实例
     """
@@ -66,7 +66,7 @@ def get_win10_chromadb_client():
 def get_win11_chromadb_client():
     """
     获取 Windows 11 优化的 ChromaDB 客户端
-    
+
     Returns:
         chromadb.Client: ChromaDB 客户端实例
     """
@@ -97,7 +97,7 @@ def get_win11_chromadb_client():
 def get_optimal_chromadb_client():
     """
     根据操作系统自动选择最优 ChromaDB 配置
-    
+
     Returns:
         chromadb.Client: ChromaDB 客户端实例
     """

@@ -60,10 +60,10 @@ class StockDataService:
     def get_stock_basic_info(self, stock_code: str | None = None) -> dict[str, Any] | None:
         """
         获取股票基础信息（单个股票或全部股票）
-        
+
         Args:
             stock_code: 股票代码，如果为None则返回所有股票
-        
+
         Returns:
             Dict: 股票基础信息
         """

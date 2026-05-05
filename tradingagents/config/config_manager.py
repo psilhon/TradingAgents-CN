@@ -120,15 +120,15 @@ class ConfigManager:
     def validate_openai_api_key_format(self, api_key: str) -> bool:
         """
         验证OpenAI API密钥格式
-        
+
         OpenAI API密钥格式规则：
         1. 以 'sk-' 开头
         2. 总长度通常为51个字符
         3. 包含字母、数字和可能的特殊字符
-        
+
         Args:
             api_key: 要验证的API密钥
-            
+
         Returns:
             bool: 格式是否正确
         """

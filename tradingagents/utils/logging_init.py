@@ -19,7 +19,7 @@ from tradingagents.utils.logging_manager import get_logger, setup_logging
 def init_logging(config_override: dict | None = None) -> None:
     """
     初始化项目日志系统
-    
+
     Args:
         config_override: 可选的配置覆盖
     """
@@ -47,11 +47,11 @@ def init_logging(config_override: dict | None = None) -> None:
 def get_session_logger(session_id: str, module_name: str = 'session') -> 'logging.Logger':
     """
     获取会话专用日志器
-    
+
     Args:
         session_id: 会话ID
         module_name: 模块名称
-        
+
     Returns:
         配置好的日志器
     """

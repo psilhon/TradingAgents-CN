@@ -136,7 +136,7 @@ def test_technical_analysis_with_new_adapter():
         print("🔄 测试工具调用...")
 
         messages = [HumanMessage(content="""请分析600036这只股票的技术面。
-        
+
 请先调用get_test_stock_data工具获取数据，参数：
 - ticker: "600036"
 - start_date: "2025-06-10"

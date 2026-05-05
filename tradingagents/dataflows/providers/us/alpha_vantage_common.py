@@ -145,10 +145,10 @@ def get_api_key() -> str:
 def format_datetime_for_api(date_str: str) -> str:
     """
     格式化日期时间为 Alpha Vantage API 要求的格式
-    
+
     Args:
         date_str: 日期字符串，格式 YYYY-MM-DD
-        
+
     Returns:
         格式化后的日期时间字符串，格式 YYYYMMDDTHHMM
     """
@@ -168,16 +168,16 @@ def _make_api_request(
 ) -> dict[str, Any] | str:
     """
     发起 Alpha Vantage API 请求
-    
+
     Args:
         function: API 函数名（如 NEWS_SENTIMENT, OVERVIEW 等）
         params: 请求参数字典
         max_retries: 最大重试次数
         retry_delay: 重试延迟（秒）
-        
+
     Returns:
         API 响应的 JSON 数据或错误信息字符串
-        
+
     Raises:
         AlphaVantageRateLimitError: 速率限制错误
         AlphaVantageAPIError: API 错误
@@ -272,11 +272,11 @@ def _make_api_request(
 def format_response_as_string(data: dict[str, Any], title: str = "Alpha Vantage Data") -> str:
     """
     将 API 响应格式化为字符串
-    
+
     Args:
         data: API 响应数据
         title: 数据标题
-        
+
     Returns:
         格式化后的字符串
     """
@@ -298,7 +298,7 @@ def format_response_as_string(data: dict[str, Any], title: str = "Alpha Vantage 
 def check_api_key_valid() -> bool:
     """
     检查 Alpha Vantage API Key 是否有效
-    
+
     Returns:
         True 如果 API Key 有效，否则 False
     """

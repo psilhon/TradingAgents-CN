@@ -162,7 +162,7 @@ def test_technical_analysis_simulation():
         def mock_get_stock_data(ticker: str, start_date: str, end_date: str) -> str:
             """模拟获取股票数据"""
             return f"""# {ticker} 股票数据分析
-            
+
 ## 📊 实时行情
 - 股票名称: 招商银行
 - 当前价格: ¥47.13

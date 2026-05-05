@@ -10,7 +10,7 @@ import os
 def parse_bool_env(env_var: str, default: bool = False) -> bool:
     """
     解析布尔类型环境变量，兼容多种格式
-    
+
     支持的格式：
     - true/True/TRUE
     - false/False/FALSE  
@@ -19,11 +19,11 @@ def parse_bool_env(env_var: str, default: bool = False) -> bool:
     - no/No/NO
     - on/On/ON
     - off/Off/OFF
-    
+
     Args:
         env_var: 环境变量名
         default: 默认值
-        
+
     Returns:
         bool: 解析后的布尔值
     """
@@ -66,11 +66,11 @@ def parse_bool_env(env_var: str, default: bool = False) -> bool:
 def parse_int_env(env_var: str, default: int = 0) -> int:
     """
     解析整数类型环境变量
-    
+
     Args:
         env_var: 环境变量名
         default: 默认值
-        
+
     Returns:
         int: 解析后的整数值
     """
@@ -89,11 +89,11 @@ def parse_int_env(env_var: str, default: int = 0) -> int:
 def parse_float_env(env_var: str, default: float = 0.0) -> float:
     """
     解析浮点数类型环境变量
-    
+
     Args:
         env_var: 环境变量名
         default: 默认值
-        
+
     Returns:
         float: 解析后的浮点数值
     """
@@ -112,11 +112,11 @@ def parse_float_env(env_var: str, default: float = 0.0) -> float:
 def parse_str_env(env_var: str, default: str = "") -> str:
     """
     解析字符串类型环境变量
-    
+
     Args:
         env_var: 环境变量名
         default: 默认值
-        
+
     Returns:
         str: 解析后的字符串值
     """
@@ -131,12 +131,12 @@ def parse_str_env(env_var: str, default: str = "") -> str:
 def parse_list_env(env_var: str, separator: str = ",", default: list | None = None) -> list:
     """
     解析列表类型环境变量
-    
+
     Args:
         env_var: 环境变量名
         separator: 分隔符
         default: 默认值
-        
+
     Returns:
         list: 解析后的列表
     """
@@ -161,10 +161,10 @@ def parse_list_env(env_var: str, separator: str = ",", default: list | None = No
 def get_env_info(env_var: str) -> dict:
     """
     获取环境变量的详细信息
-    
+
     Args:
         env_var: 环境变量名
-        
+
     Returns:
         dict: 环境变量信息
     """
@@ -183,10 +183,10 @@ def get_env_info(env_var: str) -> dict:
 def validate_required_env_vars(required_vars: list) -> dict:
     """
     验证必需的环境变量是否已设置
-    
+
     Args:
         required_vars: 必需的环境变量列表
-        
+
     Returns:
         dict: 验证结果
     """

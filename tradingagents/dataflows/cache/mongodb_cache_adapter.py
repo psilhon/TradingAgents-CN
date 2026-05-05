@@ -371,13 +371,13 @@ def get_stock_data_with_fallback(symbol: str, start_date: str | None = None, end
                                 fallback_func=None) -> pd.DataFrame | str | None:
     """
     带降级的股票数据获取
-    
+
     Args:
         symbol: 股票代码
         start_date: 开始日期
         end_date: 结束日期
         fallback_func: 降级函数
-    
+
     Returns:
         优先返回MongoDB数据，失败时调用降级函数
     """
@@ -401,11 +401,11 @@ def get_stock_data_with_fallback(symbol: str, start_date: str | None = None, end
 def get_financial_data_with_fallback(symbol: str, fallback_func=None) -> dict[str, Any] | str | None:
     """
     带降级的财务数据获取
-    
+
     Args:
         symbol: 股票代码
         fallback_func: 降级函数
-    
+
     Returns:
         优先返回MongoDB数据，失败时调用降级函数
     """
