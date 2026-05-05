@@ -4,7 +4,6 @@
 集成缓存策略，减少API调用，提高响应速度
 """
 
-import random
 import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -238,8 +237,8 @@ class OptimizedUSDataProvider:
         if not formatted_data:
             error_msg = "所有美股数据源都不可用"
             logger.error(f"❌ [数据来源: 所有API失败] {error_msg}")
-            logger.warning(f"⚠️ [数据来源: 备用数据] 生成备用数据: {symbol}")
-            return self._generate_fallback_data(symbol, start_date, end_date, error_msg)
+            logger.warning(f"⚠️ [数据不可用] {symbol}: 所有美股数据源失败")
+            return self._render_data_unavailable(symbol, start_date, end_date, error_msg)
 
         # 保存到缓存
         self.cache.save_stock_data(symbol=symbol, data=formatted_data, start_date=start_date, end_date=end_date, data_source=data_source)
@@ -487,22 +486,16 @@ class OptimizedUSDataProvider:
             logger.error(f"❌ Alpha Vantage数据获取失败: {e}")
             return None
 
-    def _generate_fallback_data(self, symbol: str, start_date: str, end_date: str, error_msg: str) -> str:
-        """生成备用数据"""
-        return f"""# {symbol} 美股数据获取失败
+    def _render_data_unavailable(self, symbol: str, start_date: str, end_date: str, error_msg: str) -> str:
+        # 数据不可用 markdown——不含任何模拟价格/涨跌幅字段
+        # OpenSpec spec: dataflow-integrity（"数据源 fallback 不得返回伪造业务数据"）
+        return f"""# ❌ 数据不可用 — {symbol} (美股)
 
-## ❌ 错误信息
-{error_msg}
+**数据期间**: {start_date} 至 {end_date}
+**失败原因**: {error_msg}
 
-## 📊 模拟数据（仅供演示）
-- 股票代码: {symbol}
-- 数据期间: {start_date} 至 {end_date}
-- 最新价格: ${random.uniform(100, 300):.2f}
-- 模拟涨跌: {random.uniform(-5, 5):+.2f}%
-
-## ⚠️ 重要提示
-由于API限制或网络问题，无法获取实时数据。
-建议稍后重试或检查网络连接。
+⚠️ **本次未获取到任何真实市场数据**——请勿基于此输出做交易决策或撰写分析。
+建议稍后重试或切换数据源。
 
 生成时间: {datetime.now(ZoneInfo(get_timezone_name())).strftime("%Y-%m-%d %H:%M:%S")}
 """
