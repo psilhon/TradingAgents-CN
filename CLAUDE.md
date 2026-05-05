@@ -48,13 +48,11 @@ uv pip install -e . --python .venv/bin/python
 
 可选管理 UI：`docker compose --profile management up -d`（redis-commander :54304 / mongo-express :54305）
 
-**Fork 上游同步**（首次：配 upstream remote；之后：定期合）：
+**Fork 状态：独立分叉（不再 sync upstream）**
 
-```
-git remote add upstream https://github.com/hsliuping/TradingAgents-CN.git    # 仅首次
-git fetch upstream
-git merge upstream/main                       # 或 rebase；本地 CLAUDE.md / .env 是 untracked / gitignored，不会冲突
-```
+本 fork 是 `hsliuping/TradingAgents-CN` 的独立分叉，**不再定期** `git pull upstream/main`。需要上游某项功能 / 修复时手动 cherry-pick 单独决策引入，不批量 merge。
+
+不要在本仓库配置 `upstream` remote 或建议任何"定期同步"流程——这是项目级永恒约定（详见 `openspec/specs/repository-scope/spec.md`）。
 
 **CI 同源命令**（本地 + pre-commit + GitHub Actions 都跑同一组）：
 
