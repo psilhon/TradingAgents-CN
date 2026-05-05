@@ -732,14 +732,34 @@ class TokenTracker:
         return self.config_manager.calculate_cost(provider, model_name, estimated_input_tokens, estimated_output_tokens)
 
 
-# 全局配置管理器实例 - 使用项目根目录的配置
-def _get_project_config_dir():
+# Lazy singletons（OpenSpec spec: secret-handling）
+# Module import 时**不**触发 ConfigManager 初始化（避免连 mongodb / 读 .env / 写 JSON 副作用）。
+# 首次访问 module-level `config_manager` / `token_tracker` 时通过 PEP 562 __getattr__ 触发实例化。
+def _get_project_config_dir() -> str:
     """获取项目根目录的配置目录"""
-    # 从当前文件位置推断项目根目录
     current_file = Path(__file__)  # tradingagents/config/config_manager.py
     project_root = current_file.parent.parent.parent  # 向上三级到项目根目录
     return str(project_root / "config")
 
 
-config_manager = ConfigManager(_get_project_config_dir())
-token_tracker = TokenTracker(config_manager)
+_config_manager_instance: "ConfigManager | None" = None
+_token_tracker_instance: "TokenTracker | None" = None
+
+
+def __getattr__(name: str):  # PEP 562 module-level __getattr__
+    global _config_manager_instance, _token_tracker_instance
+
+    if name == "config_manager":
+        if _config_manager_instance is None:
+            _config_manager_instance = ConfigManager(_get_project_config_dir())
+        return _config_manager_instance
+
+    if name == "token_tracker":
+        if _token_tracker_instance is None:
+            # token_tracker 依赖 config_manager，先确保后者已初始化
+            if _config_manager_instance is None:
+                _config_manager_instance = ConfigManager(_get_project_config_dir())
+            _token_tracker_instance = TokenTracker(_config_manager_instance)
+        return _token_tracker_instance
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
