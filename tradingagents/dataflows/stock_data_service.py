@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 统一的股票数据获取服务
 实现MongoDB -> Tushare数据接口的完整降级机制
@@ -7,8 +6,7 @@
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, Optional
-
+from typing import Any
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
@@ -274,7 +272,7 @@ class StockDataService:
 
             return get_china_stock_data_unified(stock_code, start_date, end_date)
         except Exception as e:
-            return f"❌ 获取股票数据失败: {str(e)}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查MongoDB配置"
+            return f"❌ 获取股票数据失败: {e!s}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查MongoDB配置"
 
 # 全局服务实例
 _stock_data_service = None

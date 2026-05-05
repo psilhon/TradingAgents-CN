@@ -8,7 +8,6 @@ from collections import deque
 from difflib import get_close_matches
 from functools import wraps
 from pathlib import Path
-from typing import Optional
 
 # 第三方库导入
 import typer
@@ -522,7 +521,7 @@ def get_user_selections():
     # Display ASCII art welcome message
     welcome_file = Path(__file__).parent / "static" / "welcome.txt"
     try:
-        with open(welcome_file, "r", encoding="utf-8") as f:
+        with open(welcome_file, encoding="utf-8") as f:
             welcome_ascii = f.read()
     except FileNotFoundError:
         welcome_ascii = "TradingAgents"
@@ -1081,15 +1080,15 @@ def run_analysis():
         )
         ui.show_success("分析系统初始化完成")
     except ImportError as e:
-        ui.show_error(f"模块导入失败 | Module import failed: {str(e)}")
+        ui.show_error(f"模块导入失败 | Module import failed: {e!s}")
         ui.show_warning("💡 请检查依赖安装 | Please check dependencies installation")
         return
     except ValueError as e:
-        ui.show_error(f"配置参数错误 | Configuration error: {str(e)}")
+        ui.show_error(f"配置参数错误 | Configuration error: {e!s}")
         ui.show_warning("💡 请检查配置参数 | Please check configuration parameters")
         return
     except Exception as e:
-        ui.show_error(f"初始化失败 | Initialization failed: {str(e)}")
+        ui.show_error(f"初始化失败 | Initialization failed: {e!s}")
         ui.show_warning("💡 请检查API密钥配置 | Please check API key configuration")
         return
 
@@ -1230,9 +1229,9 @@ def run_analysis():
             logger.info(f"股票数据预获取成功: {preparation_result.stock_name}")
 
         except Exception as e:
-            ui.show_error(f"❌ 数据预获取过程中发生错误: {str(e)}")
+            ui.show_error(f"❌ 数据预获取过程中发生错误: {e!s}")
             ui.show_warning("💡 请检查网络连接或稍后重试")
-            logger.error(f"数据预获取异常: {str(e)}")
+            logger.error(f"数据预获取异常: {e!s}")
             return
 
         # 显示数据获取阶段
@@ -1295,7 +1294,7 @@ def run_analysis():
 
                 # Update reports and agent status based on chunk content
                 # Analyst Team Reports
-                if "market_report" in chunk and chunk["market_report"]:
+                if chunk.get("market_report"):
                     # 只在第一次完成时显示提示
                     if "market_report" not in completed_analysts:
                         ui.show_success("📈 市场分析完成")
@@ -1316,7 +1315,7 @@ def run_analysis():
                             "Social Analyst", "in_progress"
                         )
 
-                if "sentiment_report" in chunk and chunk["sentiment_report"]:
+                if chunk.get("sentiment_report"):
                     # 只在第一次完成时显示提示
                     if "sentiment_report" not in completed_analysts:
                         ui.show_success("💭 情感分析完成")
@@ -1337,7 +1336,7 @@ def run_analysis():
                             "News Analyst", "in_progress"
                         )
 
-                if "news_report" in chunk and chunk["news_report"]:
+                if chunk.get("news_report"):
                     # 只在第一次完成时显示提示
                     if "news_report" not in completed_analysts:
                         ui.show_success("📰 新闻分析完成")
@@ -1358,7 +1357,7 @@ def run_analysis():
                             "Fundamentals Analyst", "in_progress"
                         )
 
-                if "fundamentals_report" in chunk and chunk["fundamentals_report"]:
+                if chunk.get("fundamentals_report"):
                     # 只在第一次完成时显示提示
                     if "fundamentals_report" not in completed_analysts:
                         ui.show_success("📊 基本面分析完成")
@@ -1380,13 +1379,12 @@ def run_analysis():
 
                 # Research Team - Handle Investment Debate State
                 if (
-                    "investment_debate_state" in chunk
-                    and chunk["investment_debate_state"]
+                    chunk.get("investment_debate_state")
                 ):
                     debate_state = chunk["investment_debate_state"]
 
                     # Update Bull Researcher status and report
-                    if "bull_history" in debate_state and debate_state["bull_history"]:
+                    if debate_state.get("bull_history"):
                         # 显示研究团队开始工作
                         if "research_team_started" not in completed_analysts:
                             ui.show_progress("🔬 研究团队开始深度分析...")
@@ -1406,7 +1404,7 @@ def run_analysis():
                             )
 
                     # Update Bear Researcher status and report
-                    if "bear_history" in debate_state and debate_state["bear_history"]:
+                    if debate_state.get("bear_history"):
                         # Keep all research team members in progress
                         update_research_team_status("in_progress")
                         # Extract latest bear response
@@ -1422,8 +1420,7 @@ def run_analysis():
 
                     # Update Research Manager status and final decision
                     if (
-                        "judge_decision" in debate_state
-                        and debate_state["judge_decision"]
+                        debate_state.get("judge_decision")
                     ):
                         # 显示研究团队完成
                         if "research_team" not in completed_analysts:
@@ -1450,8 +1447,7 @@ def run_analysis():
 
                 # Trading Team
                 if (
-                    "trader_investment_plan" in chunk
-                    and chunk["trader_investment_plan"]
+                    chunk.get("trader_investment_plan")
                 ):
                     # 显示交易团队开始工作
                     if "trading_team_started" not in completed_analysts:
@@ -1470,13 +1466,12 @@ def run_analysis():
                     message_buffer.update_agent_status("Risky Analyst", "in_progress")
 
                 # Risk Management Team - Handle Risk Debate State
-                if "risk_debate_state" in chunk and chunk["risk_debate_state"]:
+                if chunk.get("risk_debate_state"):
                     risk_state = chunk["risk_debate_state"]
 
                     # Update Risky Analyst status and report
                     if (
-                        "current_risky_response" in risk_state
-                        and risk_state["current_risky_response"]
+                        risk_state.get("current_risky_response")
                     ):
                         # 显示风险管理团队开始工作
                         if "risk_team_started" not in completed_analysts:
@@ -1498,8 +1493,7 @@ def run_analysis():
 
                     # Update Safe Analyst status and report
                     if (
-                        "current_safe_response" in risk_state
-                        and risk_state["current_safe_response"]
+                        risk_state.get("current_safe_response")
                     ):
                         message_buffer.update_agent_status(
                             "Safe Analyst", "in_progress"
@@ -1516,8 +1510,7 @@ def run_analysis():
 
                     # Update Neutral Analyst status and report
                     if (
-                        "current_neutral_response" in risk_state
-                        and risk_state["current_neutral_response"]
+                        risk_state.get("current_neutral_response")
                     ):
                         message_buffer.update_agent_status(
                             "Neutral Analyst", "in_progress"
@@ -1533,7 +1526,7 @@ def run_analysis():
                         )
 
                     # Update Portfolio Manager status and final decision
-                    if "judge_decision" in risk_state and risk_state["judge_decision"]:
+                    if risk_state.get("judge_decision"):
                         # 显示风险管理团队完成
                         if "risk_management" not in completed_analysts:
                             ui.show_success("⚖️ 风险管理团队分析完成")
@@ -1738,7 +1731,7 @@ def version():
     """
     # 读取版本号
     try:
-        with open("VERSION", "r", encoding="utf-8") as f:
+        with open("VERSION", encoding="utf-8") as f:
             version = f.read().strip()
     except FileNotFoundError:
         version = "1.0.0"

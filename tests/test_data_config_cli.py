@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 测试数据目录配置CLI功能
 Test Data Directory Configuration CLI Features

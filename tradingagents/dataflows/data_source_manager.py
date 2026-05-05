@@ -8,7 +8,7 @@ import os
 import time
 import warnings
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -1270,7 +1270,7 @@ class DataSourceManager:
             duration = time.time() - start_time
             logger.error(f"❌ [Tushare] 调用失败: {e}, 耗时={duration:.2f}s", exc_info=True)
             logger.error(f"❌ [DataSourceManager详细日志] 异常类型: {type(e).__name__}")
-            logger.error(f"❌ [DataSourceManager详细日志] 异常信息: {str(e)}")
+            logger.error(f"❌ [DataSourceManager详细日志] 异常信息: {e!s}")
             import traceback
             logger.error(f"❌ [DataSourceManager详细日志] 异常堆栈: {traceback.format_exc()}")
             raise
@@ -1594,7 +1594,7 @@ class DataSourceManager:
             return self.get_stock_data(stock_code, start_date, end_date)
         except Exception as e:
             logger.error(f"❌ 获取股票数据失败: {e}")
-            return f"❌ 获取股票数据失败: {str(e)}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查数据源配置"
+            return f"❌ 获取股票数据失败: {e!s}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查数据源配置"
 
     def _try_fallback_stock_info(self, symbol: str) -> dict:
         """尝试使用备用数据源获取股票基本信息"""

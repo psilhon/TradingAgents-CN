@@ -90,7 +90,7 @@ def test_error_logging_functionality():
         print(f"\n✅ error.log 文件已创建: {error_log_path.absolute()}")
 
         # 读取文件内容
-        with open(error_log_path, 'r', encoding='utf-8') as f:
+        with open(error_log_path, encoding='utf-8') as f:
             content = f.read()
 
         # 检查内容

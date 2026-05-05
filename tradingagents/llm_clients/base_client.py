@@ -1,6 +1,6 @@
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 
 def normalize_content(response):

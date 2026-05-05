@@ -5,7 +5,7 @@ MongoDB 缓存适配器
 """
 
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
@@ -368,7 +368,7 @@ def get_enhanced_data_adapter() -> MongoDBCacheAdapter:
 
 
 def get_stock_data_with_fallback(symbol: str, start_date: str = None, end_date: str = None,
-                                fallback_func=None) -> Union[pd.DataFrame, str, None]:
+                                fallback_func=None) -> pd.DataFrame | str | None:
     """
     带降级的股票数据获取
     
@@ -398,7 +398,7 @@ def get_stock_data_with_fallback(symbol: str, start_date: str = None, end_date: 
     return None
 
 
-def get_financial_data_with_fallback(symbol: str, fallback_func=None) -> Union[dict[str, Any], str, None]:
+def get_financial_data_with_fallback(symbol: str, fallback_func=None) -> dict[str, Any] | str | None:
     """
     带降级的财务数据获取
     

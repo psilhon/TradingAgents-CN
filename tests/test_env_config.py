@@ -20,7 +20,7 @@ def test_env_config():
         print(f"✅ .env文件存在: {env_file}")
 
         # 读取并显示相关配置
-        with open(env_file, 'r', encoding='utf-8') as f:
+        with open(env_file, encoding='utf-8') as f:
             lines = f.readlines()
 
         print("📊 数据库相关配置:")

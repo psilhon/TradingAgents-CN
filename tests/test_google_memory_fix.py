@@ -155,7 +155,7 @@ def test_google_tradingagents_with_memory():
                 print(f"   最终决策: {decision}")
 
                 # 检查市场报告
-                if "market_report" in state and state["market_report"]:
+                if state.get("market_report"):
                     market_report = state["market_report"]
                     print(f"   市场报告长度: {len(market_report)} 字符")
                     print(f"   报告预览: {market_report[:200]}...")

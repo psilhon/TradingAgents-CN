@@ -1,7 +1,6 @@
 import os
 import re
 from datetime import datetime
-from typing import Dict, List
 
 import questionary
 from rich.console import Console

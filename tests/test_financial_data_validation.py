@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 测试财务数据验证逻辑
 验证毛利率、净利率、ROE、ROA 等指标的范围检查

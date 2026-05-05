@@ -105,7 +105,7 @@ def get_news(
 
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取新闻失败 {ticker}: {e}")
-        return f"Error retrieving news for {ticker}: {str(e)}"
+        return f"Error retrieving news for {ticker}: {e!s}"
 
 
 def get_insider_transactions(
@@ -168,7 +168,7 @@ def get_insider_transactions(
 
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取内部人交易失败 {symbol}: {e}")
-        return f"Error retrieving insider transactions for {symbol}: {str(e)}"
+        return f"Error retrieving insider transactions for {symbol}: {e!s}"
 
 
 def get_market_news(
@@ -249,5 +249,5 @@ def get_market_news(
 
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取市场新闻失败: {e}")
-        return f"Error retrieving market news: {str(e)}"
+        return f"Error retrieving market news: {e!s}"
 

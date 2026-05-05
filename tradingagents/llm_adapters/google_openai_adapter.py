@@ -5,7 +5,7 @@ Google AI OpenAI兼容适配器
 """
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.outputs import LLMResult

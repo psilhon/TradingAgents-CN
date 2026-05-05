@@ -147,7 +147,7 @@ def create_filtered_realtime_news_function():
 
             # 如果启用过滤且是A股，尝试重新获取并过滤
             if any(suffix in ticker for suffix in ['.SH', '.SZ', '.SS', '.XSHE', '.XSHG']) or \
-               (not '.' in ticker and ticker.isdigit()):
+               ('.' not in ticker and ticker.isdigit()):
 
                 logger.info("[增强实时新闻] 检测到A股代码，尝试使用过滤版东方财富新闻")
 
@@ -176,7 +176,7 @@ def create_filtered_realtime_news_function():
 
         except Exception as e:
             logger.error(f"[增强实时新闻] 增强新闻获取失败: {e}")
-            return f"❌ 新闻获取失败: {str(e)}"
+            return f"❌ 新闻获取失败: {e!s}"
 
     return get_filtered_realtime_stock_news
 

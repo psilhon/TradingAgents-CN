@@ -213,7 +213,7 @@ def test_risk_assessment_integration():
             components = ['risky_history', 'safe_history', 'neutral_history', 'judge_decision']
 
             for component in components:
-                if component in risk_debate and risk_debate[component]:
+                if risk_debate.get(component):
                     print(f"   ✅ {component}: 有数据")
                 else:
                     print(f"   ❌ {component}: 无数据")

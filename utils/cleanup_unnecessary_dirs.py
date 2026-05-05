@@ -103,7 +103,7 @@ def update_gitignore():
         # 读取现有内容
         existing_content = ""
         if gitignore_path.exists():
-            with open(gitignore_path, 'r', encoding='utf-8') as f:
+            with open(gitignore_path, encoding='utf-8') as f:
                 existing_content = f.read()
 
         # 检查哪些规则需要添加

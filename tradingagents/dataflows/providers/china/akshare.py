@@ -5,7 +5,7 @@ AKShare统一数据提供器
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pandas as pd
 

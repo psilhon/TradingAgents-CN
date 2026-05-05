@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 from web.utils.analysis_runner import run_stock_analysis
 

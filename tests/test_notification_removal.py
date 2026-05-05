@@ -32,7 +32,7 @@ def check_notification_code():
             if file.endswith(('.vue', '.ts', '.js')):
                 file_path = os.path.join(root, file)
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, encoding='utf-8') as f:
                         content = f.read()
 
                     # 检查每个模式
@@ -83,7 +83,7 @@ def check_sync_control_component():
         return False
 
     try:
-        with open(sync_control_path, 'r', encoding='utf-8') as f:
+        with open(sync_control_path, encoding='utf-8') as f:
             content = f.read()
 
         # 检查应该移除的功能

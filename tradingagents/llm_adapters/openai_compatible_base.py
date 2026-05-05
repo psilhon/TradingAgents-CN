@@ -5,7 +5,7 @@ OpenAI兼容适配器基类
 
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.messages import BaseMessage

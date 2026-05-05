@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 MongoDB数据验证脚本
 验证A股股票基础信息是否正确同步到MongoDB
 """
 
 import os
-from typing import Any, Dict
+from typing import Any
 
 try:
     from pymongo import MongoClient

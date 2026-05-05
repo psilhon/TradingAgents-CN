@@ -12,7 +12,7 @@ except ImportError:
     STOCKSTATS_AVAILABLE = False
 
 __all__ = [
-    'StockstatsUtils',
     'STOCKSTATS_AVAILABLE',
+    'StockstatsUtils',
 ]
 

@@ -1,6 +1,5 @@
 import os
 import threading
-from typing import Dict
 
 import chromadb
 from chromadb.config import Settings
@@ -24,7 +23,7 @@ class ChromaDBManager:
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
-                    cls._instance = super(ChromaDBManager, cls).__new__(cls)
+                    cls._instance = super().__new__(cls)
                     cls._instance._initialized = False
         return cls._instance
 
@@ -82,7 +81,7 @@ class ChromaDBManager:
                     # 创建新集合
                     collection = self._client.create_collection(name=name)
                     logger.info(f"📚 [ChromaDB] 创建新集合: {name}")
-                except Exception as e:
+                except Exception:
                     # 可能是并发创建，再次尝试获取
                     try:
                         collection = self._client.get_collection(name=name)
@@ -445,7 +444,7 @@ class FinancialSituationMemory:
                                 logger.info(f"✅ OpenAI降级成功，维度: {len(embedding)}")
                                 return embedding
                             except Exception as fallback_error:
-                                logger.error(f"❌ OpenAI降级失败: {str(fallback_error)}")
+                                logger.error(f"❌ OpenAI降级失败: {fallback_error!s}")
                                 logger.info("💡 所有降级选项失败，记忆功能降级")
                                 return [0.0] * 1024
                         else:
@@ -460,7 +459,7 @@ class FinancialSituationMemory:
 
                 # 检查是否为长度限制错误
                 if any(keyword in error_str for keyword in ['length', 'token', 'limit', 'exceed', 'too long']):
-                    logger.warning(f"⚠️ DashScope长度限制异常: {str(e)}")
+                    logger.warning(f"⚠️ DashScope长度限制异常: {e!s}")
 
                     # 检查是否有降级选项
                     if hasattr(self, 'fallback_available') and self.fallback_available:
@@ -474,20 +473,20 @@ class FinancialSituationMemory:
                             logger.info(f"✅ OpenAI降级成功，维度: {len(embedding)}")
                             return embedding
                         except Exception as fallback_error:
-                            logger.error(f"❌ OpenAI降级失败: {str(fallback_error)}")
+                            logger.error(f"❌ OpenAI降级失败: {fallback_error!s}")
                             logger.info("💡 所有降级选项失败，记忆功能降级")
                             return [0.0] * 1024
                     else:
                         logger.info("💡 无可用降级选项，记忆功能降级")
                         return [0.0] * 1024
                 elif 'import' in error_str:
-                    logger.error(f"❌ DashScope包未安装: {str(e)}")
+                    logger.error(f"❌ DashScope包未安装: {e!s}")
                 elif 'connection' in error_str:
-                    logger.error(f"❌ DashScope网络连接错误: {str(e)}")
+                    logger.error(f"❌ DashScope网络连接错误: {e!s}")
                 elif 'timeout' in error_str:
-                    logger.error(f"❌ DashScope请求超时: {str(e)}")
+                    logger.error(f"❌ DashScope请求超时: {e!s}")
                 else:
-                    logger.error(f"❌ DashScope embedding异常: {str(e)}")
+                    logger.error(f"❌ DashScope embedding异常: {e!s}")
 
                 logger.warning("⚠️ 记忆功能降级，返回空向量")
                 return [0.0] * 1024
@@ -524,20 +523,20 @@ class FinancialSituationMemory:
 
                 if is_length_error:
                     # 长度限制错误：直接降级，不截断重试
-                    logger.warning(f"⚠️ {self.llm_provider}长度限制: {str(e)}")
+                    logger.warning(f"⚠️ {self.llm_provider}长度限制: {e!s}")
                     logger.info("💡 为保证分析准确性，不截断文本，记忆功能降级")
                 else:
                     # 其他类型的错误
                     if 'attributeerror' in error_str:
-                        logger.error(f"❌ {self.llm_provider} API调用错误: {str(e)}")
+                        logger.error(f"❌ {self.llm_provider} API调用错误: {e!s}")
                     elif 'connectionerror' in error_str or 'connection' in error_str:
-                        logger.error(f"❌ {self.llm_provider}网络连接错误: {str(e)}")
+                        logger.error(f"❌ {self.llm_provider}网络连接错误: {e!s}")
                     elif 'timeout' in error_str:
-                        logger.error(f"❌ {self.llm_provider}请求超时: {str(e)}")
+                        logger.error(f"❌ {self.llm_provider}请求超时: {e!s}")
                     elif 'keyerror' in error_str:
-                        logger.error(f"❌ {self.llm_provider}响应格式错误: {str(e)}")
+                        logger.error(f"❌ {self.llm_provider}响应格式错误: {e!s}")
                     else:
-                        logger.error(f"❌ {self.llm_provider} embedding异常: {str(e)}")
+                        logger.error(f"❌ {self.llm_provider} embedding异常: {e!s}")
 
                 logger.warning("⚠️ 记忆功能降级，返回空向量")
                 return [0.0] * 1024
@@ -636,7 +635,7 @@ class FinancialSituationMemory:
             return memories
 
         except Exception as e:
-            logger.error(f"❌ 记忆查询失败: {str(e)}")
+            logger.error(f"❌ 记忆查询失败: {e!s}")
             return []
 
     def get_cache_info(self):
@@ -698,4 +697,4 @@ if __name__ == "__main__":
             logger.info(f"Recommendation: {rec.get('recommendation', '')}")
 
     except Exception as e:
-        logger.error(f"Error during recommendation: {str(e)}")
+        logger.error(f"Error during recommendation: {e!s}")

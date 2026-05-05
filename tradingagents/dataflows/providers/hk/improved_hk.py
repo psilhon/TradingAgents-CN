@@ -7,7 +7,7 @@
 import json
 import os
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -112,7 +112,7 @@ class ImprovedHKStockProvider:
         """加载缓存"""
         try:
             if os.path.exists(self.cache_file):
-                with open(self.cache_file, 'r', encoding='utf-8') as f:
+                with open(self.cache_file, encoding='utf-8') as f:
                     self.cache = json.load(f)
             else:
                 self.cache = {}
@@ -654,7 +654,7 @@ def get_hk_stock_data_akshare(symbol: str, start_date: str = None, end_date: str
 
     except Exception as e:
         logger.error(f"❌ [AKShare-新浪] 港股历史数据获取失败: {symbol} - {e}")
-        return f"❌ 港股{symbol}历史数据获取失败: {str(e)}"
+        return f"❌ 港股{symbol}历史数据获取失败: {e!s}"
 
 
 # 🔥 全局缓存：缓存 AKShare 的所有港股数据

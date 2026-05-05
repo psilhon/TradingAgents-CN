@@ -7,7 +7,6 @@
 import random
 import time
 from datetime import datetime
-from typing import Optional
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -328,7 +327,7 @@ class OptimizedUSDataProvider:
             for metadata_file in self.cache.metadata_dir.glob("*_meta.json"):
                 try:
                     import json
-                    with open(metadata_file, 'r', encoding='utf-8') as f:
+                    with open(metadata_file, encoding='utf-8') as f:
                         metadata = json.load(f)
 
                     if (metadata.get('symbol') == symbol and

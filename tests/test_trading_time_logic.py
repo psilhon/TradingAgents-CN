@@ -79,7 +79,7 @@ def test_trading_time_logic():
         if "✨" in description:
             buffer_period_tests.append((time_str, result, expected))
 
-        print(f"{time_str:^8} | {str(expected):^6} | {str(result):^6} | {status:^8} | {description}")
+        print(f"{time_str:^8} | {expected!s:^6} | {result!s:^6} | {status:^8} | {description}")
 
     print("-" * 80)
 

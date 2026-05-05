@@ -10,7 +10,7 @@
 import asyncio
 import os
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import aiohttp
 import pandas as pd
@@ -99,7 +99,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         self.connected = False
         self.logger.info("ExampleSDK连接已断开")
 
-    async def get_stock_basic_info(self, symbol: str = None) -> Union[dict[str, Any], list[dict[str, Any]]] | None:
+    async def get_stock_basic_info(self, symbol: str = None) -> dict[str, Any] | list[dict[str, Any]] | None:
         """获取股票基础信息"""
         if not self.connected:
             await self.connect()
@@ -175,8 +175,8 @@ class ExampleSDKProvider(BaseStockDataProvider):
     async def get_historical_data(
         self,
         symbol: str,
-        start_date: Union[str, date],
-        end_date: Union[str, date] = None,
+        start_date: str | date,
+        end_date: str | date = None,
         period: str = "daily"
     ) -> pd.DataFrame | None:
         """获取历史数据"""

@@ -62,7 +62,7 @@ def test_logging_fix():
             print(f"✅ 日志文件存在: {log_file}")
 
             # 读取最后几行日志
-            with open(log_file, 'r', encoding='utf-8') as f:
+            with open(log_file, encoding='utf-8') as f:
                 lines = f.readlines()
                 if len(lines) > 0:
                     print("📊 日志文件最后5行:")

@@ -15,7 +15,7 @@ def test_react_fundamentals_hk_config():
 
     try:
         # 读取基本面分析师文件
-        with open('tradingagents/agents/analysts/fundamentals_analyst.py', 'r', encoding='utf-8') as f:
+        with open('tradingagents/agents/analysts/fundamentals_analyst.py', encoding='utf-8') as f:
             content = f.read()
 
         # 检查ReAct模式港股配置
@@ -49,7 +49,7 @@ def test_us_stock_separation():
 
     try:
         # 读取基本面分析师文件
-        with open('tradingagents/agents/analysts/fundamentals_analyst.py', 'r', encoding='utf-8') as f:
+        with open('tradingagents/agents/analysts/fundamentals_analyst.py', encoding='utf-8') as f:
             content = f.read()
 
         # 检查美股工具不再处理港股
@@ -76,7 +76,7 @@ def test_hk_query_format():
 
     try:
         # 读取基本面分析师文件
-        with open('tradingagents/agents/analysts/fundamentals_analyst.py', 'r', encoding='utf-8') as f:
+        with open('tradingagents/agents/analysts/fundamentals_analyst.py', encoding='utf-8') as f:
             content = f.read()
 
         # 检查港股查询格式
@@ -121,7 +121,7 @@ def test_toolkit_method_usage():
 
         if has_hk_method:
             # 检查方法是否可调用
-            method = getattr(toolkit, 'get_hk_stock_data_unified')
+            method = toolkit.get_hk_stock_data_unified
             is_callable = callable(method)
             print(f"  方法可调用: {is_callable}")
 

@@ -5,7 +5,7 @@
 import asyncio
 import logging
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
@@ -324,7 +324,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票列表失败: {e}")
             return None
 
-    async def get_stock_basic_info(self, symbol: str = None) -> Union[dict[str, Any], list[dict[str, Any]]] | None:
+    async def get_stock_basic_info(self, symbol: str = None) -> dict[str, Any] | list[dict[str, Any]] | None:
         """获取股票基础信息"""
         if not self.is_available():
             return None
@@ -513,8 +513,8 @@ class TushareProvider(BaseStockDataProvider):
     async def get_historical_data(
         self,
         symbol: str,
-        start_date: Union[str, date],
-        end_date: Union[str, date] = None,
+        start_date: str | date,
+        end_date: str | date = None,
         period: str = "daily"
     ) -> pd.DataFrame | None:
         """
@@ -589,7 +589,7 @@ class TushareProvider(BaseStockDataProvider):
                 f"start={start_str if 'start_str' in locals() else 'N/A'}, "
                 f"end={end_str if 'end_str' in locals() else 'N/A'}\n"
                 f"   错误类型: {type(e).__name__}\n"
-                f"   错误信息: {str(e)}\n"
+                f"   错误信息: {e!s}\n"
                 f"   堆栈跟踪:\n{error_details}"
             )
             return None
@@ -1282,7 +1282,7 @@ class TushareProvider(BaseStockDataProvider):
         market_info = self._determine_market_info_from_ts_code(ts_code)
         return market_info.get("market", "CN")
 
-    def _format_date(self, date_value: Union[str, date]) -> str:
+    def _format_date(self, date_value: str | date) -> str:
         """格式化日期为Tushare格式 (YYYYMMDD)"""
         if isinstance(date_value, str):
             return date_value.replace('-', '')

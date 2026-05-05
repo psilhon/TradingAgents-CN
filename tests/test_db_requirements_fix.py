@@ -68,7 +68,7 @@ def test_requirements_file_syntax():
         return False
 
     try:
-        with open(requirements_file, 'r', encoding='utf-8') as f:
+        with open(requirements_file, encoding='utf-8') as f:
             lines = f.readlines()
 
         print(f"  文件行数: {len(lines)}")

@@ -78,7 +78,7 @@ _cache_instance = None
 # 默认缓存策略（改为 integrated，优先使用 MongoDB/Redis 缓存）
 DEFAULT_CACHE_STRATEGY = os.getenv("TA_CACHE_STRATEGY", "integrated")
 
-def get_cache() -> Union[StockDataCache, IntegratedCacheManager]:
+def get_cache() -> StockDataCache | IntegratedCacheManager:
     """
     获取缓存实例（统一入口）
 

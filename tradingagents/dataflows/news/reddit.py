@@ -4,7 +4,6 @@ import re
 from datetime import datetime
 from typing import Annotated
 
-
 ticker_to_company = {
     "AAPL": "Apple",
     "MSFT": "Microsoft",

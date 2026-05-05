@@ -16,7 +16,7 @@ import warnings
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
@@ -304,7 +304,7 @@ class ConfigManager:
     def load_models(self) -> list[ModelConfig]:
         """加载模型配置，优先使用.env中的API密钥"""
         try:
-            with open(self.models_file, 'r', encoding='utf-8') as f:
+            with open(self.models_file, encoding='utf-8') as f:
                 data = json.load(f)
                 models = [ModelConfig(**item) for item in data]
 
@@ -349,7 +349,7 @@ class ConfigManager:
     def load_pricing(self) -> list[PricingConfig]:
         """加载定价配置"""
         try:
-            with open(self.pricing_file, 'r', encoding='utf-8') as f:
+            with open(self.pricing_file, encoding='utf-8') as f:
                 data = json.load(f)
             return [PricingConfig(**item) for item in data]
         except Exception as e:
@@ -370,7 +370,7 @@ class ConfigManager:
         try:
             if not self.usage_file.exists():
                 return []
-            with open(self.usage_file, 'r', encoding='utf-8') as f:
+            with open(self.usage_file, encoding='utf-8') as f:
                 data = json.load(f)
                 return [UsageRecord(**item) for item in data]
         except Exception as e:
@@ -468,7 +468,7 @@ class ConfigManager:
         """加载设置，合并.env中的配置"""
         try:
             if self.settings_file.exists():
-                with open(self.settings_file, 'r', encoding='utf-8') as f:
+                with open(self.settings_file, encoding='utf-8') as f:
                     settings = json.load(f)
             else:
                 # 如果设置文件不存在，创建默认设置

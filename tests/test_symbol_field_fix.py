@@ -21,7 +21,7 @@ def test_basics_sync_service_has_symbol_field():
     print("测试1: basics_sync_service.py 是否添加了 symbol 字段")
     print("=" * 60)
 
-    with open("app/services/basics_sync_service.py", "r", encoding="utf-8") as f:
+    with open("app/services/basics_sync_service.py", encoding="utf-8") as f:
         content = f.read()
 
     # 检查是否有 "symbol": code 的代码
@@ -39,7 +39,7 @@ def test_multi_source_sync_service_has_symbol_field():
     print("测试2: multi_source_basics_sync_service.py 是否添加了 symbol 字段")
     print("=" * 60)
 
-    with open("app/services/multi_source_basics_sync_service.py", "r", encoding="utf-8") as f:
+    with open("app/services/multi_source_basics_sync_service.py", encoding="utf-8") as f:
         content = f.read()
 
     # 检查是否有 "symbol": code 的代码
@@ -57,7 +57,7 @@ def test_baostock_sync_service_has_symbol_field():
     print("测试3: baostock_sync_service.py 是否添加了 symbol 字段")
     print("=" * 60)
 
-    with open("app/worker/baostock_sync_service.py", "r", encoding="utf-8") as f:
+    with open("app/worker/baostock_sync_service.py", encoding="utf-8") as f:
         content = f.read()
 
     # 检查是否有添加 symbol 字段的代码
@@ -75,7 +75,7 @@ def test_app_adapter_query_logic():
     print("测试4: app_adapter.py 是否支持 symbol 字段查询")
     print("=" * 60)
 
-    with open("tradingagents/dataflows/cache/app_adapter.py", "r", encoding="utf-8") as f:
+    with open("tradingagents/dataflows/cache/app_adapter.py", encoding="utf-8") as f:
         content = f.read()
 
     # 检查是否有 $or 查询逻辑

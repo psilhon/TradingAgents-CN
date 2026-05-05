@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 测试优化后的基本面分析数据获取策略
 验证新策略是否能正确获取必要的财务数据和当前股价，而不获取大量历史日线数据
@@ -90,7 +89,7 @@ def test_optimized_fundamentals():
             results[depth_name] = {
                 'success': False,
                 'data_length': 0,
-                'preview': f"错误: {str(e)}",
+                'preview': f"错误: {e!s}",
                 'description': description
             }
             print(f"❌ 获取数据时出错: {e}")

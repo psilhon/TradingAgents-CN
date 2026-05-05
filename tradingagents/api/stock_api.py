@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 股票数据API接口
 提供便捷的股票数据获取接口，支持完整的降级机制
@@ -8,7 +7,7 @@
 import os
 import sys
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

@@ -67,7 +67,7 @@ def test_akshare_web_api():
                 'status': 'error',
                 'count': 0,
                 'duration': duration,
-                'message': f'Error: {str(e)}'
+                'message': f'Error: {e!s}'
             }
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
 
@@ -100,7 +100,7 @@ def test_akshare_web_api():
                 'status': 'error',
                 'date': None,
                 'duration': duration,
-                'message': f'Error: {str(e)}'
+                'message': f'Error: {e!s}'
             }
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
 
@@ -134,7 +134,7 @@ def test_akshare_web_api():
                 'status': 'error',
                 'count': 0,
                 'duration': duration,
-                'message': f'Error: {str(e)}'
+                'message': f'Error: {e!s}'
             }
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
 

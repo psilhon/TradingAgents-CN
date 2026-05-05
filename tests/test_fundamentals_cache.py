@@ -78,7 +78,7 @@ def test_cache_manager_fundamentals():
         return True
 
     except Exception as e:
-        print(f"❌ 缓存管理器测试失败: {str(e)}")
+        print(f"❌ 缓存管理器测试失败: {e!s}")
         import traceback
         traceback.print_exc()
         return False
@@ -122,7 +122,7 @@ def test_fundamentals_with_cache():
         return True
 
     except Exception as e:
-        print(f"❌ 基本面数据缓存测试失败: {str(e)}")
+        print(f"❌ 基本面数据缓存测试失败: {e!s}")
         import traceback
         traceback.print_exc()
         return False
@@ -163,7 +163,7 @@ def test_cache_ttl():
         return True
 
     except Exception as e:
-        print(f"❌ 缓存TTL测试失败: {str(e)}")
+        print(f"❌ 缓存TTL测试失败: {e!s}")
         import traceback
         traceback.print_exc()
         return False
@@ -191,7 +191,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试 '{test_name}' 执行失败: {str(e)}")
+            print(f"❌ 测试 '{test_name}' 执行失败: {e!s}")
             results.append((test_name, False))
 
     # 输出测试结果

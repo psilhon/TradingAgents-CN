@@ -68,7 +68,7 @@ def test_finnhub_fundamentals_with_cache():
             return False
 
     except Exception as e:
-        print(f"❌ Finnhub基本面数据测试失败: {str(e)}")
+        print(f"❌ Finnhub基本面数据测试失败: {e!s}")
         import traceback
         traceback.print_exc()
         return False
@@ -134,7 +134,7 @@ def test_openai_fallback_with_cache():
         return success
 
     except Exception as e:
-        print(f"❌ OpenAI fallback测试失败: {str(e)}")
+        print(f"❌ OpenAI fallback测试失败: {e!s}")
         import traceback
         traceback.print_exc()
         return False
@@ -161,7 +161,7 @@ def test_cache_management():
         return True
 
     except Exception as e:
-        print(f"❌ 缓存管理测试失败: {str(e)}")
+        print(f"❌ 缓存管理测试失败: {e!s}")
         import traceback
         traceback.print_exc()
         return False
@@ -190,7 +190,7 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            print(f"❌ 测试 '{test_name}' 执行失败: {str(e)}")
+            print(f"❌ 测试 '{test_name}' 执行失败: {e!s}")
             results.append((test_name, False))
 
     # 输出测试结果

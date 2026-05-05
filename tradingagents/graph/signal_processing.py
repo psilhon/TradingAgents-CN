@@ -31,7 +31,7 @@ class SignalProcessor:
 
         # 验证输入参数
         if not full_signal or not isinstance(full_signal, str) or len(full_signal.strip()) == 0:
-            logger.error(f"❌ [SignalProcessor] 输入信号为空或无效: {repr(full_signal)}")
+            logger.error(f"❌ [SignalProcessor] 输入信号为空或无效: {full_signal!r}")
             return {
                 'action': '持有',
                 'target_price': None,

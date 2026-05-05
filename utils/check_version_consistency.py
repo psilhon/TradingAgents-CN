@@ -17,7 +17,7 @@ def get_target_version():
     """从VERSION文件获取目标版本号"""
     version_file = Path("VERSION")
     if version_file.exists():
-        with open(version_file, 'r', encoding='utf-8') as f:
+        with open(version_file, encoding='utf-8') as f:
             return f.read().strip()
     return None
 
@@ -76,7 +76,7 @@ def check_special_files(file_path: Path, content: str, target_version: str):
 def check_file_versions(file_path: Path, target_version: str):
     """检查文件中的版本号（低噪声策略）"""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             content = f.read()
 
         # 对特定文件做精准检查

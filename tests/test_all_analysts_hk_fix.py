@@ -15,7 +15,7 @@ def test_market_analyst_hk_config():
 
     try:
         # 读取市场分析师文件
-        with open('tradingagents/agents/analysts/market_analyst.py', 'r', encoding='utf-8') as f:
+        with open('tradingagents/agents/analysts/market_analyst.py', encoding='utf-8') as f:
             content = f.read()
 
         # 检查港股配置
@@ -44,7 +44,7 @@ def test_fundamentals_analyst_hk_config():
 
     try:
         # 读取基本面分析师文件
-        with open('tradingagents/agents/analysts/fundamentals_analyst.py', 'r', encoding='utf-8') as f:
+        with open('tradingagents/agents/analysts/fundamentals_analyst.py', encoding='utf-8') as f:
             content = f.read()
 
         # 检查港股配置
@@ -73,7 +73,7 @@ def test_optimized_us_data_hk_support():
 
     try:
         # 读取优化美股数据文件
-        with open('tradingagents/dataflows/optimized_us_data.py', 'r', encoding='utf-8') as f:
+        with open('tradingagents/dataflows/optimized_us_data.py', encoding='utf-8') as f:
             content = f.read()
 
         # 检查港股支持

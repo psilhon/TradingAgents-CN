@@ -149,7 +149,7 @@ def test_cache_functionality():
 
             # 读取缓存内容
             import json
-            with open(cache_file, 'r', encoding='utf-8') as f:
+            with open(cache_file, encoding='utf-8') as f:
                 cache_data = json.load(f)
 
             print(f"📄 缓存条目数: {len(cache_data)}")

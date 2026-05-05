@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict, List
+from typing import Any
 
 
 def test_enhanced_screening_enriches_from_db(monkeypatch):

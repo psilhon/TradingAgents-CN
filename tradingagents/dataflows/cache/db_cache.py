@@ -8,7 +8,7 @@ import hashlib
 import json
 import os
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional, Union
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -182,7 +182,7 @@ class DatabaseCacheManager:
         cache_key = hashlib.md5(params_str.encode()).hexdigest()[:16]
         return f"{data_type}:{symbol}:{cache_key}"
 
-    def save_stock_data(self, symbol: str, data: Union[pd.DataFrame, str],
+    def save_stock_data(self, symbol: str, data: pd.DataFrame | str,
                        start_date: str = None, end_date: str = None,
                        data_source: str = "unknown", market_type: str = None) -> str:
         """
@@ -265,7 +265,7 @@ class DatabaseCacheManager:
 
         return cache_key
 
-    def load_stock_data(self, cache_key: str) -> Union[pd.DataFrame, str] | None:
+    def load_stock_data(self, cache_key: str) -> pd.DataFrame | str | None:
         """从Redis或MongoDB加载股票数据"""
 
         # 首先尝试从Redis加载（更快）
