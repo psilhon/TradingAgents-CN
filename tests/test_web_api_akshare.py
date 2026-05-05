@@ -21,29 +21,29 @@ def test_akshare_web_api():
     print("=" * 60)
     print("🌐 测试AKShare Web API兼容性")
     print("=" * 60)
-    
+
     try:
         from app.services.data_source_adapters import AKShareAdapter
-        
+
         adapter = AKShareAdapter()
-        
+
         if not adapter.is_available():
             print("❌ AKShare适配器不可用")
             return
-        
+
         print("✅ AKShare适配器可用")
-        
+
         # 模拟Web API的测试流程
         results = {}
         total_start = time.time()
-        
+
         # 1. 股票列表测试
         print("\n1. 📊 股票列表测试...")
         start = time.time()
         try:
             stock_df = adapter.get_stock_list()
             duration = time.time() - start
-            
+
             if stock_df is not None and not stock_df.empty:
                 results['stock_list'] = {
                     'status': 'success',
@@ -69,14 +69,14 @@ def test_akshare_web_api():
                 'message': f'Error: {str(e)}'
             }
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
-        
+
         # 2. 交易日期测试
         print("\n2. 📅 交易日期测试...")
         start = time.time()
         try:
             latest_date = adapter.find_latest_trade_date()
             duration = time.time() - start
-            
+
             if latest_date:
                 results['trade_date'] = {
                     'status': 'success',
@@ -102,7 +102,7 @@ def test_akshare_web_api():
                 'message': f'Error: {str(e)}'
             }
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
-        
+
         # 3. 财务数据测试
         print("\n3. 💰 财务数据测试...")
         start = time.time()
@@ -110,7 +110,7 @@ def test_akshare_web_api():
             trade_date = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
             basic_df = adapter.get_daily_basic(trade_date)
             duration = time.time() - start
-            
+
             if basic_df is not None and not basic_df.empty:
                 results['daily_basic'] = {
                     'status': 'success',
@@ -136,13 +136,13 @@ def test_akshare_web_api():
                 'message': f'Error: {str(e)}'
             }
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
-        
+
         total_duration = time.time() - total_start
-        
+
         # 输出Web API格式的结果
         print(f"\n📊 Web API测试结果:")
         print(f"   总耗时: {total_duration:.1f}秒")
-        
+
         web_result = {
             'name': 'akshare',
             'priority': 2,
@@ -155,16 +155,16 @@ def test_akshare_web_api():
             },
             'total_duration': total_duration
         }
-        
+
         print(f"\n🔍 详细结果:")
         for test_name, test_result in web_result['tests'].items():
             status = test_result.get('status', 'unknown')
             duration = test_result.get('duration', 0)
             message = test_result.get('message', 'No message')
-            
+
             status_icon = "✅" if status == 'success' else "❌"
             print(f"   {status_icon} {test_name}: {message} ({duration:.1f}s)")
-        
+
         # Web超时评估
         print(f"\n🌐 Web兼容性评估:")
         if total_duration < 30:
@@ -173,9 +173,9 @@ def test_akshare_web_api():
             print(f"   ⚠️ 可接受: 总耗时 {total_duration:.1f}秒 < 60秒")
         else:
             print(f"   ❌ 超时风险: 总耗时 {total_duration:.1f}秒 > 60秒")
-        
+
         return web_result
-        
+
     except Exception as e:
         print(f"❌ Web API测试失败: {e}")
         import traceback

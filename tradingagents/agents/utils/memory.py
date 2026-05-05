@@ -104,11 +104,11 @@ class FinancialSituationMemory:
         # 配置向量缓存的长度限制（向量缓存默认启用长度检查）
         self.max_embedding_length = int(os.getenv('MAX_EMBEDDING_CONTENT_LENGTH', '50000'))  # 默认50K字符
         self.enable_embedding_length_check = os.getenv('ENABLE_EMBEDDING_LENGTH_CHECK', 'true').lower() == 'true'  # 向量缓存默认启用
-        
+
         # 根据LLM提供商选择嵌入模型和客户端
         # 初始化降级选项标志
         self.fallback_available = False
-        
+
         if self.llm_provider == "dashscope" or self.llm_provider == "alibaba":
             self.embedding = "text-embedding-v3"
             self.client = None  # DashScope不需要OpenAI客户端
@@ -230,7 +230,7 @@ class FinancialSituationMemory:
             # Google AI使用阿里百炼嵌入（如果可用），否则禁用记忆功能
             dashscope_key = os.getenv('DASHSCOPE_API_KEY')
             openai_key = os.getenv('OPENAI_API_KEY')
-            
+
             if dashscope_key:
                 try:
                     # 尝试初始化DashScope
@@ -240,7 +240,7 @@ class FinancialSituationMemory:
                     self.embedding = "text-embedding-v3"
                     self.client = None
                     dashscope.api_key = dashscope_key
-                    
+
                     # 检查是否有OpenAI密钥作为降级选项
                     if openai_key:
                         logger.info(f"💡 Google AI使用阿里百炼嵌入服务（OpenAI作为降级选项）")
@@ -250,7 +250,7 @@ class FinancialSituationMemory:
                     else:
                         logger.info(f"💡 Google AI使用阿里百炼嵌入服务（无降级选项）")
                         self.fallback_available = False
-                        
+
                 except ImportError as e:
                     logger.error(f"❌ DashScope包未安装: {e}")
                     self.client = "DISABLED"
@@ -314,7 +314,7 @@ class FinancialSituationMemory:
         """智能文本截断，保持语义完整性和缓存兼容性"""
         if len(text) <= max_length:
             return text, False  # 返回原文本和是否截断的标志
-        
+
         # 尝试在句子边界截断
         sentences = text.split('。')
         if len(sentences) > 1:
@@ -327,7 +327,7 @@ class FinancialSituationMemory:
             if len(truncated) > max_length // 2:  # 至少保留一半内容
                 logger.info(f"📝 智能截断：在句子边界截断，保留{len(truncated)}/{len(text)}字符")
                 return truncated, True
-        
+
         # 尝试在段落边界截断
         paragraphs = text.split('\n')
         if len(paragraphs) > 1:
@@ -340,7 +340,7 @@ class FinancialSituationMemory:
             if len(truncated) > max_length // 2:
                 logger.info(f"📝 智能截断：在段落边界截断，保留{len(truncated)}/{len(text)}字符")
                 return truncated, True
-        
+
         # 最后选择：保留前半部分和后半部分的关键信息
         front_part = text[:max_length//2]
         back_part = text[-(max_length//2-100):]  # 留100字符给连接符
@@ -366,7 +366,7 @@ class FinancialSituationMemory:
         if text_length == 0:
             logger.warning(f"⚠️ 输入文本长度为0，返回空向量")
             return [0.0] * 1024
-        
+
         # 检查是否启用长度限制
         if self.enable_embedding_length_check and text_length > self.max_embedding_length:
             logger.warning(f"⚠️ 文本过长({text_length:,}字符 > {self.max_embedding_length:,}字符)，跳过向量化")
@@ -381,11 +381,11 @@ class FinancialSituationMemory:
                 'max_length': self.max_embedding_length
             }
             return [0.0] * 1024
-        
+
         # 记录文本信息（不进行任何截断）
         if text_length > 8192:
             logger.info(f"📝 处理长文本: {text_length}字符，提供商: {self.llm_provider}")
-        
+
         # 存储文本处理信息
         self._last_text_info = {
             'original_length': text_length,
@@ -428,11 +428,11 @@ class FinancialSituationMemory:
                 else:
                     # API返回错误状态码
                     error_msg = f"{response.code} - {response.message}"
-                    
+
                     # 检查是否为长度限制错误
                     if any(keyword in error_msg.lower() for keyword in ['length', 'token', 'limit', 'exceed']):
                         logger.warning(f"⚠️ DashScope长度限制: {error_msg}")
-                        
+
                         # 检查是否有降级选项
                         if hasattr(self, 'fallback_available') and self.fallback_available:
                             logger.info(f"💡 尝试使用OpenAI降级处理长文本")
@@ -457,11 +457,11 @@ class FinancialSituationMemory:
 
             except Exception as e:
                 error_str = str(e).lower()
-                
+
                 # 检查是否为长度限制错误
                 if any(keyword in error_str for keyword in ['length', 'token', 'limit', 'exceed', 'too long']):
                     logger.warning(f"⚠️ DashScope长度限制异常: {str(e)}")
-                    
+
                     # 检查是否有降级选项
                     if hasattr(self, 'fallback_available') and self.fallback_available:
                         logger.info(f"💡 尝试使用OpenAI降级处理长文本")
@@ -488,7 +488,7 @@ class FinancialSituationMemory:
                     logger.error(f"❌ DashScope请求超时: {str(e)}")
                 else:
                     logger.error(f"❌ DashScope embedding异常: {str(e)}")
-                
+
                 logger.warning(f"⚠️ 记忆功能降级，返回空向量")
                 return [0.0] * 1024
         else:
@@ -513,15 +513,15 @@ class FinancialSituationMemory:
 
             except Exception as e:
                 error_str = str(e).lower()
-                
+
                 # 检查是否为长度限制错误
                 length_error_keywords = [
                     'token', 'length', 'too long', 'exceed', 'maximum', 'limit',
                     'context', 'input too large', 'request too large'
                 ]
-                
+
                 is_length_error = any(keyword in error_str for keyword in length_error_keywords)
-                
+
                 if is_length_error:
                     # 长度限制错误：直接降级，不截断重试
                     logger.warning(f"⚠️ {self.llm_provider}长度限制: {str(e)}")
@@ -538,7 +538,7 @@ class FinancialSituationMemory:
                         logger.error(f"❌ {self.llm_provider}响应格式错误: {str(e)}")
                     else:
                         logger.error(f"❌ {self.llm_provider} embedding异常: {str(e)}")
-                
+
                 logger.warning(f"⚠️ 记忆功能降级，返回空向量")
                 return [0.0] * 1024
 
@@ -581,42 +581,42 @@ class FinancialSituationMemory:
 
     def get_memories(self, current_situation, n_matches=1):
         """Find matching recommendations using embeddings with smart truncation handling"""
-        
+
         # 获取当前情况的embedding
         query_embedding = self.get_embedding(current_situation)
-        
+
         # 检查是否为空向量（记忆功能被禁用或出错）
         if all(x == 0.0 for x in query_embedding):
             logger.debug(f"⚠️ 查询embedding为空向量，返回空结果")
             return []
-        
+
         # 检查是否有足够的数据进行查询
         collection_count = self.situation_collection.count()
         if collection_count == 0:
             logger.debug(f"📭 记忆库为空，返回空结果")
             return []
-        
+
         # 调整查询数量，不能超过集合中的文档数量
         actual_n_matches = min(n_matches, collection_count)
-        
+
         try:
             # 执行相似度查询
             results = self.situation_collection.query(
                 query_embeddings=[query_embedding],
                 n_results=actual_n_matches
             )
-            
+
             # 处理查询结果
             memories = []
             if results and 'documents' in results and results['documents']:
                 documents = results['documents'][0]
                 metadatas = results.get('metadatas', [[]])[0]
                 distances = results.get('distances', [[]])[0]
-                
+
                 for i, doc in enumerate(documents):
                     metadata = metadatas[i] if i < len(metadatas) else {}
                     distance = distances[i] if i < len(distances) else 1.0
-                    
+
                     memory_item = {
                         'situation': doc,
                         'recommendation': metadata.get('recommendation', ''),
@@ -624,7 +624,7 @@ class FinancialSituationMemory:
                         'distance': distance
                     }
                     memories.append(memory_item)
-                
+
                 # 记录查询信息
                 if hasattr(self, '_last_text_info') and self._last_text_info.get('was_truncated'):
                     logger.info(f"🔍 截断文本查询完成，找到{len(memories)}个相关记忆")
@@ -632,9 +632,9 @@ class FinancialSituationMemory:
                                f"处理后长度: {self._last_text_info['processed_length']}")
                 else:
                     logger.debug(f"🔍 记忆查询完成，找到{len(memories)}个相关记忆")
-            
+
             return memories
-            
+
         except Exception as e:
             logger.error(f"❌ 记忆查询失败: {str(e)}")
             return []
@@ -647,11 +647,11 @@ class FinancialSituationMemory:
             'embedding_model': self.embedding,
             'provider': self.llm_provider
         }
-        
+
         # 添加最后一次文本处理信息
         if hasattr(self, '_last_text_info'):
             info['last_text_processing'] = self._last_text_info
-            
+
         return info
 
 

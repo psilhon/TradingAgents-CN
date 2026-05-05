@@ -144,7 +144,7 @@ def test_progress_time_calculation_completed():
     """测试100%进度的时间计算"""
     start_time = datetime.now() - timedelta(seconds=300)
     end_time = datetime.now()
-    
+
     task = TaskState(
         task_id="test_task_5",
         user_id="test_user",
@@ -155,14 +155,14 @@ def test_progress_time_calculation_completed():
         end_time=end_time,
         execution_time=300
     )
-    
+
     data = task.to_dict()
-    
+
     # 验证时间计算
     assert data['elapsed_time'] == 300, "已用时间应该为300秒"
     assert data['estimated_total_time'] == 300, "预计总时长应该等于已用时间"
     assert data['remaining_time'] == 0, "预计剩余应该为0"
-    
+
     print(f"✅ 测试通过：")
     print(f"   已用时间: {data['elapsed_time']:.1f}秒")
     print(f"   预计总时长: {data['estimated_total_time']:.1f}秒 ({data['estimated_total_time']/60:.1f}分钟)")
@@ -173,27 +173,27 @@ if __name__ == "__main__":
     print("=" * 60)
     print("测试进度时间计算逻辑")
     print("=" * 60)
-    
+
     print("\n1. 测试1%进度（已运行5秒）")
     print("-" * 60)
     test_progress_time_calculation_basic()
-    
+
     print("\n2. 测试10%进度（已运行30秒）")
     print("-" * 60)
     test_progress_time_calculation_10_percent()
-    
+
     print("\n3. 测试50%进度（已运行150秒）")
     print("-" * 60)
     test_progress_time_calculation_50_percent()
-    
+
     print("\n4. 测试0%进度（已运行5秒）")
     print("-" * 60)
     test_progress_time_calculation_zero_progress()
-    
+
     print("\n5. 测试100%进度（已完成）")
     print("-" * 60)
     test_progress_time_calculation_completed()
-    
+
     print("\n" + "=" * 60)
     print("✅ 所有测试通过！")
     print("=" * 60)

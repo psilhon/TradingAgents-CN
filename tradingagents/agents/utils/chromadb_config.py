@@ -17,7 +17,7 @@ def is_windows_11() -> bool:
     """
     if platform.system() != "Windows":
         return False
-    
+
     # Windows 11 的版本号通常是 10.0.22000 或更高
     version = platform.version()
     try:
@@ -29,7 +29,7 @@ def is_windows_11() -> bool:
             return build_number >= 22000
     except (ValueError, IndexError):
         pass
-    
+
     return False
 
 
@@ -50,7 +50,7 @@ def get_win10_chromadb_client():
         # 使用临时目录避免权限问题
         persist_directory=None
     )
-    
+
     try:
         client = chromadb.Client(settings)
         return client
@@ -80,7 +80,7 @@ def get_win11_chromadb_client():
         chroma_api_impl="chromadb.api.segment.SegmentAPI"
         # 移除 persist_directory=None，让它使用默认值
     )
-    
+
     try:
         client = chromadb.Client(settings)
         return client
@@ -102,7 +102,7 @@ def get_optimal_chromadb_client():
         chromadb.Client: ChromaDB 客户端实例
     """
     system = platform.system()
-    
+
     if system == "Windows":
         # 使用更准确的 Windows 11 检测
         if is_windows_11():

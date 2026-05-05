@@ -45,11 +45,11 @@ __all__ = [
     # Google News
     'getNewsData',
     'GOOGLE_NEWS_AVAILABLE',
-    
+
     # Reddit
     'fetch_top_from_category',
     'REDDIT_AVAILABLE',
-    
+
     # Realtime News
     'get_realtime_news',
     'get_news_with_sentiment',

@@ -22,27 +22,27 @@ async def test_sync_history_api():
     print("=" * 60)
     print("📚 测试同步历史API")
     print("=" * 60)
-    
+
     try:
         from app.core.database import init_db, get_mongo_db
         from app.services.multi_source_basics_sync_service import get_multi_source_sync_service
-        
+
         # 初始化数据库
         await init_db()
         db = get_mongo_db()
         service = get_multi_source_sync_service()
-        
+
         print("✅ 服务初始化成功")
-        
+
         # 1. 检查现有历史记录
         print("\n1. 📊 检查现有历史记录...")
         existing_count = await db.sync_status.count_documents({"job": "stock_basics_multi_source"})
         print(f"   📈 现有历史记录数: {existing_count}")
-        
+
         # 2. 如果没有历史记录，创建一些测试数据
         if existing_count == 0:
             print("\n2. 🏗️ 创建测试历史数据...")
-            
+
             test_records = [
                 {
                     "job": "stock_basics_multi_source",
@@ -69,16 +69,16 @@ async def test_sync_history_api():
                     "last_trade_date": "20250902"
                 }
             ]
-            
+
             result = await db.sync_status.insert_many(test_records)
             print(f"   ✅ 创建了 {len(result.inserted_ids)} 条测试记录")
-        
+
         # 3. 测试历史记录API（模拟HTTP调用）
         print("\n3. 🌐 测试历史记录API...")
-        
+
         # 模拟API调用
         from app.routers.multi_source_sync import get_sync_history
-        
+
         # 测试第一页
         print("   📄 测试第一页...")
         try:
@@ -88,7 +88,7 @@ async def test_sync_history_api():
             print(f"   📈 总数: {response.data['total']}")
             print(f"   📄 页码: {response.data['page']}")
             print(f"   🔄 是否有更多: {response.data['has_more']}")
-            
+
             # 显示第一条记录的详细信息
             if response.data['records']:
                 first_record = response.data['records'][0]
@@ -98,10 +98,10 @@ async def test_sync_history_api():
                 print(f"      开始时间: {first_record.get('started_at')}")
                 print(f"      完成时间: {first_record.get('finished_at')}")
                 print(f"      数据源: {first_record.get('data_sources_used', [])}")
-                
+
         except Exception as e:
             print(f"   ❌ API调用失败: {e}")
-        
+
         # 4. 测试状态筛选
         print("\n4. 🔍 测试状态筛选...")
         try:
@@ -109,41 +109,41 @@ async def test_sync_history_api():
             print(f"   ✅ 成功状态筛选: {len(response.data['records'])} 条记录")
         except Exception as e:
             print(f"   ❌ 状态筛选失败: {e}")
-        
+
         # 5. 运行一次新的同步，创建新的历史记录
         print("\n5. 🚀 运行新同步创建历史记录...")
         try:
             sync_result = await service.run_full_sync(force=True)
             print(f"   ✅ 同步完成: {sync_result.get('status')}")
-            
+
             # 等待一下确保记录已保存
             await asyncio.sleep(1)
-            
+
             # 再次检查历史记录数量
             new_count = await db.sync_status.count_documents({"job": "stock_basics_multi_source"})
             print(f"   📈 新的历史记录数: {new_count}")
-            
+
         except Exception as e:
             print(f"   ❌ 同步失败: {e}")
-        
+
         # 6. 最终验证
         print("\n6. ✅ 最终验证...")
         final_response = await get_sync_history(page=1, page_size=5)
         print(f"   📊 最新历史记录数: {len(final_response.data['records'])}")
-        
+
         if final_response.data['records']:
             latest = final_response.data['records'][0]
             print(f"   🕐 最新记录时间: {latest.get('started_at')}")
             print(f"   📊 最新记录状态: {latest.get('status')}")
-        
+
         print(f"\n🎉 同步历史API测试完成")
-        
+
         return {
             'total_records': final_response.data['total'],
             'latest_status': final_response.data['records'][0].get('status') if final_response.data['records'] else None,
             'api_working': True
         }
-        
+
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
@@ -155,7 +155,7 @@ async def test_frontend_integration():
     print("\n" + "=" * 60)
     print("🌐 前端集成测试指南")
     print("=" * 60)
-    
+
     print("现在你可以在前端测试以下功能：")
     print()
     print("1. 🔄 **刷新同步历史**:")
@@ -187,5 +187,5 @@ if __name__ == "__main__":
         print(f"   历史记录总数: {result['total_records']}")
         print(f"   最新状态: {result['latest_status']}")
         print(f"   API正常: {result['api_working']}")
-    
+
     asyncio.run(test_frontend_integration())

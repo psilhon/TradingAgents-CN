@@ -23,29 +23,29 @@ class DataSourceCode(str, Enum):
     - 值使用小写字母和下划线
     - 保持简洁明了
     """
-    
+
     # ==================== 缓存数据源 ====================
     MONGODB = "mongodb"  # MongoDB 数据库缓存（最高优先级）
-    
+
     # ==================== 中国市场数据源 ====================
     TUSHARE = "tushare"      # Tushare - 专业A股数据
     AKSHARE = "akshare"      # AKShare - 开源金融数据（A股+港股）
     BAOSTOCK = "baostock"    # BaoStock - 免费A股数据
-    
+
     # ==================== 美股数据源 ====================
     YFINANCE = "yfinance"         # yfinance - Yahoo Finance Python库
     FINNHUB = "finnhub"           # Finnhub - 美股实时数据
     YAHOO_FINANCE = "yahoo_finance"  # Yahoo Finance - 全球股票数据（别名）
     ALPHA_VANTAGE = "alpha_vantage"  # Alpha Vantage - 美股技术分析
     IEX_CLOUD = "iex_cloud"       # IEX Cloud - 美股实时数据
-    
+
     # ==================== 港股数据源 ====================
     # 注意：AKShare 也支持港股，已在上面定义
-    
+
     # ==================== 专业数据源 ====================
     WIND = "wind"        # Wind 万得 - 专业金融终端
     CHOICE = "choice"    # 东方财富 Choice - 专业金融数据
-    
+
     # ==================== 其他数据源 ====================
     QUANDL = "quandl"        # Quandl - 经济和金融数据
     LOCAL_FILE = "local_file"  # 本地文件数据源
@@ -66,7 +66,7 @@ class DataSourceInfo:
     official_website: Optional[str] = None  # 官方网站
     documentation_url: Optional[str] = None  # 文档地址
     features: List[str] = None  # 特性列表
-    
+
     def __post_init__(self):
         if self.features is None:
             self.features = []
@@ -86,7 +86,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         is_free=True,
         features=["本地缓存", "最快速度", "离线可用"],
     ),
-    
+
     # Tushare
     DataSourceCode.TUSHARE: DataSourceInfo(
         code=DataSourceCode.TUSHARE,
@@ -101,7 +101,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         documentation_url="https://tushare.pro/document/2",
         features=["历史行情", "实时行情", "财务数据", "基本面数据", "新闻公告"],
     ),
-    
+
     # AKShare
     DataSourceCode.AKSHARE: DataSourceInfo(
         code=DataSourceCode.AKSHARE,
@@ -116,7 +116,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         documentation_url="https://akshare.akfamily.xyz/introduction.html",
         features=["历史行情", "实时行情", "财务数据", "新闻资讯", "完全免费"],
     ),
-    
+
     # BaoStock
     DataSourceCode.BAOSTOCK: DataSourceInfo(
         code=DataSourceCode.BAOSTOCK,
@@ -131,7 +131,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         documentation_url="http://baostock.com/baostock/index.php/Python_API%E6%96%87%E6%A1%A3",
         features=["历史行情", "财务数据", "完全免费", "数据稳定"],
     ),
-    
+
     # yfinance
     DataSourceCode.YFINANCE: DataSourceInfo(
         code=DataSourceCode.YFINANCE,
@@ -161,7 +161,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         documentation_url="https://finnhub.io/docs/api",
         features=["实时行情", "历史数据", "新闻资讯", "财务数据", "技术指标"],
     ),
-    
+
     # Yahoo Finance
     DataSourceCode.YAHOO_FINANCE: DataSourceInfo(
         code=DataSourceCode.YAHOO_FINANCE,
@@ -175,7 +175,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         official_website="https://finance.yahoo.com",
         features=["历史行情", "实时行情", "全球市场", "完全免费"],
     ),
-    
+
     # Alpha Vantage
     DataSourceCode.ALPHA_VANTAGE: DataSourceInfo(
         code=DataSourceCode.ALPHA_VANTAGE,
@@ -190,7 +190,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         documentation_url="https://www.alphavantage.co/documentation",
         features=["技术指标", "历史数据", "外汇数据", "加密货币"],
     ),
-    
+
     # IEX Cloud
     DataSourceCode.IEX_CLOUD: DataSourceInfo(
         code=DataSourceCode.IEX_CLOUD,
@@ -205,7 +205,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         documentation_url="https://iexcloud.io/docs/api",
         features=["实时行情", "历史数据", "财务数据", "新闻资讯"],
     ),
-    
+
     # Wind
     DataSourceCode.WIND: DataSourceInfo(
         code=DataSourceCode.WIND,
@@ -219,7 +219,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         official_website="https://www.wind.com.cn",
         features=["专业数据", "全市场覆盖", "高质量数据", "专业分析"],
     ),
-    
+
     # Choice
     DataSourceCode.CHOICE: DataSourceInfo(
         code=DataSourceCode.CHOICE,
@@ -233,7 +233,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         official_website="http://choice.eastmoney.com",
         features=["专业数据", "A股专注", "高质量数据", "专业分析"],
     ),
-    
+
     # Quandl
     DataSourceCode.QUANDL: DataSourceInfo(
         code=DataSourceCode.QUANDL,
@@ -248,7 +248,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         documentation_url="https://docs.quandl.com",
         features=["经济数据", "金融数据", "全球覆盖"],
     ),
-    
+
     # Local File
     DataSourceCode.LOCAL_FILE: DataSourceInfo(
         code=DataSourceCode.LOCAL_FILE,
@@ -261,7 +261,7 @@ DATA_SOURCE_REGISTRY: Dict[str, DataSourceInfo] = {
         is_free=True,
         features=["离线可用", "自定义数据", "完全免费"],
     ),
-    
+
     # Custom
     DataSourceCode.CUSTOM: DataSourceInfo(
         code=DataSourceCode.CUSTOM,

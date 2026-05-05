@@ -12,12 +12,12 @@ sys.path.insert(0, str(project_root))
 
 def test_format_analysis_results():
     """测试分析结果格式化函数"""
-    
+
     from web.utils.analysis_runner import format_analysis_results
-    
+
     print("🧪 测试分析结果格式化")
     print("=" * 50)
-    
+
     # 测试案例1: decision 是字符串
     print("测试案例1: decision 是字符串")
     results1 = {
@@ -34,7 +34,7 @@ def test_format_analysis_results():
         'success': True,
         'error': None
     }
-    
+
     try:
         formatted1 = format_analysis_results(results1)
         print("✅ 字符串decision格式化成功")
@@ -42,9 +42,9 @@ def test_format_analysis_results():
         print(f"  推理: {formatted1['decision']['reasoning']}")
     except Exception as e:
         print(f"❌ 字符串decision格式化失败: {e}")
-    
+
     print()
-    
+
     # 测试案例2: decision 是字典
     print("测试案例2: decision 是字典")
     results2 = {
@@ -67,7 +67,7 @@ def test_format_analysis_results():
         'success': True,
         'error': None
     }
-    
+
     try:
         formatted2 = format_analysis_results(results2)
         print("✅ 字典decision格式化成功")
@@ -76,9 +76,9 @@ def test_format_analysis_results():
         print(f"  推理: {formatted2['decision']['reasoning']}")
     except Exception as e:
         print(f"❌ 字典decision格式化失败: {e}")
-    
+
     print()
-    
+
     # 测试案例3: decision 是其他类型
     print("测试案例3: decision 是其他类型")
     results3 = {
@@ -95,7 +95,7 @@ def test_format_analysis_results():
         'success': True,
         'error': None
     }
-    
+
     try:
         formatted3 = format_analysis_results(results3)
         print("✅ 其他类型decision格式化成功")
@@ -103,9 +103,9 @@ def test_format_analysis_results():
         print(f"  推理: {formatted3['decision']['reasoning']}")
     except Exception as e:
         print(f"❌ 其他类型decision格式化失败: {e}")
-    
+
     print()
-    
+
     # 测试案例4: 失败的结果
     print("测试案例4: 失败的结果")
     results4 = {
@@ -113,7 +113,7 @@ def test_format_analysis_results():
         'success': False,
         'error': '分析失败'
     }
-    
+
     try:
         formatted4 = format_analysis_results(results4)
         print("✅ 失败结果格式化成功")
@@ -126,9 +126,9 @@ def main():
     """主测试函数"""
     print("🧪 格式化修复测试")
     print("=" * 60)
-    
+
     test_format_analysis_results()
-    
+
     print("\n🎉 测试完成！")
 
 if __name__ == "__main__":

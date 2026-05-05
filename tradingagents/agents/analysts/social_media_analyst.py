@@ -198,7 +198,7 @@ def create_social_media_analyst(llm, toolkit):
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(llm):
             logger.info(f"📊 [社交媒体分析师] 检测到Google模型，使用统一工具调用处理器")
-            
+
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(
                 ticker=ticker,
@@ -206,7 +206,7 @@ def create_social_media_analyst(llm, toolkit):
                 analyst_type="社交媒体情绪分析",
                 specific_requirements="重点关注投资者情绪、社交媒体讨论热度、舆论影响等。"
             )
-            
+
             # 处理Google模型工具调用
             report, messages = GoogleToolCallHandler.handle_google_tool_calls(
                 result=result,
@@ -219,7 +219,7 @@ def create_social_media_analyst(llm, toolkit):
         else:
             # 非Google模型的处理逻辑
             logger.debug(f"📊 [DEBUG] 非Google模型 ({llm.__class__.__name__})，使用标准处理逻辑")
-            
+
             report = ""
             if len(result.tool_calls) == 0:
                 report = result.content

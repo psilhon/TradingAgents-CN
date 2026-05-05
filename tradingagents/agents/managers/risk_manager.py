@@ -86,7 +86,7 @@ def create_risk_manager(llm, memory):
 
                 # ⏱️ 记录结束时间
                 elapsed_time = time.time() - start_time
-                
+
                 if response and hasattr(response, 'content') and response.content:
                     response_content = response.content.strip()
 
@@ -120,12 +120,12 @@ def create_risk_manager(llm, memory):
                 logger.error(f"❌ [Risk Manager] LLM调用失败 (尝试 {retry_count + 1}): {str(e)}")
                 logger.error(f"⏱️ [Risk Manager] 失败前耗时: {elapsed_time:.2f}秒")
                 response_content = ""
-            
+
             retry_count += 1
             if retry_count < max_retries and not response_content:
                 logger.info(f"🔄 [Risk Manager] 等待2秒后重试...")
                 time.sleep(2)
-        
+
         # 如果所有重试都失败，生成默认决策
         if not response_content:
             logger.error(f"❌ [Risk Manager] 所有LLM调用尝试失败，使用默认决策")
@@ -159,7 +159,7 @@ def create_risk_manager(llm, memory):
         }
 
         logger.info(f"📋 [Risk Manager] 最终决策生成完成，内容长度: {len(response_content)} 字符")
-        
+
         return {
             "risk_debate_state": new_risk_debate_state,
             "final_trade_decision": response_content,

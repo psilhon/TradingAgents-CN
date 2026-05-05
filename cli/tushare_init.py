@@ -82,21 +82,21 @@ def print_help():
 async def check_database_status():
     """检查数据库状态"""
     print("📊 检查数据库状态...")
-    
+
     try:
         from app.core.database import get_mongo_db
         db = get_mongo_db()
-        
+
         # 检查各集合状态
         basic_count = await db.stock_basic_info.count_documents({})
         quotes_count = await db.market_quotes.count_documents({})
-        
+
         # 检查扩展字段覆盖率
         extended_count = await db.stock_basic_info.count_documents({
             "full_symbol": {"$exists": True},
             "market_info": {"$exists": True}
         })
-        
+
         # 检查最新更新时间
         latest_basic = await db.stock_basic_info.find_one(
             {}, sort=[("updated_at", -1)]
@@ -104,18 +104,18 @@ async def check_database_status():
         latest_quotes = await db.market_quotes.find_one(
             {}, sort=[("updated_at", -1)]
         )
-        
+
         print(f"  📋 股票基础信息: {basic_count:,}条")
         if basic_count > 0:
             coverage = extended_count / basic_count * 100
             print(f"     扩展字段覆盖: {extended_count:,}条 ({coverage:.1f}%)")
             if latest_basic and latest_basic.get("updated_at"):
                 print(f"     最新更新: {latest_basic['updated_at']}")
-        
+
         print(f"  📈 行情数据: {quotes_count:,}条")
         if quotes_count > 0 and latest_quotes and latest_quotes.get("updated_at"):
             print(f"     最新更新: {latest_quotes['updated_at']}")
-        
+
         # 判断是否需要初始化
         if basic_count == 0:
             print("  ⚠️  数据库为空，建议运行完整初始化")
@@ -126,7 +126,7 @@ async def check_database_status():
         else:
             print("  ✅ 数据库状态良好")
             return True
-            
+
     except Exception as e:
         print(f"  ❌ 检查数据库状态失败: {e}")
         return False
@@ -135,13 +135,13 @@ async def check_database_status():
 async def run_basic_initialization():
     """运行基础信息初始化"""
     print("📋 开始基础信息初始化...")
-    
+
     try:
         service = await get_tushare_init_service()
-        
+
         # 仅同步基础信息
         result = await service.sync_service.sync_stock_basic_info(force_update=True)
-        
+
         if result:
             success_count = result.get("success_count", 0)
             print(f"✅ 基础信息初始化完成: {success_count:,}只股票")
@@ -149,7 +149,7 @@ async def run_basic_initialization():
         else:
             print("❌ 基础信息初始化失败")
             return False
-            
+
     except Exception as e:
         print(f"❌ 基础信息初始化失败: {e}")
         return False
@@ -173,13 +173,13 @@ async def run_full_initialization(historical_days: int, force: bool, multi_perio
             enable_multi_period=multi_period,
             sync_items=sync_items
         )
-        
+
         # 显示结果
         if result["success"]:
             print("🎉 完整初始化成功完成！")
         else:
             print("⚠️ 初始化部分完成，存在一些问题")
-        
+
         print(f"  ⏱️  耗时: {result['duration']:.2f}秒")
         print(f"  📊 进度: {result['progress']}")
 
@@ -193,14 +193,14 @@ async def run_full_initialization(historical_days: int, force: bool, multi_perio
         print(f"  💰 财务数据: {data_summary['financial_records']:,}条")
         print(f"  📈 行情数据: {data_summary['quotes_count']:,}条")
         print(f"  📰 新闻数据: {data_summary.get('news_count', 0):,}条")
-        
+
         if result["errors"]:
             print(f"  ⚠️  错误数量: {len(result['errors'])}")
             for error in result["errors"][:3]:  # 只显示前3个错误
                 print(f"     - {error['step']}: {error['error']}")
-        
+
         return result["success"]
-        
+
     except Exception as e:
         print(f"❌ 完整初始化失败: {e}")
         return False
@@ -212,7 +212,7 @@ async def main():
         description="Tushare数据初始化工具",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    
+
     parser.add_argument("--full", action="store_true", help="运行完整初始化")
     parser.add_argument("--basic-only", action="store_true", help="仅初始化基础信息")
     parser.add_argument("--historical-days", type=int, default=365, help="历史数据天数")
@@ -222,35 +222,35 @@ async def main():
     parser.add_argument("--batch-size", type=int, default=100, help="批处理大小")
     parser.add_argument("--check-only", action="store_true", help="仅检查数据库状态")
     parser.add_argument("--help-detail", action="store_true", help="显示详细帮助")
-    
+
     args = parser.parse_args()
-    
+
     # 显示详细帮助
     if args.help_detail:
         print_help()
         return
-    
+
     print_banner()
-    
+
     try:
         # 初始化数据库连接
         print("🔄 初始化数据库连接...")
         await init_database()
         print("✅ 数据库连接成功")
         print()
-        
+
         # 检查数据库状态
         db_ok = await check_database_status()
         print()
-        
+
         # 根据参数执行相应操作
         if args.check_only:
             print("📋 数据库状态检查完成")
             return
-        
+
         elif args.basic_only:
             success = await run_basic_initialization()
-            
+
         elif args.full:
             if not args.force and db_ok:
                 print("⚠️ 数据库已有数据，使用 --force 强制重新初始化")
@@ -269,17 +269,17 @@ async def main():
                     return
 
             success = await run_full_initialization(args.historical_days, args.force, args.multi_period, sync_items)
-            
+
         else:
             print("❓ 请指定操作类型，使用 --help-detail 查看详细帮助")
             return
-        
+
         if success:
             print("\n🎉 初始化操作成功完成！")
         else:
             print("\n❌ 初始化操作失败")
             sys.exit(1)
-            
+
     except KeyboardInterrupt:
         print("\n⚠️ 用户中断操作")
         sys.exit(1)

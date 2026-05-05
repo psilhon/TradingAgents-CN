@@ -46,7 +46,7 @@ def test_fixed_analysis():
             print(f"❌ 登录失败: {login_response.status_code}")
             print(f"   响应: {login_response.text}")
             return False
-        
+
         # 3. 提交分析请求
         print("\n3. 提交分析请求...")
         analysis_request = {
@@ -69,13 +69,13 @@ def test_fixed_analysis():
             "Content-Type": "application/json",
             "Authorization": f"Bearer {access_token}"
         }
-        
+
         response = requests.post(
             f"{base_url}/api/analysis/single",
             json=analysis_request,
             headers=headers
         )
-        
+
         if response.status_code == 200:
             result = response.json()
             task_id = result.get("task_id")
@@ -84,7 +84,7 @@ def test_fixed_analysis():
             print(f"❌ 提交分析请求失败: {response.status_code}")
             print(f"   响应: {response.text}")
             return False
-        
+
         # 4. 监控任务状态
         print(f"\n4. 监控任务状态...")
         max_wait_time = 300  # 最多等待5分钟
@@ -109,12 +109,12 @@ def test_fixed_analysis():
 
                     # 5. 检查文件保存（应该使用正确的股票代码）
                     print(f"\n5. 检查文件保存...")
-                    
+
                     # 检查data目录（应该是000001而不是UNKNOWN）
                     data_dir = Path("data/analysis_results/000001/2025-08-20")
                     if data_dir.exists():
                         print(f"✅ 分析结果目录存在: {data_dir}")
-                        
+
                         # 检查reports目录
                         reports_dir = data_dir / "reports"
                         if reports_dir.exists():
@@ -123,7 +123,7 @@ def test_fixed_analysis():
                                 print(f"✅ 找到 {len(report_files)} 个报告文件:")
                                 for file in report_files:
                                     print(f"   - {file.name}")
-                                    
+
                                 # 检查市场分析报告内容
                                 market_report = reports_dir / "market_report.md"
                                 if market_report.exists():
@@ -148,40 +148,40 @@ def test_fixed_analysis():
                         unknown_dir = Path("data/analysis_results/UNKNOWN/2025-08-20")
                         if unknown_dir.exists():
                             print(f"⚠️ 文件保存到了UNKNOWN目录，股票代码传递有问题")
-                    
+
                     # 6. 获取分析结果
                     print(f"\n6. 获取分析结果...")
                     result_response = requests.get(
                         f"{base_url}/api/analysis/tasks/{task_id}/result",
                         headers=headers
                     )
-                    
+
                     if result_response.status_code == 200:
                         result_data = result_response.json()
                         print(f"✅ 成功获取分析结果")
                         print(f"   股票代码: {result_data.get('stock_code')}")
                         print(f"   股票符号: {result_data.get('stock_symbol')}")
                         print(f"   分析日期: {result_data.get('analysis_date')}")
-                        
+
                         return True
                     else:
                         print(f"❌ 获取分析结果失败: {result_response.status_code}")
                         return False
-                        
+
                 elif status == "failed":
                     print(f"❌ 分析任务失败: {message}")
                     return False
-                    
+
             else:
                 print(f"❌ 查询任务状态失败: {status_response.status_code}")
                 return False
-            
+
             # 等待5秒后再次查询
             time.sleep(5)
-        
+
         print(f"⏰ 任务执行超时 (超过{max_wait_time}秒)")
         return False
-        
+
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False

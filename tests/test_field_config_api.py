@@ -18,19 +18,19 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 async def test_field_config_api():
     """测试筛选字段配置API"""
     print("🧪 测试筛选字段配置API...")
-    
+
     try:
         # 导入必要的模块
         from app.core.database import init_db
         from app.models.screening import BASIC_FIELDS_INFO
-        
+
         # 初始化数据库
         await init_db()
         print("✅ 数据库连接成功")
-        
+
         # 测试字段配置
         print("\n📋 可用筛选字段:")
-        
+
         # 字段分类
         categories = {
             "basic": ["code", "name", "industry", "area", "market"],
@@ -40,7 +40,7 @@ async def test_field_config_api():
             "price": ["close", "pct_chg", "amount"],
             "technical": ["ma20", "rsi14", "kdj_k", "kdj_d", "kdj_j", "dif", "dea", "macd_hist"]
         }
-        
+
         for category, fields in categories.items():
             print(f"\n🏷️ {category.upper()}:")
             for field in fields:
@@ -51,7 +51,7 @@ async def test_field_config_api():
                     print(f"     支持操作: {field_info.supported_operators}")
                 else:
                     print(f"  ❌ {field}: 字段信息缺失")
-        
+
         # 测试API响应格式
         response_data = {
             "fields": {name: {
@@ -64,12 +64,12 @@ async def test_field_config_api():
             } for name, info in BASIC_FIELDS_INFO.items()},
             "categories": categories
         }
-        
+
         print(f"\n📄 API响应示例:")
         print(json.dumps(response_data, indent=2, ensure_ascii=False)[:500] + "...")
-        
+
         print("\n🎉 字段配置API测试完成！")
-        
+
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback

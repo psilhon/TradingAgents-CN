@@ -13,7 +13,7 @@ from tradingagents.dataflows.data_source_manager import DataSourceManager
 
 def test_asyncio_in_thread_pool():
     """测试在线程池中使用异步方法"""
-    
+
     def run_in_thread():
         """在线程池中运行的函数"""
         # 这应该不会抛出 RuntimeError
@@ -26,15 +26,15 @@ def test_asyncio_in_thread_pool():
             # 在线程池中没有事件循环，创建新的
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        
+
         # 测试运行一个简单的异步函数
         async def simple_async():
             await asyncio.sleep(0.01)
             return "success"
-        
+
         result = loop.run_until_complete(simple_async())
         return result
-    
+
     # 在线程池中执行
     with ThreadPoolExecutor(max_workers=2) as executor:
         future = executor.submit(run_in_thread)
@@ -44,7 +44,7 @@ def test_asyncio_in_thread_pool():
 
 def test_data_source_manager_in_thread_pool():
     """测试 DataSourceManager 在线程池中的使用"""
-    
+
     def get_stock_data():
         """在线程池中获取股票数据"""
         manager = DataSourceManager()
@@ -64,12 +64,12 @@ def test_data_source_manager_in_thread_pool():
                 raise AssertionError(f"事件循环错误未修复: {e}")
             # 其他错误（如API配置问题）可以接受
             return f"其他错误（可接受）: {type(e).__name__}"
-    
+
     # 在线程池中执行
     with ThreadPoolExecutor(max_workers=2) as executor:
         future = executor.submit(get_stock_data)
         result = future.result(timeout=30)
-        
+
         # 验证不是事件循环错误
         assert "There is no current event loop" not in str(result)
         print(f"✅ 测试通过，结果: {result[:200] if isinstance(result, str) else result}")
@@ -77,7 +77,7 @@ def test_data_source_manager_in_thread_pool():
 
 def test_multiple_threads():
     """测试多个线程同时使用异步方法"""
-    
+
     def run_async_task(task_id):
         """在线程中运行异步任务"""
         try:
@@ -88,18 +88,18 @@ def test_multiple_threads():
         except RuntimeError:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        
+
         async def task():
             await asyncio.sleep(0.01)
             return f"Task {task_id} completed"
-        
+
         return loop.run_until_complete(task())
-    
+
     # 在多个线程中同时执行
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(run_async_task, i) for i in range(5)]
         results = [f.result(timeout=5) for f in futures]
-        
+
         # 验证所有任务都成功完成
         assert len(results) == 5
         for i, result in enumerate(results):
@@ -110,14 +110,14 @@ if __name__ == "__main__":
     print("🧪 测试1: 线程池中的异步方法")
     test_asyncio_in_thread_pool()
     print("✅ 测试1通过\n")
-    
+
     print("🧪 测试2: DataSourceManager 在线程池中")
     test_data_source_manager_in_thread_pool()
     print("✅ 测试2通过\n")
-    
+
     print("🧪 测试3: 多线程并发")
     test_multiple_threads()
     print("✅ 测试3通过\n")
-    
+
     print("🎉 所有测试通过！")
 

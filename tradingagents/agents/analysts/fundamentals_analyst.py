@@ -376,7 +376,7 @@ def create_fundamentals_analyst(llm, toolkit):
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
         result = chain.invoke({"messages": state["messages"]})
         logger.info(f"📊 [基本面分析师] LLM调用完成")
-        
+
         # 🔍 [调试日志] 打印AIMessage的详细内容
         logger.info(f"🤖 [基本面分析师] AIMessage详细内容:")
         logger.info(f"🤖 [基本面分析师] - 消息类型: {type(result).__name__}")
@@ -385,7 +385,7 @@ def create_fundamentals_analyst(llm, toolkit):
             # 🔥 调试模式：打印完整内容，不截断
             logger.info(f"🤖 [基本面分析师] - 完整内容:")
             logger.info(f"{result.content}")
-        
+
         # 🔍 [调试日志] 打印tool_calls的详细信息
         # 详细记录 LLM 返回结果
         logger.info(f"📊 [基本面分析师] ===== LLM返回结果分析 =====")
@@ -415,7 +415,7 @@ def create_fundamentals_analyst(llm, toolkit):
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(fresh_llm):
             logger.info(f"📊 [基本面分析师] 检测到Google模型，使用统一工具调用处理器")
-            
+
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(
                 ticker=ticker,
@@ -423,7 +423,7 @@ def create_fundamentals_analyst(llm, toolkit):
                 analyst_type="基本面分析",
                 specific_requirements="重点关注财务数据、盈利能力、估值指标、行业地位等基本面因素。"
             )
-            
+
             # 处理Google模型工具调用
             report, messages = GoogleToolCallHandler.handle_google_tool_calls(
                 result=result,
@@ -438,7 +438,7 @@ def create_fundamentals_analyst(llm, toolkit):
         else:
             # 非Google模型的处理逻辑
             logger.debug(f"📊 [DEBUG] 非Google模型 ({fresh_llm.__class__.__name__})，使用标准处理逻辑")
-            
+
             # 检查工具调用情况
             current_tool_calls = len(result.tool_calls) if hasattr(result, 'tool_calls') else 0
             logger.debug(f"📊 [DEBUG] 当前消息的工具调用数量: {current_tool_calls}")
@@ -637,9 +637,9 @@ def create_fundamentals_analyst(llm, toolkit):
                 except Exception as e:
                     combined_data = f"统一基本面分析工具调用失败: {e}"
                     logger.debug(f"📊 [DEBUG] 统一工具调用异常: {e}")
-                
+
                 currency_info = f"{market_info['currency_name']}（{market_info['currency_symbol']}）"
-                
+
                 # 生成基于真实数据的分析报告
                 analysis_prompt = f"""基于以下真实数据，对{company_name}（股票代码：{ticker}）进行详细的基本面分析：
 
@@ -665,10 +665,10 @@ def create_fundamentals_analyst(llm, toolkit):
                         ("system", "你是专业的股票基本面分析师，基于提供的真实数据进行分析。"),
                         ("human", "{analysis_request}")
                     ])
-                    
+
                     analysis_chain = analysis_prompt_template | fresh_llm
                     analysis_result = analysis_chain.invoke({"analysis_request": analysis_prompt})
-                    
+
                     if hasattr(analysis_result, 'content'):
                         report = analysis_result.content
                     else:

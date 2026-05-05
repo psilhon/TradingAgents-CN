@@ -214,7 +214,7 @@ class MessageBuffer:
             if content is not None:
                 latest_section = section
                 latest_content = content
-               
+
         if latest_section and latest_content:
             # Format the current section for display
             section_titles = {
@@ -440,7 +440,7 @@ def update_display(layout, spinner_text=None):
             content_str = ' '.join(text_parts)
         elif not isinstance(content_str, str):
             content_str = str(content)
-            
+
         # Truncate message content if too long
         if len(content_str) > DEFAULT_MAX_CONTENT_LENGTH:
             content_str = content_str[:197] + "..."
@@ -711,14 +711,14 @@ def get_ticker(market):
 
         # 验证股票代码格式
         import re
-        
+
         # 添加边界条件检查
         ticker = normalize_ticker_symbol(ticker)
         if not ticker:  # 检查空字符串
             console.print(f"[red]❌ 股票代码不能为空 | Ticker cannot be empty[/red]")
             logger.warning(f"用户输入空股票代码")
             continue
-            
+
         ticker_to_check = ticker if market['data_source'] != 'china_stock' else ticker
 
         if re.match(market['pattern'], ticker_to_check):
@@ -1044,7 +1044,7 @@ def check_api_keys(llm_provider: str) -> bool:
 def run_analysis():
     import time
     start_time = time.time()  # 记录开始时间
-    
+
     # First get all user selections
     selections = get_user_selections()
 
@@ -1112,7 +1112,7 @@ def run_analysis():
             with open(log_file, "a", encoding="utf-8") as f:
                 f.write(f"{timestamp} [{message_type}] {content}\n")
         return wrapper
-    
+
     def save_tool_call_decorator(obj, func_name):
         func = getattr(obj, func_name)
         @wraps(func)
@@ -1599,7 +1599,7 @@ def run_analysis():
 
         ui.show_success("📋 分析报告生成完成")
         ui.show_success(f"🎉 {selections['ticker']} 股票分析全部完成！")
-        
+
         # 记录总执行时间
         total_time = time.time() - start_time
         ui.show_user_message(f"⏱️ 总分析时间: {total_time:.1f}秒", "dim")
@@ -1791,22 +1791,22 @@ def data_config(
     # 使用 config_manager 的方法
     get_data_dir = config_manager.get_data_dir
     set_data_dir = config_manager.set_data_dir
-    
+
     logger.info(f"\n[bold blue]📁 数据目录配置 | Data Directory Configuration[/bold blue]")
-    
+
     if reset:
         # 重置为默认配置
         default_data_dir = os.path.join(os.path.expanduser("~"), "Documents", "TradingAgents", "data")
         set_data_dir(default_data_dir)
         logger.info(f"[green]✅ 已重置数据目录为默认路径: {default_data_dir}[/green]")
         return
-    
+
     if set_dir:
         # 设置新的数据目录
         try:
             set_data_dir(set_dir)
             logger.info(f"[green]✅ 数据目录已设置为: {set_dir}[/green]")
-            
+
             # 显示创建的目录结构
             if os.path.exists(set_dir):
                 logger.info(f"\n[blue]📂 目录结构:[/blue]")
@@ -1819,49 +1819,49 @@ def data_config(
         except Exception as e:
             logger.error(f"[red]❌ 设置数据目录失败: {e}[/red]")
         return
-    
+
     # 显示当前配置（默认行为或使用--show）
     settings = config_manager.load_settings()
     current_data_dir = get_data_dir()
-    
+
     # 配置信息表格
     config_table = Table(show_header=True, header_style="bold magenta")
     config_table.add_column("配置项 | Configuration", style="cyan")
     config_table.add_column("路径 | Path", style="green")
     config_table.add_column("状态 | Status", style="yellow")
-    
+
     directories = {
         "数据目录 | Data Directory": settings.get("data_dir", "未配置"),
         "缓存目录 | Cache Directory": settings.get("cache_dir", "未配置"),
         "结果目录 | Results Directory": settings.get("results_dir", "未配置")
     }
-    
+
     for name, path in directories.items():
         if path and path != "未配置":
             status = "✅ 存在" if os.path.exists(path) else "❌ 不存在"
         else:
             status = "⚠️ 未配置"
         config_table.add_row(name, str(path), status)
-    
+
     console.print(config_table)
-    
+
     # 环境变量信息
     logger.info(f"\n[blue]🌍 环境变量 | Environment Variables:[/blue]")
     env_table = Table(show_header=True, header_style="bold magenta")
     env_table.add_column("环境变量 | Variable", style="cyan")
     env_table.add_column("值 | Value", style="green")
-    
+
     env_vars = {
         "TRADINGAGENTS_DATA_DIR": os.getenv("TRADINGAGENTS_DATA_DIR", "未设置"),
         "TRADINGAGENTS_CACHE_DIR": os.getenv("TRADINGAGENTS_CACHE_DIR", "未设置"),
         "TRADINGAGENTS_RESULTS_DIR": os.getenv("TRADINGAGENTS_RESULTS_DIR", "未设置")
     }
-    
+
     for var, value in env_vars.items():
         env_table.add_row(var, value)
-    
+
     console.print(env_table)
-    
+
     # 使用说明
     logger.info(f"\n[yellow]💡 使用说明 | Usage:[/yellow]")
     logger.info(f"• 设置数据目录: tradingagents data-config --set /path/to/data")
@@ -2037,10 +2037,10 @@ def main():
             if e.code == 2 and len(sys.argv) > 1:
                 unknown_command = sys.argv[1]
                 available_commands = ['analyze', 'config', 'version', 'data-config', 'examples', 'test', 'help']
-                
+
                 # 使用difflib找到最相似的命令
                 suggestions = get_close_matches(unknown_command, available_commands, n=3, cutoff=0.6)
-                
+
                 if suggestions:
                     logger.error(f"\n[red]❌ 未知命令: '{unknown_command}'[/red]")
                     logger.info(f"[yellow]💡 您是否想要使用以下命令之一？[/yellow]")

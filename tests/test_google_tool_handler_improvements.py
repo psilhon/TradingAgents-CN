@@ -29,13 +29,13 @@ logger = logging.getLogger("test_google_tool_handler")
 def test_google_tool_handler_improvements():
     """测试Google工具处理器的改进"""
     logger.info("开始测试Google工具处理器的改进...")
-    
+
     # 创建Google模型
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro-latest", temperature=0.1)
-    
+
     # 创建工具集
     tools = [Toolkit.get_stock_market_data_unified]
-    
+
     # 测试场景1: 检查是否为Google模型
     logger.info("测试场景1: 检查是否为Google模型")
     try:
@@ -43,20 +43,20 @@ def test_google_tool_handler_improvements():
         logger.info(f"场景1结果: 是否为Google模型: {is_google}")
     except Exception as e:
         logger.error(f"场景1异常: {e}")
-    
+
     # 测试场景2: 模拟空工具调用的AIMessage
     logger.info("测试场景2: 模拟空工具调用的AIMessage")
     try:
         # 创建一个没有工具调用的AIMessage
         ai_message = AIMessage(content="我需要获取股票数据来进行分析")
-        
+
         state = {
             "messages": [HumanMessage(content="请分析贵州茅台(600519)的市场情况")],
             "trade_date": "2023-12-31",
             "company_of_interest": "贵州茅台",
             "ticker": "600519"
         }
-        
+
         result, messages = GoogleToolCallHandler.handle_google_tool_calls(
             result=ai_message,
             llm=llm,
@@ -68,7 +68,7 @@ def test_google_tool_handler_improvements():
         logger.info(f"场景2结果: {result[:100]}...")
     except Exception as e:
         logger.error(f"场景2异常: {e}")
-    
+
     # 测试场景3: 模拟有工具调用的AIMessage
     logger.info("测试场景3: 模拟有工具调用的AIMessage")
     try:
@@ -85,14 +85,14 @@ def test_google_tool_handler_improvements():
                 }
             }]
         )
-        
+
         state = {
             "messages": [HumanMessage(content="请分析贵州茅台(600519)的市场情况")],
             "trade_date": "2023-12-31",
             "company_of_interest": "贵州茅台",
             "ticker": "600519"
         }
-        
+
         result, messages = GoogleToolCallHandler.handle_google_tool_calls(
             result=ai_message,
             llm=llm,
@@ -104,7 +104,7 @@ def test_google_tool_handler_improvements():
         logger.info(f"场景3结果: {result[:100]}...")
     except Exception as e:
         logger.error(f"场景3异常: {e}")
-    
+
     logger.info("Google工具处理器改进测试完成")
 
 if __name__ == "__main__":

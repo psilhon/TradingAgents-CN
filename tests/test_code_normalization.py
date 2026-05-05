@@ -15,15 +15,15 @@ def normalize_code_akshare_style(code_raw):
     """
     if not code_raw:
         return None
-    
+
     # 标准化股票代码：处理交易所前缀（如 sz000001, sh600036）
     code_str = str(code_raw).strip()
-    
+
     # 如果代码长度超过6位，去掉前面的交易所前缀（如 sz, sh）
     if len(code_str) > 6:
         # 去掉前面的非数字字符（通常是2个字符的交易所代码）
         code_str = ''.join(filter(str.isdigit, code_str))
-    
+
     # 如果是纯数字，移除前导0后补齐到6位
     if code_str.isdigit():
         code_clean = code_str.lstrip('0') or '0'  # 移除前导0，如果全是0则保留一个0
@@ -36,7 +36,7 @@ def normalize_code_akshare_style(code_raw):
         else:
             # 无法提取有效代码，跳过
             return None
-    
+
     return code
 
 
@@ -45,7 +45,7 @@ def test_code_normalization():
     print("\n" + "="*70)
     print("🧪 测试股票代码标准化逻辑")
     print("="*70)
-    
+
     test_cases = [
         # (输入, 期望输出, 描述, 来源)
         ("sz000001", "000001", "深圳平安银行（带sz前缀）", "新浪接口"),
@@ -64,37 +64,37 @@ def test_code_normalization():
         ("abc", None, "纯字母（无效）", "边界情况"),
         ("sz", None, "只有前缀（无效）", "边界情况"),
     ]
-    
+
     print(f"\n{'状态':4s} | {'输入':12s} | {'期望':8s} | {'实际':8s} | {'描述':20s} | {'来源':12s}")
     print("-" * 70)
-    
+
     passed = 0
     failed = 0
-    
+
     for input_code, expected, description, source in test_cases:
         result = normalize_code_akshare_style(input_code)
-        
+
         if result == expected:
             status = "✅"
             passed += 1
         else:
             status = "❌"
             failed += 1
-        
+
         input_display = f"'{input_code}'" if input_code else "(空)"
         expected_display = expected if expected else "(None)"
         result_display = result if result else "(None)"
-        
+
         print(f"{status:4s} | {input_display:12s} | {expected_display:8s} | {result_display:8s} | {description:20s} | {source:12s}")
-    
+
     print("-" * 70)
     print(f"\n📊 测试结果: 总计 {len(test_cases)} 个用例, 通过 {passed}, 失败 {failed}")
-    
+
     if failed == 0:
         print("\n🎉 所有测试通过！代码标准化逻辑正确处理了各种格式")
     else:
         print(f"\n⚠️  有 {failed} 个测试失败，请检查代码标准化逻辑")
-    
+
     return failed == 0
 
 
@@ -103,36 +103,36 @@ def test_interface_compatibility():
     print("\n" + "="*70)
     print("🔄 测试接口兼容性")
     print("="*70)
-    
+
     print("\n📋 新浪接口 (stock_zh_a_spot) 可能返回的格式:")
     sina_formats = [
         "sz000001",  # 深圳股票
         "sh600036",  # 上海股票
         "bj920000",  # 北交所股票
     ]
-    
+
     for code in sina_formats:
         normalized = normalize_code_akshare_style(code)
         print(f"   {code:12s} → {normalized}")
-    
+
     print("\n📋 东方财富接口 (stock_zh_a_spot_em) 可能返回的格式:")
     em_formats = [
         "000001",  # 深圳股票（纯数字）
         "600036",  # 上海股票（纯数字）
         "920000",  # 北交所股票（纯数字）
     ]
-    
+
     for code in em_formats:
         normalized = normalize_code_akshare_style(code)
         print(f"   {code:12s} → {normalized}")
-    
+
     print("\n✅ 结论: 无论哪个接口，标准化后的代码都是统一的6位数字格式")
 
 
 if __name__ == "__main__":
     success1 = test_code_normalization()
     test_interface_compatibility()
-    
+
     if success1:
         print("\n" + "="*70)
         print("✅ 所有测试通过！")

@@ -17,18 +17,18 @@ from tradingagents.config.runtime_settings import use_app_cache_enabled
 
 class MongoDBCacheAdapter:
     """MongoDB 缓存适配器（从 app 的 MongoDB 读取同步数据）"""
-    
+
     def __init__(self):
         self.use_app_cache = use_app_cache_enabled(False)
         self.mongodb_client = None
         self.db = None
-        
+
         if self.use_app_cache:
             self._init_mongodb_connection()
             logger.info("🔄 MongoDB缓存适配器已启用 - 优先使用MongoDB数据")
         else:
             logger.info("📁 MongoDB缓存适配器使用传统缓存模式")
-    
+
     def _init_mongodb_connection(self):
         """初始化MongoDB连接"""
         try:
@@ -43,7 +43,7 @@ class MongoDBCacheAdapter:
         except Exception as e:
             logger.warning(f"⚠️ MongoDB连接初始化失败: {e}")
             self.use_app_cache = False
-    
+
     def get_stock_basic_info(self, symbol: str) -> Optional[Dict[str, Any]]:
         """获取股票基础信息（按数据源优先级查询）"""
         if not self.use_app_cache or self.db is None:
@@ -77,7 +77,7 @@ class MongoDBCacheAdapter:
         except Exception as e:
             logger.warning(f"⚠️ 获取基础信息失败: {e}")
             return None
-    
+
     def _get_data_source_priority(self, symbol: str) -> list:
         """
         获取数据源优先级顺序
@@ -217,7 +217,7 @@ class MongoDBCacheAdapter:
         except Exception as e:
             logger.warning(f"⚠️ 获取历史数据失败: {e}")
             return None
-    
+
     def get_financial_data(self, symbol: str, report_period: str = None) -> Optional[Dict[str, Any]]:
         """获取财务数据，按数据源优先级查询"""
         if not self.use_app_cache or self.db is None:
@@ -255,7 +255,7 @@ class MongoDBCacheAdapter:
         except Exception as e:
             logger.warning(f"⚠️ [数据来源: MongoDB-财务数据] 获取财务数据失败: {e}")
             return None
-    
+
     def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> Optional[List[Dict[str, Any]]]:
         """获取新闻数据"""
         if not self.use_app_cache or self.db is None:
@@ -263,22 +263,22 @@ class MongoDBCacheAdapter:
 
         try:
             collection = self.db.stock_news  # 修正集合名称
-            
+
             # 构建查询条件
             query = {}
             if symbol:
                 code6 = str(symbol).zfill(6)
                 query["symbol"] = code6
-            
+
             # 时间范围
             if hours_back:
                 start_time = datetime.now(timezone.utc) - timedelta(hours=hours_back)
                 query["publish_time"] = {"$gte": start_time}
-            
+
             # 查询数据
             cursor = collection.find(query, {"_id": 0}).sort("publish_time", -1).limit(limit)
             data = list(cursor)
-            
+
             if data:
                 logger.debug(f"✅ [数据来源: MongoDB-新闻数据] 从MongoDB获取新闻数据: {len(data)}条")
                 return data
@@ -289,60 +289,60 @@ class MongoDBCacheAdapter:
         except Exception as e:
             logger.warning(f"⚠️ [数据来源: MongoDB-新闻数据] 获取新闻数据失败: {e}")
             return None
-    
+
     def get_social_media_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> Optional[List[Dict[str, Any]]]:
         """获取社媒数据"""
         if not self.use_app_cache or self.db is None:
             return None
-            
+
         try:
             collection = self.db.social_media_messages
-            
+
             # 构建查询条件
             query = {}
             if symbol:
                 code6 = str(symbol).zfill(6)
                 query["symbol"] = code6
-            
+
             # 时间范围
             if hours_back:
                 start_time = datetime.now(timezone.utc) - timedelta(hours=hours_back)
                 query["publish_time"] = {"$gte": start_time}
-            
+
             # 查询数据
             cursor = collection.find(query, {"_id": 0}).sort("publish_time", -1).limit(limit)
             data = list(cursor)
-            
+
             if data:
                 logger.debug(f"✅ 从MongoDB获取社媒数据: {len(data)}条")
                 return data
             else:
                 logger.debug(f"📊 MongoDB中未找到社媒数据")
                 return None
-                
+
         except Exception as e:
             logger.warning(f"⚠️ 获取社媒数据失败: {e}")
             return None
-    
+
     def get_market_quotes(self, symbol: str) -> Optional[Dict[str, Any]]:
         """获取实时行情数据"""
         if not self.use_app_cache or self.db is None:
             return None
-            
+
         try:
             code6 = str(symbol).zfill(6)
             collection = self.db.market_quotes
-            
+
             # 获取最新行情
             doc = collection.find_one({"code": code6}, {"_id": 0}, sort=[("timestamp", -1)])
-            
+
             if doc:
                 logger.debug(f"✅ 从MongoDB获取行情数据: {symbol}")
                 return doc
             else:
                 logger.debug(f"📊 MongoDB中未找到行情数据: {symbol}")
                 return None
-                
+
         except Exception as e:
             logger.warning(f"⚠️ 获取行情数据失败: {e}")
             return None
@@ -379,19 +379,19 @@ def get_stock_data_with_fallback(symbol: str, start_date: str = None, end_date: 
         优先返回MongoDB数据，失败时调用降级函数
     """
     adapter = get_enhanced_data_adapter()
-    
+
     # 尝试从MongoDB获取
     if adapter.use_app_cache:
         df = adapter.get_historical_data(symbol, start_date, end_date)
         if df is not None and not df.empty:
             logger.info(f"📊 使用MongoDB历史数据: {symbol}")
             return df
-    
+
     # 降级到传统方式
     if fallback_func:
         logger.info(f"🔄 降级到传统数据源: {symbol}")
         return fallback_func(symbol, start_date, end_date)
-    
+
     return None
 
 
@@ -407,17 +407,17 @@ def get_financial_data_with_fallback(symbol: str, fallback_func=None) -> Union[D
         优先返回MongoDB数据，失败时调用降级函数
     """
     adapter = get_enhanced_data_adapter()
-    
+
     # 尝试从MongoDB获取
     if adapter.use_app_cache:
         data = adapter.get_financial_data(symbol)
         if data:
             logger.info(f"💰 使用MongoDB财务数据: {symbol}")
             return data
-    
+
     # 降级到传统方式
     if fallback_func:
         logger.info(f"🔄 降级到传统数据源: {symbol}")
         return fallback_func(symbol)
-    
+
     return None

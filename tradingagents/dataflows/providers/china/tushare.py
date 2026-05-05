@@ -27,7 +27,7 @@ class TushareProvider(BaseStockDataProvider):
     统一的Tushare数据提供器
     合并app层和tradingagents层的所有优势功能
     """
-    
+
     def __init__(self):
         super().__init__("Tushare")
         self.api = None
@@ -255,13 +255,13 @@ class TushareProvider(BaseStockDataProvider):
         except Exception as e:
             self.logger.error(f"❌ Tushare连接失败: {e}")
             return False
-    
+
     def is_available(self) -> bool:
         """检查Tushare是否可用"""
         return TUSHARE_AVAILABLE and self.connected and self.api is not None
-    
+
     # ==================== 基础数据接口 ====================
-    
+
     def get_stock_list_sync(self, market: str = None) -> Optional[pd.DataFrame]:
         """获取股票列表（同步版本）"""
         if not self.is_available():
@@ -293,7 +293,7 @@ class TushareProvider(BaseStockDataProvider):
                 'list_status': 'L',  # 只获取上市股票
                 'fields': 'ts_code,symbol,name,area,industry,market,exchange,list_date,is_hs'
             }
-            
+
             if market:
                 # 根据市场筛选
                 if market == "CN":
@@ -302,31 +302,31 @@ class TushareProvider(BaseStockDataProvider):
                     return None  # Tushare港股需要单独处理
                 elif market == "US":
                     return None  # Tushare不支持美股
-            
+
             # 获取数据
             df = await asyncio.to_thread(self.api.stock_basic, **params)
-            
+
             if df is None or df.empty:
                 return None
-            
+
             # 转换为标准格式
             stock_list = []
             for _, row in df.iterrows():
                 stock_info = self.standardize_basic_info(row.to_dict())
                 stock_list.append(stock_info)
-            
+
             self.logger.info(f"✅ 获取股票列表: {len(stock_list)}只")
             return stock_list
-            
+
         except Exception as e:
             self.logger.error(f"❌ 获取股票列表失败: {e}")
             return None
-    
+
     async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[Dict[str, Any], List[Dict[str, Any]]]]:
         """获取股票基础信息"""
         if not self.is_available():
             return None
-        
+
         try:
             if symbol:
                 # 获取单个股票信息
@@ -336,19 +336,19 @@ class TushareProvider(BaseStockDataProvider):
                     ts_code=ts_code,
                     fields='ts_code,symbol,name,area,industry,market,exchange,list_date,is_hs,act_name,act_ent_type'
                 )
-                
+
                 if df is None or df.empty:
                     return None
-                
+
                 return self.standardize_basic_info(df.iloc[0].to_dict())
             else:
                 # 获取所有股票信息
                 return await self.get_stock_list()
-                
+
         except Exception as e:
             self.logger.error(f"❌ 获取股票基础信息失败 symbol={symbol}: {e}")
             return None
-    
+
     async def get_stock_quotes(self, symbol: str) -> Optional[Dict[str, Any]]:
         """
         获取单只股票实时行情
@@ -507,7 +507,7 @@ class TushareProvider(BaseStockDataProvider):
         ]
         error_msg_lower = error_msg.lower()
         return any(keyword in error_msg_lower for keyword in rate_limit_keywords)
-    
+
     async def get_historical_data(
         self,
         symbol: str,
@@ -577,7 +577,7 @@ class TushareProvider(BaseStockDataProvider):
 
             self.logger.info(f"✅ 获取{period}历史数据: {symbol} {len(df)}条记录 (前复权 qfq)")
             return df
-            
+
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
@@ -591,14 +591,14 @@ class TushareProvider(BaseStockDataProvider):
                 f"   堆栈跟踪:\n{error_details}"
             )
             return None
-    
+
     # ==================== 扩展接口 ====================
-    
+
     async def get_daily_basic(self, trade_date: str) -> Optional[pd.DataFrame]:
         """获取每日基础财务数据"""
         if not self.is_available():
             return None
-        
+
         try:
             date_str = trade_date.replace('-', '')
             df = await asyncio.to_thread(
@@ -606,27 +606,27 @@ class TushareProvider(BaseStockDataProvider):
                 trade_date=date_str,
                 fields='ts_code,total_mv,circ_mv,pe,pb,turnover_rate,volume_ratio,pe_ttm,pb_mrq'
             )
-            
+
             if df is not None and not df.empty:
                 self.logger.info(f"✅ 获取每日基础数据: {trade_date} {len(df)}条记录")
                 return df
-            
+
             return None
-            
+
         except Exception as e:
             self.logger.error(f"❌ 获取每日基础数据失败 trade_date={trade_date}: {e}")
             return None
-    
+
     async def find_latest_trade_date(self) -> Optional[str]:
         """查找最新交易日期"""
         if not self.is_available():
             return None
-        
+
         try:
             today = datetime.now()
             for delta in range(0, 10):  # 最多回溯10天
                 check_date = (today - timedelta(days=delta)).strftime('%Y%m%d')
-                
+
                 try:
                     df = await asyncio.to_thread(
                         self.api.daily_basic,
@@ -634,21 +634,21 @@ class TushareProvider(BaseStockDataProvider):
                         fields='ts_code',
                         limit=1
                     )
-                    
+
                     if df is not None and not df.empty:
                         formatted_date = f"{check_date[:4]}-{check_date[4:6]}-{check_date[6:8]}"
                         self.logger.info(f"✅ 找到最新交易日期: {formatted_date}")
                         return formatted_date
-                        
+
                 except Exception:
                     continue
-            
+
             return None
-            
+
         except Exception as e:
             self.logger.error(f"❌ 查找最新交易日期失败: {e}")
             return None
-    
+
     async def get_financial_data(self, symbol: str, report_type: str = "quarterly",
                                 period: str = None, limit: int = 4) -> Optional[Dict[str, Any]]:
         """

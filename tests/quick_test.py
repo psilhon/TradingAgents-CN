@@ -46,11 +46,11 @@ print("\n📦 测试模块导入...")
 try:
     from tradingagents.dataflows.cache_manager import get_cache, StockDataCache
     print("✅ cache_manager 导入成功")
-    
+
     # 创建缓存实例
     cache = get_cache()
     print(f"✅ 缓存实例创建成功: {type(cache).__name__}")
-    
+
     # 检查缓存目录
     if hasattr(cache, 'cache_dir'):
         print(f"📁 缓存目录: {cache.cache_dir}")
@@ -58,7 +58,7 @@ try:
             print("✅ 缓存目录已创建")
         else:
             print("⚠️ 缓存目录不存在")
-    
+
 except Exception as e:
     print(f"❌ cache_manager 导入失败: {e}")
     traceback.print_exc()
@@ -67,11 +67,11 @@ except Exception as e:
 try:
     from tradingagents.dataflows.optimized_us_data import get_optimized_us_data_provider
     print("✅ optimized_us_data 导入成功")
-    
+
     # 创建数据提供器
     provider = get_optimized_us_data_provider()
     print(f"✅ 数据提供器创建成功: {type(provider).__name__}")
-    
+
 except Exception as e:
     print(f"❌ optimized_us_data 导入失败: {e}")
     traceback.print_exc()
@@ -80,11 +80,11 @@ except Exception as e:
 try:
     from tradingagents.dataflows.config import get_config
     print("✅ config 导入成功")
-    
+
     # 获取配置
     config = get_config()
     print(f"✅ 配置获取成功: {type(config).__name__}")
-    
+
 except Exception as e:
     print(f"❌ config 导入失败: {e}")
     traceback.print_exc()
@@ -93,7 +93,7 @@ except Exception as e:
 print("\n💾 测试缓存基本功能...")
 try:
     cache = get_cache()
-    
+
     # 测试数据保存
     test_data = f"测试数据 - {datetime.now()}"
     cache_key = cache.save_stock_data(
@@ -104,7 +104,7 @@ try:
         data_source="integration_test"
     )
     print(f"✅ 数据保存成功: {cache_key}")
-    
+
     # 测试数据加载
     loaded_data = cache.load_stock_data(cache_key)
     if loaded_data == test_data:
@@ -113,7 +113,7 @@ try:
         print(f"❌ 数据不匹配")
         print(f"  期望: {test_data}")
         print(f"  实际: {loaded_data}")
-    
+
     # 测试缓存查找
     found_key = cache.find_cached_stock_data(
         symbol="TEST",
@@ -121,12 +121,12 @@ try:
         end_date="2024-12-31",
         data_source="integration_test"
     )
-    
+
     if found_key:
         print(f"✅ 缓存查找成功: {found_key}")
     else:
         print("❌ 缓存查找失败")
-    
+
 except Exception as e:
     print(f"❌ 缓存功能测试失败: {e}")
     traceback.print_exc()
@@ -135,9 +135,9 @@ except Exception as e:
 print("\n⚡ 简单性能测试...")
 try:
     import time
-    
+
     cache = get_cache()
-    
+
     # 保存测试
     start_time = time.time()
     cache_key = cache.save_stock_data(
@@ -148,20 +148,20 @@ try:
         data_source="perf_test"
     )
     save_time = time.time() - start_time
-    
+
     # 加载测试
     start_time = time.time()
     data = cache.load_stock_data(cache_key)
     load_time = time.time() - start_time
-    
+
     print(f"📊 保存时间: {save_time:.4f}秒")
     print(f"⚡ 加载时间: {load_time:.4f}秒")
-    
+
     if load_time < 0.1:
         print("✅ 缓存性能良好 (<0.1秒)")
     else:
         print("⚠️ 缓存性能需要优化")
-    
+
 except Exception as e:
     print(f"❌ 性能测试失败: {e}")
 
@@ -170,11 +170,11 @@ print("\n📊 缓存统计信息...")
 try:
     cache = get_cache()
     stats = cache.get_cache_stats()
-    
+
     print("缓存统计:")
     for key, value in stats.items():
         print(f"  {key}: {value}")
-    
+
 except Exception as e:
     print(f"❌ 缓存统计失败: {e}")
 

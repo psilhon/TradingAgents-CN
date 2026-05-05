@@ -15,12 +15,12 @@ from tradingagents.default_config import DEFAULT_CONFIG
 def test_valuation_indicators():
     """测试估值指标计算"""
     print("测试300750估值指标计算...")
-    
+
     # 创建工具包
     config = DEFAULT_CONFIG.copy()
     config["online_tools"] = True
     toolkit = Toolkit(config)
-    
+
     # 获取基本面数据
     result = toolkit.get_stock_fundamentals_unified.invoke({
         'ticker': '300750',
@@ -28,13 +28,13 @@ def test_valuation_indicators():
         'end_date': '2025-07-15',
         'curr_date': '2025-07-15'
     })
-    
+
     # 查找估值指标部分
     lines = result.split('\n')
-    
+
     print("\n=== 估值指标部分 ===")
     in_valuation_section = False
-    
+
     for line in lines:
         if "估值指标" in line:
             in_valuation_section = True
@@ -45,7 +45,7 @@ def test_valuation_indicators():
             elif line.strip() == "" or line.startswith("##"):
                 if line.startswith("##"):
                     break
-    
+
     print("\n=== 完整结果预览 ===")
     # 只显示前2000个字符
     print(result[:2000])

@@ -41,24 +41,24 @@ def main():
     print("=" * 60)
     print("🧪 测试振幅 API")
     print("=" * 60)
-    
+
     # 1. 登录
     print("\n1️⃣ 登录...")
     token = login()
     if not token:
         return
     print(f"✅ 登录成功")
-    
+
     # 2. 获取 300750 行情
     print("\n2️⃣ 获取 300750 行情...")
     result = get_quote(token, "300750")
     if not result:
         return
-    
+
     print(f"✅ 获取成功")
     print(f"\n📊 行情数据:")
     data = result.get("data", {})
-    
+
     # 打印关键字段
     fields = [
         ("代码", "code"),
@@ -76,7 +76,7 @@ def main():
         ("换手率日期", "turnover_rate_date"),
         ("振幅日期", "amplitude_date"),  # 🔥 新增
     ]
-    
+
     for label, key in fields:
         value = data.get(key)
         if value is not None:
@@ -90,14 +90,14 @@ def main():
                 print(f"  {label}: {value}")
         else:
             print(f"  {label}: -")
-    
+
     # 验证振幅计算
     print("\n3️⃣ 验证振幅计算...")
     high = data.get("high")
     low = data.get("low")
     prev_close = data.get("prev_close")
     amplitude = data.get("amplitude")
-    
+
     if high and low and prev_close:
         expected_amplitude = round((high - low) / prev_close * 100, 2)
         print(f"  高: {high}")
@@ -105,7 +105,7 @@ def main():
         print(f"  昨收: {prev_close}")
         print(f"  期望振幅: {expected_amplitude}%")
         print(f"  实际振幅: {amplitude}%")
-        
+
         if abs(expected_amplitude - amplitude) < 0.01:
             print(f"  ✅ 振幅计算正确！")
         else:

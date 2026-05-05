@@ -153,7 +153,7 @@ def create_fundamentals_analyst(llm, toolkit):
         # 检查工具调用
         expected_tools = [tool.name for tool in tools]
         actual_tools = [tc['name'] for tc in result.tool_calls] if hasattr(result, 'tool_calls') and result.tool_calls else []
-        
+
         print(f"📊 [DEBUG] 期望的工具: {expected_tools}")
         print(f"📊 [DEBUG] 实际调用的工具: {actual_tools}")
 
@@ -164,16 +164,16 @@ def create_fundamentals_analyst(llm, toolkit):
             for tc in result.tool_calls:
                 tool_calls_info.append(tc['name'])
                 print(f"📊 [DEBUG] 工具调用 {len(tool_calls_info)}: {tc}")
-            
+
             print(f"📊 [基本面分析师] 工具调用: {tool_calls_info}")
-            
+
             # 返回状态，让工具执行
             return {"messages": [result]}
-        
+
         else:
             # 没有工具调用，使用阿里百炼强制工具调用修复
             print(f"📊 [DEBUG] 检测到模型未调用工具，启用强制工具调用模式")
-            
+
             # 强制调用统一基本面分析工具
             try:
                 print(f"📊 [DEBUG] 强制调用 get_stock_fundamentals_unified...")
@@ -192,9 +192,9 @@ def create_fundamentals_analyst(llm, toolkit):
             except Exception as e:
                 combined_data = f"统一基本面分析工具调用失败: {e}"
                 print(f"📊 [DEBUG] 统一工具调用异常: {e}")
-            
+
             currency_info = f"{market_info['currency_name']}（{market_info['currency_symbol']}）"
-            
+
             # 生成基于真实数据的分析报告
             analysis_prompt = f"""基于以下真实数据，对股票{ticker}进行详细的基本面分析：
 
@@ -219,21 +219,21 @@ def create_fundamentals_analyst(llm, toolkit):
                     ("system", "你是专业的股票基本面分析师，基于提供的真实数据进行分析。"),
                     ("human", "{analysis_request}")
                 ])
-                
+
                 analysis_chain = analysis_prompt_template | llm
                 analysis_result = analysis_chain.invoke({"analysis_request": analysis_prompt})
-                
+
                 if hasattr(analysis_result, 'content'):
                     report = analysis_result.content
                 else:
                     report = str(analysis_result)
-                    
+
                 print(f"📊 [基本面分析师] 强制工具调用完成，报告长度: {len(report)}")
-                
+
             except Exception as e:
                 print(f"❌ [DEBUG] 强制工具调用分析失败: {e}")
                 report = f"基本面分析失败：{str(e)}"
-            
+
             return {"fundamentals_report": report}
 
         # 这里不应该到达，但作为备用

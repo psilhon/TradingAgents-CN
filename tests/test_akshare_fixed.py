@@ -20,22 +20,22 @@ def test_akshare_adapter_fixed():
     print("=" * 60)
     print("🧪 测试修复后的AKShare适配器")
     print("=" * 60)
-    
+
     try:
         from app.services.data_source_adapters import AKShareAdapter
-        
+
         adapter = AKShareAdapter()
-        
+
         if not adapter.is_available():
             print("❌ AKShare适配器不可用")
             return
-        
+
         print("✅ AKShare适配器可用")
-        
+
         # 1. 测试股票列表获取
         print("\n1. 测试股票列表获取...")
         df = adapter.get_stock_list()
-        
+
         if df is not None and not df.empty:
             print(f"✅ 股票列表获取成功: {len(df)}条记录")
             print(f"   列名: {list(df.columns)}")
@@ -45,18 +45,18 @@ def test_akshare_adapter_fixed():
         else:
             print("❌ 股票列表获取失败")
             return
-        
+
         # 2. 测试daily_basic获取
         print("\n2. 测试daily_basic数据获取...")
         trade_date = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
         print(f"   获取{trade_date}的数据...")
-        
+
         basic_df = adapter.get_daily_basic(trade_date)
-        
+
         if basic_df is not None and not basic_df.empty:
             print(f"✅ daily_basic数据获取成功: {len(basic_df)}条记录")
             print(f"   列名: {list(basic_df.columns)}")
-            
+
             # 显示前几条记录
             print(f"   前10条记录:")
             for i, row in basic_df.head(10).iterrows():
@@ -67,24 +67,24 @@ def test_akshare_adapter_fixed():
                 turnover_rate = row.get('turnover_rate', 'N/A')
                 print(f"     {ts_code} - {name}")
                 print(f"       收盘价: {close}, 总市值: {total_mv}, 换手率: {turnover_rate}")
-            
+
             # 统计有效数据
             close_count = basic_df['close'].notna().sum() if 'close' in basic_df.columns else 0
             mv_count = basic_df['total_mv'].notna().sum() if 'total_mv' in basic_df.columns else 0
             turnover_count = basic_df['turnover_rate'].notna().sum() if 'turnover_rate' in basic_df.columns else 0
-            
+
             # 统计非零数据
             close_nonzero = (basic_df['close'] > 0).sum() if 'close' in basic_df.columns else 0
             mv_nonzero = (basic_df['total_mv'] > 0).sum() if 'total_mv' in basic_df.columns else 0
-            
+
             print(f"\n   📈 数据统计:")
             print(f"     有收盘价数据的股票: {close_count}只 (非零: {close_nonzero}只)")
             print(f"     有总市值数据的股票: {mv_count}只 (非零: {mv_nonzero}只)")
             print(f"     有换手率数据的股票: {turnover_count}只")
-            
+
         else:
             print("❌ daily_basic数据获取失败")
-        
+
     except Exception as e:
         print(f"❌ 适配器测试失败: {e}")
         import traceback
@@ -95,34 +95,34 @@ def test_data_source_manager_akshare():
     print("\n" + "=" * 60)
     print("🧪 测试数据源管理器中的AKShare")
     print("=" * 60)
-    
+
     try:
         from app.services.data_source_adapters import DataSourceManager
-        
+
         manager = DataSourceManager()
         available_adapters = manager.get_available_adapters()
-        
+
         print(f"✅ 可用数据源: {[adapter.name for adapter in available_adapters]}")
-        
+
         # 查找AKShare适配器
         akshare_adapter = None
         for adapter in available_adapters:
             if adapter.name == 'akshare':
                 akshare_adapter = adapter
                 break
-        
+
         if akshare_adapter:
             print(f"✅ 找到AKShare适配器，优先级: {akshare_adapter.priority}")
-            
+
             # 测试fallback机制
             trade_date = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
             print(f"📅 测试fallback机制获取{trade_date}数据...")
-            
+
             df, source = manager.get_daily_basic_with_fallback(trade_date)
-            
+
             if df is not None and not df.empty:
                 print(f"✅ Fallback获取成功: {len(df)}条记录，来源: {source}")
-                
+
                 if source == 'akshare':
                     print(f"🎯 使用了AKShare数据源!")
                     # 检查AKShare特有的数据
@@ -138,7 +138,7 @@ def test_data_source_manager_akshare():
                 print(f"❌ Fallback获取失败")
         else:
             print(f"❌ 未找到AKShare适配器")
-        
+
     except Exception as e:
         print(f"❌ 数据源管理器测试失败: {e}")
         import traceback

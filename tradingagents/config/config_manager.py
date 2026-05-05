@@ -60,7 +60,7 @@ except Exception as e:
 
 class ConfigManager:
     """配置管理器"""
-    
+
     def __init__(self, config_dir: str = "config"):
         self.config_dir = Path(config_dir)
         self.config_dir.mkdir(exist_ok=True)
@@ -115,7 +115,7 @@ class ConfigManager:
                     return ""
             return api_key
         return ""
-    
+
     def validate_openai_api_key_format(self, api_key: str) -> bool:
         """
         验证OpenAI API密钥格式
@@ -133,22 +133,22 @@ class ConfigManager:
         """
         if not api_key or not isinstance(api_key, str):
             return False
-        
+
         # 检查是否以 'sk-' 开头
         if not api_key.startswith('sk-'):
             return False
-        
+
         # 检查长度（OpenAI密钥通常为51个字符）
         if len(api_key) != 51:
             return False
-        
+
         # 检查格式：sk- 后面应该是48个字符的字母数字组合
         pattern = r'^sk-[A-Za-z0-9]{48}$'
         if not re.match(pattern, api_key):
             return False
-        
+
         return True
-    
+
     def _init_mongodb_storage(self):
         """初始化MongoDB存储"""
         logger.info("🔧 [ConfigManager] 开始初始化 MongoDB 存储...")
@@ -247,7 +247,7 @@ class ConfigManager:
                 )
             ]
             self.save_models(default_models)
-        
+
         # 默认定价配置
         if not self.pricing_file.exists():
             default_pricing = [
@@ -276,13 +276,13 @@ class ConfigManager:
                 PricingConfig("google", "gemini-pro-vision", 0.00025, 0.0005, "USD"),
             ]
             self.save_pricing(default_pricing)
-        
+
         # 默认设置
         if not self.settings_file.exists():
             # 导入默认数据目录配置
             import os
             default_data_dir = os.path.join(os.path.expanduser("~"), "Documents", "TradingAgents", "data")
-            
+
             default_settings = {
                 "default_provider": "dashscope",
                 "default_model": "qwen-turbo",
@@ -298,7 +298,7 @@ class ConfigManager:
                 "openai_enabled": False,  # OpenAI模型是否启用
             }
             self.save_settings(default_settings)
-    
+
     def load_models(self) -> List[ModelConfig]:
         """加载模型配置，优先使用.env中的API密钥"""
         try:
@@ -318,7 +318,7 @@ class ConfigManager:
                         # 如果.env中有API密钥，自动启用该模型
                         if not model.enabled:
                             model.enabled = True
-                    
+
                     # 特殊处理OpenAI模型
                     if model.provider.lower() == "openai":
                         # 检查OpenAI是否在配置中启用
@@ -334,7 +334,7 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"加载模型配置失败: {e}")
             return []
-    
+
     def save_models(self, models: List[ModelConfig]):
         """保存模型配置"""
         try:
@@ -343,7 +343,7 @@ class ConfigManager:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"保存模型配置失败: {e}")
-    
+
     def load_pricing(self) -> List[PricingConfig]:
         """加载定价配置"""
         try:
@@ -353,7 +353,7 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"加载定价配置失败: {e}")
             return []
-    
+
     def save_pricing(self, pricing: List[PricingConfig]):
         """保存定价配置"""
         try:
@@ -362,7 +362,7 @@ class ConfigManager:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"保存定价配置失败: {e}")
-    
+
     def load_usage_records(self) -> List[UsageRecord]:
         """加载使用记录"""
         try:
@@ -374,7 +374,7 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"加载使用记录失败: {e}")
             return []
-    
+
     def save_usage_records(self, records: List[UsageRecord]):
         """保存使用记录"""
         try:
@@ -383,7 +383,7 @@ class ConfigManager:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"保存使用记录失败: {e}")
-    
+
     def add_usage_record(self, provider: str, model_name: str, input_tokens: int,
                         output_tokens: int, session_id: str, analysis_type: str = "stock_analysis"):
         """添加使用记录"""
@@ -437,7 +437,7 @@ class ConfigManager:
         self.save_usage_records(records)
         logger.info(f"✅ [Token记录] JSON 文件保存成功: {self.usage_file}")
         return record
-    
+
     def calculate_cost(self, provider: str, model_name: str, input_tokens: int, output_tokens: int) -> tuple[float, str]:
         """
         计算使用成本
@@ -461,7 +461,7 @@ class ConfigManager:
             logger.debug(f"⚠️ [calculate_cost]   - {pricing.provider}/{pricing.model_name}")
 
         return 0.0, "CNY"
-    
+
     def load_settings(self) -> Dict[str, Any]:
         """加载设置，合并.env中的配置"""
         try:
@@ -542,12 +542,12 @@ class ConfigManager:
                 json.dump(settings, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"保存设置失败: {e}")
-    
+
     def get_enabled_models(self) -> List[ModelConfig]:
         """获取启用的模型"""
         models = self.load_models()
         return [model for model in models if model.enabled and model.api_key]
-    
+
     def get_model_by_name(self, provider: str, model_name: str) -> Optional[ModelConfig]:
         """根据名称获取模型配置"""
         models = self.load_models()
@@ -555,7 +555,7 @@ class ConfigManager:
             if model.provider == provider and model.model_name == model_name:
                 return model
         return None
-    
+
     def get_usage_statistics(self, days: int = 30) -> Dict[str, Any]:
         """获取使用统计"""
         # 优先使用MongoDB获取统计
@@ -565,22 +565,22 @@ class ConfigManager:
                 stats = self.mongodb_storage.get_usage_statistics(days)
                 # 获取供应商统计
                 provider_stats = self.mongodb_storage.get_provider_statistics(days)
-                
+
                 if stats:
                     stats["provider_stats"] = provider_stats
                     stats["records_count"] = stats.get("total_requests", 0)
                     return stats
             except Exception as e:
                 logger.error(f"⚠️ MongoDB统计获取失败，回退到JSON文件: {e}")
-        
+
         # 回退到JSON文件统计
         records = self.load_usage_records()
-        
+
         # 过滤最近N天的记录
         from datetime import datetime, timedelta
 
         cutoff_date = datetime.now() - timedelta(days=days)
-        
+
         recent_records = []
         for record in records:
             try:
@@ -589,12 +589,12 @@ class ConfigManager:
                     recent_records.append(record)
             except:
                 continue
-        
+
         # 统计数据
         total_cost = sum(record.cost for record in recent_records)
         total_input_tokens = sum(record.input_tokens for record in recent_records)
         total_output_tokens = sum(record.output_tokens for record in recent_records)
-        
+
         # 按供应商统计
         provider_stats = {}
         for record in recent_records:
@@ -609,7 +609,7 @@ class ConfigManager:
             provider_stats[record.provider]["input_tokens"] += record.input_tokens
             provider_stats[record.provider]["output_tokens"] += record.output_tokens
             provider_stats[record.provider]["requests"] += 1
-        
+
         return {
             "period_days": days,
             "total_cost": round(total_cost, 4),
@@ -619,7 +619,7 @@ class ConfigManager:
             "provider_stats": provider_stats,
             "records_count": len(recent_records)
         }
-    
+
     def get_data_dir(self) -> str:
         """获取数据目录路径"""
         settings = self.load_settings()
@@ -636,7 +636,7 @@ class ConfigManager:
         # 同时更新缓存目录
         settings["cache_dir"] = os.path.join(data_dir, "cache")
         self.save_settings(settings)
-        
+
         # 如果启用自动创建目录，则创建目录
         if settings.get("auto_create_dirs", True):
             self.ensure_directories_exist()
@@ -644,7 +644,7 @@ class ConfigManager:
     def ensure_directories_exist(self):
         """确保必要的目录存在"""
         settings = self.load_settings()
-        
+
         directories = [
             settings.get("data_dir"),
             settings.get("cache_dir"),
@@ -654,7 +654,7 @@ class ConfigManager:
             os.path.join(settings.get("data_dir", ""), "finnhub_data", "insider_sentiment"),
             os.path.join(settings.get("data_dir", ""), "finnhub_data", "insider_transactions")
         ]
-        
+
         for directory in directories:
             if directory and not os.path.exists(directory):
                 try:
@@ -662,24 +662,24 @@ class ConfigManager:
                     logger.info(f"✅ 创建目录: {directory}")
                 except Exception as e:
                     logger.error(f"❌ 创建目录失败 {directory}: {e}")
-    
+
     def set_openai_enabled(self, enabled: bool):
         """设置OpenAI模型启用状态"""
         settings = self.load_settings()
         settings["openai_enabled"] = enabled
         self.save_settings(settings)
         logger.info(f"🔧 OpenAI模型启用状态已设置为: {enabled}")
-    
+
     def is_openai_enabled(self) -> bool:
         """检查OpenAI模型是否启用"""
         settings = self.load_settings()
         return settings.get("openai_enabled", False)
-    
+
     def get_openai_config_status(self) -> Dict[str, Any]:
         """获取OpenAI配置状态"""
         openai_key = os.getenv("OPENAI_API_KEY", "")
         key_valid = self.validate_openai_api_key_format(openai_key) if openai_key else False
-        
+
         return {
             "api_key_present": bool(openai_key),
             "api_key_valid_format": key_valid,

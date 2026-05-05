@@ -16,31 +16,31 @@ def test_analysis_fix():
             llm_model='qwen-plus',
             market_type='A股'
         )
-        
+
         print(f"Analysis completed: {'success' if result['success'] else 'failed'}")
-        
+
         if result['success']:
             state = result['state']
             market_report = state.get('market_report', '')
             fundamentals_report = state.get('fundamentals_report', '')
-            
+
             print(f"Market report length: {len(market_report)}")
             print(f"Fundamentals report length: {len(fundamentals_report)}")
-            
+
             # 检查报告是否有实际内容
             if len(market_report) > 0:
                 print("✅ Market report has content")
             else:
                 print("❌ Market report is empty")
-                
+
             if len(fundamentals_report) > 0:
                 print("✅ Fundamentals report has content")
             else:
                 print("❌ Fundamentals report is empty")
-                
+
         else:
             print(f"Error: {result.get('error', 'Unknown error')}")
-            
+
     except Exception as e:
         print(f"Test failed with exception: {e}")
 

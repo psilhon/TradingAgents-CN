@@ -155,7 +155,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
         if model and model.startswith("models/"):
             return model[7:]  # 移除 "models/" 前缀
         return model or "unknown"
-    
+
     def _generate(self, messages: List[BaseMessage], stop: Optional[List[str]] = None, **kwargs) -> LLMResult:
         """重写生成方法，优化工具调用处理和内容格式"""
 
@@ -200,49 +200,49 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
             error_message = AIMessage(content=error_content)
             error_generation = ChatGeneration(message=error_message)
             return LLMResult(generations=[[error_generation]])
-    
+
     def _optimize_message_content(self, message: BaseMessage):
         """优化消息内容格式，确保包含新闻特征关键词"""
-        
+
         if not isinstance(message, AIMessage) or not message.content:
             return
-        
+
         content = message.content
-        
+
         # 检查是否是工具调用返回的新闻内容
         if self._is_news_content(content):
             # 优化新闻内容格式，添加必要的关键词
             optimized_content = self._enhance_news_content(content)
             message.content = optimized_content
-            
+
             logger.debug(f"🔧 [Google适配器] 优化新闻内容格式")
             logger.debug(f"   原始长度: {len(content)} 字符")
             logger.debug(f"   优化后长度: {len(optimized_content)} 字符")
-    
+
     def _is_news_content(self, content: str) -> bool:
         """判断内容是否为新闻内容"""
-        
+
         # 检查是否包含新闻相关的关键词
         news_indicators = [
             "股票", "公司", "市场", "投资", "财经", "证券", "交易",
             "涨跌", "业绩", "财报", "分析", "预测", "消息", "公告"
         ]
-        
+
         return any(indicator in content for indicator in news_indicators) and len(content) > 200
-    
+
     def _enhance_news_content(self, content: str) -> str:
         """增强新闻内容，添加必要的格式化信息"""
-        
+
         import datetime
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        
+
         # 如果内容缺少必要的新闻特征，添加它们
         enhanced_content = content
-        
+
         # 添加发布时间信息（如果缺少）
         if "发布时间" not in content and "时间" not in content:
             enhanced_content = f"发布时间: {current_date}\n\n{enhanced_content}"
-        
+
         # 添加新闻标题标识（如果缺少）
         if "新闻标题" not in content and "标题" not in content:
             # 尝试从内容中提取第一行作为标题
@@ -251,29 +251,29 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
                 first_line = lines[0].strip()
                 if len(first_line) < 100:  # 可能是标题
                     enhanced_content = f"新闻标题: {first_line}\n\n{enhanced_content}"
-        
+
         # 添加文章来源信息（如果缺少）
         if "文章来源" not in content and "来源" not in content:
             enhanced_content = f"{enhanced_content}\n\n文章来源: Google AI 智能分析"
-        
+
         return enhanced_content
-    
+
     def _track_token_usage(self, result: LLMResult, kwargs: Dict[str, Any]):
         """追踪 token 使用量"""
-        
+
         try:
             # 从结果中提取 token 使用信息
             if hasattr(result, 'llm_output') and result.llm_output:
                 token_usage = result.llm_output.get('token_usage', {})
-                
+
                 input_tokens = token_usage.get('prompt_tokens', 0)
                 output_tokens = token_usage.get('completion_tokens', 0)
-                
+
                 if input_tokens > 0 or output_tokens > 0:
                     # 生成会话ID
                     session_id = kwargs.get('session_id', f"google_openai_{hash(str(kwargs))%10000}")
                     analysis_type = kwargs.get('analysis_type', 'stock_analysis')
-                    
+
                     # 使用 TokenTracker 记录使用量
                     token_tracker.track_usage(
                         provider="google",
@@ -283,9 +283,9 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
                         session_id=session_id,
                         analysis_type=analysis_type
                     )
-                    
+
                     logger.debug(f"📊 [Google适配器] Token使用量: 输入={input_tokens}, 输出={output_tokens}")
-                    
+
         except Exception as track_error:
             # token 追踪失败不应该影响主要功能
             logger.error(f"⚠️ Google适配器 Token 追踪失败: {track_error}")
@@ -391,21 +391,21 @@ def test_google_openai_connection(
     google_api_key: Optional[str] = None
 ) -> bool:
     """测试 Google AI OpenAI 兼容接口连接"""
-    
+
     try:
         logger.info(f"🧪 测试 Google AI OpenAI 兼容接口连接")
         logger.info(f"   模型: {model}")
-        
+
         # 创建客户端
         llm = create_google_openai_llm(
             model=model,
             google_api_key=google_api_key,
             max_tokens=50
         )
-        
+
         # 发送测试消息
         response = llm.invoke("你好，请简单介绍一下你自己。")
-        
+
         if response and hasattr(response, 'content') and response.content:
             logger.info(f"✅ Google AI OpenAI 兼容接口连接成功")
             logger.info(f"   响应: {response.content[:100]}...")
@@ -413,7 +413,7 @@ def test_google_openai_connection(
         else:
             logger.error(f"❌ Google AI OpenAI 兼容接口响应为空")
             return False
-            
+
     except Exception as e:
         logger.error(f"❌ Google AI OpenAI 兼容接口连接失败: {e}")
         return False
@@ -424,21 +424,21 @@ def test_google_openai_function_calling(
     google_api_key: Optional[str] = None
 ) -> bool:
     """测试 Google AI OpenAI 兼容接口的 Function Calling"""
-    
+
     try:
         logger.info(f"🧪 测试 Google AI Function Calling")
         logger.info(f"   模型: {model}")
-        
+
         # 创建客户端
         llm = create_google_openai_llm(
             model=model,
             google_api_key=google_api_key,
             max_tokens=200
         )
-        
+
         # 定义测试工具
         from langchain_core.tools import tool
-        
+
         @tool
         def test_news_tool(query: str) -> str:
             """测试新闻工具，返回模拟新闻内容"""
@@ -448,23 +448,23 @@ def test_google_openai_function_calling(
 
 这是一条关于{query}的测试新闻内容。该公司近期表现良好，市场前景看好。
 投资者对此表示关注，分析师给出积极评价。"""
-        
+
         # 绑定工具
         llm_with_tools = llm.bind_tools([test_news_tool])
-        
+
         # 测试工具调用
         response = llm_with_tools.invoke("请使用test_news_tool查询'苹果公司'的新闻")
-        
+
         logger.info(f"✅ Google AI Function Calling 测试完成")
         logger.info(f"   响应类型: {type(response)}")
-        
+
         if hasattr(response, 'tool_calls') and response.tool_calls:
             logger.info(f"   工具调用数量: {len(response.tool_calls)}")
             return True
         else:
             logger.info(f"   响应内容: {getattr(response, 'content', 'No content')}")
             return True  # 即使没有工具调用也算成功，因为模型可能选择不调用工具
-            
+
     except Exception as e:
         logger.error(f"❌ Google AI Function Calling 测试失败: {e}")
         return False
@@ -474,14 +474,14 @@ if __name__ == "__main__":
     """测试脚本"""
     logger.info(f"🧪 Google AI OpenAI 兼容适配器测试")
     logger.info(f"=" * 50)
-    
+
     # 测试连接
     connection_ok = test_google_openai_connection()
-    
+
     if connection_ok:
         # 测试 Function Calling
         function_calling_ok = test_google_openai_function_calling()
-        
+
         if function_calling_ok:
             logger.info(f"\n🎉 所有测试通过！Google AI OpenAI 兼容适配器工作正常")
         else:
