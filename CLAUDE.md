@@ -139,41 +139,13 @@ just setup       # 装 pre-commit hook（首次 setup）
 3. `docs/ai-context/architecture.md` — 三层架构 + 多智能体编排 + 数据源链 + LLM 抽象
 4. `docs/USAGE.md` — fork 维护者 / 二开者使用手册（区别于上游 README）
 5. `docs/CHANGELOG.md` — fork 自身改动历史（不含上游 commits）
-6. 上游详细文档：`README.md` / `docs/QUICK_START.md` / `docs/STRUCTURE.md` / `docs/architecture/`
+6. `docs/ai-context/known-issues.md` — 已知坑（fork 撞过的 + 上游遗留），按需查
+7. 上游详细文档：`README.md` / `docs/QUICK_START.md` / `docs/STRUCTURE.md` / `docs/architecture/`
 
 ## OpenSpec 状态
 
-- 进行中的 change：`openspec/changes/<id>/`
-- 稳定 spec：`openspec/specs/<capability>/`
-- 探索：`openspec/explorations/<topic>/`
-- 二开流程：`/opsx:propose "需求"` 起草 change → 主代理 cross-check → Phase 2 subagent 实施 → Phase 3 finishing
+活跃 change `openspec/changes/<id>/` / 稳定 spec `openspec/specs/<capability>/` / 探索 `openspec/explorations/<topic>/`。二开流程：`/opsx:propose <name>` → cross-check → Phase 2 实施 → Phase 3 finishing。
 
-## Secrets / 凭据清单
+## Secrets / 凭据
 
-`.env`（已被 `.gitignore` 第 20 行忽略，安全）。**必填**：
-
-| Key | 用途 | 来源 |
-|-----|------|------|
-| `JWT_SECRET` | 用户认证 token 签名 | `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
-| `CSRF_SECRET` | CSRF 防护 | 同上，再生成一次 |
-| 任意 1 个 LLM key | 模型调用 | `DEEPSEEK_API_KEY` / `DASHSCOPE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GOOGLE_API_KEY` 任选 |
-
-**推荐填**（缺了功能受限但能启动）：
-
-| Key | 用途 | 获取 |
-|-----|------|------|
-| `TUSHARE_TOKEN` | A 股完整数据 | https://tushare.pro 注册免费层 |
-| `FINNHUB_API_KEY` | 美股新闻 | https://finnhub.io 免费层 |
-
-数据库连接**不需要改**（默认 localhost + dev 密码已对齐 docker-compose）。
-
-## 已知坑（一次性记录，避免每次 session 重新踩）
-
-- 🔴 **`uv pip install -e .` 会误删 tracked 文件 `VERSION` / `requirements.txt` / `requirements-lock.txt`**——本会话已实测复现。原因不明（无 `setup.py` / `MANIFEST.in`，文件也不在 `.gitignore`），疑似 setuptools editable build 或 uv 0.11 editable 实现的副作用。**装完立即跑 `git status`**；若有删除，立即 `git checkout HEAD -- VERSION requirements.txt requirements-lock.txt` 恢复。
-- 🟡 **`.chainlit/` 在 import chainlit 时自动生成**且未在 `.gitignore` 中，会污染 `git status`。可加到 `.gitignore` 或在 git 操作前手动忽略。
-- 🟡 **`app/services/config_service.py` 491/500 行 hardcode `port=27017/6379` 作为 fallback 默认值**（专有授权代码不改）。`.env` 必须显式配 `MONGODB_PORT=54302` + `REDIS_PORT=54303`，否则 backend fallback 连 27017/6379 失败（docker 端口已被 override 改成 54302/54303，无监听）。
-- 🟡 **上游 `scripts/*.py` 多处 hardcode `localhost:27017` / `localhost:8000` 等**（违反 fork 端口段位约定）。典型如 `scripts/create_default_admin.py` 直接 hardcode `MONGO_URI` 不读 `.env`。**临时 workaround**：跑脚本前 `sed -i.orig 's/localhost:27017/localhost:54302/g' <script>`，跑完 `mv <script>.orig <script>` 还原。**长期**：用 OpenSpec change 给所有 scripts 改成读 `.env`。
-- 重装依赖时如果跑 `uv sync`（不带 `--frozen`），会因 `qianfan` extra 在 3.13 无可用 wheel 而失败——必须 `--frozen` 跳过解析
-- `uv pip install` 必须带 `--python .venv/bin/python`，否则 uv 会试图装到系统 homebrew Python，PEP 668 拒绝
-- Docker Desktop 必须先手动启动（GUI 操作，Claude 不能代替）
-- `app/` 和 `frontend/` 改动属于专有授权代码，commit / push 前确认目的合规
+`.env` 已 gitignored。配置见 `docs/USAGE.md` § 1 step 6。**HARD-GATE**：Claude 不读/写/复制 secret 值，由你手动填。
