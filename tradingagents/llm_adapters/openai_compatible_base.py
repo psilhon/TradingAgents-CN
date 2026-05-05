@@ -34,7 +34,7 @@ class OpenAICompatibleBase(ChatOpenAI):
     OpenAI兼容适配器基类
     为所有支持OpenAI接口的LLM提供商提供统一实现
     """
-    
+
     def __init__(
         self,
         provider_name: str,
@@ -59,7 +59,7 @@ class OpenAICompatibleBase(ChatOpenAI):
             max_tokens: 最大token数
             **kwargs: 其他参数
         """
-        
+
         # 🔍 [DEBUG] 读取环境变量前的日志
         logger.info(f"🔍 [{provider_name}初始化] 开始初始化 OpenAI 兼容适配器")
         logger.info(f"🔍 [{provider_name}初始化] 模型: {model}")
@@ -110,7 +110,7 @@ class OpenAICompatibleBase(ChatOpenAI):
                 )
         else:
             logger.info(f"✅ [{provider_name}初始化] 使用传入的 API Key（来自数据库配置），长度: {len(api_key)}")
-        
+
         # 设置OpenAI兼容参数
         # 注意：model参数会被Pydantic映射到model_name字段
         openai_kwargs = {
@@ -119,7 +119,7 @@ class OpenAICompatibleBase(ChatOpenAI):
             "max_tokens": max_tokens,
             **kwargs
         }
-        
+
         # 根据LangChain版本使用不同的参数名
         try:
             # 新版本LangChain
@@ -133,7 +133,7 @@ class OpenAICompatibleBase(ChatOpenAI):
                 "openai_api_key": api_key,
                 "openai_api_base": base_url
             })
-        
+
         # 初始化父类
         super().__init__(**openai_kwargs)
 
@@ -151,7 +151,7 @@ class OpenAICompatibleBase(ChatOpenAI):
 
     # 移除model_name property定义，使用Pydantic字段
     # model_name字段由ChatOpenAI基类的Pydantic字段提供
-    
+
     def _generate(
         self,
         messages: List[BaseMessage],
@@ -162,16 +162,16 @@ class OpenAICompatibleBase(ChatOpenAI):
         """
         生成聊天响应，并记录token使用量
         """
-        
+
         # 记录开始时间
         start_time = time.time()
-        
+
         # 调用父类生成方法
         result = super()._generate(messages, stop, run_manager, **kwargs)
-        
+
         # 记录token使用
         self._track_token_usage(result, kwargs, start_time)
-        
+
         return result
 
     def _track_token_usage(self, result: ChatResult, kwargs: Dict, start_time: float):
@@ -196,7 +196,7 @@ class OpenAICompatibleBase(ChatOpenAI):
 
 class ChatDeepSeekOpenAI(OpenAICompatibleBase):
     """DeepSeek OpenAI兼容适配器"""
-    
+
     def __init__(
         self,
         model: str = "deepseek-chat",
@@ -219,7 +219,7 @@ class ChatDeepSeekOpenAI(OpenAICompatibleBase):
 
 class ChatDashScopeOpenAIUnified(OpenAICompatibleBase):
     """阿里百炼 DashScope OpenAI兼容适配器"""
-    
+
     def __init__(
         self,
         model: str = "qwen-turbo",
@@ -242,7 +242,7 @@ class ChatDashScopeOpenAIUnified(OpenAICompatibleBase):
 
 class ChatQianfanOpenAI(OpenAICompatibleBase):
     """文心一言千帆平台 OpenAI兼容适配器"""
-    
+
     def __init__(
         self,
         model: str = "ernie-3.5-8k",
@@ -290,7 +290,7 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
             raise ValueError(
                 "QIANFAN_API_KEY格式错误，应为: bce-v3/ALTAK-xxx/xxx"
             )
-        
+
         super().__init__(
             provider_name="qianfan",
             model=model,
@@ -301,24 +301,24 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
             max_tokens=max_tokens,
             **kwargs
         )
-    
+
     def _estimate_tokens(self, text: str) -> int:
         """估算文本的token数量（千帆模型专用）"""
         # 千帆模型的token估算：中文约1.5字符/token，英文约4字符/token
         # 保守估算：2字符/token
         return max(1, len(text) // 2)
-    
+
     def _truncate_messages(self, messages: List[BaseMessage], max_tokens: int = 4500) -> List[BaseMessage]:
         """截断消息以适应千帆模型的token限制"""
         # 为千帆模型预留一些token空间，使用4500而不是5120
         truncated_messages = []
         total_tokens = 0
-        
+
         # 从最后一条消息开始，向前保留消息
         for message in reversed(messages):
             content = str(message.content) if hasattr(message, 'content') else str(message)
             message_tokens = self._estimate_tokens(content)
-            
+
             if total_tokens + message_tokens <= max_tokens:
                 truncated_messages.insert(0, message)
                 total_tokens += message_tokens
@@ -328,18 +328,18 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
                     remaining_tokens = max_tokens - 100  # 预留100个token
                     max_chars = remaining_tokens * 2  # 2字符/token
                     truncated_content = content[:max_chars] + "...(内容已截断)"
-                    
+
                     # 创建截断后的消息
                     if hasattr(message, 'content'):
                         message.content = truncated_content
                     truncated_messages.insert(0, message)
                 break
-        
+
         if len(truncated_messages) < len(messages):
             logger.warning(f"⚠️ 千帆模型输入过长，已截断 {len(messages) - len(truncated_messages)} 条消息")
-        
+
         return truncated_messages
-    
+
     def _generate(
         self,
         messages: List[BaseMessage],
@@ -348,17 +348,17 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
         **kwargs: Any,
     ) -> ChatResult:
         """生成聊天响应，包含千帆模型的token截断逻辑"""
-        
+
         # 对千帆模型进行输入token截断
         truncated_messages = self._truncate_messages(messages)
-        
+
         # 调用父类的_generate方法
         return super()._generate(truncated_messages, stop, run_manager, **kwargs)
 
 
 class ChatZhipuOpenAI(OpenAICompatibleBase):
     """智谱AI GLM OpenAI兼容适配器"""
-    
+
     def __init__(
         self,
         model: str = "glm-4.6",
@@ -375,7 +375,7 @@ class ChatZhipuOpenAI(OpenAICompatibleBase):
                 base_url = env_base_url
             else:
                 base_url = "https://open.bigmodel.cn/api/paas/v4"
-                
+
         super().__init__(
             provider_name="zhipu",
             model=model,
@@ -386,7 +386,7 @@ class ChatZhipuOpenAI(OpenAICompatibleBase):
             max_tokens=max_tokens,
             **kwargs
         )
-    
+
     def _estimate_tokens(self, text: str) -> int:
         """估算文本的token数量（GLM模型专用）"""
         # GLM模型的token估算：中文约1.5字符/token，英文约4字符/token

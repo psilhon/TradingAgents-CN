@@ -20,17 +20,17 @@ def test_gemini_25_pro_basic():
     try:
         print("🧪 测试Gemini 2.5 Pro基础功能")
         print("=" * 60)
-        
+
         from langchain_google_genai import ChatGoogleGenerativeAI
-        
+
         # 检查API密钥
         google_api_key = os.getenv('GOOGLE_API_KEY')
         if not google_api_key:
             print("❌ Google API密钥未配置")
             return False
-        
+
         print(f"✅ Google API密钥已配置: {google_api_key[:20]}...")
-        
+
         # 创建Gemini 2.5 Pro实例
         print("🚀 创建Gemini 2.5 Pro实例...")
         llm = ChatGoogleGenerativeAI(
@@ -39,9 +39,9 @@ def test_gemini_25_pro_basic():
             max_tokens=1500,
             google_api_key=google_api_key
         )
-        
+
         print("✅ Gemini 2.5 Pro实例创建成功")
-        
+
         # 测试中文股票分析
         print("📊 测试中文股票分析...")
         response = llm.invoke("""
@@ -56,7 +56,7 @@ def test_gemini_25_pro_basic():
         
         请提供详细的分析和推理过程。
         """)
-        
+
         if response and response.content:
             print("✅ 中文股票分析成功")
             print(f"   响应长度: {len(response.content)} 字符")
@@ -65,7 +65,7 @@ def test_gemini_25_pro_basic():
         else:
             print("❌ 中文股票分析失败")
             return False
-            
+
     except Exception as e:
         print(f"❌ Gemini 2.5 Pro基础测试失败: {e}")
         import traceback
@@ -77,10 +77,10 @@ def test_gemini_25_pro_tradingagents():
     try:
         print("\n🧪 测试Gemini 2.5 Pro在TradingAgents中的使用")
         print("=" * 60)
-        
+
         from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
-        
+
         # 创建配置
         config = DEFAULT_CONFIG.copy()
         config["llm_provider"] = "google"
@@ -90,38 +90,38 @@ def test_gemini_25_pro_tradingagents():
         config["memory_enabled"] = True  # 启用内存功能
         config["max_debate_rounds"] = 1
         config["max_risk_discuss_rounds"] = 1
-        
+
         # 修复路径
         config["data_dir"] = str(project_root / "data")
         config["results_dir"] = str(project_root / "results")
         config["data_cache_dir"] = str(project_root / "tradingagents" / "dataflows" / "data_cache")
-        
+
         # 创建目录
         os.makedirs(config["data_dir"], exist_ok=True)
         os.makedirs(config["results_dir"], exist_ok=True)
         os.makedirs(config["data_cache_dir"], exist_ok=True)
-        
+
         print("✅ 配置创建成功")
         print(f"   模型: gemini-2.5-pro")
         print(f"   内存功能: {config['memory_enabled']}")
-        
+
         # 创建TradingAgentsGraph实例
         print("🚀 初始化TradingAgents图...")
         graph = TradingAgentsGraph(["market"], config=config, debug=False)
-        
+
         print("✅ TradingAgents图初始化成功")
-        
+
         # 测试分析
         print("📊 开始Gemini 2.5 Pro股票分析...")
         print("   这可能需要几分钟时间...")
-        
+
         try:
             state, decision = graph.propagate("AAPL", "2025-06-27")
-            
+
             if state and decision:
                 print("✅ Gemini 2.5 Pro驱动的股票分析成功！")
                 print(f"   最终决策: {decision}")
-                
+
                 # 检查各种报告
                 reports = ["market_report", "sentiment_report", "news_report", "fundamentals_report"]
                 for report_name in reports:
@@ -131,18 +131,18 @@ def test_gemini_25_pro_tradingagents():
                         if len(report_content) > 100:
                             print(f"   预览: {report_content[:150]}...")
                         print()
-                
+
                 return True
             else:
                 print("❌ 分析完成但结果为空")
                 return False
-                
+
         except Exception as e:
             print(f"❌ 股票分析失败: {e}")
             import traceback
             print(traceback.format_exc())
             return False
-            
+
     except Exception as e:
         print(f"❌ TradingAgents测试失败: {e}")
         import traceback
@@ -154,9 +154,9 @@ def test_gemini_25_pro_complex_reasoning():
     try:
         print("\n🧪 测试Gemini 2.5 Pro复杂推理能力")
         print("=" * 60)
-        
+
         from langchain_google_genai import ChatGoogleGenerativeAI
-        
+
         # 创建实例
         llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-pro",
@@ -164,7 +164,7 @@ def test_gemini_25_pro_complex_reasoning():
             max_tokens=2000,
             google_api_key=os.getenv('GOOGLE_API_KEY')
         )
-        
+
         # 复杂推理测试
         complex_prompt = """
         请进行复杂的投资分析推理：
@@ -191,10 +191,10 @@ def test_gemini_25_pro_complex_reasoning():
         
         请用中文提供详细的逻辑推理过程。
         """
-        
+
         print("🧠 开始复杂推理测试...")
         response = llm.invoke(complex_prompt)
-        
+
         if response and response.content and len(response.content) > 800:
             print("✅ 复杂推理测试成功")
             print(f"   响应长度: {len(response.content)} 字符")
@@ -203,7 +203,7 @@ def test_gemini_25_pro_complex_reasoning():
         else:
             print("❌ 复杂推理测试失败：响应过短或无内容")
             return False
-            
+
     except Exception as e:
         print(f"❌ 复杂推理测试失败: {e}")
         return False
@@ -212,42 +212,42 @@ def main():
     """主测试函数"""
     print("🧪 Gemini 2.5 Pro完整测试")
     print("=" * 70)
-    
+
     # 检查环境变量
     google_api_key = os.getenv('GOOGLE_API_KEY')
     if not google_api_key:
         print("❌ Google API密钥未配置")
         print("💡 请在.env文件中设置 GOOGLE_API_KEY")
         return
-    
+
     # 运行测试
     results = {}
-    
+
     print("第1步: 基础功能测试")
     print("-" * 30)
     results['基础功能'] = test_gemini_25_pro_basic()
-    
+
     print("\n第2步: 复杂推理测试")
     print("-" * 30)
     results['复杂推理'] = test_gemini_25_pro_complex_reasoning()
-    
+
     print("\n第3步: TradingAgents集成测试")
     print("-" * 30)
     results['TradingAgents集成'] = test_gemini_25_pro_tradingagents()
-    
+
     # 总结结果
     print(f"\n📊 Gemini 2.5 Pro测试结果总结:")
     print("=" * 50)
-    
+
     for test_name, success in results.items():
         status = "✅ 通过" if success else "❌ 失败"
         print(f"  {test_name}: {status}")
-    
+
     successful_tests = sum(results.values())
     total_tests = len(results)
-    
+
     print(f"\n🎯 总体结果: {successful_tests}/{total_tests} 测试通过")
-    
+
     if successful_tests == total_tests:
         print("🎉 Gemini 2.5 Pro完全可用！")
         print("\n💡 Gemini 2.5 Pro优势:")

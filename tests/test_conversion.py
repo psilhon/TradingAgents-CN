@@ -11,7 +11,7 @@ from datetime import datetime
 
 def test_markdown_content():
     """生成测试用的Markdown内容"""
-    
+
     # 模拟真实的分析结果数据
     test_content = """# 605499 股票分析报告
 
@@ -71,16 +71,16 @@ def test_markdown_content():
 ---
 *报告生成时间: 2025-01-12 16:20:00*
 """
-    
+
     return test_content
 
 def save_test_content():
     """保存测试内容到文件"""
     content = test_markdown_content()
-    
+
     with open('test_content.md', 'w', encoding='utf-8') as f:
         f.write(content)
-    
+
     print(f"✅ 测试内容已保存到 test_content.md")
     print(f"📊 内容长度: {len(content)} 字符")
     return content
@@ -88,14 +88,14 @@ def save_test_content():
 def test_word_conversion(md_content):
     """测试Word转换"""
     print("\n🔄 测试Word转换...")
-    
+
     try:
         # 创建临时文件
         with tempfile.NamedTemporaryFile(suffix='.docx', delete=False) as tmp_file:
             output_file = tmp_file.name
-        
+
         print(f"📁 临时文件: {output_file}")
-        
+
         # 测试不同的转换参数
         test_cases = [
             {
@@ -114,11 +114,11 @@ def test_word_conversion(md_content):
                 'extra_args': ['--from=markdown-yaml_metadata_block']
             }
         ]
-        
+
         for i, test_case in enumerate(test_cases, 1):
             print(f"\n📝 测试 {i}: {test_case['name']}")
             print(f"🔧 参数: format={test_case['format']}, extra_args={test_case['extra_args']}")
-            
+
             try:
                 pypandoc.convert_text(
                     md_content,
@@ -127,12 +127,12 @@ def test_word_conversion(md_content):
                     outputfile=output_file,
                     extra_args=test_case['extra_args']
                 )
-                
+
                 # 检查文件
                 if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
                     file_size = os.path.getsize(output_file)
                     print(f"✅ 转换成功! 文件大小: {file_size} 字节")
-                    
+
                     # 保存成功的文件
                     success_file = f"test_output_{i}.docx"
                     os.rename(output_file, success_file)
@@ -140,16 +140,16 @@ def test_word_conversion(md_content):
                     return True
                 else:
                     print(f"❌ 转换失败: 文件未生成或为空")
-                    
+
             except Exception as e:
                 print(f"❌ 转换失败: {e}")
-                
+
             # 清理临时文件
             if os.path.exists(output_file):
                 os.unlink(output_file)
-        
+
         return False
-        
+
     except Exception as e:
         print(f"❌ Word转换测试失败: {e}")
         return False
@@ -157,24 +157,24 @@ def test_word_conversion(md_content):
 def test_pdf_conversion(md_content):
     """测试PDF转换"""
     print("\n🔄 测试PDF转换...")
-    
+
     try:
         # 创建临时文件
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_file:
             output_file = tmp_file.name
-        
+
         print(f"📁 临时文件: {output_file}")
-        
+
         # 测试不同的PDF引擎
         test_engines = [
             ('wkhtmltopdf', 'HTML转PDF引擎'),
             ('weasyprint', '现代HTML转PDF引擎'),
             (None, '默认引擎')
         ]
-        
+
         for i, (engine, description) in enumerate(test_engines, 1):
             print(f"\n📊 测试 {i}: {description}")
-            
+
             try:
                 extra_args = []
                 if engine:
@@ -182,7 +182,7 @@ def test_pdf_conversion(md_content):
                     print(f"🔧 使用引擎: {engine}")
                 else:
                     print(f"🔧 使用默认引擎")
-                
+
                 pypandoc.convert_text(
                     md_content,
                     'pdf',
@@ -190,12 +190,12 @@ def test_pdf_conversion(md_content):
                     outputfile=output_file,
                     extra_args=extra_args
                 )
-                
+
                 # 检查文件
                 if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
                     file_size = os.path.getsize(output_file)
                     print(f"✅ 转换成功! 文件大小: {file_size} 字节")
-                    
+
                     # 保存成功的文件
                     success_file = f"test_output_{i}.pdf"
                     os.rename(output_file, success_file)
@@ -203,16 +203,16 @@ def test_pdf_conversion(md_content):
                     return True
                 else:
                     print(f"❌ 转换失败: 文件未生成或为空")
-                    
+
             except Exception as e:
                 print(f"❌ 转换失败: {e}")
-                
+
             # 清理临时文件
             if os.path.exists(output_file):
                 os.unlink(output_file)
-        
+
         return False
-        
+
     except Exception as e:
         print(f"❌ PDF转换测试失败: {e}")
         return False
@@ -223,23 +223,23 @@ def main():
     print("=" * 50)
     print(f"📁 当前工作目录: {os.getcwd()}")
     print(f"🐳 Docker环境检测: {os.path.exists('/.dockerenv')}")
-    
+
     # 保存测试内容
     md_content = save_test_content()
-    
+
     # 测试Word转换
     word_success = test_word_conversion(md_content)
-    
+
     # 测试PDF转换
     pdf_success = test_pdf_conversion(md_content)
-    
+
     # 总结
     print("\n" + "=" * 50)
     print("📊 测试结果总结")
     print("=" * 50)
     print(f"Word转换: {'✅ 成功' if word_success else '❌ 失败'}")
     print(f"PDF转换:  {'✅ 成功' if pdf_success else '❌ 失败'}")
-    
+
     if word_success or pdf_success:
         print("\n🎉 至少有一种格式转换成功!")
         print("💡 可以将成功的参数应用到主程序中")

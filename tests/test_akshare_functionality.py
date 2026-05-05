@@ -25,21 +25,21 @@ def test_data_source_manager():
     print("\n🔍 测试数据源管理器...")
     try:
         from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
-        
+
         # 检查AKShare是否在枚举中
         akshare_enum = ChinaDataSource.AKSHARE
         print(f"✅ AKShare枚举存在: {akshare_enum.value}")
-        
+
         # 初始化数据源管理器
         manager = DataSourceManager()
-        
+
         # 检查AKShare是否在可用数据源中
         available_sources = [s.value for s in manager.available_sources]
         if 'akshare' in available_sources:
             print("✅ AKShare在可用数据源列表中")
         else:
             print("⚠️ AKShare不在可用数据源列表中")
-        
+
         return True, manager
     except Exception as e:
         print(f"❌ 数据源管理器测试失败: {e}")
@@ -51,19 +51,19 @@ def test_akshare_adapter():
     print("\n🔍 测试AKShare适配器...")
     try:
         from tradingagents.dataflows.data_source_manager import DataSourceManager
-        
+
         manager = DataSourceManager()
-        
+
         # 尝试获取AKShare适配器
         akshare_adapter = manager._get_akshare_adapter()
-        
+
         if akshare_adapter is not None:
             print("✅ AKShare适配器获取成功")
             return True, akshare_adapter
         else:
             print("❌ AKShare适配器获取失败")
             return False, None
-            
+
     except Exception as e:
         print(f"❌ AKShare适配器测试失败: {e}")
         traceback.print_exc()
@@ -72,12 +72,12 @@ def test_akshare_adapter():
 def test_akshare_utils_file():
     """检查akshare_utils.py文件是否存在"""
     print("\n🔍 检查akshare_utils.py文件...")
-    
+
     akshare_utils_path = "tradingagents/dataflows/akshare_utils.py"
-    
+
     if os.path.exists(akshare_utils_path):
         print(f"✅ 找到AKShare工具文件: {akshare_utils_path}")
-        
+
         try:
             from tradingagents.dataflows.akshare_utils import get_akshare_provider
             print("✅ get_akshare_provider函数导入成功")
@@ -92,11 +92,11 @@ def test_akshare_utils_file():
 def test_akshare_basic_functionality():
     """测试AKShare基本功能"""
     print("\n🔍 测试AKShare基本功能...")
-    
+
     success, ak = test_akshare_import()
     if not success:
         return False
-    
+
     try:
         # 测试获取股票列表
         print("📊 测试获取A股股票列表...")
@@ -107,7 +107,7 @@ def test_akshare_basic_functionality():
         else:
             print("❌ 获取股票列表失败")
             return False
-        
+
         # 测试获取股票历史数据
         print("\n📈 测试获取股票历史数据...")
         stock_data = ak.stock_zh_a_hist(symbol="000001", period="daily", start_date="20241201", end_date="20241210", adjust="")
@@ -117,9 +117,9 @@ def test_akshare_basic_functionality():
         else:
             print("❌ 获取股票数据失败")
             return False
-        
+
         return True
-        
+
     except Exception as e:
         print(f"❌ AKShare基本功能测试失败: {e}")
         traceback.print_exc()
@@ -128,21 +128,21 @@ def test_akshare_basic_functionality():
 def test_data_source_switching():
     """测试数据源切换功能"""
     print("\n🔍 测试数据源切换功能...")
-    
+
     try:
         from tradingagents.dataflows.interface import switch_china_data_source
-        
+
         # 尝试切换到AKShare
         result = switch_china_data_source("akshare")
         print(f"切换结果: {result}")
-        
+
         if "成功" in result or "✅" in result:
             print("✅ 数据源切换到AKShare成功")
             return True
         else:
             print("❌ 数据源切换到AKShare失败")
             return False
-            
+
     except Exception as e:
         print(f"❌ 数据源切换测试失败: {e}")
         traceback.print_exc()
@@ -151,17 +151,17 @@ def test_data_source_switching():
 def test_unified_data_interface():
     """测试统一数据接口"""
     print("\n🔍 测试统一数据接口...")
-    
+
     try:
         from tradingagents.dataflows.interface import get_china_stock_data_unified
-        
+
         # 设置使用AKShare数据源
         from tradingagents.dataflows.interface import switch_china_data_source
         switch_china_data_source("akshare")
-        
+
         # 测试获取股票数据
         data = get_china_stock_data_unified("000001", "2024-12-01", "2024-12-10")
-        
+
         if data and "股票代码" in data:
             print("✅ 统一数据接口测试成功")
             print(f"   数据预览: {data[:200]}...")
@@ -169,7 +169,7 @@ def test_unified_data_interface():
         else:
             print("❌ 统一数据接口测试失败")
             return False
-            
+
     except Exception as e:
         print(f"❌ 统一数据接口测试失败: {e}")
         traceback.print_exc()
@@ -178,12 +178,12 @@ def test_unified_data_interface():
 def create_missing_akshare_utils():
     """如果缺失，创建基本的akshare_utils.py文件"""
     print("\n🔧 检查是否需要创建akshare_utils.py...")
-    
+
     akshare_utils_path = "tradingagents/dataflows/akshare_utils.py"
-    
+
     if not os.path.exists(akshare_utils_path):
         print("📝 创建基本的akshare_utils.py文件...")
-        
+
         akshare_utils_content = '''#!/usr/bin/env python3
 """
 AKShare数据源工具
@@ -264,7 +264,7 @@ def get_akshare_provider() -> AKShareProvider:
     """获取AKShare提供器实例"""
     return AKShareProvider()
 '''
-        
+
         try:
             with open(akshare_utils_path, 'w', encoding='utf-8') as f:
                 f.write(akshare_utils_content)
@@ -281,54 +281,54 @@ def main():
     """主测试函数"""
     print("🔍 AKShare功能完整性检查")
     print("=" * 60)
-    
+
     test_results = {}
-    
+
     # 1. 测试AKShare库导入
     test_results['akshare_import'] = test_akshare_import()[0]
-    
+
     # 2. 检查akshare_utils.py文件
     test_results['akshare_utils_file'] = test_akshare_utils_file()
-    
+
     # 3. 如果文件不存在，尝试创建
     if not test_results['akshare_utils_file']:
         test_results['create_akshare_utils'] = create_missing_akshare_utils()
-    
+
     # 4. 测试数据源管理器
     test_results['data_source_manager'] = test_data_source_manager()[0]
-    
+
     # 5. 测试AKShare适配器
     test_results['akshare_adapter'] = test_akshare_adapter()[0]
-    
+
     # 6. 测试AKShare基本功能
     test_results['akshare_basic'] = test_akshare_basic_functionality()
-    
+
     # 7. 测试数据源切换
     test_results['data_source_switching'] = test_data_source_switching()
-    
+
     # 8. 测试统一数据接口
     test_results['unified_interface'] = test_unified_data_interface()
-    
+
     # 总结结果
     print(f"\n📊 AKShare功能检查总结")
     print("=" * 60)
-    
+
     passed = sum(test_results.values())
     total = len(test_results)
-    
+
     for test_name, result in test_results.items():
         status = "✅ 通过" if result else "❌ 失败"
         print(f"{test_name:25} {status}")
-    
+
     print(f"\n🎯 总体结果: {passed}/{total} 项测试通过")
-    
+
     if passed == total:
         print("🎉 AKShare功能完全可用！")
     elif passed >= total * 0.7:
         print("⚠️ AKShare功能基本可用，但有部分问题需要修复")
     else:
         print("❌ AKShare功能存在严重问题，需要修复")
-    
+
     return passed == total
 
 if __name__ == "__main__":

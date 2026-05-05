@@ -13,7 +13,7 @@ def test_industries_api():
     """测试行业API"""
     print("🧪 测试行业API")
     print("=" * 50)
-    
+
     # 1. 获取访问令牌
     print("\n1. 获取访问令牌...")
     auth_response = requests.post(f"{BASE_URL}/api/auth/login", json={
@@ -53,25 +53,25 @@ def test_industries_api():
 
     headers = {"Authorization": f"Bearer {token}"}
     print("✅ 登录成功")
-    
+
     # 2. 测试行业API
     print("\n2. 测试行业API...")
     response = requests.get(f"{BASE_URL}/api/screening/industries", headers=headers)
-    
+
     if response.status_code == 200:
         data = response.json()
         industries = data.get("industries", [])
         total = data.get("total", 0)
-        
+
         print(f"✅ 行业API成功，返回 {total} 个行业")
         print(f"\n📊 前10个行业（按股票数量排序）:")
-        
+
         for i, industry in enumerate(industries[:10]):
             print(f"  {i+1:2d}. {industry['label']} ({industry['count']}只股票)")
-        
+
         if len(industries) > 10:
             print(f"  ... 还有 {len(industries) - 10} 个行业")
-        
+
         # 检查银行、证券、保险是否在列表中
         print(f"\n🏦 金融行业检查:")
         financial_industries = ['银行', '证券', '保险']
@@ -81,7 +81,7 @@ def test_industries_api():
                 print(f"  ✅ {fin_industry}: {found['count']}只股票")
             else:
                 print(f"  ❌ {fin_industry}: 未找到")
-        
+
         return True
     else:
         print(f"❌ 行业API失败: {response.status_code}")
@@ -90,7 +90,7 @@ def test_industries_api():
 
 if __name__ == "__main__":
     success = test_industries_api()
-    
+
     if success:
         print("\n🎉 行业API测试成功！")
         print("前端现在可以动态加载真实的行业数据了。")

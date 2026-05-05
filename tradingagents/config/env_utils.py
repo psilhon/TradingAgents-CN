@@ -29,31 +29,31 @@ def parse_bool_env(env_var: str, default: bool = False) -> bool:
         bool: 解析后的布尔值
     """
     value = os.getenv(env_var)
-    
+
     if value is None:
         return default
-    
+
     # 转换为字符串并去除空白
     value_str = str(value).strip()
-    
+
     if not value_str:
         return default
-    
+
     # 转换为小写进行比较
     value_lower = value_str.lower()
-    
+
     # 真值列表
     true_values = {
         'true', '1', 'yes', 'on', 'enable', 'enabled', 
         't', 'y', 'ok', 'okay'
     }
-    
+
     # 假值列表
     false_values = {
         'false', '0', 'no', 'off', 'disable', 'disabled',
         'f', 'n', 'none', 'null', 'nil'
     }
-    
+
     if value_lower in true_values:
         return True
     elif value_lower in false_values:
@@ -76,10 +76,10 @@ def parse_int_env(env_var: str, default: int = 0) -> int:
         int: 解析后的整数值
     """
     value = os.getenv(env_var)
-    
+
     if value is None:
         return default
-    
+
     try:
         return int(value.strip())
     except (ValueError, AttributeError):
@@ -99,10 +99,10 @@ def parse_float_env(env_var: str, default: float = 0.0) -> float:
         float: 解析后的浮点数值
     """
     value = os.getenv(env_var)
-    
+
     if value is None:
         return default
-    
+
     try:
         return float(value.strip())
     except (ValueError, AttributeError):
@@ -122,10 +122,10 @@ def parse_str_env(env_var: str, default: str = "") -> str:
         str: 解析后的字符串值
     """
     value = os.getenv(env_var)
-    
+
     if value is None:
         return default
-    
+
     return str(value).strip()
 
 
@@ -143,12 +143,12 @@ def parse_list_env(env_var: str, separator: str = ",", default: Optional[list] =
     """
     if default is None:
         default = []
-    
+
     value = os.getenv(env_var)
-    
+
     if value is None:
         return default
-    
+
     try:
         # 分割并去除空白
         items = [item.strip() for item in value.split(separator)]
@@ -170,7 +170,7 @@ def get_env_info(env_var: str) -> dict:
         dict: 环境变量信息
     """
     value = os.getenv(env_var)
-    
+
     return {
         'name': env_var,
         'value': value,
@@ -197,10 +197,10 @@ def validate_required_env_vars(required_vars: list) -> dict:
         'empty': [],
         'valid': []
     }
-    
+
     for var in required_vars:
         info = get_env_info(var)
-        
+
         if not info['exists']:
             results['missing'].append(var)
             results['all_set'] = False
@@ -209,7 +209,7 @@ def validate_required_env_vars(required_vars: list) -> dict:
             results['all_set'] = False
         else:
             results['valid'].append(var)
-    
+
     return results
 
 

@@ -27,15 +27,15 @@ def create_msg_delete():
     def delete_messages(state):
         """Clear messages and add placeholder for Anthropic compatibility"""
         messages = state["messages"]
-        
+
         # Remove all messages
         removal_operations = [RemoveMessage(id=m.id) for m in messages]
-        
+
         # Add a minimal placeholder message
         placeholder = HumanMessage(content="Continue")
-        
+
         return {"messages": removal_operations + [placeholder]}
-    
+
     return delete_messages
 
 
@@ -68,7 +68,7 @@ class Toolkit:
         Returns:
             str: A formatted dataframe containing the latest global news from Reddit in the specified time frame.
         """
-        
+
         global_news_result = interface.get_reddit_global_news(curr_date, 7, 5)
 
         return global_news_result
@@ -717,7 +717,7 @@ class Toolkit:
         # 🔧 获取分析级别配置，支持基于级别的数据获取策略
         research_depth = Toolkit._config.get('research_depth', '标准')
         logger.info(f"🔧 [分析级别] 当前分析级别: {research_depth}")
-        
+
         # 数字等级到中文等级的映射
         numeric_to_chinese = {
             1: "快速",
@@ -726,7 +726,7 @@ class Toolkit:
             4: "深度",
             5: "全面"
         }
-        
+
         # 标准化研究深度：支持数字输入
         if isinstance(research_depth, (int, float)):
             research_depth = int(research_depth)
@@ -757,7 +757,7 @@ class Toolkit:
         else:
             logger.warning(f"⚠️ 无效的研究深度类型: {type(research_depth)}，使用默认标准分析")
             research_depth = "标准"
-        
+
         # 根据分析级别调整数据获取策略
         # 🔧 修正映射关系：data_depth 应该与 research_depth 保持一致
         if research_depth == "快速":
@@ -814,7 +814,7 @@ class Toolkit:
             # 设置默认日期
             if not curr_date:
                 curr_date = datetime.now().strftime('%Y-%m-%d')
-        
+
             # 基本面分析优化：不需要大量历史数据，只需要当前价格和财务数据
             # 根据数据深度级别设置不同的分析模块数量，而非历史数据范围
             # 🔧 修正映射关系：analysis_modules 应该与 data_depth 保持一致
@@ -833,7 +833,7 @@ class Toolkit:
             else:
                 analysis_modules = "standard"  # 默认标准分析
                 logger.info(f"📊 [基本面策略] 默认模式：获取标准基本面分析")
-            
+
             # 基本面分析策略：
             # 1. 获取10天数据（保证能拿到数据，处理周末/节假日）
             # 2. 只使用最近2天数据参与分析（仅需当前价格）
@@ -1007,20 +1007,20 @@ class Toolkit:
             logger.info(f"📊 [统一基本面工具] 数据深度级别: {data_depth}")
             logger.info(f"📊 [统一基本面工具] 获取的数据模块数量: {len(result_data)}")
             logger.info(f"📊 [统一基本面工具] 总数据长度: {len(combined_result)} 字符")
-            
+
             # 记录每个数据模块的详细信息
             for i, data_section in enumerate(result_data, 1):
                 section_lines = data_section.split('\n')
                 section_title = section_lines[0] if section_lines else "未知模块"
                 section_length = len(data_section)
                 logger.info(f"📊 [统一基本面工具] 数据模块 {i}: {section_title} ({section_length} 字符)")
-                
+
                 # 如果数据包含错误信息，特别标记
                 if "获取失败" in data_section or "❌" in data_section:
                     logger.warning(f"⚠️ [统一基本面工具] 数据模块 {i} 包含错误信息")
                 else:
                     logger.info(f"✅ [统一基本面工具] 数据模块 {i} 获取成功")
-            
+
             # 根据数据深度级别记录具体的获取策略
             if data_depth in ["basic", "standard"]:
                 logger.info(f"📊 [统一基本面工具] 基础/标准级别策略: 仅获取核心价格数据和基础信息")
@@ -1028,9 +1028,9 @@ class Toolkit:
                 logger.info(f"📊 [统一基本面工具] 完整/详细/全面级别策略: 获取价格数据 + 基本面数据")
             else:
                 logger.info(f"📊 [统一基本面工具] 默认策略: 获取完整数据")
-            
+
             logger.info(f"📊 [统一基本面工具] ===== 数据获取摘要结束 =====")
-            
+
             return combined_result
 
         except Exception as e:
@@ -1198,7 +1198,7 @@ class Toolkit:
                     # 处理股票代码
                     clean_ticker = ticker.replace('.SH', '').replace('.SZ', '').replace('.SS', '')\
                                    .replace('.HK', '').replace('.XSHE', '').replace('.XSHG', '')
-                    
+
                     logger.info(f"🇨🇳🇭🇰 [统一新闻工具] 尝试获取东方财富新闻: {clean_ticker}")
 
                     # 通过 AKShare Provider 获取新闻
@@ -1220,7 +1220,7 @@ class Toolkit:
 
                             news_item = f"- **{news_title}** [{news_time}]({news_url})"
                             em_news_items.append(news_item)
-                        
+
                         # 添加到结果中
                         if em_news_items:
                             em_news_text = "\n".join(em_news_items)

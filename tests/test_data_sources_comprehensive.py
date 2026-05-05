@@ -18,28 +18,28 @@ def test_china_stock_data_sources():
     """测试中国股票数据源"""
     print("🇨🇳 测试中国股票数据源")
     print("=" * 60)
-    
+
     test_symbols = ["000001", "600036", "000858"]  # 平安银行、招商银行、五粮液
     start_date = "2025-07-01"
     end_date = "2025-07-12"
-    
+
     results = {}
-    
+
     for symbol in test_symbols:
         print(f"\n📊 测试股票: {symbol}")
         print("-" * 40)
-        
+
         symbol_results = {}
-        
+
         # 1. 测试统一数据源接口
         try:
             print(f"🔍 测试统一数据源接口...")
             from tradingagents.dataflows.interface import get_china_stock_data_unified
-            
+
             start_time = time.time()
             result = get_china_stock_data_unified(symbol, start_date, end_date)
             end_time = time.time()
-            
+
             if result and "❌" not in result:
                 print(f"✅ 统一接口获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
@@ -52,20 +52,20 @@ def test_china_stock_data_sources():
             else:
                 print(f"❌ 统一接口获取失败: {result[:100]}...")
                 symbol_results['unified'] = {'success': False, 'error': result[:100]}
-                
+
         except Exception as e:
             print(f"❌ 统一接口异常: {e}")
             symbol_results['unified'] = {'success': False, 'error': str(e)}
-        
+
         # 2. 测试优化版本
         try:
             print(f"🔍 测试优化版本...")
             from tradingagents.dataflows.optimized_china_data import get_china_stock_data_cached
-            
+
             start_time = time.time()
             result = get_china_stock_data_cached(symbol, start_date, end_date, force_refresh=True)
             end_time = time.time()
-            
+
             if result and "❌" not in result:
                 print(f"✅ 优化版本获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
@@ -77,24 +77,24 @@ def test_china_stock_data_sources():
             else:
                 print(f"❌ 优化版本获取失败: {result[:100]}...")
                 symbol_results['optimized'] = {'success': False, 'error': result[:100]}
-                
+
         except Exception as e:
             print(f"❌ 优化版本异常: {e}")
             symbol_results['optimized'] = {'success': False, 'error': str(e)}
-        
+
         # 3. 测试数据源管理器
         try:
             print(f"🔍 测试数据源管理器...")
             from tradingagents.dataflows.data_source_manager import DataSourceManager
-            
+
             manager = DataSourceManager()
             print(f"   当前数据源: {manager.current_source.value}")
             print(f"   可用数据源: {[s.value for s in manager.available_sources]}")
-            
+
             start_time = time.time()
             result = manager.get_stock_data(symbol, start_date, end_date)
             end_time = time.time()
-            
+
             if result and "❌" not in result:
                 print(f"✅ 数据源管理器获取成功 ({end_time - start_time:.2f}s)")
                 symbol_results['manager'] = {
@@ -106,52 +106,52 @@ def test_china_stock_data_sources():
             else:
                 print(f"❌ 数据源管理器获取失败: {result[:100]}...")
                 symbol_results['manager'] = {'success': False, 'error': result[:100]}
-                
+
         except Exception as e:
             print(f"❌ 数据源管理器异常: {e}")
             symbol_results['manager'] = {'success': False, 'error': str(e)}
-        
+
         results[symbol] = symbol_results
         time.sleep(1)  # 避免API频率限制
-    
+
     return results
 
 def test_us_stock_data_sources():
     """测试美股数据源"""
     print("\n🇺🇸 测试美股数据源")
     print("=" * 60)
-    
+
     test_symbols = ["AAPL", "SPY", "TSLA"]
     start_date = "2025-07-01"
     end_date = "2025-07-12"
-    
+
     results = {}
-    
+
     for symbol in test_symbols:
         print(f"\n📊 测试股票: {symbol}")
         print("-" * 40)
-        
+
         symbol_results = {}
-        
+
         # 1. 测试优化版本（FinnHub优先）
         try:
             print(f"🔍 测试优化版本（FinnHub优先）...")
             from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
-            
+
             start_time = time.time()
             result = get_us_stock_data_cached(symbol, start_date, end_date, force_refresh=True)
             end_time = time.time()
-            
+
             if result and "❌" not in result:
                 print(f"✅ 优化版本获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
-                
+
                 # 检查数据源
                 if "FINNHUB" in result.upper() or "finnhub" in result:
                     print(f"   🎯 使用了FinnHub数据源")
                 elif "Yahoo Finance" in result or "yfinance" in result:
                     print(f"   ⚠️ 使用了Yahoo Finance备用数据源")
-                
+
                 symbol_results['optimized'] = {
                     'success': True,
                     'time': end_time - start_time,
@@ -160,20 +160,20 @@ def test_us_stock_data_sources():
             else:
                 print(f"❌ 优化版本获取失败: {result[:100]}...")
                 symbol_results['optimized'] = {'success': False, 'error': result[:100]}
-                
+
         except Exception as e:
             print(f"❌ 优化版本异常: {e}")
             symbol_results['optimized'] = {'success': False, 'error': str(e)}
-        
+
         # 2. 测试原始yfinance接口
         try:
             print(f"🔍 测试原始yfinance接口...")
             from tradingagents.dataflows.interface import get_YFin_data_online
-            
+
             start_time = time.time()
             result = get_YFin_data_online(symbol, start_date, end_date)
             end_time = time.time()
-            
+
             if result and "No data found" not in result and "❌" not in result:
                 print(f"✅ yfinance接口获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
@@ -185,66 +185,66 @@ def test_us_stock_data_sources():
             else:
                 print(f"❌ yfinance接口获取失败: {result[:100]}...")
                 symbol_results['yfinance'] = {'success': False, 'error': result[:100]}
-                
+
         except Exception as e:
             print(f"❌ yfinance接口异常: {e}")
             symbol_results['yfinance'] = {'success': False, 'error': str(e)}
-        
+
         results[symbol] = symbol_results
         time.sleep(2)  # 避免API频率限制
-    
+
     return results
 
 def test_news_data_sources():
     """测试新闻数据源"""
     print("\n📰 测试新闻数据源")
     print("=" * 60)
-    
+
     test_symbols = ["AAPL", "000001"]
     results = {}
-    
+
     for symbol in test_symbols:
         print(f"\n📰 测试股票新闻: {symbol}")
         print("-" * 40)
-        
+
         symbol_results = {}
-        
+
         # 1. 测试实时新闻聚合器
         try:
             print(f"🔍 测试实时新闻聚合器...")
             from tradingagents.dataflows.realtime_news_utils import RealtimeNewsAggregator
-            
+
             aggregator = RealtimeNewsAggregator()
             start_time = time.time()
             news_items = aggregator.get_realtime_stock_news(symbol, hours_back=24)
             end_time = time.time()
-            
+
             print(f"✅ 实时新闻获取成功 ({end_time - start_time:.2f}s)")
             print(f"   新闻数量: {len(news_items)}")
-            
+
             if news_items:
                 print(f"   最新新闻: {news_items[0].title[:50]}...")
                 print(f"   新闻来源: {news_items[0].source}")
-            
+
             symbol_results['realtime_news'] = {
                 'success': True,
                 'time': end_time - start_time,
                 'news_count': len(news_items)
             }
-                
+
         except Exception as e:
             print(f"❌ 实时新闻异常: {e}")
             symbol_results['realtime_news'] = {'success': False, 'error': str(e)}
-        
+
         # 2. 测试FinnHub新闻
         try:
             print(f"🔍 测试FinnHub新闻...")
             from tradingagents.dataflows.interface import get_finnhub_news
-            
+
             start_time = time.time()
             result = get_finnhub_news(symbol, "2025-07-01", "2025-07-12")
             end_time = time.time()
-            
+
             if result and "❌" not in result:
                 print(f"✅ FinnHub新闻获取成功 ({end_time - start_time:.2f}s)")
                 print(f"   数据长度: {len(result)} 字符")
@@ -256,33 +256,33 @@ def test_news_data_sources():
             else:
                 print(f"❌ FinnHub新闻获取失败: {result[:100]}...")
                 symbol_results['finnhub_news'] = {'success': False, 'error': result[:100]}
-                
+
         except Exception as e:
             print(f"❌ FinnHub新闻异常: {e}")
             symbol_results['finnhub_news'] = {'success': False, 'error': str(e)}
-        
+
         results[symbol] = symbol_results
         time.sleep(1)
-    
+
     return results
 
 def test_cache_system():
     """测试缓存系统"""
     print("\n🗄️ 测试缓存系统")
     print("=" * 60)
-    
+
     results = {}
-    
+
     try:
         print(f"🔍 测试缓存管理器...")
         from tradingagents.dataflows.cache_manager import get_cache
-        
+
         cache = get_cache()
         print(f"   缓存类型: {type(cache).__name__}")
-        
+
         # 测试缓存保存和加载
         test_data = "测试数据_" + datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+
         # 保存测试数据
         cache_key = cache.save_stock_data(
             symbol="TEST001",
@@ -291,23 +291,23 @@ def test_cache_system():
             end_date="2025-07-12",
             data_source="test"
         )
-        
+
         print(f"   缓存键: {cache_key}")
-        
+
         # 加载测试数据
         loaded_data = cache.load_stock_data(cache_key)
-        
+
         if loaded_data == test_data:
             print(f"✅ 缓存系统测试成功")
             results['cache'] = {'success': True, 'cache_type': type(cache).__name__}
         else:
             print(f"❌ 缓存数据不匹配")
             results['cache'] = {'success': False, 'error': '数据不匹配'}
-            
+
     except Exception as e:
         print(f"❌ 缓存系统异常: {e}")
         results['cache'] = {'success': False, 'error': str(e)}
-    
+
     return results
 
 

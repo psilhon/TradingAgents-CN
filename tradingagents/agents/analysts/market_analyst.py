@@ -261,7 +261,7 @@ def create_market_analyst(llm, toolkit):
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(llm):
             logger.info(f"📊 [市场分析师] 检测到Google模型，使用统一工具调用处理器")
-            
+
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(
                 ticker=ticker,
@@ -269,7 +269,7 @@ def create_market_analyst(llm, toolkit):
                 analyst_type="市场分析",
                 specific_requirements="重点关注市场数据、价格走势、交易量变化等市场指标。"
             )
-            
+
             # 处理Google模型工具调用
             report, messages = GoogleToolCallHandler.handle_google_tool_calls(
                 result=result,

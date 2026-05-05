@@ -182,35 +182,35 @@ def _make_api_request(
     """
     api_key = get_api_key()
     base_url = "https://www.alphavantage.co/query"
-    
+
     # 构建请求参数
     request_params = {
         "function": function,
         "apikey": api_key,
         **params
     }
-    
+
     logger.debug(f"📡 [Alpha Vantage] 请求 {function}: {params}")
-    
+
     for attempt in range(max_retries):
         try:
             # 发起请求
             response = requests.get(base_url, params=request_params, timeout=30)
             response.raise_for_status()
-            
+
             # 解析响应
             data = response.json()
-            
+
             # 检查错误信息
             if "Error Message" in data:
                 error_msg = data["Error Message"]
                 logger.error(f"❌ [Alpha Vantage] API 错误: {error_msg}")
                 raise AlphaVantageAPIError(f"Alpha Vantage API Error: {error_msg}")
-            
+
             # 检查速率限制
             if "Note" in data and "API call frequency" in data["Note"]:
                 logger.warning(f"⚠️ [Alpha Vantage] 速率限制: {data['Note']}")
-                
+
                 if attempt < max_retries - 1:
                     wait_time = retry_delay * (attempt + 1)
                     logger.info(f"⏳ 等待 {wait_time} 秒后重试...")
@@ -221,12 +221,12 @@ def _make_api_request(
                         "Alpha Vantage API rate limit exceeded. "
                         "Please wait a moment and try again, or upgrade your API plan."
                     )
-            
+
             # 检查信息字段（可能包含限制提示）
             if "Information" in data:
                 info_msg = data["Information"]
                 logger.warning(f"⚠️ [Alpha Vantage] 信息: {info_msg}")
-                
+
                 # 如果是速率限制信息
                 if "premium" in info_msg.lower() or "limit" in info_msg.lower():
                     if attempt < max_retries - 1:
@@ -238,11 +238,11 @@ def _make_api_request(
                         raise AlphaVantageRateLimitError(
                             f"Alpha Vantage API limit: {info_msg}"
                         )
-            
+
             # 成功获取数据
             logger.debug(f"✅ [Alpha Vantage] 请求成功: {function}")
             return data
-            
+
         except requests.exceptions.Timeout:
             logger.warning(f"⚠️ [Alpha Vantage] 请求超时 (尝试 {attempt + 1}/{max_retries})")
             if attempt < max_retries - 1:
@@ -250,7 +250,7 @@ def _make_api_request(
                 continue
             else:
                 raise AlphaVantageAPIError("Alpha Vantage API request timeout")
-                
+
         except requests.exceptions.RequestException as e:
             logger.error(f"❌ [Alpha Vantage] 请求失败: {e}")
             if attempt < max_retries - 1:
@@ -258,11 +258,11 @@ def _make_api_request(
                 continue
             else:
                 raise AlphaVantageAPIError(f"Alpha Vantage API request failed: {e}")
-        
+
         except json.JSONDecodeError as e:
             logger.error(f"❌ [Alpha Vantage] JSON 解析失败: {e}")
             raise AlphaVantageAPIError(f"Failed to parse Alpha Vantage API response: {e}")
-    
+
     # 所有重试都失败
     raise AlphaVantageAPIError(f"Failed to get data from Alpha Vantage after {max_retries} attempts")
 
@@ -282,12 +282,12 @@ def format_response_as_string(data: Dict[str, Any], title: str = "Alpha Vantage 
         # 添加头部信息
         header = f"# {title}\n"
         header += f"# Data retrieved on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-        
+
         # 转换为 JSON 字符串（格式化）
         json_str = json.dumps(data, indent=2, ensure_ascii=False)
-        
+
         return header + json_str
-        
+
     except Exception as e:
         logger.error(f"❌ 格式化响应失败: {e}")
         return str(data)
@@ -303,7 +303,7 @@ def check_api_key_valid() -> bool:
     try:
         # 使用简单的 API 调用测试
         data = _make_api_request("GLOBAL_QUOTE", {"symbol": "IBM"})
-        
+
         # 检查是否有错误
         if isinstance(data, dict) and "Global Quote" in data:
             logger.info("✅ Alpha Vantage API Key 有效")
@@ -311,7 +311,7 @@ def check_api_key_valid() -> bool:
         else:
             logger.warning("⚠️ Alpha Vantage API Key 可能无效")
             return False
-            
+
     except Exception as e:
         logger.error(f"❌ Alpha Vantage API Key 验证失败: {e}")
         return False

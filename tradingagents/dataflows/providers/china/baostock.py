@@ -16,14 +16,14 @@ logger = logging.getLogger(__name__)
 
 class BaoStockProvider(BaseStockDataProvider):
     """BaoStock统一数据提供器"""
-    
+
     def __init__(self):
         """初始化BaoStock提供器"""
         super().__init__("baostock")
         self.bs = None
         self.connected = False
         self._init_baostock()
-    
+
     def _init_baostock(self):
         """初始化BaoStock连接"""
         try:
@@ -37,7 +37,7 @@ class BaoStockProvider(BaseStockDataProvider):
         except Exception as e:
             logger.error(f"❌ BaoStock初始化失败: {e}")
             self.connected = False
-    
+
     async def connect(self) -> bool:
         """连接到BaoStock数据源"""
         return await self.test_connection()
@@ -46,7 +46,7 @@ class BaoStockProvider(BaseStockDataProvider):
         """测试BaoStock连接"""
         if not self.connected or not self.bs:
             return False
-        
+
         try:
             # 异步测试登录
             def test_login():
@@ -55,14 +55,14 @@ class BaoStockProvider(BaseStockDataProvider):
                     raise Exception(f"登录失败: {lg.error_msg}")
                 self.bs.logout()
                 return True
-            
+
             await asyncio.to_thread(test_login)
             logger.info("✅ BaoStock连接测试成功")
             return True
         except Exception as e:
             logger.error(f"❌ BaoStock连接测试失败: {e}")
             return False
-    
+
     def get_stock_list_sync(self) -> Optional[pd.DataFrame]:
         """获取股票列表（同步版本）"""
         if not self.connected:
@@ -116,34 +116,34 @@ class BaoStockProvider(BaseStockDataProvider):
         """
         if not self.connected:
             return []
-        
+
         try:
             logger.info("📋 获取BaoStock股票列表...")
-            
+
             def fetch_stock_list():
                 lg = self.bs.login()
                 if lg.error_code != '0':
                     raise Exception(f"登录失败: {lg.error_msg}")
-                
+
                 try:
                     rs = self.bs.query_stock_basic()
                     if rs.error_code != '0':
                         raise Exception(f"查询失败: {rs.error_msg}")
-                    
+
                     data_list = []
                     while (rs.error_code == '0') & rs.next():
                         data_list.append(rs.get_row_data())
-                    
+
                     return data_list, rs.fields
                 finally:
                     self.bs.logout()
-            
+
             data_list, fields = await asyncio.to_thread(fetch_stock_list)
-            
+
             if not data_list:
                 logger.warning("⚠️ BaoStock股票列表为空")
                 return []
-            
+
             # 转换为标准格式
             stock_list = []
             for row in data_list:
@@ -152,7 +152,7 @@ class BaoStockProvider(BaseStockDataProvider):
                     name = row[1]  # code_name
                     stock_type = row[4] if len(row) > 4 else '0'  # type
                     status = row[5] if len(row) > 5 else '0'  # status
-                    
+
                     # 只保留A股股票 (type=1, status=1)
                     if stock_type == '1' and status == '1':
                         # 转换代码格式 sh.600000 -> 600000
@@ -162,14 +162,14 @@ class BaoStockProvider(BaseStockDataProvider):
                             "name": str(name),
                             "source": "baostock"
                         })
-            
+
             logger.info(f"✅ BaoStock股票列表获取成功: {len(stock_list)}只股票")
             return stock_list
-            
+
         except Exception as e:
             logger.error(f"❌ BaoStock获取股票列表失败: {e}")
             return []
-    
+
     async def get_stock_basic_info(self, code: str) -> Dict[str, Any]:
         """
         获取股票基础信息
@@ -284,7 +284,7 @@ class BaoStockProvider(BaseStockDataProvider):
         except Exception as e:
             logger.error(f"❌ BaoStock获取{code}估值数据失败: {e}")
             return {}
-    
+
     async def _get_stock_info_detail(self, code: str) -> Dict[str, Any]:
         """获取股票详细信息"""
         try:
@@ -293,19 +293,19 @@ class BaoStockProvider(BaseStockDataProvider):
                 lg = self.bs.login()
                 if lg.error_code != '0':
                     raise Exception(f"登录失败: {lg.error_msg}")
-                
+
                 try:
                     rs = self.bs.query_stock_basic(code=bs_code)
                     if rs.error_code != '0':
                         return {"code": code, "name": f"股票{code}"}
-                    
+
                     data_list = []
                     while (rs.error_code == '0') & rs.next():
                         data_list.append(rs.get_row_data())
-                    
+
                     if not data_list:
                         return {"code": code, "name": f"股票{code}"}
-                    
+
                     row = data_list[0]
                     return {
                         "code": code,
@@ -316,13 +316,13 @@ class BaoStockProvider(BaseStockDataProvider):
                     }
                 finally:
                     self.bs.logout()
-            
+
             return await asyncio.to_thread(fetch_stock_info)
-            
+
         except Exception as e:
             logger.debug(f"获取{code}详细信息失败: {e}")
             return {"code": code, "name": f"股票{code}", "industry": "未知", "area": "未知"}
-    
+
     async def get_stock_quotes(self, code: str) -> Dict[str, Any]:
         """
         获取股票实时行情
@@ -335,14 +335,14 @@ class BaoStockProvider(BaseStockDataProvider):
         """
         if not self.connected:
             return {}
-        
+
         try:
             # BaoStock没有实时行情接口，使用最新日K线数据
             quotes_data = await self._get_latest_kline_data(code)
-            
+
             if not quotes_data:
                 return {}
-            
+
             # 标准化数据
             return {
                 "code": code,
@@ -362,11 +362,11 @@ class BaoStockProvider(BaseStockDataProvider):
                 "last_sync": datetime.now(timezone.utc),
                 "sync_status": "success"
             }
-            
+
         except Exception as e:
             logger.error(f"❌ BaoStock获取{code}行情失败: {e}")
             return {}
-    
+
     async def _get_latest_kline_data(self, code: str) -> Dict[str, Any]:
         """获取最新K线数据作为行情"""
         try:
@@ -375,12 +375,12 @@ class BaoStockProvider(BaseStockDataProvider):
                 lg = self.bs.login()
                 if lg.error_code != '0':
                     raise Exception(f"登录失败: {lg.error_msg}")
-                
+
                 try:
                     # 获取最近5天的数据
                     end_date = datetime.now().strftime('%Y-%m-%d')
                     start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
-                    
+
                     rs = self.bs.query_history_k_data_plus(
                         code=bs_code,
                         fields="date,code,open,high,low,close,preclose,volume,amount,pctChg",
@@ -389,17 +389,17 @@ class BaoStockProvider(BaseStockDataProvider):
                         frequency="d",
                         adjustflag="3"
                     )
-                    
+
                     if rs.error_code != '0':
                         return {}
-                    
+
                     data_list = []
                     while (rs.error_code == '0') & rs.next():
                         data_list.append(rs.get_row_data())
-                    
+
                     if not data_list:
                         return {}
-                    
+
                     # 取最新一条数据
                     latest_row = data_list[-1]
                     return {
@@ -416,13 +416,13 @@ class BaoStockProvider(BaseStockDataProvider):
                     }
                 finally:
                     self.bs.logout()
-            
+
             return await asyncio.to_thread(fetch_latest_kline)
-            
+
         except Exception as e:
             logger.debug(f"获取{code}最新K线数据失败: {e}")
             return {}
-    
+
     def _to_baostock_code(self, symbol: str) -> str:
         """转换为BaoStock代码格式"""
         s = str(symbol).strip().upper()
@@ -435,7 +435,7 @@ class BaoStockProvider(BaseStockDataProvider):
         if len(s) >= 6 and s[0] == '6':
             return f"sh.{s[:6]}"
         return f"sz.{s[:6]}"
-    
+
     def _determine_market(self, code: str) -> str:
         """确定股票所属市场"""
         if code.startswith('6'):
@@ -446,7 +446,7 @@ class BaoStockProvider(BaseStockDataProvider):
             return "北京证券交易所"
         else:
             return "未知市场"
-    
+
     def _get_full_symbol(self, code: str) -> str:
         """
         获取完整股票代码
@@ -474,7 +474,7 @@ class BaoStockProvider(BaseStockDataProvider):
         else:
             # 无法识别的代码，返回原始代码（确保不为空）
             return code if code else ""
-    
+
     def _get_market_info(self, code: str) -> Dict[str, Any]:
         """获取市场信息"""
         if code.startswith('6'):
@@ -509,7 +509,7 @@ class BaoStockProvider(BaseStockDataProvider):
                 "currency": "CNY",
                 "timezone": "Asia/Shanghai"
             }
-    
+
     def _safe_float(self, value: Any) -> float:
         """安全转换为浮点数"""
         try:
@@ -518,7 +518,7 @@ class BaoStockProvider(BaseStockDataProvider):
             return float(value)
         except (ValueError, TypeError):
             return 0.0
-    
+
     def _safe_int(self, value: Any) -> int:
         """安全转换为整数"""
         try:
@@ -527,7 +527,7 @@ class BaoStockProvider(BaseStockDataProvider):
             return int(float(value))
         except (ValueError, TypeError):
             return 0
-    
+
     def _safe_str(self, value: Any) -> str:
         """安全转换为字符串"""
         try:

@@ -477,7 +477,7 @@ class OptimizedChinaDataProvider:
 
         # 根据分析模块级别调整报告内容
         logger.debug(f"🔍 [基本面分析] 使用分析模块级别: {analysis_modules}")
-        
+
         if analysis_modules == "basic":
             # 基础模式：只包含核心财务指标
             report = f"""# 中国A股基本面分析报告 - {symbol} (基础版)

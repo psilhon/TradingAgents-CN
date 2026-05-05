@@ -18,7 +18,7 @@ def test_api(api_name, api_func, *args, **kwargs):
     print(f"   参数: args={args}, kwargs={kwargs}")
     try:
         result = api_func(*args, **kwargs)
-        
+
         if isinstance(result, pd.DataFrame):
             print(f"   ✅ 成功! 返回 DataFrame")
             print(f"   📈 数据行数: {len(result)}")
@@ -30,26 +30,26 @@ def test_api(api_name, api_func, *args, **kwargs):
             print(f"   ✅ 成功! 返回类型: {type(result)}")
             print(f"   数据: {result}")
             return True, result
-            
+
     except Exception as e:
         print(f"   ❌ 失败: {e}")
         return False, None
 
 def main():
     """主测试函数"""
-    
+
     # 测试股票代码
     test_symbol = "00700"  # 腾讯控股
-    
+
     print_separator("AKShare 港股接口测试")
     print(f"测试股票: {test_symbol} (腾讯控股)")
     print(f"测试时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    
+
     # ========================================
     # 1. 实时行情接口
     # ========================================
     print_separator("1. 实时行情接口")
-    
+
     # 1.1 东方财富 - 港股实时行情
     success, df = test_api(
         "stock_hk_spot_em",
@@ -61,7 +61,7 @@ def main():
         if not matched.empty:
             print(f"\n   🎯 找到 {test_symbol}:")
             print(matched.to_string())
-    
+
     # 1.2 东方财富 - 港股主板实时行情
     success, df = test_api(
         "stock_hk_main_board_spot_em",
@@ -72,7 +72,7 @@ def main():
         if not matched.empty:
             print(f"\n   🎯 找到 {test_symbol}:")
             print(matched.to_string())
-    
+
     # 1.3 新浪财经 - 港股实时行情
     try:
         success, df = test_api(
@@ -87,12 +87,12 @@ def main():
                 print(matched.to_string())
     except AttributeError:
         print(f"   ⚠️ 接口 stock_hk_spot 不存在")
-    
+
     # ========================================
     # 2. 历史行情接口
     # ========================================
     print_separator("2. 历史行情接口")
-    
+
     # 2.1 新浪财经 - 港股历史行情
     success, df = test_api(
         "stock_hk_daily",
@@ -103,12 +103,12 @@ def main():
     if success and df is not None:
         print(f"\n   📅 最近5个交易日:")
         print(df.tail(5).to_string())
-    
+
     # ========================================
     # 3. 个股信息接口
     # ========================================
     print_separator("3. 个股信息接口")
-    
+
     # 3.1 雪球 - 港股个股信息
     try:
         success, result = test_api(
@@ -120,12 +120,12 @@ def main():
         print(f"   ⚠️ 接口 stock_individual_basic_info_hk_xq 不存在")
     except Exception as e:
         print(f"   ❌ 调用失败: {e}")
-    
+
     # ========================================
     # 4. 股票列表接口
     # ========================================
     print_separator("4. 股票列表接口")
-    
+
     # 4.1 港股股票列表
     try:
         success, df = test_api(
@@ -134,7 +134,7 @@ def main():
         )
     except AttributeError:
         print(f"   ⚠️ 接口 stock_hk_list 不存在")
-    
+
     # 4.2 从实时行情获取股票列表
     print(f"\n📊 从 stock_hk_spot_em 获取股票列表:")
     try:
@@ -146,12 +146,12 @@ def main():
             print(df.head(10)[['代码', '名称', '最新价', '涨跌幅']].to_string())
     except Exception as e:
         print(f"   ❌ 失败: {e}")
-    
+
     # ========================================
     # 5. 其他可能的接口
     # ========================================
     print_separator("5. 其他港股相关接口")
-    
+
     # 5.1 港股通成分股
     try:
         success, df = test_api(
@@ -160,7 +160,7 @@ def main():
         )
     except AttributeError:
         print(f"   ⚠️ 接口 stock_hk_ggt_components_em 不存在")
-    
+
     # 5.2 港股通资金流向
     try:
         success, df = test_api(
@@ -169,12 +169,12 @@ def main():
         )
     except AttributeError:
         print(f"   ⚠️ 接口 stock_hk_ggt_hist_em 不存在")
-    
+
     # ========================================
     # 总结
     # ========================================
     print_separator("测试总结")
-    
+
     print("""
     📊 AKShare 港股接口总结:
     

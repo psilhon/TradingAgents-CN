@@ -19,7 +19,7 @@ async def login() -> str:
             "username": USERNAME,
             "password": PASSWORD
         }
-        
+
         async with session.post(f"{BASE_URL}/api/auth/login", json=login_data) as response:
             if response.status == 200:
                 result = await response.json()
@@ -84,7 +84,7 @@ async def get_task_status(token: str, task_id: str) -> dict:
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
-    
+
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f"{BASE_URL}/api/analysis/tasks/{task_id}/status",
@@ -103,40 +103,40 @@ def print_progress_info(status_data: dict, iteration: int):
     print(f"\n{'='*80}")
     print(f"📊 第 {iteration} 次查询 - {datetime.now().strftime('%H:%M:%S')}")
     print(f"{'='*80}")
-    
+
     # 基本信息
     print(f"📋 任务ID: {status_data.get('task_id', 'N/A')}")
     print(f"📈 状态: {status_data.get('status', 'N/A')}")
     print(f"📊 进度: {status_data.get('progress', 0)}%")
     print(f"💬 消息: {status_data.get('message', 'N/A')}")
-    
+
     # 当前步骤信息
     current_step = status_data.get('current_step')
     current_step_name = status_data.get('current_step_name', 'N/A')
     current_step_description = status_data.get('current_step_description', 'N/A')
-    
+
     print(f"\n🎯 当前步骤:")
     print(f"   索引: {current_step}")
     print(f"   名称: {current_step_name}")
     print(f"   描述: {current_step_description}")
-    
+
     # 时间信息
     elapsed = status_data.get('elapsed_time', 0)
     remaining = status_data.get('remaining_time', 0)
     estimated = status_data.get('estimated_total_time', 0)
-    
+
     print(f"\n⏱️ 时间信息:")
     print(f"   已用时间: {elapsed:.1f}秒")
     print(f"   预计剩余: {remaining:.1f}秒")
     print(f"   预计总时长: {estimated:.1f}秒")
-    
+
     # 步骤详情
     steps = status_data.get('steps', [])
     if steps:
         print(f"\n📝 步骤详情 (共 {len(steps)} 个):")
         print(f"{'序号':<6} {'状态':<12} {'名称':<30} {'权重':<8}")
         print(f"{'-'*80}")
-        
+
         for i, step in enumerate(steps):
             status_icon = {
                 'pending': '⏳',
@@ -144,21 +144,21 @@ def print_progress_info(status_data: dict, iteration: int):
                 'completed': '✅',
                 'failed': '❌'
             }.get(step.get('status', 'pending'), '❓')
-            
+
             print(f"{i:<6} {status_icon} {step.get('status', 'N/A'):<10} {step.get('name', 'N/A'):<30} {step.get('weight', 0):.2%}")
-        
+
         # 统计步骤状态
         status_count = {}
         for step in steps:
             s = step.get('status', 'pending')
             status_count[s] = status_count.get(s, 0) + 1
-        
+
         print(f"\n📊 步骤状态统计:")
         for status, count in status_count.items():
             print(f"   {status}: {count}")
     else:
         print(f"\n⚠️ 没有步骤信息")
-    
+
     print(f"{'='*80}\n")
 
 async def monitor_task_progress(token: str, task_id: str, max_iterations: int = 60, interval: int = 3):
@@ -167,22 +167,22 @@ async def monitor_task_progress(token: str, task_id: str, max_iterations: int = 
     print(f"   任务ID: {task_id}")
     print(f"   最大查询次数: {max_iterations}")
     print(f"   查询间隔: {interval}秒")
-    
+
     iteration = 0
-    
+
     while iteration < max_iterations:
         iteration += 1
-        
+
         # 获取状态
         status_data = await get_task_status(token, task_id)
-        
+
         if not status_data:
             print(f"❌ 无法获取任务状态")
             break
-        
+
         # 打印进度信息
         print_progress_info(status_data, iteration)
-        
+
         # 检查是否完成
         status = status_data.get('status')
         if status == 'completed':
@@ -191,10 +191,10 @@ async def monitor_task_progress(token: str, task_id: str, max_iterations: int = 
         elif status == 'failed':
             print(f"❌ 任务失败！")
             break
-        
+
         # 等待下一次查询
         await asyncio.sleep(interval)
-    
+
     if iteration >= max_iterations:
         print(f"⏰ 达到最大查询次数，停止监控")
 
@@ -203,25 +203,25 @@ async def main():
     print(f"{'='*80}")
     print(f"🧪 测试进度跟踪和步骤状态更新")
     print(f"{'='*80}\n")
-    
+
     # 1. 登录
     print(f"1️⃣ 登录系统...")
     token = await login()
     if not token:
         print(f"❌ 登录失败，退出测试")
         return
-    
+
     # 2. 发起分析
     print(f"\n2️⃣ 发起分析任务...")
     task_id = await start_analysis(token)
     if not task_id:
         print(f"❌ 发起分析失败，退出测试")
         return
-    
+
     # 3. 监控进度
     print(f"\n3️⃣ 监控任务进度...")
     await monitor_task_progress(token, task_id, max_iterations=100, interval=3)
-    
+
     print(f"\n{'='*80}")
     print(f"✅ 测试完成")
     print(f"{'='*80}")

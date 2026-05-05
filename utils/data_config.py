@@ -22,7 +22,7 @@ except ImportError:
     def get_data_path(key: str, create: bool = True) -> Path:
         """基本的数据路径获取函数"""
         project_root = Path(__file__).parent.parent
-        
+
         # 基本路径映射
         path_mapping = {
             'data_root': 'data',
@@ -33,13 +33,13 @@ except ImportError:
             'config': 'data/config',
             'temp': 'data/temp',
         }
-        
+
         path_str = path_mapping.get(key, f'data/{key}')
         path = project_root / path_str
-        
+
         if create:
             path.mkdir(parents=True, exist_ok=True)
-        
+
         return path
 
 
@@ -226,7 +226,7 @@ def check_data_directory_config() -> dict:
         'TRADINGAGENTS_CONFIG_DIR',
         'TRADINGAGENTS_TEMP_DIR',
     ]
-    
+
     config_status = {}
     for var in env_vars:
         value = os.getenv(var)
@@ -235,7 +235,7 @@ def check_data_directory_config() -> dict:
             'value': value,
             'exists': Path(value).exists() if value else False
         }
-    
+
     return config_status
 
 
@@ -243,13 +243,13 @@ def print_data_directory_status():
     """打印数据目录配置状态"""
     print("📁 数据目录配置状态:")
     print("=" * 50)
-    
+
     status = check_data_directory_config()
-    
+
     for var, info in status.items():
         status_icon = "✅" if info['set'] else "❌"
         exists_icon = "📁" if info['exists'] else "❓"
-        
+
         print(f"{status_icon} {var}")
         if info['set']:
             print(f"   值: {info['value']}")

@@ -90,26 +90,26 @@ def _get_company_name_for_china_market(ticker: str, market_info: dict) -> str:
 
 def create_china_market_analyst(llm, toolkit):
     """创建中国市场分析师"""
-    
+
     def china_market_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
-        
+
         # 获取股票市场信息
         from tradingagents.utils.stock_utils import StockUtils
         market_info = StockUtils.get_market_info(ticker)
-        
+
         # 获取公司名称
         company_name = _get_company_name_for_china_market(ticker, market_info)
         logger.info(f"[中国市场分析师] 公司名称: {company_name}")
-        
+
         # 中国股票分析工具
         tools = [
             toolkit.get_china_stock_data,
             toolkit.get_china_market_overview,
             toolkit.get_YFin_data,  # 备用数据源
         ]
-        
+
         system_message = (
             """您是一位专业的中国股市分析师，专门分析A股、港股等中国资本市场。您具备深厚的中国股市知识和丰富的本土投资经验。
 
@@ -137,7 +137,7 @@ def create_china_market_analyst(llm, toolkit):
 请基于Tushare数据接口提供的实时数据和技术指标，结合中国股市的特殊性，撰写专业的中文分析报告。
 确保在报告末尾附上Markdown表格总结关键发现和投资建议。"""
         )
-        
+
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
@@ -152,7 +152,7 @@ def create_china_market_analyst(llm, toolkit):
                 MessagesPlaceholder(variable_name="messages"),
             ]
         )
-        
+
         prompt = prompt.partial(system_message=system_message)
         # 安全地获取工具名称，处理函数和工具对象
         tool_names = []
@@ -167,14 +167,14 @@ def create_china_market_analyst(llm, toolkit):
         prompt = prompt.partial(tool_names=", ".join(tool_names))
         prompt = prompt.partial(current_date=current_date)
         prompt = prompt.partial(ticker=ticker)
-        
+
         chain = prompt | llm.bind_tools(tools)
         result = chain.invoke(state["messages"])
-        
+
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(llm):
             logger.info(f"📊 [中国市场分析师] 检测到Google模型，使用统一工具调用处理器")
-            
+
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(
                 ticker=ticker,
@@ -182,7 +182,7 @@ def create_china_market_analyst(llm, toolkit):
                 analyst_type="中国市场分析",
                 specific_requirements="重点关注中国A股市场特点、政策影响、行业发展趋势等。"
             )
-            
+
             # 处理Google模型工具调用
             report, messages = GoogleToolCallHandler.handle_google_tool_calls(
                 result=result,
@@ -195,30 +195,30 @@ def create_china_market_analyst(llm, toolkit):
         else:
             # 非Google模型的处理逻辑
             logger.debug(f"📊 [DEBUG] 非Google模型 ({llm.__class__.__name__})，使用标准处理逻辑")
-            
+
             report = ""
             if len(result.tool_calls) == 0:
                 report = result.content
-        
+
         return {
             "messages": [result],
             "china_market_report": report,
             "sender": "ChinaMarketAnalyst",
         }
-    
+
     return china_market_analyst_node
 
 
 def create_china_stock_screener(llm, toolkit):
     """创建中国股票筛选器"""
-    
+
     def china_stock_screener_node(state):
         current_date = state["trade_date"]
-        
+
         tools = [
             toolkit.get_china_market_overview,
         ]
-        
+
         system_message = (
             """您是一位专业的中国股票筛选专家，负责从A股市场中筛选出具有投资价值的股票。
 
@@ -251,7 +251,7 @@ def create_china_stock_screener(llm, toolkit):
 
 请基于当前市场环境和政策背景，提供专业的股票筛选建议。"""
         )
-        
+
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
@@ -264,7 +264,7 @@ def create_china_stock_screener(llm, toolkit):
                 MessagesPlaceholder(variable_name="messages"),
             ]
         )
-        
+
         prompt = prompt.partial(system_message=system_message)
         # 安全地获取工具名称，处理函数和工具对象
         tool_names = []
@@ -278,14 +278,14 @@ def create_china_stock_screener(llm, toolkit):
 
         prompt = prompt.partial(tool_names=", ".join(tool_names))
         prompt = prompt.partial(current_date=current_date)
-        
+
         chain = prompt | llm.bind_tools(tools)
         result = chain.invoke(state["messages"])
-        
+
         return {
             "messages": [result],
             "stock_screening_report": result.content,
             "sender": "ChinaStockScreener",
         }
-    
+
     return china_stock_screener_node

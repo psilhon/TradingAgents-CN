@@ -5,19 +5,19 @@ import json
 async def test_login_api():
     """测试登录API是否正常工作"""
     url = "http://localhost:8001/api/auth/login"
-    
+
     # 测试数据
     login_data = {
         "username": "admin",
         "password": "admin123"
     }
-    
+
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=login_data) as response:
                 print(f"状态码: {response.status}")
                 print(f"响应头: {dict(response.headers)}")
-                
+
                 if response.status == 200:
                     result = await response.json()
                     print(f"登录成功!")
@@ -31,7 +31,7 @@ async def test_login_api():
                     error_text = await response.text()
                     print(f"登录失败: {error_text}")
                     return False
-                    
+
     except Exception as e:
         print(f"请求异常: {e}")
         return False

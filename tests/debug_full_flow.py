@@ -18,22 +18,22 @@ from tradingagents.dataflows.akshare_utils import get_akshare_provider
 def debug_full_flow():
     """调试完整的数据获取和解析流程"""
     symbol = "600519"
-    
+
     print("🔍 开始调试完整流程...")
-    
+
     # 1. 初始化数据提供器
     provider = OptimizedChinaDataProvider()
     print(f"✅ 数据提供器初始化完成")
-    
+
     # 2. 获取AKShare财务数据
     print(f"\n📊 获取AKShare财务数据...")
     akshare_provider = get_akshare_provider()
     financial_data = akshare_provider.get_financial_data(symbol)
     stock_info = akshare_provider.get_stock_info(symbol)
-    
+
     print(f"   财务数据键: {list(financial_data.keys()) if financial_data else 'None'}")
     print(f"   股票信息: {stock_info}")
-    
+
     # 3. 模拟股价获取
     print(f"\n💰 模拟股价获取...")
     current_price = "1800.0"  # 模拟股价
@@ -43,7 +43,7 @@ def debug_full_flow():
     except Exception as e:
         print(f"   股价解析失败: {e}")
         price_value = 10.0
-    
+
     # 4. 调用解析函数
     print(f"\n🔧 调用解析函数...")
     try:
@@ -60,7 +60,7 @@ def debug_full_flow():
         print(f"❌ 解析异常: {e}")
         import traceback
         traceback.print_exc()
-    
+
     # 5. 测试_get_real_financial_metrics函数
     print(f"\n🔍 测试_get_real_financial_metrics函数...")
     try:
@@ -79,7 +79,7 @@ def debug_full_flow():
         print(f"❌ 真实财务指标获取异常: {e}")
         import traceback
         traceback.print_exc()
-    
+
     # 6. 测试_estimate_financial_metrics函数
     print(f"\n🔍 测试_estimate_financial_metrics函数...")
     try:
@@ -98,7 +98,7 @@ def debug_full_flow():
         print(f"❌ 财务指标估算异常: {e}")
         import traceback
         traceback.print_exc()
-    
+
     print(f"\n" + "="*60)
     print(f"✅ 调试完成")
     print(f"="*60)

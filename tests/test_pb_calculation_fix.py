@@ -70,28 +70,28 @@ def test_pb_calculation_formula_equivalence():
     """
     验证不同的计算公式是否等价
     """
-    
+
     money_cap_wan = 1000  # 万元
     total_equity_yuan = 5000000000  # 元
-    
+
     # 方案1：都转换为亿元
     money_cap_yi = money_cap_wan / 10000
     total_equity_yi = total_equity_yuan / 100000000
     pb1 = money_cap_yi / total_equity_yi
-    
+
     # 方案2：都转换为万元
     total_equity_wan = total_equity_yuan / 10000
     pb2 = money_cap_wan / total_equity_wan
-    
+
     # 方案3：都转换为元
     money_cap_yuan = money_cap_wan * 10000
     pb3 = money_cap_yuan / total_equity_yuan
-    
+
     print(f"\n公式等价性验证：")
     print(f"  方案1（亿元）: {pb1:.2f}")
     print(f"  方案2（万元）: {pb2:.2f}")
     print(f"  方案3（元）: {pb3:.2f}")
-    
+
     assert pb1 == pb2 == pb3, "公式不等价"
     print(f"✅ 所有公式等价！")
 
@@ -100,11 +100,11 @@ if __name__ == "__main__":
     print("=" * 60)
     print("市净率（PB）计算修复验证")
     print("=" * 60)
-    
+
     test_pb_calculation_units()
     test_pb_calculation_with_real_example()
     test_pb_calculation_formula_equivalence()
-    
+
     print("\n" + "=" * 60)
     print("✅ 所有测试通过！")
     print("=" * 60)

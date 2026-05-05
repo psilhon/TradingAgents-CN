@@ -34,7 +34,7 @@ class ChatDeepSeek(ChatOpenAI):
     
     继承自ChatOpenAI，添加了Token使用量统计功能
     """
-    
+
     def __init__(
         self,
         model: str = "deepseek-chat",
@@ -55,7 +55,7 @@ class ChatDeepSeek(ChatOpenAI):
             max_tokens: 最大token数
             **kwargs: 其他参数
         """
-        
+
         # 获取API密钥
         if api_key is None:
             # 导入 API Key 验证工具
@@ -91,7 +91,7 @@ class ChatDeepSeek(ChatOpenAI):
                     "DeepSeek API密钥未找到。请在 Web 界面配置 API Key "
                     "(设置 -> 大模型厂家) 或设置 DEEPSEEK_API_KEY 环境变量。"
                 )
-        
+
         # 初始化父类
         super().__init__(
             model=model,
@@ -101,9 +101,9 @@ class ChatDeepSeek(ChatOpenAI):
             max_tokens=max_tokens,
             **kwargs
         )
-        
+
         self.model_name = model
-        
+
     def _generate(
         self,
         messages: List[BaseMessage],
@@ -125,18 +125,18 @@ class ChatDeepSeek(ChatOpenAI):
         try:
             # 调用父类方法生成响应
             result = super()._generate(messages, stop, run_manager, **kwargs)
-            
+
             # 提取token使用量
             input_tokens = 0
             output_tokens = 0
-            
+
             # 尝试从响应中提取token使用量
             if hasattr(result, 'llm_output') and result.llm_output:
                 token_usage = result.llm_output.get('token_usage', {})
                 if token_usage:
                     input_tokens = token_usage.get('prompt_tokens', 0)
                     output_tokens = token_usage.get('completion_tokens', 0)
-            
+
             # 如果没有获取到token使用量，进行估算
             if input_tokens == 0 and output_tokens == 0:
                 input_tokens = self._estimate_input_tokens(messages)
@@ -144,7 +144,7 @@ class ChatDeepSeek(ChatOpenAI):
                 logger.debug(f"🔍 [DeepSeek] 使用估算token: 输入={input_tokens}, 输出={output_tokens}")
             else:
                 logger.info(f"📊 [DeepSeek] 实际token使用: 输入={input_tokens}, 输出={output_tokens}")
-            
+
             # 记录token使用量
             if TOKEN_TRACKING_ENABLED and (input_tokens > 0 or output_tokens > 0):
                 try:
@@ -182,13 +182,13 @@ class ChatDeepSeek(ChatOpenAI):
 
                 except Exception as track_error:
                     logger.error(f"⚠️ [DeepSeek] Token统计失败: {track_error}", exc_info=True)
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(f"❌ [DeepSeek] 调用失败: {e}", exc_info=True)
             raise
-    
+
     def _estimate_input_tokens(self, messages: List[BaseMessage]) -> int:
         """
         估算输入token数量
@@ -203,12 +203,12 @@ class ChatDeepSeek(ChatOpenAI):
         for message in messages:
             if hasattr(message, 'content'):
                 total_chars += len(str(message.content))
-        
+
         # 粗略估算：中文约1.5字符/token，英文约4字符/token
         # 这里使用保守估算：2字符/token
         estimated_tokens = max(1, total_chars // 2)
         return estimated_tokens
-    
+
     def _estimate_output_tokens(self, result: ChatResult) -> int:
         """
         估算输出token数量
@@ -223,11 +223,11 @@ class ChatDeepSeek(ChatOpenAI):
         for generation in result.generations:
             if hasattr(generation, 'message') and hasattr(generation.message, 'content'):
                 total_chars += len(str(generation.message.content))
-        
+
         # 粗略估算：2字符/token
         estimated_tokens = max(1, total_chars // 2)
         return estimated_tokens
-    
+
     def invoke(
         self,
         input: Union[str, List[BaseMessage]],
@@ -245,16 +245,16 @@ class ChatDeepSeek(ChatOpenAI):
         Returns:
             AI消息响应
         """
-        
+
         # 处理输入
         if isinstance(input, str):
             messages = [HumanMessage(content=input)]
         else:
             messages = input
-        
+
         # 调用生成方法
         result = self._generate(messages, **kwargs)
-        
+
         # 返回第一个生成结果的消息
         if result.generations:
             return result.generations[0].message

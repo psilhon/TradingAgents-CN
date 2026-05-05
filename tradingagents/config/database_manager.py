@@ -32,7 +32,7 @@ class DatabaseManager:
         self._initialize_connections()
 
         self.logger.info(f"数据库管理器初始化完成 - MongoDB: {self.mongodb_available}, Redis: {self.redis_available}")
-    
+
     def _load_env_config(self):
         """从.env文件加载配置"""
         # 尝试加载python-dotenv
@@ -79,9 +79,9 @@ class DatabaseManager:
             self.logger.info(f"MongoDB配置: {self.mongodb_config['host']}:{self.mongodb_config['port']}")
         if self.redis_enabled:
             self.logger.info(f"Redis配置: {self.redis_config['host']}:{self.redis_config['port']}")
-    
 
-    
+
+
     def _detect_mongodb(self) -> Tuple[bool, str]:
         """检测MongoDB是否可用"""
         # 首先检查是否启用
@@ -121,7 +121,7 @@ class DatabaseManager:
             return False, "pymongo未安装"
         except Exception as e:
             return False, f"MongoDB连接失败: {str(e)}"
-    
+
     def _detect_redis(self) -> Tuple[bool, str]:
         """检测Redis是否可用"""
         # 首先检查是否启用
@@ -155,32 +155,32 @@ class DatabaseManager:
             return False, "redis未安装"
         except Exception as e:
             return False, f"Redis连接失败: {str(e)}"
-    
+
     def _detect_databases(self):
         """检测所有数据库"""
         self.logger.info("开始检测数据库可用性...")
-        
+
         # 检测MongoDB
         mongodb_available, mongodb_msg = self._detect_mongodb()
         self.mongodb_available = mongodb_available
-        
+
         if mongodb_available:
             self.logger.info(f"✅ MongoDB: {mongodb_msg}")
         else:
             self.logger.info(f"❌ MongoDB: {mongodb_msg}")
-        
+
         # 检测Redis
         redis_available, redis_msg = self._detect_redis()
         self.redis_available = redis_available
-        
+
         if redis_available:
             self.logger.info(f"✅ Redis: {redis_msg}")
         else:
             self.logger.info(f"❌ Redis: {redis_msg}")
-        
+
         # 更新配置
         self._update_config_based_on_detection()
-    
+
     def _update_config_based_on_detection(self):
         """根据检测结果更新配置"""
         # 确定缓存后端
@@ -192,7 +192,7 @@ class DatabaseManager:
             self.primary_backend = "file"
 
         self.logger.info(f"主要缓存后端: {self.primary_backend}")
-    
+
     def _initialize_connections(self):
         """初始化数据库连接"""
         # 初始化MongoDB连接
@@ -245,7 +245,7 @@ class DatabaseManager:
             except Exception as e:
                 self.logger.error(f"Redis客户端初始化失败: {e}")
                 self.redis_available = False
-    
+
     def get_mongodb_client(self):
         """获取MongoDB客户端"""
         if self.mongodb_available and self.mongodb_client:
@@ -264,19 +264,19 @@ class DatabaseManager:
         if self.redis_available and self.redis_client:
             return self.redis_client
         return None
-    
+
     def is_mongodb_available(self) -> bool:
         """检查MongoDB是否可用"""
         return self.mongodb_available
-    
+
     def is_redis_available(self) -> bool:
         """检查Redis是否可用"""
         return self.redis_available
-    
+
     def is_database_available(self) -> bool:
         """检查是否有任何数据库可用"""
         return self.mongodb_available or self.redis_available
-    
+
     def get_cache_backend(self) -> str:
         """获取当前缓存后端"""
         return self.primary_backend

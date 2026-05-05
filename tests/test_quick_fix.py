@@ -11,10 +11,10 @@ def quick_test():
     """快速测试修复效果"""
     print("🔍 快速测试修复效果")
     print("=" * 60)
-    
+
     # API基础URL
     base_url = "http://localhost:8000"
-    
+
     try:
         # 1. 登录获取token
         print("1. 登录获取token...")
@@ -22,12 +22,12 @@ def quick_test():
             "username": "admin",
             "password": "admin123"
         }
-        
+
         login_response = requests.post(
             f"{base_url}/api/auth/login",
             json=login_data
         )
-        
+
         if login_response.status_code == 200:
             login_result = login_response.json()
             access_token = login_result["data"]["access_token"]
@@ -35,7 +35,7 @@ def quick_test():
         else:
             print(f"❌ 登录失败: {login_response.status_code}")
             return False
-        
+
         # 2. 提交分析请求
         print("\n2. 提交分析请求...")
         analysis_request = {
@@ -52,18 +52,18 @@ def quick_test():
                 "deep_analysis_model": "qwen-max"
             }
         }
-        
+
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {access_token}"
         }
-        
+
         response = requests.post(
             f"{base_url}/api/analysis/single",
             json=analysis_request,
             headers=headers
         )
-        
+
         if response.status_code == 200:
             result = response.json()
             task_id = result["data"]["task_id"]
@@ -72,7 +72,7 @@ def quick_test():
             print(f"❌ 提交分析请求失败: {response.status_code}")
             print(f"   响应: {response.text}")
             return False
-        
+
         # 3. 等待任务完成
         print(f"\n3. 等待任务完成...")
         for i in range(60):  # 最多等待5分钟
@@ -80,27 +80,27 @@ def quick_test():
                 f"{base_url}/api/analysis/tasks/{task_id}/status",
                 headers=headers
             )
-            
+
             if status_response.status_code == 200:
                 status_data = status_response.json()
                 status = status_data["data"]["status"]
                 progress = status_data["data"].get("progress", 0)
                 message = status_data["data"].get("message", "")
-                
+
                 print(f"   状态: {status}, 进度: {progress}%, 消息: {message}")
-                
+
                 if status == "completed":
                     print("✅ 分析任务完成!")
                     return True
                 elif status == "failed":
                     print(f"❌ 分析任务失败: {message}")
                     return False
-            
+
             time.sleep(5)
-        
+
         print(f"⏰ 任务执行超时")
         return False
-        
+
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False

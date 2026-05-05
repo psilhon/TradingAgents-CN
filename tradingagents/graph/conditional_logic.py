@@ -156,14 +156,14 @@ class ConditionalLogic:
         logger.info(f"🔀 [条件判断] - 报告长度: {len(fundamentals_report)}")
         logger.info(f"🔧 [死循环修复] - 工具调用次数: {tool_call_count}/{max_tool_calls}")
         logger.info(f"🔀 [条件判断] - 最后消息类型: {type(last_message).__name__}")
-        
+
         # 🔍 [调试日志] 打印最后一条消息的详细内容
         logger.info(f"🤖 [条件判断] 最后一条消息详细内容:")
         logger.info(f"🤖 [条件判断] - 消息类型: {type(last_message).__name__}")
         if hasattr(last_message, 'content'):
             content_preview = last_message.content[:300] + "..." if len(last_message.content) > 300 else last_message.content
             logger.info(f"🤖 [条件判断] - 内容预览: {content_preview}")
-        
+
         # 🔍 [调试日志] 打印tool_calls的详细信息
         logger.info(f"🔀 [条件判断] - 是否有tool_calls: {hasattr(last_message, 'tool_calls')}")
         if hasattr(last_message, 'tool_calls'):
