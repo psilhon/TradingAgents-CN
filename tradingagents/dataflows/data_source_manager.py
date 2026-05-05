@@ -785,10 +785,10 @@ class DataSourceManager:
             for i, (_idx, row) in enumerate(display_data.iterrows(), 1):
                 logger.info(f"🔍 [技术指标详情] 第{i}天 ({row.get('date', 'N/A')}):")
                 logger.info(
-                    f"   价格: 开={row.get('open', 0):.2f}, 高={row.get('high', 0):.2f}, 低={row.get('low', 0):.2f}, 收={row.get('close', 0):.2f}"
+                    f"   价格: 开={row.get('open', 0):.2f}, 高={row.get('high', 0):.2f}, 低={row.get('low', 0):.2f}, 收={row.get('close', 0):.2f}"  # noqa: E501
                 )
                 logger.info(
-                    f"   MA: MA5={row.get('ma5', 0):.2f}, MA10={row.get('ma10', 0):.2f}, MA20={row.get('ma20', 0):.2f}, MA60={row.get('ma60', 0):.2f}"
+                    f"   MA: MA5={row.get('ma5', 0):.2f}, MA10={row.get('ma10', 0):.2f}, MA20={row.get('ma20', 0):.2f}, MA60={row.get('ma60', 0):.2f}"  # noqa: E501
                 )
                 logger.info(f"   MACD: DIF={row.get('macd_dif', 0):.4f}, DEA={row.get('macd_dea', 0):.4f}, MACD={row.get('macd', 0):.4f}")
                 logger.info(
@@ -1541,7 +1541,7 @@ class DataSourceManager:
                     if changed:
                         try:
                             logger.debug(
-                                f"🔧 [字段归一化] industry原值='{raw_industry}' → 行业='{industry_val}', 市场/板块='{market_val or doc.get('market', '未知')}'"
+                                f"🔧 [字段归一化] industry原值='{raw_industry}' → 行业='{industry_val}', 市场/板块='{market_val or doc.get('market', '未知')}'"  # noqa: E501
                             )
                         except Exception:
                             pass
@@ -1566,7 +1566,7 @@ class DataSourceManager:
                             result["quote_date"] = row.get("date")
                             result["quote_source"] = "market_quotes"
                             logger.info(
-                                f"✅ [股票信息] 附加行情 | price={result['current_price']} pct={result['change_pct']} vol={result['volume']} code={symbol}"
+                                f"✅ [股票信息] 附加行情 | price={result['current_price']} pct={result['change_pct']} vol={result['volume']} code={symbol}"  # noqa: E501
                             )
                     except Exception as _e:
                         logger.debug(f"附加行情失败（忽略）：{_e}")

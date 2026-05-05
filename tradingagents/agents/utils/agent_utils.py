@@ -837,7 +837,7 @@ class Toolkit:
                     from tradingagents.dataflows.interface import get_china_stock_data_unified
 
                     logger.info(
-                        f"🔍 [股票代码追踪] 调用 get_china_stock_data_unified（仅获取最新价格），传入参数: ticker='{ticker}', start_date='{recent_start_date}', end_date='{recent_end_date}'"
+                        f"🔍 [股票代码追踪] 调用 get_china_stock_data_unified（仅获取最新价格），传入参数: ticker='{ticker}', start_date='{recent_start_date}', end_date='{recent_end_date}'"  # noqa: E501
                     )
                     current_price_data = get_china_stock_data_unified(ticker, recent_start_date, recent_end_date)
 
@@ -857,7 +857,7 @@ class Toolkit:
 
                     analyzer = OptimizedChinaDataProvider()
                     logger.info(
-                        f"🔍 [股票代码追踪] 调用 OptimizedChinaDataProvider._generate_fundamentals_report，传入参数: ticker='{ticker}', analysis_modules='{analysis_modules}'"
+                        f"🔍 [股票代码追踪] 调用 OptimizedChinaDataProvider._generate_fundamentals_report，传入参数: ticker='{ticker}', analysis_modules='{analysis_modules}'"  # noqa: E501
                     )
 
                     # 传递分析模块参数到基本面分析方法
