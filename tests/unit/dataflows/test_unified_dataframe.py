@@ -12,7 +12,7 @@ def test_unified_dataframe_prefers_tushare_then_akshare_then_baostock():
          mock.patch('tradingagents.dataflows.unified_dataframe.get_data_source_manager') as m_dsm:
 
         df_ts = pd.DataFrame({
-            'Open':[1,2], 'High':[2,3], 'Low':[0.5,1.5], 'Close':[1.5,2.5], 'Volume':[100,200], 'Amount':[150,500], 'trade_date':['2024-01-01','2024-01-02']
+            'Open':[1,2], 'High':[2,3], 'Low':[0.5,1.5], 'Close':[1.5,2.5], 'Volume':[100,200], 'Amount':[150,500], 'trade_date':['2024-01-01','2024-01-02']  # noqa: E501
         })
         m_ts.return_value.get_stock_data.return_value = df_ts
         m_ak.return_value.get_stock_data.return_value = pd.DataFrame()

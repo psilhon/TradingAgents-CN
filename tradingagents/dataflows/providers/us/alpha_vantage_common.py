@@ -251,7 +251,7 @@ def _make_api_request(
                 time.sleep(retry_delay)
                 continue
             else:
-                raise AlphaVantageAPIError("Alpha Vantage API request timeout")
+                raise AlphaVantageAPIError("Alpha Vantage API request timeout")  # noqa: B904
 
         except requests.exceptions.RequestException as e:
             logger.error(f"❌ [Alpha Vantage] 请求失败: {e}")
@@ -259,11 +259,11 @@ def _make_api_request(
                 time.sleep(retry_delay)
                 continue
             else:
-                raise AlphaVantageAPIError(f"Alpha Vantage API request failed: {e}")
+                raise AlphaVantageAPIError(f"Alpha Vantage API request failed: {e}")  # noqa: B904
 
         except json.JSONDecodeError as e:
             logger.error(f"❌ [Alpha Vantage] JSON 解析失败: {e}")
-            raise AlphaVantageAPIError(f"Failed to parse Alpha Vantage API response: {e}")
+            raise AlphaVantageAPIError(f"Failed to parse Alpha Vantage API response: {e}")  # noqa: B904
 
     # 所有重试都失败
     raise AlphaVantageAPIError(f"Failed to get data from Alpha Vantage after {max_retries} attempts")

@@ -13,9 +13,9 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from tradingagents.dataflows.config import get_data_dir, initialize_config, set_data_dir
+from tradingagents.dataflows.config import get_data_dir, initialize_config, set_data_dir  # noqa: E402
 
-from tradingagents.config.config_manager import config_manager
+from tradingagents.config.config_manager import config_manager  # noqa: E402
 
 
 def test_data_dir_configuration():

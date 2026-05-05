@@ -1,5 +1,5 @@
 import importlib
-from typing import Dict, Tuple
+from typing import Dict, Tuple  # noqa: F401, UP035
 
 from tradingagents.utils.logging_init import get_logger
 

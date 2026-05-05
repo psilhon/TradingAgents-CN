@@ -148,7 +148,7 @@ def select_analysts(ticker: str | None = None) -> list[AnalystType]:
             questionary.Choice(display, value=value)
             for display, value in available_analysts
         ],
-        instruction="\n- 按空格键选择/取消选择分析师 | Press Space to select/unselect analysts\n- 按 'a' 键全选/取消全选 | Press 'a' to select/unselect all\n- 按回车键完成选择 | Press Enter when done",
+        instruction="\n- 按空格键选择/取消选择分析师 | Press Space to select/unselect analysts\n- 按 'a' 键全选/取消全选 | Press 'a' to select/unselect all\n- 按回车键完成选择 | Press Enter when done",  # noqa: E501
         validate=lambda x: len(x) > 0 or "您必须至少选择一个分析师 | You must select at least one analyst.",
         style=questionary.Style(
             [
@@ -254,7 +254,7 @@ def select_llm_provider() -> tuple[str, str]:
             for item in PROVIDER_OPTIONS
         ],
         default=(PROVIDER_OPTIONS[0]["key"], PROVIDER_OPTIONS[0]["base_url"]),
-        instruction="\n- 使用方向键导航 | Use arrow keys to navigate\n- 按回车键选择 | Press Enter to select\n- 🇨🇳 推荐使用阿里百炼 (默认选择)",
+        instruction="\n- 使用方向键导航 | Use arrow keys to navigate\n- 按回车键选择 | Press Enter to select\n- 🇨🇳 推荐使用阿里百炼 (默认选择)",  # noqa: E501
         style=questionary.Style(
             [
                 ("selected", "fg:green noinherit"),

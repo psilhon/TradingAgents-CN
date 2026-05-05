@@ -72,7 +72,7 @@ def create_research_manager(llm, memory):
 辩论历史：
 {history}
 
-请用中文撰写所有分析内容和建议。"""
+请用中文撰写所有分析内容和建议。"""  # noqa: E501
 
         # 📊 统计 prompt 大小
         prompt_length = len(prompt)

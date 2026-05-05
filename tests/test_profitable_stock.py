@@ -35,7 +35,7 @@ def test_profitable_stock():
     lines = result.split('\n')
 
     print("\n📊 600036基本信息:")
-    for i, line in enumerate(lines):
+    for i, line in enumerate(lines):  # noqa: B007
         if "股票名称" in line or "所属行业" in line:
             print(f"  {line}")
 

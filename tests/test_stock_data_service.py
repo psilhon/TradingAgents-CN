@@ -17,13 +17,13 @@ sys.path.insert(0, project_root)
 try:
     from tradingagents.api.stock_api import (
         check_service_status,
-        get_all_stocks,
+        get_all_stocks,  # noqa: F401
         get_market_summary,
         get_stock_data,
         get_stock_info,
         search_stocks,
     )
-    from tradingagents.dataflows.stock_data_service import StockDataService, get_stock_data_service
+    from tradingagents.dataflows.stock_data_service import StockDataService, get_stock_data_service  # noqa: F401
     SERVICES_AVAILABLE = True
 except ImportError as e:
     print(f"⚠️ 服务不可用: {e}")

@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)-8s | 
 # 添加项目路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from tradingagents.dataflows.akshare_utils import AKShareProvider
+from tradingagents.dataflows.akshare_utils import AKShareProvider  # noqa: E402
 
 
 def analyze_akshare_data():

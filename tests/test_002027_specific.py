@@ -55,7 +55,7 @@ def test_002027_specifically():
 
             llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=500)
 
-            prompt = f"请分析股票{test_ticker}的基本面，股票名称是分众传媒。要求：1.必须使用正确的股票代码{test_ticker} 2.不要使用任何其他股票代码"
+            prompt = f"请分析股票{test_ticker}的基本面，股票名称是分众传媒。要求：1.必须使用正确的股票代码{test_ticker} 2.不要使用任何其他股票代码"  # noqa: E501
 
             response = llm.invoke([HumanMessage(content=prompt)])
 

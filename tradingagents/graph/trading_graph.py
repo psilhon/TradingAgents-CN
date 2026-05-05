@@ -18,16 +18,16 @@ from tradingagents.llm_clients.provider_keys import env_key_for_provider, normal
 from tradingagents.utils.logging_manager import get_logger
 
 logger = get_logger('agents')
-from tradingagents.dataflows.interface import set_config
+from tradingagents.dataflows.interface import set_config  # noqa: E402
 
-from .conditional_logic import ConditionalLogic
-from .propagation import Propagator
-from .reflection import Reflector
-from .setup import GraphSetup
-from .signal_processing import SignalProcessor
+from .conditional_logic import ConditionalLogic  # noqa: E402
+from .propagation import Propagator  # noqa: E402
+from .reflection import Reflector  # noqa: E402
+from .setup import GraphSetup  # noqa: E402
+from .signal_processing import SignalProcessor  # noqa: E402
 
 
-def create_llm_by_provider(provider: str, model: str, backend_url: str, temperature: float, max_tokens: int, timeout: int, api_key: str | None = None, **extra_kwargs):
+def create_llm_by_provider(provider: str, model: str, backend_url: str, temperature: float, max_tokens: int, timeout: int, api_key: str | None = None, **extra_kwargs):  # noqa: E501
     """
     根据 provider 创建对应的 LLM 实例
 
@@ -48,7 +48,7 @@ def create_llm_by_provider(provider: str, model: str, backend_url: str, temperat
 
     normalized_provider = normalize_provider_key(provider)
 
-    if normalized_provider in {"openai", "siliconflow", "openrouter", "aihubmix", "ollama", "deepseek", "qwen", "glm", "custom_openai", "qianfan"}:
+    if normalized_provider in {"openai", "siliconflow", "openrouter", "aihubmix", "ollama", "deepseek", "qwen", "glm", "custom_openai", "qianfan"}:  # noqa: E501
         if not api_key:
             if normalized_provider == "siliconflow":
                 api_key = os.getenv('SILICONFLOW_API_KEY')
@@ -264,7 +264,7 @@ class TradingAgentsGraph:
 
         elif normalized_provider in {"openai", "siliconflow", "openrouter", "aihubmix", "ollama"}:
             provider = normalized_provider
-            logger.info(f"🔧 [{provider}-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")
+            logger.info(f"🔧 [{provider}-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")  # noqa: E501
             logger.info(f"🔧 [{provider}-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s")
 
             api_key = None
@@ -322,7 +322,7 @@ class TradingAgentsGraph:
             if not google_api_key:
                 raise ValueError("使用Google AI需要在数据库中配置API Key或设置GOOGLE_API_KEY环境变量")
 
-            logger.info(f"🔑 [Google AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}")
+            logger.info(f"🔑 [Google AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}")  # noqa: E501
 
             logger.info(f"🔧 [Google-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")
             logger.info(f"🔧 [Google-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s")
@@ -420,7 +420,7 @@ class TradingAgentsGraph:
         elif normalized_provider == "glm":
             # 🔥 优先使用数据库配置的 API Key，否则从环境变量读取
             zhipu_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv('ZHIPU_API_KEY')
-            logger.info(f"🔑 [智谱AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}")
+            logger.info(f"🔑 [智谱AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}")  # noqa: E501
 
             if not zhipu_api_key:
                 raise ValueError("使用智谱AI需要在数据库中配置API Key或设置ZHIPU_API_KEY环境变量")
@@ -504,8 +504,8 @@ class TradingAgentsGraph:
             deep_temperature = deep_config.get("temperature", 0.7)
             deep_timeout = deep_config.get("timeout", 180)
 
-            logger.info(f"🔧 [{provider_name}-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")
-            logger.info(f"🔧 [{provider_name}-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s")
+            logger.info(f"🔧 [{provider_name}-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")  # noqa: E501
+            logger.info(f"🔧 [{provider_name}-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s")  # noqa: E501
 
             self.deep_thinking_llm, self.quick_thinking_llm = _create_provider_pair(
                 provider="custom_openai",

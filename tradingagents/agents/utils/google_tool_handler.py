@@ -284,7 +284,7 @@ class GoogleToolCallHandler:
                 # 记录分析提示的内容（前200字符）
                 analysis_msg = safe_messages[-1] if safe_messages else None
                 if analysis_msg and hasattr(analysis_msg, 'content'):
-                    prompt_preview = str(analysis_msg.content)[:200] + "..." if len(str(analysis_msg.content)) > 200 else str(analysis_msg.content)
+                    prompt_preview = str(analysis_msg.content)[:200] + "..." if len(str(analysis_msg.content)) > 200 else str(analysis_msg.content)  # noqa: E501
                     logger.debug(f"[{analyst_name}] 📋 分析提示预览: {prompt_preview}")
 
                 logger.info(f"[{analyst_name}] 🚀 正在调用LLM.invoke()...")

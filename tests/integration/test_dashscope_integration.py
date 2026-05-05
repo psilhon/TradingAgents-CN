@@ -12,7 +12,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # noqa: E402
 
 # 加载 .env 文件
 load_dotenv()
@@ -21,10 +21,10 @@ def test_import():
     """测试导入是否正常"""
     print("🔍 测试1: 检查模块导入...")
     try:
-        from tradingagents.llm_adapters import ChatDashScope
+        from tradingagents.llm_adapters import ChatDashScope  # noqa: F401
         print("✅ ChatDashScope 导入成功")
 
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
+        from tradingagents.graph.trading_graph import TradingAgentsGraph  # noqa: F401
         print("✅ TradingAgentsGraph 导入成功")
 
         return True

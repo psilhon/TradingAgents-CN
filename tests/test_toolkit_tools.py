@@ -101,14 +101,14 @@ def test_social_news_analysts():
 
         # 检查社交媒体分析师
         try:
-            from tradingagents.agents.analysts.social_media_analyst import create_social_media_analyst
+            from tradingagents.agents.analysts.social_media_analyst import create_social_media_analyst  # noqa: F401
             print("✅ 社交媒体分析师模块可用")
         except ImportError as e:
             print(f"❌ 社交媒体分析师导入失败: {e}")
 
         # 检查新闻分析师
         try:
-            from tradingagents.agents.analysts.news_analyst import create_news_analyst
+            from tradingagents.agents.analysts.news_analyst import create_news_analyst  # noqa: F401
             print("✅ 新闻分析师模块可用")
         except ImportError as e:
             print(f"❌ 新闻分析师导入失败: {e}")

@@ -12,8 +12,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from app.core.database import init_database
-from app.worker.tushare_init_service import get_tushare_init_service
+from app.core.database import init_database  # noqa: E402
+from app.worker.tushare_init_service import get_tushare_init_service  # noqa: E402
 
 
 def print_banner():
@@ -215,7 +215,7 @@ async def main():
     parser.add_argument("--basic-only", action="store_true", help="仅初始化基础信息")
     parser.add_argument("--historical-days", type=int, default=365, help="历史数据天数")
     parser.add_argument("--multi-period", action="store_true", help="同步多周期数据（日线、周线、月线）")
-    parser.add_argument("--sync-items", type=str, help="指定要同步的数据类型（逗号分隔），可选: basic_info,historical,weekly,monthly,financial,quotes,news")
+    parser.add_argument("--sync-items", type=str, help="指定要同步的数据类型（逗号分隔），可选: basic_info,historical,weekly,monthly,financial,quotes,news")  # noqa: E501
     parser.add_argument("--force", action="store_true", help="强制初始化")
     parser.add_argument("--batch-size", type=int, default=100, help="批处理大小")
     parser.add_argument("--check-only", action="store_true", help="仅检查数据库状态")
