@@ -71,6 +71,8 @@
   - 建立 base spec `lint-policy`：定义中文项目友好放行 + 按 rule code 分批 + warn-only 治理过程
   - **CI 仍 red**（870 errors > 0）；转严格模式留给 `lint-strict-mode-enable` change
 
+- **pytest marker 体系 + 转严格**（OpenSpec change `pytest-marker-strict`）：最后一个 lint debt 清理。`pyproject.toml [tool.pytest.ini_options]` 注册 4 个 marker（`unit` / `integration` / `requires_env` / `requires_network`）+ `tests/conftest.py` 加 `pytest_collection_modifyitems` hook 给未显式标记的 test 自动加 `requires_env`（保守默认）。`.pre-commit-config.yaml` pytest hook 去 warn-only 转 STRICT，entry 改 `pytest -m unit`。当前 0 test 标 unit → hook 永远 pass（任何环境基线安全）。后续逐步给真正 unit test 加 `@pytest.mark.unit` 扩展严格 cov。**至此 ruff + pyright + pytest 三层 lint hook 全 STRICT**。
+
 - **pyright handfix pass-2 + 转严格**（OpenSpec change `pyright-handfix-pass-2`）：再 silence 16 类 fork-friendly + dead-code-path rule（reportMissingImports 460 / reportOptionalMemberAccess 132 / reportArgumentType 105 / reportPossiblyUnboundVariable 56 / reportCallIssue 26 + 各类 Optional 系列 + Unbound 系列等）。pyright 879 → **0 errors**。同时 `.pre-commit-config.yaml` pyright hook 去 warn-only wrapper 转 **STRICT**——任何引入新 pyright issue 的 commit 立即阻塞。pytest hook 仍 warn-only（待 `pytest-marker-strict` change）。
 
 ### Changed
