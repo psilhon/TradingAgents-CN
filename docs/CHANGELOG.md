@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **OpenAI key validator 接受 sk-proj-/sk-svcacct-**（OpenSpec change `fix-openai-key-validator`）：v1.1.0 review 发现 `config_manager.py:157` 硬编码 `len(api_key) == 51` + pattern `^sk-[A-Za-z0-9]{48}$` 不接受 OpenAI 2024+ 推出的 `sk-proj-` 项目级 key（更长、含 `-_`）+ `sk-svcacct-` 服务账号 key——用户配了正确 key 也被错误拒绝。本 change 改 pattern 为 `^sk-[A-Za-z0-9_-]{29,}$` + 最小长度 32（无上限）。8 个 test case 全过：classic 51-char / sk-proj- / sk-svcacct- 接受；wrong prefix / too short / 含空格 拒绝。spec `secret-handling` 加 requirement "API key validator 必须接受供应商当前所有合法格式"。
+
 - **`config_manager` lazy singleton**（OpenSpec change `lazy-config-manager`）：v1.1.0 review 发现 `tradingagents/config/config_manager.py:744-745` module-level `ConfigManager(...)` 立即实例化——任何 `import tradingagents.*` 都触发：连 MongoDB ~50-100ms / 读 `.env` / `Path.mkdir` / 写 4 个 JSON 文件 / 触发 DeprecationWarning。CLI 启动 / pytest collect / 仅 import utility 都受拖累。本 change 改 PEP 562 `__getattr__` lazy singleton：纯 utility import 不再触发；`config_manager` 首次属性访问时才初始化。新增 spec `secret-handling` requirement "module import 不得触发 secret/DB 副作用"。
 
 - **API key 日志脱敏**（OpenSpec change `redact-api-key-logs`）：v1.1.0 review 发现 8+ 处 API key **前缀**直接输出到 log / Rich 表格——`key[:10]` 或 `key[:12]`——OpenAI sk- key 前 10 字符泄露 7+ 个有效熵字符显著降低暴破搜索空间，违反全局 CLAUDE.md secret 边界。本 change 加 `redact_api_key()` helper（仅返回 `(len=N, ends ...XXXX)`），替换 5 处 tradingagents/ + 5 处 cli/main.py + config_manager 调用，删除 cli/main.py 已不用的 `DEFAULT_API_KEY_DISPLAY_LENGTH` 常量。新建 capability `secret-handling` 锁定铁律。

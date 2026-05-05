@@ -133,33 +133,30 @@ class ConfigManager:
 
     def validate_openai_api_key_format(self, api_key: str) -> bool:
         """
-        验证OpenAI API密钥格式
+        验证 OpenAI API 密钥格式（OpenSpec spec: secret-handling）
 
-        OpenAI API密钥格式规则：
-        1. 以 'sk-' 开头
-        2. 总长度通常为51个字符
-        3. 包含字母、数字和可能的特殊字符
+        历史经典 key：``sk-[A-Za-z0-9]{48}``（51 字符整）
+        2024+ 新 key：
+          - ``sk-proj-...`` 项目级 key（含 ``-_``，长度可达 80+）
+          - ``sk-svcacct-...`` 服务账号 key
 
-        Args:
-            api_key: 要验证的API密钥
+        校验规则（面向未来，宽松接受）：
+          1. 以 ``sk-`` 开头
+          2. 长度 ≥ 32 字符
+          3. 字符集仅 ``[A-Za-z0-9_-]``（不含空格 / 标点）
 
-        Returns:
-            bool: 格式是否正确
+        硬等于 51 字符的旧规则会把 sk-proj- 错误拒绝——已修。
         """
         if not api_key or not isinstance(api_key, str):
             return False
 
-        # 检查是否以 'sk-' 开头
         if not api_key.startswith("sk-"):
             return False
 
-        # 检查长度（OpenAI密钥通常为51个字符）
-        if len(api_key) != 51:
+        if len(api_key) < 32:
             return False
 
-        # 检查格式：sk- 后面应该是48个字符的字母数字组合
-        pattern = r"^sk-[A-Za-z0-9]{48}$"
-        if not re.match(pattern, api_key):
+        if not re.match(r"^sk-[A-Za-z0-9_-]{29,}$", api_key):
             return False
 
         return True
