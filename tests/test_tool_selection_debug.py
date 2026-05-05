@@ -6,6 +6,7 @@
 import os
 import sys
 
+
 def test_llm_tool_binding():
     """测试LLM工具绑定时的实际工具列表"""
     print("🔧 测试LLM工具绑定...")
@@ -100,9 +101,9 @@ def test_fundamentals_analyst_tool_selection():
 
     try:
         # 模拟基本面分析师的工具选择逻辑
-        from tradingagents.utils.stock_utils import StockUtils
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.utils.stock_utils import StockUtils
 
         config = DEFAULT_CONFIG.copy()
         config["online_tools"] = True

@@ -6,8 +6,9 @@ Tushare集成测试
 
 import os
 import sys
-import pandas as pd
 from datetime import datetime, timedelta
+
+import pandas as pd
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -136,9 +137,9 @@ def test_tushare_interface():
     try:
         from tradingagents.dataflows.interface import (
             get_china_stock_data_tushare,
-            search_china_stocks_tushare,
             get_china_stock_fundamentals_tushare,
-            get_china_stock_info_tushare
+            get_china_stock_info_tushare,
+            search_china_stocks_tushare,
         )
 
         print("✅ Tushare接口函数加载成功")

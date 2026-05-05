@@ -1,5 +1,5 @@
-from importlib import reload
 import logging
+from importlib import reload
 
 
 def test_json_console_formatter_enabled(monkeypatch, tmp_path):

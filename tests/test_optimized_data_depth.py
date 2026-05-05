@@ -5,11 +5,13 @@
 验证基本面分析不再获取不必要的历史数据
 """
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.abspath('.'))
 
 from tradingagents.agents.utils.agent_utils import Toolkit
+
 
 def test_optimized_data_depth():
     """测试优化后的数据深度级别"""

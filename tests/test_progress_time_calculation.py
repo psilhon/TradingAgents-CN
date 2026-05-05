@@ -9,8 +9,10 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
+
 from app.services.memory_state_manager import TaskState, TaskStatus
 
 

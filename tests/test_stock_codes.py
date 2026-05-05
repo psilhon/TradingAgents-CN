@@ -5,10 +5,12 @@
 """
 
 import pytest
+
 pytest.importorskip("enhanced_stock_list_fetcher")
 pytestmark = pytest.mark.integration
 
 from enhanced_stock_list_fetcher import enhanced_fetch_stock_list
+
 
 def test_get_stock_codes():
     """

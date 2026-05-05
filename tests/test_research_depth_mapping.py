@@ -3,6 +3,7 @@
 验证前端数字等级到后端中文等级的转换
 """
 import pytest
+
 from app.services.simple_analysis_service import create_analysis_config
 
 

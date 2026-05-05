@@ -4,8 +4,8 @@
 """
 
 try:
-    from webapi.models.user import PyObjectId, User
     from bson import ObjectId
+    from webapi.models.user import PyObjectId, User
 
     print("✅ 导入成功")
 

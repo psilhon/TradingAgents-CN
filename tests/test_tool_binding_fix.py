@@ -3,9 +3,11 @@
 测试统一新闻工具的LangChain绑定修复
 """
 
+from langchain_core.utils.function_calling import convert_to_openai_tool
+
 from tradingagents.agents.utils.agent_utils import Toolkit
 from tradingagents.tools.unified_news_tool import create_unified_news_tool
-from langchain_core.utils.function_calling import convert_to_openai_tool
+
 
 def test_tool_binding():
     """测试工具绑定是否修复"""

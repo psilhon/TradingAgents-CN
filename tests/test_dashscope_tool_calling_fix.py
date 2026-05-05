@@ -19,9 +19,10 @@ def test_basic_tool_calling():
     print("=" * 50)
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 定义简单工具
         @tool
@@ -89,9 +90,10 @@ def test_stock_analysis_tool_calling():
     print("=" * 50)
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from tradingagents.agents.utils.agent_utils import Toolkit
         from langchain_core.messages import HumanMessage
+
+        from tradingagents.agents.utils.agent_utils import Toolkit
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 创建LLM
         llm = ChatDashScopeOpenAI(
@@ -169,9 +171,10 @@ def test_parameter_optimization():
     print("=" * 50)
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 定义测试工具
         @tool
@@ -226,9 +229,10 @@ def test_model_comparison():
     print("=" * 50)
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 定义测试工具
         @tool

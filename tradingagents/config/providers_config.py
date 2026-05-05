@@ -4,9 +4,9 @@
 从 tradingagents/dataflows/providers_config.py 迁移而来
 统一管理所有数据源提供器的配置
 """
-import os
-from typing import Dict, Any
 import logging
+import os
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 

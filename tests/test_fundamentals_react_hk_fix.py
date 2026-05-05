@@ -2,8 +2,8 @@
 测试基本面分析师ReAct模式的港股修复
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.abspath(__file__))

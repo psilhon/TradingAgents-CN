@@ -3,8 +3,8 @@
 测试SignalProcessor修复后的功能
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # 添加项目根目录到Python路径
@@ -12,14 +12,16 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from dotenv import load_dotenv
+
 load_dotenv(project_root / ".env", override=True)
 
 def test_signal_processor_currency_fix():
     """测试SignalProcessor的货币修复"""
 
     try:
-        from tradingagents.graph.signal_processing import SignalProcessor
         from langchain_openai import ChatOpenAI
+
+        from tradingagents.graph.signal_processing import SignalProcessor
 
         print("🔍 测试SignalProcessor货币修复...")
 
@@ -106,8 +108,8 @@ def test_web_currency_display():
     """测试Web界面货币显示修复"""
 
     try:
-        from web.components.results_display import render_decision_summary
         import streamlit as st
+        from web.components.results_display import render_decision_summary
 
         print("🌐 测试Web界面货币显示...")
 

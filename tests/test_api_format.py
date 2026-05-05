@@ -3,9 +3,11 @@
 测试API返回的数据格式
 """
 
-import requests
-import time
 import json
+import time
+
+import requests
+
 
 def test_api_format():
     """测试API返回的数据格式"""

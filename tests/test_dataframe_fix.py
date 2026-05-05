@@ -3,10 +3,10 @@
 测试DataFrame Arrow转换修复
 """
 
-import sys
 import os
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # 添加项目根目录到路径
 project_root = Path(__file__).parent.parent
@@ -15,8 +15,8 @@ sys.path.insert(0, str(project_root))
 def test_safe_dataframe():
     """测试安全DataFrame函数"""
     try:
-        from web.components.analysis_results import safe_dataframe
         import pandas as pd
+        from web.components.analysis_results import safe_dataframe
 
         print("🔍 测试安全DataFrame函数...")
 
@@ -139,8 +139,8 @@ def test_timeline_data():
 def test_arrow_conversion():
     """测试Arrow转换"""
     try:
-        from web.components.analysis_results import safe_dataframe
         import pyarrow as pa
+        from web.components.analysis_results import safe_dataframe
 
         print("\n🔍 测试Arrow转换...")
 

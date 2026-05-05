@@ -5,12 +5,14 @@
 测试不同数据深度级别的差异
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.agents.utils.agent_utils import Toolkit
 from tradingagents.default_config import DEFAULT_CONFIG
+
 
 def test_data_depth_levels():
     """测试不同数据深度级别"""

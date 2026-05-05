@@ -6,8 +6,8 @@
 """
 
 import logging
-from datetime import datetime
 import re
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -102,8 +102,9 @@ class UnifiedNewsAnalyzer:
             str: 格式化的新闻内容，如果没有新闻则返回空字符串
         """
         try:
-            from tradingagents.dataflows.cache.app_adapter import get_mongodb_client
             from datetime import timedelta
+
+            from tradingagents.dataflows.cache.app_adapter import get_mongodb_client
 
             # 🔧 确保 max_news 是整数（防止传入浮点数）
             max_news = int(max_news)

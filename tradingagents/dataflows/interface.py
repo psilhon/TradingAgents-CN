@@ -1,7 +1,7 @@
-from typing import Annotated, Dict
-import time
 import os
+import time
 from datetime import datetime
+from typing import Annotated, Dict
 
 # 导入新闻模块（支持新旧路径）
 try:
@@ -9,21 +9,18 @@ try:
 except ImportError:
     from .news.reddit import fetch_top_from_category
 
-from .news.google_news import *
-
-
-from .news.chinese_finance import get_chinese_social_sentiment
-
-# 导入 Finnhub 工具（支持新旧路径）
-
-from .providers.us import get_data_in_range
-
-
 # 导入统一日志系统
 from tradingagents.utils.logging_init import setup_dataflow_logging
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
+from .news.chinese_finance import get_chinese_social_sentiment
+from .news.google_news import *
+
+# 导入 Finnhub 工具（支持新旧路径）
+from .providers.us import get_data_in_range
+
 logger = get_logger('agents')
 logger = setup_dataflow_logging()
 
@@ -185,14 +182,15 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ stockstats工具不可用: {e}")
     STOCKSTATS_AVAILABLE = False
-from dateutil.relativedelta import relativedelta
-from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+
 import pandas as pd
-from tqdm import tqdm
+from dateutil.relativedelta import relativedelta
 from openai import OpenAI
+from tqdm import tqdm
 
 # 尝试导入yfinance，如果失败则设置为None
 try:
@@ -1016,8 +1014,10 @@ def get_fundamentals_finnhub(ticker, curr_date):
         str: 格式化的基本面数据报告
     """
     try:
-        import finnhub
         import os
+
+        import finnhub
+
         # 导入缓存管理器（统一入口）
         from .cache import get_cache
         cache = get_cache()
@@ -1166,7 +1166,7 @@ def get_fundamentals_openai(ticker, curr_date):
     try:
         # 导入缓存管理器和数据源管理器
         from .cache import get_cache
-        from .data_source_manager import get_us_data_source_manager, USDataSource
+        from .data_source_manager import USDataSource, get_us_data_source_manager
 
         cache = get_cache()
         us_manager = get_us_data_source_manager()
@@ -1529,8 +1529,8 @@ def get_china_stock_data_unified(
         str: 格式化的股票数据报告
     """
     # 🔧 智能日期范围处理：自动扩展到配置的回溯天数，处理周末/节假日
-    from tradingagents.utils.dataflow_utils import get_trading_date_range
     from app.core.config import get_settings
+    from tradingagents.utils.dataflow_utils import get_trading_date_range
 
     original_start_date = start_date
     original_end_date = end_date
@@ -1692,7 +1692,7 @@ def switch_china_data_source(
         str: 切换结果
     """
     try:
-        from .data_source_manager import get_data_source_manager, ChinaDataSource
+        from .data_source_manager import ChinaDataSource, get_data_source_manager
 
         # 映射字符串到枚举（TDX 已移除）
         source_mapping = {
@@ -1761,8 +1761,8 @@ def get_hk_stock_data_unified(symbol: str, start_date: str = None, end_date: str
         logger.info(f"🇭🇰 获取港股数据: {symbol}")
 
         # 🔧 智能日期范围处理：自动扩展到配置的回溯天数，处理周末/节假日
-        from tradingagents.utils.dataflow_utils import get_trading_date_range
         from app.core.config import get_settings
+        from tradingagents.utils.dataflow_utils import get_trading_date_range
 
         original_start_date = start_date
         original_end_date = end_date

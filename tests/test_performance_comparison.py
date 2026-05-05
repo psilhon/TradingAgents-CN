@@ -5,12 +5,14 @@
 对比数据传输量、处理时间等关键指标
 """
 
-import sys
 import os
+import sys
 import time
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from datetime import datetime, timedelta
+
 
 def simulate_old_strategy():
     """模拟优化前的数据获取策略（7-30天历史数据）"""

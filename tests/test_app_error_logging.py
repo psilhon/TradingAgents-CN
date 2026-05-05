@@ -4,8 +4,8 @@
 验证 app/core/logging_config.py 中的错误日志处理器是否正确配置
 """
 
-import sys
 import logging
+import sys
 from pathlib import Path
 
 # 添加项目根目录到 Python 路径

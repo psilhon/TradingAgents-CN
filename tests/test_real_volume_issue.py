@@ -27,7 +27,7 @@ def test_real_tushare_volume_access():
     print("=" * 60)
 
     try:
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         # 检查Tushare是否可用
         tushare_token = os.getenv('TUSHARE_TOKEN')

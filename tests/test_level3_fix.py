@@ -20,8 +20,8 @@ def test_level3_analysis():
     start_time = time.time()  # 在try块外定义
 
     try:
+        from app.models.analysis import AnalysisParameters, SingleAnalysisRequest
         from app.services.simple_analysis_service import SimpleAnalysisService
-        from app.models.analysis import SingleAnalysisRequest, AnalysisParameters
 
         # 创建分析服务
         service = SimpleAnalysisService()

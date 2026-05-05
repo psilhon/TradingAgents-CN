@@ -7,6 +7,7 @@
 import os
 import sys
 
+
 def test_hk_fundamentals_with_interception():
     """测试港股基本面分析的工具拦截机制"""
     print("🔧 测试港股基本面分析工具拦截...")
@@ -108,9 +109,9 @@ def test_tool_selection_logic():
     print("\n🔧 测试工具选择逻辑...")
 
     try:
-        from tradingagents.utils.stock_utils import StockUtils
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.utils.stock_utils import StockUtils
 
         config = DEFAULT_CONFIG.copy()
         config["online_tools"] = True

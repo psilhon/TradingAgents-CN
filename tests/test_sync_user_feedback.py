@@ -3,8 +3,9 @@
 测试同步用户反馈功能
 模拟同步过程中的状态变化，验证用户反馈机制
 """
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import asyncio
@@ -24,8 +25,8 @@ async def simulate_sync_with_feedback():
     print("=" * 60)
 
     try:
+        from app.core.database import get_mongo_db, init_db
         from app.services.multi_source_basics_sync_service import get_multi_source_sync_service
-        from app.core.database import init_db, get_mongo_db
 
         # 初始化数据库
         await init_db()

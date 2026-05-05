@@ -5,7 +5,8 @@ AKShare统一数据提供器
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Dict, Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
+
 import pandas as pd
 
 from ..base_provider import BaseStockDataProvider
@@ -36,9 +37,10 @@ class AKShareProvider(BaseStockDataProvider):
     def _initialize_akshare(self):
         """初始化AKShare连接"""
         try:
+            import time
+
             import akshare as ak
             import requests
-            import time
 
             # 尝试导入 curl_cffi，如果可用则使用它来绕过反爬虫
             try:
@@ -178,10 +180,11 @@ class AKShareProvider(BaseStockDataProvider):
             新闻 DataFrame 或 None
         """
         try:
-            from curl_cffi import requests as curl_requests
             import json
-            import time
             import os
+            import time
+
+            from curl_cffi import requests as curl_requests
 
             # 标准化股票代码
             symbol_6 = symbol.zfill(6)
@@ -1203,9 +1206,10 @@ class AKShareProvider(BaseStockDataProvider):
             return None
 
         try:
-            import akshare as ak
             import json
             import time
+
+            import akshare as ak
 
             if symbol:
                 # 获取个股新闻
@@ -1276,9 +1280,10 @@ class AKShareProvider(BaseStockDataProvider):
             return None
 
         try:
-            import akshare as ak
             import json
             import os
+
+            import akshare as ak
 
             if symbol:
                 # 获取个股新闻

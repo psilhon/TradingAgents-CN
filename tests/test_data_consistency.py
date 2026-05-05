@@ -2,13 +2,15 @@
 """
 测试数据一致性检查功能
 """
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import logging
-import pandas as pd
 from datetime import datetime, timedelta
+
+import pandas as pd
 
 # 设置日志
 logging.basicConfig(
@@ -24,6 +26,7 @@ def test_data_consistency_checker():
 
     try:
         from app.services.data_source_adapters import DataSourceManager
+
         from app.services.data_consistency_checker import DataConsistencyChecker
 
         # 1. 测试数据源管理器初始化

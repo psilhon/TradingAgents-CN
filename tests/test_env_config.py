@@ -3,9 +3,10 @@
 测试使用.env配置的数据库管理器
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
+
 
 def test_env_config():
     """测试.env配置"""

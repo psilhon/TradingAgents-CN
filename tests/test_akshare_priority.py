@@ -4,13 +4,16 @@
 测试AKShare数据源优先级和财务指标修复效果
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from tradingagents.dataflows.optimized_china_data import get_optimized_china_data_provider
 from tradingagents.dataflows.akshare_utils import get_akshare_provider
 from tradingagents.dataflows.tushare_utils import get_tushare_provider
+
+from tradingagents.dataflows.optimized_china_data import get_optimized_china_data_provider
+
 
 def test_data_source_connection():
     """测试数据源连接状态"""

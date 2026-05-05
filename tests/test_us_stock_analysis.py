@@ -3,8 +3,9 @@
 测试美股分析功能
 """
 
-import sys
 import os
+import sys
+
 sys.path.append('..')
 
 def test_us_stock_market_analysis():
@@ -12,10 +13,11 @@ def test_us_stock_market_analysis():
     print("🔍 测试美股市场分析...")
 
     try:
+        from langchain_community.llms import Tongyi
+
         from tradingagents.agents.analysts.market_analyst import create_market_analyst_react
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
-        from langchain_community.llms import Tongyi
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()
@@ -73,10 +75,11 @@ def test_us_stock_fundamentals_analysis():
     print("🔍 测试美股基本面分析...")
 
     try:
+        from langchain_community.llms import Tongyi
+
         from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst_react
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
-        from langchain_community.llms import Tongyi
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

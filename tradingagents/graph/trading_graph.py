@@ -1,26 +1,26 @@
 # TradingAgents/graph/trading_graph.py
 
-import os
-from pathlib import Path
 import json
-from datetime import date
-from typing import Dict, Any, Tuple, List, Optional
+import os
 import time
-
-from tradingagents.llm_clients import create_llm_client
-from tradingagents.llm_clients.provider_keys import env_key_for_provider, normalize_provider_key
+from datetime import date
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from langgraph.prebuilt import ToolNode
 
 from tradingagents.agents import Toolkit
-from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.agents.utils.memory import FinancialSituationMemory
+from tradingagents.default_config import DEFAULT_CONFIG
+from tradingagents.llm_clients import create_llm_client
+from tradingagents.llm_clients.provider_keys import env_key_for_provider, normalize_provider_key
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('agents')
 from tradingagents.agents.utils.agent_states import (
     AgentState,
@@ -30,9 +30,9 @@ from tradingagents.agents.utils.agent_states import (
 from tradingagents.dataflows.interface import set_config
 
 from .conditional_logic import ConditionalLogic
-from .setup import GraphSetup
 from .propagation import Propagator
 from .reflection import Reflector
+from .setup import GraphSetup
 from .signal_processing import SignalProcessor
 
 

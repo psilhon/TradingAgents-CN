@@ -6,6 +6,7 @@
 import os
 import re
 
+
 def check_notification_code():
     """检查前端代码中的通知相关代码"""
     print("=" * 60)

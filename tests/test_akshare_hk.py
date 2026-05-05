@@ -2,8 +2,8 @@
 测试AKShare港股功能
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -50,8 +50,9 @@ def test_akshare_hk_data():
     print("\n🧪 测试AKShare港股数据获取...")
 
     try:
-        from tradingagents.dataflows.akshare_utils import get_hk_stock_data_akshare
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.akshare_utils import get_hk_stock_data_akshare
 
         # 设置测试日期
         end_date = datetime.now().strftime('%Y-%m-%d')
@@ -132,8 +133,9 @@ def test_unified_interface():
     print("\n🧪 测试统一接口的AKShare支持...")
 
     try:
-        from tradingagents.dataflows.interface import get_hk_stock_data_unified, get_hk_stock_info_unified
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.interface import get_hk_stock_data_unified, get_hk_stock_info_unified
 
         end_date = datetime.now().strftime('%Y-%m-%d')
         start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')

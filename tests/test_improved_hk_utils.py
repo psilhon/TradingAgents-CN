@@ -62,8 +62,8 @@ def test_analyst_integration():
     print("=" * 80)
 
     try:
-        from tradingagents.agents.analysts.market_analyst import _get_company_name
         from tradingagents.agents.analysts.fundamentals_analyst import _get_company_name_for_fundamentals
+        from tradingagents.agents.analysts.market_analyst import _get_company_name
         from tradingagents.utils.stock_utils import StockUtils
 
         test_hk_symbols = ["0700.HK", "0941.HK", "1299.HK"]
@@ -103,8 +103,9 @@ def test_cache_functionality():
     print("=" * 80)
 
     try:
-        from tradingagents.dataflows.providers.hk.improved_hk import get_improved_hk_provider
         import time
+
+        from tradingagents.dataflows.providers.hk.improved_hk import get_improved_hk_provider
 
         provider = get_improved_hk_provider()
 

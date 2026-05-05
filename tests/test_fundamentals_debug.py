@@ -6,6 +6,7 @@
 import os
 import sys
 
+
 def test_fundamentals_analyst_directly():
     """直接测试基本面分析师函数"""
     print("🔧 直接测试基本面分析师...")

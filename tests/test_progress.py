@@ -3,8 +3,8 @@
 测试进度显示功能
 """
 
-import time
 import sys
+import time
 from pathlib import Path
 
 # 添加项目根目录到Python路径

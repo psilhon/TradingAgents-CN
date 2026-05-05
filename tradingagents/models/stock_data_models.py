@@ -5,14 +5,16 @@
 定义标准化的股票数据结构，用于MongoDB存储和数据交换
 """
 
-from typing import Dict, List, Optional, Any, Union
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
-from pydantic import BaseModel, Field, validator
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, Field, validator
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('agents')
 
 

@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -22,7 +23,7 @@ def test_logging_fix():
 
     try:
         # 初始化TradingAgents日志系统
-        from tradingagents.utils.logging_init import init_logging, get_logger
+        from tradingagents.utils.logging_init import get_logger, init_logging
         init_logging()
 
         # 获取日志器
@@ -30,8 +31,8 @@ def test_logging_fix():
         logger.info("🧪 测试日志系统初始化成功")
 
         # 导入TradingAgents
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

@@ -13,6 +13,7 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('test')
 
 def test_enhanced_tool_binding():
@@ -21,9 +22,10 @@ def test_enhanced_tool_binding():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters.dashscope_openai_adapter import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters.dashscope_openai_adapter import ChatDashScopeOpenAI
 
         # 定义测试工具
         @tool
@@ -130,8 +132,9 @@ def test_backup_tool_creation():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters.dashscope_openai_adapter import ChatDashScopeOpenAI
         from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters.dashscope_openai_adapter import ChatDashScopeOpenAI
 
         # 创建适配器实例
         llm = ChatDashScopeOpenAI(model="qwen-turbo")
@@ -220,9 +223,10 @@ def test_comprehensive_tool_calling():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters.dashscope_openai_adapter import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters.dashscope_openai_adapter import ChatDashScopeOpenAI
 
         # 定义复杂的测试工具
         @tool

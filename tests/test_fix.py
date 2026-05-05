@@ -3,6 +3,7 @@
 
 from web.utils.analysis_runner import run_stock_analysis
 
+
 def test_analysis_fix():
     """测试基本面分析师修复是否有效"""
     try:

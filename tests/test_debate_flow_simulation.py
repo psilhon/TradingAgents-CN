@@ -3,8 +3,9 @@
 验证投资辩论和风险讨论的轮次控制是否正确
 """
 import pytest
-from tradingagents.graph.conditional_logic import ConditionalLogic
+
 from tradingagents.agents.utils.agent_states import AgentState, InvestDebateState, RiskDebateState
+from tradingagents.graph.conditional_logic import ConditionalLogic
 
 
 class TestInvestmentDebateFlow:

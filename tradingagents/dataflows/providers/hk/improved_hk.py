@@ -4,16 +4,19 @@
 解决API速率限制和数据获取问题
 """
 
-import time
 import json
 import os
-import pandas as pd
-from typing import Dict, Any, Optional
+import time
 from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
+
+import pandas as pd
 
 from tradingagents.config.runtime_settings import get_int
+
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger
+
 logger = get_logger("default")
 
 # 新增：使用统一的数据目录配置
@@ -498,8 +501,9 @@ def get_hk_stock_data_akshare(symbol: str, start_date: str = None, end_date: str
         港股数据（格式化字符串）
     """
     try:
-        import akshare as ak
         from datetime import datetime, timedelta
+
+        import akshare as ak
 
         # 标准化代码
         provider = get_improved_hk_provider()
@@ -663,6 +667,7 @@ _akshare_hk_spot_cache = {
 
 # 🔥 线程锁：防止多个线程同时调用 AKShare API
 import threading
+
 _akshare_hk_spot_lock = threading.Lock()
 
 
@@ -678,8 +683,9 @@ def get_hk_stock_info_akshare(symbol: str) -> Dict[str, Any]:
         Dict: 港股信息
     """
     try:
-        import akshare as ak
         from datetime import datetime
+
+        import akshare as ak
 
         # 标准化代码
         provider = get_improved_hk_provider()

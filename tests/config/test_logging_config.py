@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 
-
 MINIMAL_TOML = """
 [logging]
 level = "INFO"

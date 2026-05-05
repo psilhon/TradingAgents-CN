@@ -2,8 +2,8 @@
 测试Web版本港股功能
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -34,7 +34,7 @@ def test_analysis_runner_hk_support():
     print("\n🧪 测试分析运行器港股支持...")
 
     try:
-        from web.utils.analysis_runner import validate_analysis_params, generate_demo_results
+        from web.utils.analysis_runner import generate_demo_results, validate_analysis_params
 
         # 测试港股代码验证
         print("  测试港股代码验证...")

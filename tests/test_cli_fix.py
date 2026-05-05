@@ -8,10 +8,10 @@ Test CLI Fix - KeyError: 'stock_symbol' Issue
 This test verifies the fix for the selections dictionary key mismatch issue in CLI
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 # 添加项目根目录到Python路径
 project_root = Path(__file__).parent.parent

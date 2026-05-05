@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -26,8 +27,8 @@ def test_graph_routing():
         return False
 
     try:
-        from tradingagents.graph.setup import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.setup import TradingAgentsGraph
 
         print("🔧 创建交易分析图...")
 

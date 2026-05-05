@@ -6,8 +6,9 @@
 - 轮询 /api/analysis/tasks/{task_id}/status 直至 completed
 - 获取 /api/analysis/tasks/{task_id}/result 并验证关键字段
 """
-import time
 import json
+import time
+
 import requests
 
 BASE_URL = "http://localhost:8000"

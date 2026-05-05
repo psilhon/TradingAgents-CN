@@ -1,10 +1,11 @@
 """
 测试TushareSyncService
 """
-import pytest
 import asyncio
-from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime, timedelta
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 
 from app.worker.tushare_sync_service import TushareSyncService
 

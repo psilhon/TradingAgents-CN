@@ -3,9 +3,9 @@
 检查AKShare财务数据结构
 """
 
-import sys
-import os
 import logging
+import os
+import sys
 
 # 设置日志级别
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)-8s | %(message)s')
@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)-8s | 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.dataflows.akshare_utils import AKShareProvider
+
 
 def analyze_akshare_data():
     """分析AKShare财务数据结构"""

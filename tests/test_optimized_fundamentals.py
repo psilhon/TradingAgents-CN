@@ -5,11 +5,13 @@
 验证新策略是否能正确获取必要的财务数据和当前股价，而不获取大量历史日线数据
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.agents.utils.agent_utils import Toolkit
+
 
 def test_optimized_fundamentals():
     """测试优化后的基本面分析数据获取"""

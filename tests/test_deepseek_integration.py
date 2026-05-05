@@ -3,9 +3,10 @@
 DeepSeek V3集成测试
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -70,8 +71,8 @@ def test_deepseek_connection():
     print("\n🔗 测试DeepSeek连接...")
 
     try:
-        from tradingagents.llm.deepseek_adapter import create_deepseek_adapter
         from langchain.schema import HumanMessage
+        from tradingagents.llm.deepseek_adapter import create_deepseek_adapter
 
         # 创建适配器
         adapter = create_deepseek_adapter(model="deepseek-chat")

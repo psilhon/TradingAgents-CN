@@ -6,6 +6,7 @@
 import os
 import sys
 
+
 def test_hk_fundamentals_complete():
     """完整测试港股基本面分析"""
     print("🔧 完整测试港股基本面分析...")
@@ -92,9 +93,9 @@ def test_tool_selection_verification():
     print("\n🔧 验证工具选择逻辑...")
 
     try:
-        from tradingagents.utils.stock_utils import StockUtils
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.utils.stock_utils import StockUtils
 
         config = DEFAULT_CONFIG.copy()
         config["online_tools"] = True

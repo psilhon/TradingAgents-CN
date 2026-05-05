@@ -6,8 +6,9 @@
 
 import asyncio
 import json
+from typing import Any, Dict, Optional
+
 import aiohttp
-from typing import Dict, Any, Optional
 
 BASE_URL = "http://localhost:8001"
 

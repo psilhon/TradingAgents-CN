@@ -5,11 +5,12 @@
 """
 
 import re
-from typing import Dict, Tuple, Optional
 from datetime import datetime, timedelta
+from typing import Dict, Optional, Tuple
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('stock_validator')
 
 

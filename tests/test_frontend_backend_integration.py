@@ -4,9 +4,11 @@
 验证任务提交和状态查询的完整流程
 """
 
-import requests
-import time
 import json
+import time
+
+import requests
+
 
 def test_frontend_backend_integration():
     """测试前后端集成"""

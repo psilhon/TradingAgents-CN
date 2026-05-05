@@ -3,8 +3,9 @@
 直接测试AKShare API
 """
 
-import akshare as ak
 import logging
+
+import akshare as ak
 
 # 设置日志级别
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)-8s | %(message)s')

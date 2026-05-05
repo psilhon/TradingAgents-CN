@@ -1,9 +1,11 @@
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-import time
 import json
+import time
+
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger
+
 logger = get_logger("default")
 
 # 导入Google工具调用处理器

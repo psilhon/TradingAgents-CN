@@ -5,15 +5,16 @@
 完整显示基本面分析获取的所有数据内容
 """
 
-import sys
-import os
 import json
+import os
+import sys
 from datetime import datetime, timedelta
 
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.agents.utils.agent_utils import Toolkit
+
 
 def test_detailed_data_display():
     """测试并完整显示基本面分析获取的数据"""

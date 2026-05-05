@@ -3,13 +3,16 @@
 验证基于规则的过滤器和增强过滤器的效果
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import pandas as pd
 import time
 from datetime import datetime
+
+import pandas as pd
+
 
 def test_basic_news_filter():
     """测试基础新闻过滤器"""
@@ -141,6 +144,7 @@ def test_real_news_filtering():
 
     try:
         from tradingagents.dataflows.akshare_utils import get_stock_news_em
+
         from tradingagents.utils.news_filter import create_news_filter
 
         print("📡 正在获取招商银行真实新闻数据...")

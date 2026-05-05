@@ -4,8 +4,8 @@
 快速测试主要数据源的可用性
 """
 
-import sys
 import os
+import sys
 import time
 from datetime import datetime
 

@@ -61,6 +61,7 @@ def setup_cli_logging():
     Configure logging for CLI mode: remove console output to keep interface clean
     """
     import logging
+
     from tradingagents.utils.logging_manager import get_logger_manager
 
     logger_manager = get_logger_manager()

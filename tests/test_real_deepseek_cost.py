@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -27,9 +28,9 @@ def test_real_deepseek_analysis():
 
     try:
         from tradingagents.agents.analysts.market_analyst import create_market_analyst_react
-        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         print("🔧 初始化DeepSeek分析师...")
 

@@ -3,8 +3,8 @@
 测试Web界面修复
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # 添加项目根目录到Python路径

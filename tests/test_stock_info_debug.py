@@ -41,8 +41,9 @@ def test_tushare_api_direct():
     print("=" * 60)
 
     try:
-        import tushare as ts
         import os
+
+        import tushare as ts
 
         token = os.getenv('TUSHARE_TOKEN')
         if not token:

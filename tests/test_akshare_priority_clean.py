@@ -4,9 +4,9 @@
 强制重新加载模块以避免缓存问题
 """
 
+import importlib
 import os
 import sys
-import importlib
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +31,7 @@ def clean_import_test():
                 del sys.modules[module_name]
 
         # 重新导入
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         # 创建数据源管理器
         manager = DataSourceManager()
@@ -115,7 +115,7 @@ def test_manual_env_setting():
                 del sys.modules[module_name]
 
         # 重新导入
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         manager = DataSourceManager()
 

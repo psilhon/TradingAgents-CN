@@ -13,7 +13,7 @@ from typing import Optional
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from tradingagents.utils.logging_manager import setup_logging, get_logger
+from tradingagents.utils.logging_manager import get_logger, setup_logging
 
 
 def init_logging(config_override: Optional[dict] = None) -> None:

@@ -2,6 +2,7 @@
 测试5个研究深度级别的配置
 """
 import pytest
+
 from app.services.simple_analysis_service import create_analysis_config
 
 

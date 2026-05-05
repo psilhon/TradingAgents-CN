@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -57,7 +58,7 @@ def test_reddit_tools():
         print("\n🧪 测试Reddit工具")
         print("=" * 50)
 
-        from tradingagents.dataflows.interface import get_reddit_global_news, get_reddit_company_news
+        from tradingagents.dataflows.interface import get_reddit_company_news, get_reddit_global_news
 
         print("✅ Reddit工具函数导入成功")
 
@@ -133,6 +134,7 @@ def test_toolkit_integration():
 
         # 检查Toolkit类是否包含这些工具
         from tradingagents.agents.utils.toolkit import Toolkit
+
         from tradingagents.default_config import DEFAULT_CONFIG
 
         config = DEFAULT_CONFIG.copy()

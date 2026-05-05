@@ -5,12 +5,14 @@
 验证是否使用真实财务数据而不是分类估算
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
 import logging
+
+from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
 
 # 设置日志级别
 logging.basicConfig(level=logging.DEBUG)

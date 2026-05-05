@@ -5,22 +5,24 @@
 """
 
 import os
-import time
 import random
+import time
 from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
 from zoneinfo import ZoneInfo
 
-from typing import Optional, Dict, Any
-from .cache import get_cache
 from tradingagents.config.config_manager import config_manager
-
 from tradingagents.config.runtime_settings import get_float, get_timezone_name
+
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
+from .cache import get_cache
+
 logger = get_logger('agents')
 
 # 导入 MongoDB 缓存适配器
-from .cache.mongodb_cache_adapter import get_mongodb_cache_adapter, get_stock_data_with_fallback, get_financial_data_with_fallback
+from .cache.mongodb_cache_adapter import get_financial_data_with_fallback, get_mongodb_cache_adapter, get_stock_data_with_fallback
 
 
 class OptimizedChinaDataProvider:
@@ -895,8 +897,9 @@ class OptimizedChinaDataProvider:
                 logger.info(f"🔄 数据库缓存未启用，直接从AKShare API获取{symbol}财务数据")
 
             # 第二优先级：从AKShare API获取
-            from .providers.china.akshare import get_akshare_provider
             import asyncio
+
+            from .providers.china.akshare import get_akshare_provider
 
             akshare_provider = get_akshare_provider()
 
@@ -928,8 +931,9 @@ class OptimizedChinaDataProvider:
 
             # 第三优先级：使用Tushare数据源
             logger.info(f"🔄 使用Tushare备用数据源获取{symbol}财务数据")
-            from .providers.china.tushare import get_tushare_provider
             import asyncio
+
+            from .providers.china.tushare import get_tushare_provider
 
             provider = get_tushare_provider()
             if not provider.connected:
@@ -1045,8 +1049,8 @@ class OptimizedChinaDataProvider:
 
             try:
                 # 优先使用实时计算
-                from tradingagents.dataflows.realtime_metrics import get_pe_pb_with_fallback
                 from tradingagents.config.database_manager import get_database_manager
+                from tradingagents.dataflows.realtime_metrics import get_pe_pb_with_fallback
 
                 db_manager = get_database_manager()
                 if db_manager.is_mongodb_available():

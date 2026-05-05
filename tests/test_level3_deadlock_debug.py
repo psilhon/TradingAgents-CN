@@ -11,13 +11,16 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from tradingagents.utils.logging_init import init_logging
+
 init_logging()
 
+from langchain_core.messages import AIMessage
+
+from app.services.simple_analysis_service import create_analysis_config
+from tradingagents.agents.utils.agent_states import AgentState
 from tradingagents.agents.utils.agent_utils import Toolkit
 from tradingagents.graph.conditional_logic import ConditionalLogic
-from tradingagents.agents.utils.agent_states import AgentState
-from langchain_core.messages import AIMessage
-from app.services.simple_analysis_service import create_analysis_config
+
 
 def test_level3_deadlock():
     """测试分析级别3的死循环问题"""

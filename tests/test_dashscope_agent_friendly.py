@@ -9,6 +9,7 @@ import sys
 import time
 import traceback
 
+
 # 强制刷新输出
 def flush_print(msg):
     """强制刷新输出"""
@@ -41,9 +42,10 @@ def main():
         flush_print("\n🔧 测试1: 基本导入")
         flush_print("-" * 40)
 
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         flush_print("✅ 所有模块导入成功")
 

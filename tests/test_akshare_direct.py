@@ -7,6 +7,7 @@
 import akshare as ak
 import pandas as pd
 
+
 def test_akshare_financial_apis():
     """测试AKShare财务数据API"""
     print("=" * 60)

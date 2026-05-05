@@ -2,8 +2,8 @@
 测试港股数据源修复
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -123,8 +123,9 @@ def test_data_source_priority():
     print("\n🧪 测试数据源优先级...")
 
     try:
-        from tradingagents.dataflows.interface import get_hk_stock_data_unified
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.interface import get_hk_stock_data_unified
 
         # 设置测试日期
         end_date = datetime.now().strftime('%Y-%m-%d')

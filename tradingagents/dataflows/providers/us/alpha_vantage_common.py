@@ -10,15 +10,17 @@ Alpha Vantage API 公共模块
 参考原版 TradingAgents 实现
 """
 
+import json
 import os
 import time
-import json
-import requests
-from typing import Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+import requests
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('agents')
 
 

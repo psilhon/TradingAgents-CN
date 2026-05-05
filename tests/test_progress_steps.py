@@ -2,10 +2,11 @@
 测试进度跟踪和步骤状态更新
 """
 import asyncio
-import aiohttp
 import json
 import time
 from datetime import datetime
+
+import aiohttp
 
 # 配置
 BASE_URL = "http://localhost:8000"

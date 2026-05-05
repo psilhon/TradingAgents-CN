@@ -4,8 +4,8 @@
 验证修复后的导入是否正常
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -74,7 +74,7 @@ def test_data_source_manager():
     print("=" * 40)
 
     try:
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         # 检查AKShare枚举
         akshare_enum = ChinaDataSource.AKSHARE

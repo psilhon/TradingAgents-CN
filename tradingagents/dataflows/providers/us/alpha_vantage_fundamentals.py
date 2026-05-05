@@ -9,14 +9,15 @@ Alpha Vantage 基本面数据提供者
 参考原版 TradingAgents 实现
 """
 
-from typing import Annotated
 import json
 from datetime import datetime
-
-from .alpha_vantage_common import _make_api_request, format_response_as_string
+from typing import Annotated
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
+from .alpha_vantage_common import _make_api_request, format_response_as_string
+
 logger = get_logger('agents')
 
 

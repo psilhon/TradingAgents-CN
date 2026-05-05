@@ -4,16 +4,17 @@
 """
 
 import asyncio
-import sys
-import os
 import datetime
+import os
+import sys
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app.core.database import init_db, get_mongo_db
-from app.services.operation_log_service import log_operation
+from app.core.database import get_mongo_db, init_db
 from app.models.operation_log import ActionType
+from app.services.operation_log_service import log_operation
+
 
 async def test_timezone_fix():
     """测试时区修复"""
@@ -81,8 +82,8 @@ async def test_timezone_fix():
 
         # 测试API返回的时间格式
         print("\n🌐 测试API返回格式...")
-        from app.services.operation_log_service import get_operation_log_service
         from app.models.operation_log import OperationLogQuery
+        from app.services.operation_log_service import get_operation_log_service
 
         service = get_operation_log_service()
         query = OperationLogQuery(page=1, page_size=1)

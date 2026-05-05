@@ -7,6 +7,7 @@
 import os
 import sys
 
+
 def test_stock_type_detection():
     """测试股票类型检测功能"""
     print("🧪 测试股票类型检测...")

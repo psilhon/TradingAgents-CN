@@ -3,8 +3,8 @@
 测试优化后的目标价生成系统
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # 添加项目根目录到Python路径
@@ -86,8 +86,9 @@ def test_trader_prompt():
     print("\n🧪 检查交易员提示词优化...")
 
     try:
-        from tradingagents.agents.trader import trader_node
         import inspect
+
+        from tradingagents.agents.trader import trader_node
 
         # 获取trader_node函数的源代码
         source = inspect.getsource(trader_node)

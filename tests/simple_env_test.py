@@ -5,6 +5,7 @@
 
 import os
 
+
 def test_env_reading():
     """测试.env文件读取"""
     print("🔧 测试.env配置读取")

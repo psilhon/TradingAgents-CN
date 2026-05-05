@@ -5,12 +5,14 @@
 测试盈利股票的PE计算（如600036招商银行）
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.agents.utils.agent_utils import Toolkit
 from tradingagents.default_config import DEFAULT_CONFIG
+
 
 def test_profitable_stock():
     """测试盈利股票的PE计算"""

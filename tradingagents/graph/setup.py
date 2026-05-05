@@ -1,8 +1,9 @@
 # TradingAgents/graph/setup.py
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from langchain_openai import ChatOpenAI
-from langgraph.graph import END, StateGraph, START
+from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode
 
 from tradingagents.agents import (
@@ -11,8 +12,8 @@ from tradingagents.agents import (
     create_fundamentals_analyst,
     create_market_analyst,
     create_msg_delete,
-    create_news_analyst,
     create_neutral_debator,
+    create_news_analyst,
     create_research_manager,
     create_risk_manager,
     create_risky_debator,
@@ -23,10 +24,11 @@ from tradingagents.agents import (
 from tradingagents.agents.utils.agent_states import AgentState
 from tradingagents.agents.utils.agent_utils import Toolkit
 
-from .conditional_logic import ConditionalLogic
-
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger
+
+from .conditional_logic import ConditionalLogic
+
 logger = get_logger("default")
 
 

@@ -2,8 +2,8 @@
 测试导入修复
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -42,12 +42,7 @@ def test_stock_utils_functions():
     print("\n🧪 测试股票工具函数...")
 
     try:
-        from tradingagents.utils.stock_utils import (
-            is_china_stock, 
-            is_hk_stock, 
-            is_us_stock,
-            StockUtils
-        )
+        from tradingagents.utils.stock_utils import StockUtils, is_china_stock, is_hk_stock, is_us_stock
 
         # 测试各种股票代码
         test_cases = [
@@ -120,9 +115,9 @@ def test_complete_analysis_flow():
 
     try:
         # 测试所有必要的导入
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
-        from tradingagents.default_config import DEFAULT_CONFIG
         from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
+        from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         print("  ✅ 交易图导入成功")
         print("  ✅ 默认配置导入成功")

@@ -2,8 +2,8 @@
 调试Web界面显示"True"的问题
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # 添加项目根目录到Python路径
@@ -94,7 +94,7 @@ def test_analysis_runner_import():
     print("\n🧪 测试分析运行器导入...")
 
     try:
-        from web.utils.analysis_runner import run_stock_analysis, validate_analysis_params, format_analysis_results
+        from web.utils.analysis_runner import format_analysis_results, run_stock_analysis, validate_analysis_params
         print("  ✅ 分析运行器导入成功")
 
         # 测试函数签名

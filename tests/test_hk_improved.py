@@ -2,8 +2,8 @@
 改进的港股功能测试
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -50,8 +50,9 @@ def test_hk_data_unified():
     print("\n🧪 测试港股统一数据接口...")
 
     try:
-        from tradingagents.dataflows.interface import get_hk_stock_data_unified
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.interface import get_hk_stock_data_unified
 
         # 设置测试日期
         end_date = datetime.now().strftime('%Y-%m-%d')
@@ -129,8 +130,9 @@ def test_market_auto_selection():
     print("\n🧪 测试市场自动选择功能...")
 
     try:
-        from tradingagents.dataflows.interface import get_stock_data_by_market
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.interface import get_stock_data_by_market
 
         end_date = datetime.now().strftime('%Y-%m-%d')
         start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')

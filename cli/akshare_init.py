@@ -3,18 +3,18 @@
 AKShare数据初始化CLI工具
 用于首次部署时的数据初始化和管理
 """
-import asyncio
 import argparse
+import asyncio
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
-import os
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.core.database import init_database, get_mongo_db, close_database
+from app.core.database import close_database, get_mongo_db, init_database
 from app.worker.akshare_init_service import get_akshare_init_service
 from app.worker.akshare_sync_service import get_akshare_sync_service
 

@@ -3,11 +3,12 @@
 测试不同LLM模型在工具调用和技术分析方面的行为差异
 """
 
+import json
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
-import json
 
 # 添加项目根目录到Python路径
 project_root = Path(__file__).parent.parent
@@ -108,8 +109,8 @@ def test_dashscope_tool_calling():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
         from langchain_core.tools import BaseTool
+        from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
 
         # 创建百炼实例
         dashscope_llm = ChatDashScope(

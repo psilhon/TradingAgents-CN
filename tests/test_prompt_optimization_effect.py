@@ -31,9 +31,9 @@ def test_fundamentals_analyst_prompt():
         print("🔧 创建基本面分析师...")
 
         # 创建LLM和工具包
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         llm = ChatDashScopeOpenAI(
             model="qwen-turbo",
@@ -173,9 +173,9 @@ def test_market_analyst_prompt():
         print("🔧 创建市场分析师...")
 
         # 创建LLM和工具包
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         llm = ChatDashScopeOpenAI(
             model="qwen-turbo",
@@ -287,9 +287,9 @@ def test_prompt_elements():
             print("-" * 40)
 
             # 获取市场信息和公司名称
-            from tradingagents.utils.stock_utils import StockUtils
             from tradingagents.agents.analysts.fundamentals_analyst import _get_company_name_for_fundamentals
             from tradingagents.agents.analysts.market_analyst import _get_company_name
+            from tradingagents.utils.stock_utils import StockUtils
 
             market_info = StockUtils.get_market_info(ticker)
             fundamentals_name = _get_company_name_for_fundamentals(ticker, market_info)

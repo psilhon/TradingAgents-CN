@@ -26,8 +26,8 @@ def test_company_name_extraction():
             ("0700.HK", "港股"),
         ]
 
-        from tradingagents.utils.stock_utils import StockUtils
         from tradingagents.agents.analysts.market_analyst import _get_company_name
+        from tradingagents.utils.stock_utils import StockUtils
 
         for ticker, market_type in test_cases:
             print(f"\n📊 测试股票: {ticker} ({market_type})")
@@ -75,9 +75,9 @@ def test_market_analyst_prompt():
         print("\n🔧 创建市场分析师...")
 
         # 创建LLM和工具包
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         llm = ChatDashScopeOpenAI(
             model="qwen-turbo",
@@ -108,8 +108,8 @@ def test_market_analyst_prompt():
         print("🔍 [提示词验证] 检查提示词是否正确包含公司名称和股票代码...")
 
         # 这里我们不实际执行分析师（避免API调用），只验证提示词构建
-        from tradingagents.utils.stock_utils import StockUtils
         from tradingagents.agents.analysts.market_analyst import _get_company_name
+        from tradingagents.utils.stock_utils import StockUtils
 
         market_info = StockUtils.get_market_info(test_ticker)
         company_name = _get_company_name(test_ticker, market_info)
