@@ -96,3 +96,34 @@ tradingagents = "main:main"
 [tool.setuptools.packages.find]
 include = ["tradingagents*"]
 exclude = ["tests*", "docs*", "scripts*", "data*", "logs*", "reports*", "results*", "eval_results*", "upstream_contribution*"]
+
+# ==================================================================================
+# 以下 [tool.*] 段由 init-ci skill (Recipe B) 生成，TradingAgents-CN fork 已定制：
+# - target-version 跟随 requires-python 最低值 py310（不是模板默认 py312）
+# - pyright include 改 ["tradingagents", "tests"]（模板默认 ["src", "tests"]）
+# - 排除 app/ frontend/ web/ scripts/ examples/（专有授权 / 非 Python / 已废弃 / 上游一次性脚本）
+# ==================================================================================
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["app", "frontend", "web", "scripts", "examples", ".venv", ".chainlit"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "RUF"]
+# E/W: pycodestyle, F: pyflakes, I: isort, B: bugbear, UP: pyupgrade, RUF: ruff-specific
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pyright]
+include = ["tradingagents", "tests"]
+strict = ["tradingagents"]
+exclude = ["app", "frontend", "web", "scripts", "examples", ".venv", ".chainlit", "**/node_modules"]
+typeCheckingMode = "standard"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# 上游 tests/ 含一些非测试脚本（debug_*.py / fast_tdx_test.py 等），collect 时忽略
+addopts = "-ra --strict-markers --ignore=tests/0.1.14"
+norecursedirs = ["0.1.14", "config"]
