@@ -693,13 +693,13 @@ class AKShareProvider(BaseStockDataProvider):
 
     async def get_stock_quotes(self, code: str) -> dict[str, Any] | None:
         """
-        获取单个股票实时行情
+        获取单个股票实时行情（仅走单股 API，OpenSpec spec: dataflow-performance）
 
-        🔥 策略：优先使用单股报价接口，失败时回退到全市场快照和历史数据
-        - 主接口: stock_bid_ask_em
-        - 备份接口1: stock_zh_a_spot（新浪快照）
-        - 备份接口2: stock_zh_a_spot_em（东方财富快照）
-        - 最终兜底: stock_zh_a_hist（最新日线）
+        - 主接口: stock_bid_ask_em（单股盘口，含五档报价 + 当前价 + 涨跌幅）
+        - 兜底: stock_zh_a_hist（单股 K 线，取最近一日）
+
+        历史的 stock_zh_a_spot / stock_zh_a_spot_em 全市场快照分支已删除——
+        每次拉 5849 行只为查 1 只股票是反模式（v1.1.0 修过 favorites_service 60s 同款）。
 
         Args:
             code: 股票代码
@@ -755,81 +755,11 @@ class AKShareProvider(BaseStockDataProvider):
             return None
 
     async def _get_realtime_quotes_data(self, code: str) -> dict[str, Any]:
-        """获取实时行情数据"""
+        # 单股兜底——只走 stock_zh_a_hist（单股 K 线 API）
+        # OpenSpec spec: dataflow-performance（agent path 不得拉全市场）
+        # 历史的 stock_zh_a_spot / stock_zh_a_spot_em 全市场分支（每次拉 5849 行）
+        # 已删除——主路径走 stock_bid_ask_em（单股），兜底走 stock_zh_a_hist（单股）。
         try:
-            # 方法1: 使用新浪全市场快照
-            def fetch_spot_data_sina():
-                return self.ak.stock_zh_a_spot()
-
-            try:
-                spot_df = await asyncio.to_thread(fetch_spot_data_sina)
-
-                if spot_df is not None and not spot_df.empty:
-                    # 查找对应股票
-                    stock_data = spot_df[spot_df["代码"] == code]
-
-                    if not stock_data.empty:
-                        row = stock_data.iloc[0]
-
-                        # 解析行情数据
-                        return {
-                            "name": str(row.get("名称", f"股票{code}")),
-                            "price": self._safe_float(row.get("最新价", 0)),
-                            "change": self._safe_float(row.get("涨跌额", 0)),
-                            "change_percent": self._safe_float(row.get("涨跌幅", 0)),
-                            "volume": self._safe_int(row.get("成交量", 0)),
-                            "amount": self._safe_float(row.get("成交额", 0)),
-                            "open": self._safe_float(row.get("今开", 0)),
-                            "high": self._safe_float(row.get("最高", 0)),
-                            "low": self._safe_float(row.get("最低", 0)),
-                            "pre_close": self._safe_float(row.get("昨收", 0)),
-                            # 🔥 新增：财务指标字段
-                            "turnover_rate": self._safe_float(row.get("换手率", None)),  # 换手率（%）
-                            "volume_ratio": self._safe_float(row.get("量比", None)),  # 量比
-                            "pe": self._safe_float(row.get("市盈率-动态", None)),  # 动态市盈率
-                            "pb": self._safe_float(row.get("市净率", None)),  # 市净率
-                            "total_mv": self._safe_float(row.get("总市值", None)),  # 总市值（元）
-                            "circ_mv": self._safe_float(row.get("流通市值", None)),  # 流通市值（元）
-                            "quote_source": "stock_zh_a_spot",
-                        }
-            except Exception as e:
-                logger.debug(f"获取{code}新浪实时快照失败: {e}")
-
-            # 方法2: 使用东方财富全市场快照
-            def fetch_spot_data_em():
-                return self.ak.stock_zh_a_spot_em()
-
-            try:
-                spot_df = await asyncio.to_thread(fetch_spot_data_em)
-
-                if spot_df is not None and not spot_df.empty:
-                    stock_data = spot_df[spot_df["代码"] == code]
-
-                    if not stock_data.empty:
-                        row = stock_data.iloc[0]
-                        return {
-                            "name": str(row.get("名称", f"股票{code}")),
-                            "price": self._safe_float(row.get("最新价", 0)),
-                            "change": self._safe_float(row.get("涨跌额", 0)),
-                            "change_percent": self._safe_float(row.get("涨跌幅", 0)),
-                            "volume": self._safe_int(row.get("成交量", 0)),
-                            "amount": self._safe_float(row.get("成交额", 0)),
-                            "open": self._safe_float(row.get("今开", 0)),
-                            "high": self._safe_float(row.get("最高", 0)),
-                            "low": self._safe_float(row.get("最低", 0)),
-                            "pre_close": self._safe_float(row.get("昨收", 0)),
-                            "turnover_rate": self._safe_float(row.get("换手率", None)),
-                            "volume_ratio": self._safe_float(row.get("量比", None)),
-                            "pe": self._safe_float(row.get("市盈率-动态", None)),
-                            "pb": self._safe_float(row.get("市净率", None)),
-                            "total_mv": self._safe_float(row.get("总市值", None)),
-                            "circ_mv": self._safe_float(row.get("流通市值", None)),
-                            "quote_source": "stock_zh_a_spot_em",
-                        }
-            except Exception as e:
-                logger.debug(f"获取{code}东方财富实时快照失败: {e}")
-
-            # 方法3: 使用最新日线兜底
             def fetch_individual_spot():
                 return self.ak.stock_zh_a_hist(symbol=code, period="daily", adjust="")
 
