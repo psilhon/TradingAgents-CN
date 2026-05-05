@@ -2,7 +2,8 @@
 
 from datetime import datetime
 from functools import wraps
-from typing import Annotated, Any, Callable, Optional
+from typing import Annotated, Any, Optional
+from collections.abc import Callable
 
 import pandas as pd
 import yfinance as yf

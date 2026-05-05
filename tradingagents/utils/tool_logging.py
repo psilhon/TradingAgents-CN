@@ -7,7 +7,8 @@
 import functools
 import time
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Optional
+from collections.abc import Callable
 from zoneinfo import ZoneInfo
 
 from tradingagents.config.runtime_settings import get_timezone_name
