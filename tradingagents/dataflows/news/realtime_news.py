@@ -386,7 +386,7 @@ class RealtimeNewsAggregator:
 
                         em_time = (datetime.now(ZoneInfo(get_timezone_name())) - em_start_time).total_seconds()
                         logger.info(
-                            f"[中文财经新闻] 东方财富新闻处理完成，成功: {processed_count}条，跳过: {skipped_count}条，错误: {error_count}条，耗时: {em_time:.2f}秒"
+                            f"[中文财经新闻] 东方财富新闻处理完成，成功: {processed_count}条，跳过: {skipped_count}条，错误: {error_count}条，耗时: {em_time:.2f}秒"  # noqa: E501
                         )
             except Exception as ak_e:
                 logger.error(f"[中文财经新闻] 获取东方财富新闻失败: {ak_e}")
@@ -425,7 +425,7 @@ class RealtimeNewsAggregator:
             # 记录RSS获取总结
             rss_total_time = (datetime.now(ZoneInfo(get_timezone_name())) - rss_start_time).total_seconds()
             logger.info(
-                f"[中文财经新闻] RSS新闻获取完成，成功源: {rss_success_count}个，失败源: {rss_error_count}个，获取新闻: {total_rss_items}条，总耗时: {rss_total_time:.2f}秒"
+                f"[中文财经新闻] RSS新闻获取完成，成功源: {rss_success_count}个，失败源: {rss_error_count}个，获取新闻: {total_rss_items}条，总耗时: {rss_total_time:.2f}秒"  # noqa: E501
             )
 
             # 记录中文财经新闻获取总结
@@ -636,7 +636,7 @@ class RealtimeNewsAggregator:
 
         # 记录新闻分类情况
         logger.info(
-            f"[新闻报告] {ticker} 新闻分类统计: 高紧急度 {len(high_urgency)}条, 中紧急度 {len(medium_urgency)}条, 低紧急度 {len(low_urgency)}条"
+            f"[新闻报告] {ticker} 新闻分类统计: 高紧急度 {len(high_urgency)}条, 中紧急度 {len(medium_urgency)}条, 低紧急度 {len(low_urgency)}条"  # noqa: E501
         )
 
         # 记录新闻来源分布

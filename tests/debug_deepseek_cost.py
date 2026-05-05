@@ -30,7 +30,7 @@ def test_pricing_config():
     for pricing in pricing_configs:
         if pricing.provider == "deepseek":
             print(
-                f"   ✅ {pricing.provider}/{pricing.model_name}: 输入¥{pricing.input_price_per_1k}/1K, 输出¥{pricing.output_price_per_1k}/1K"
+                f"   ✅ {pricing.provider}/{pricing.model_name}: 输入¥{pricing.input_price_per_1k}/1K, 输出¥{pricing.output_price_per_1k}/1K"  # noqa: E501
             )
 
 

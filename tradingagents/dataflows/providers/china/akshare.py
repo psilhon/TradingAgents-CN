@@ -730,7 +730,7 @@ class AKShareProvider(BaseStockDataProvider):
                     logger.info(f"📊 转换后的字典: {data_dict}")
                     quotes = self._build_bid_ask_quotes(code, data_dict)
                     logger.info(
-                        f"✅ {code} 实时行情获取成功: 来源=stock_bid_ask_em, 最新价={quotes['price']}, 涨跌幅={quotes['change_percent']}%, 成交量={quotes['volume']}, 成交额={quotes['amount']}"
+                        f"✅ {code} 实时行情获取成功: 来源=stock_bid_ask_em, 最新价={quotes['price']}, 涨跌幅={quotes['change_percent']}%, 成交量={quotes['volume']}, 成交额={quotes['amount']}"  # noqa: E501
                     )
                     return quotes
 

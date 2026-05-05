@@ -98,7 +98,7 @@ async def test_sync_control_functions():
                         final_status = await service.get_status()
                         print(f"   🎯 同步完成: {final_status.get('status')}")
                         print(
-                            f"   📈 最终统计: 总数={final_status.get('total', 0)}, 新增={final_status.get('inserted', 0)}, 更新={final_status.get('updated', 0)}"
+                            f"   📈 最终统计: 总数={final_status.get('total', 0)}, 新增={final_status.get('inserted', 0)}, 更新={final_status.get('updated', 0)}"  # noqa: E501
                         )
                     except asyncio.TimeoutError:
                         print("   ⏰ 同步超时，但任务仍在后台运行")

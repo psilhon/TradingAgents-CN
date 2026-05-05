@@ -340,7 +340,7 @@ class TradingAgentsGraph:
                 raise ValueError("使用Google AI需要在数据库中配置API Key或设置GOOGLE_API_KEY环境变量")
 
             logger.info(
-                f"🔑 [Google AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}"
+                f"🔑 [Google AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}"  # noqa: E501
             )
 
             logger.info(f"🔧 [Google-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")
@@ -440,7 +440,7 @@ class TradingAgentsGraph:
             # 🔥 优先使用数据库配置的 API Key，否则从环境变量读取
             zhipu_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv("ZHIPU_API_KEY")
             logger.info(
-                f"🔑 [智谱AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}"
+                f"🔑 [智谱AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}"  # noqa: E501
             )
 
             if not zhipu_api_key:

@@ -557,7 +557,7 @@ def create_fundamentals_analyst(llm, toolkit):
                 logger.info(f"🔍 [统计] 历史工具调用次数: {tool_call_count}")
 
                 logger.info(
-                    f"🔍 [重复调用检查] 汇总 - 工具结果数: {tool_call_count}, 已有工具结果: {has_tool_result}, 已有分析内容: {has_analysis_content}"
+                    f"🔍 [重复调用检查] 汇总 - 工具结果数: {tool_call_count}, 已有工具结果: {has_tool_result}, 已有分析内容: {has_analysis_content}"  # noqa: E501
                 )
                 logger.info("📊 [基本面分析师] ===== 强制工具调用检查结束 =====")
 
