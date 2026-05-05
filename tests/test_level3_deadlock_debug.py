@@ -63,10 +63,10 @@ def test_level3_deadlock():
 
     print("级别3相比级别1、2的差异:")
     print(
-        f"  - 风险讨论轮次: 级别1={level1_config['max_risk_discuss_rounds']}, 级别2={level2_config['max_risk_discuss_rounds']}, 级别3={level3_config['max_risk_discuss_rounds']}"
+        f"  - 风险讨论轮次: 级别1={level1_config['max_risk_discuss_rounds']}, 级别2={level2_config['max_risk_discuss_rounds']}, 级别3={level3_config['max_risk_discuss_rounds']}"  # noqa: E501
     )
     print(
-        f"  - 记忆功能: 级别1={level1_config['memory_enabled']}, 级别2={level2_config['memory_enabled']}, 级别3={level3_config['memory_enabled']}"
+        f"  - 记忆功能: 级别1={level1_config['memory_enabled']}, 级别2={level2_config['memory_enabled']}, 级别3={level3_config['memory_enabled']}"  # noqa: E501
     )
     print(
         f"  - 在线工具: 级别1={level1_config['online_tools']}, 级别2={level2_config['online_tools']}, 级别3={level3_config['online_tools']}"

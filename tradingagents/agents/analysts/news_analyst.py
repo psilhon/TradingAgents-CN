@@ -282,7 +282,7 @@ def create_news_analyst(llm, toolkit):
 
                 else:
                     logger.warning(
-                        f"[新闻分析师] ⚠️ 预处理获取新闻失败或内容过短（{len(pre_fetched_news) if pre_fetched_news else 0}字符），回退到标准模式"
+                        f"[新闻分析师] ⚠️ 预处理获取新闻失败或内容过短（{len(pre_fetched_news) if pre_fetched_news else 0}字符），回退到标准模式"  # noqa: E501
                     )
                     if pre_fetched_news:
                         logger.warning(f"[新闻分析师] 📄 失败的新闻内容: {pre_fetched_news}")
