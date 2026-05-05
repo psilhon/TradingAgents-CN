@@ -7,9 +7,6 @@ from langchain_core.tools import tool
 import tradingagents.dataflows.interface as interface
 from tradingagents.default_config import DEFAULT_CONFIG
 
-# 导入统一日志系统和工具日志装饰器
-from tradingagents.utils.logging_init import get_logger
-
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 from tradingagents.utils.tool_logging import log_tool_call
