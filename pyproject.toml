@@ -157,3 +157,10 @@ testpaths = ["tests"]
 # 上游 tests/ 含一些非测试脚本（debug_*.py / fast_tdx_test.py 等），collect 时忽略
 addopts = "-ra --strict-markers"
 norecursedirs = ["config"]
+# OpenSpec change `pytest-marker-strict` 沉淀的 marker 体系
+markers = [
+    "unit: 纯 Python 逻辑，无外部依赖（pre-commit hook 跑这一类）",
+    "integration: 需 docker / mongo / redis（CI 跑，本地按需）",
+    "requires_env: 需 .env LLM key / 数据源 token",
+    "requires_network: 需公网",
+]
