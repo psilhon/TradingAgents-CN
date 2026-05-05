@@ -73,6 +73,8 @@
 
 ### Changed
 
+- **ruff 转严格阻塞模式**（OpenSpec change `ruff-strict-mode-enable`）：4 个 lint changes 治理至 ruff 0 errors 后，`.pre-commit-config.yaml` 的 `ruff-check` / `ruff-format` hook 去掉 warn-only wrapper，引入新 ruff issue 立即阻塞 commit。pyright（9955 errors）+ pytest（未装）保留 warn-only，等独立 `pyright-cleanup` / `pytest-baseline` OpenSpec change 治理后各自转严格。
+
 - **CLAUDE.md 瘦身 + 长尾外置**（OpenSpec change `claude-md-trim`）：CLAUDE.md 从 179 行压到 151 行（仍超 150 模板上限但 ≤ spec 放宽后的 175）。「已知坑」段（10 行）外置到 `docs/ai-context/known-issues.md`（77 行，含完整 fork 撞坑记录 + 上游遗留 + workaround）；「Secrets / 凭据」段（19 行）压成 3 行指引到 `docs/USAGE.md`；「OpenSpec 状态」段（5 行）压成 2 行。MODIFY base spec `repository-scope`「文档范围」Requirement 加"CLAUDE.md ≤ 175 行 + 长尾外置"约束。清理已知坑过时项（chainlit / 专有目录重复）。
 
 ### Added
