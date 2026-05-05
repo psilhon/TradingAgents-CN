@@ -31,7 +31,7 @@ jobs:
       # 注意：uv.lock 与 pyproject.toml 不同步（上游已知问题），不能用 --locked。
       # 用 --frozen 跳过 universal resolution，再 pip install -e . 补齐 pyproject 新增依赖。
       - run: uv sync --frozen
-      - run: uv pip install -e .
+      - run: uv pip install -e ".[dev]"
 
       - uses: extractions/setup-just@v2
         with:
