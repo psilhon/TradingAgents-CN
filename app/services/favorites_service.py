@@ -8,7 +8,6 @@ from bson import ObjectId
 
 from app.core.database import get_mongo_db
 from app.models.user import FavoriteStock
-from app.services.quotes_service import get_quotes_service
 
 
 class FavoritesService:
@@ -119,7 +118,11 @@ class FavoritesService:
                     it["board"] = "-"
                     it["exchange"] = "-"
 
-        # 批量获取行情（优先使用入库的 market_quotes，30秒更新）
+        # 批量获取行情（仅依赖 mongo `market_quotes`，由 worker 30s 后台 sync 更新）
+        # OpenSpec change `fix-favorites-perf`：删除原来的 quotes_service 同步 fallback——
+        # AKShare `stock_zh_a_spot_em()` 拉全市场 5849 条耗 60s，新自选股触发慢路径让 GET
+        # 卡死。现在 missing 的 code current_price 留 None，前端显示 `-`，30s 后 worker
+        # sync 完下次 GET 自动有值。
         if codes:
             try:
                 coll = db["market_quotes"]
@@ -132,19 +135,6 @@ class FavoritesService:
                     if q:
                         it["current_price"] = q.get("close")
                         it["change_percent"] = q.get("pct_chg")
-                # 兜底：对未命中的代码使用在线源补齐（可选）
-                missing = [c for c in codes if c not in quotes_map]
-                if missing:
-                    try:
-                        quotes_online = await get_quotes_service().get_quotes(missing)
-                        for it in items:
-                            code = it.get("stock_code")
-                            if it.get("current_price") is None:
-                                q2 = quotes_online.get(code, {}) if quotes_online else {}
-                                it["current_price"] = q2.get("close")
-                                it["change_percent"] = q2.get("pct_chg")
-                    except Exception:
-                        pass
             except Exception:
                 # 查询失败时保持占位 None，避免影响基础功能
                 pass

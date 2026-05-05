@@ -42,6 +42,10 @@
 
 ### Fixed
 
+- **自选股列表性能 bug**（OpenSpec change `fix-favorites-perf`）：`GET /api/favorites/` 实测耗时 **19–63 秒**，frontend 因 timeout 重试触发 10+ 并发雪崩。根因 chain：`favorites_service.get_user_favorites` 在 mongo `market_quotes` cache miss 时同步调 `quotes_service.get_quotes(missing)` → AKShare `stock_zh_a_spot_em()` 接口设计是"拉全市场" → 即使只查 1 只股票也拉 5849 条 spot 耗 60s，且被 asyncio.Lock 串行化。修复：删除 `app/services/favorites_service.py:135-147` 的同步 fallback，改为完全依赖 mongo `market_quotes`（由 `quotes_ingest_service` worker 后台 30s 间隔 sync）；miss 的 stock_code，`current_price` / `change_percent` 留 `None` 由前端显示 `-`，下次 GET 自动可用。性能 60s → < 1s。新建 `openspec/specs/favorites-performance/spec.md` 锁定契约（GET 不得在请求路径上同步调用外部数据源 API）。
+
+### Fixed
+
 - **主题切换 bug**（OpenSpec change `fix-theme-persistence`）：用户切深色后，路由切换 / API 调用 / 页面刷新会重置回浅色。根因：`stores/auth.ts` 的 `syncUserPreferencesToAppStore()` 在 login / fetchUser / updateUser 三处用后端 `user.preferences.ui_theme`（admin 默认 light）强制覆盖 `appStore.theme`；附加 bug 是 `stores/app.ts toggleTheme()` 未写 localStorage。修复：(1) 删除 auth.ts ui_theme 同步逻辑（后端字段保留 schema 不消费）；(2) toggleTheme 加 `localStorage.setItem('app-theme', ...)`。主题选择现在完全本地持久化。
 
 ### Fixed
