@@ -174,7 +174,7 @@ class TestResearchDepthMapping:
         expected_debate_rounds = [1, 1, 1, 2, 3]
         expected_risk_rounds = [1, 1, 2, 2, 3]
 
-        for level, expected_debate, expected_risk in zip(levels, expected_debate_rounds, expected_risk_rounds):
+        for level, expected_debate, expected_risk in zip(levels, expected_debate_rounds, expected_risk_rounds, strict=False):
             config = create_analysis_config(
                 research_depth=level,
                 selected_analysts=["market"],
