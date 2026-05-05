@@ -33,3 +33,89 @@ fix:
 # 注：venv 创建 + 依赖安装见 docs/USAGE.md，不用 `uv sync --all-extras`（qianfan 问题）
 setup:
     uvx pre-commit install --hook-type pre-commit --hook-type pre-push
+
+# ────────────────────────────────────────────────────────────────────────────
+# Binding / port 审计（OpenSpec change `binding-audit-tooling` 沉淀）
+# 见 openspec/specs/audit-tooling/spec.md
+# ────────────────────────────────────────────────────────────────────────────
+
+# 端口审计：扫所有 5430x 端口的 LISTEN 状态 + 标记非 127.0.0.1 binding
+audit-ports:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    echo "=== 5430x 端口 LISTEN 状态 ==="
+    PORTS=$(lsof -nP -iTCP -sTCP:LISTEN 2>/dev/null | awk 'NR==1 || $9 ~ /:5430[0-9]$/')
+    if [ "$(echo "$PORTS" | wc -l)" -le 1 ]; then
+        echo "  (无 5430x 端口监听 — 服务未启动？)"
+        exit 0
+    fi
+    echo "$PORTS"
+    echo ""
+    echo "=== 违规检查 (绑 * / 0.0.0.0 = 违反 loopback 规定) ==="
+    VIOLATIONS=$(echo "$PORTS" | awk 'NR>1 && ($9 ~ /^\*:5430[0-9]$/ || $9 ~ /^0\.0\.0\.0:5430[0-9]$/)')
+    if [ -n "$VIOLATIONS" ]; then
+        echo "$VIOLATIONS" | sed 's/^/  ⚠️  /'
+        echo ""
+        echo "上述端口绑非 127.0.0.1，违反 CLAUDE.md「项目特殊约定」loopback 规定"
+        exit 1
+    fi
+    echo "  ✓ 全部端口绑 127.0.0.1 合规"
+
+# Binding 配置审计：fork-local 配置文件中检查 0.0.0.0 hardcode + 上游端口违规
+# 不扫 .env（gitignored，本地各异）
+audit-binds:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    EXIT_CODE=0
+
+    echo "=== 1. 0.0.0.0 hardcode 在 fork-local 配置文件 ==="
+    # 排除文档中的"叙述性"上下文（含 0.0.0.0 但是规则文本本身）
+    BAD=$(grep -nE '"0\.0\.0\.0"' frontend/vite.config.ts docker-compose.override.yml 2>/dev/null || true)
+    if [ -n "$BAD" ]; then
+        echo "$BAD" | sed 's/^/  ⚠️  /'
+        EXIT_CODE=1
+    else
+        echo "  ✓ frontend/vite.config.ts + docker-compose.override.yml 无 0.0.0.0 hardcode"
+    fi
+    echo ""
+
+    echo "=== 2. docker-compose.override.yml 端口必须绑 127.0.0.1 ==="
+    if [ -f docker-compose.override.yml ]; then
+        BAD=$(grep -nE '^\s*-\s*"543[0-9]{2}:' docker-compose.override.yml 2>/dev/null || true)
+        if [ -n "$BAD" ]; then
+            echo "$BAD" | sed 's/^/  ⚠️  /'
+            echo "  端口映射缺 127.0.0.1: 前缀（应为 \"127.0.0.1:543xx:xxx\"）"
+            EXIT_CODE=1
+        else
+            COUNT=$(grep -cE '127\.0\.0\.1:5430[0-9]:' docker-compose.override.yml 2>/dev/null || echo 0)
+            echo "  ✓ docker-compose.override.yml 含 $COUNT 个 127.0.0.1:543xx 映射"
+        fi
+    else
+        echo "  (docker-compose.override.yml 不存在 — 见 CLAUDE.md 端口分配段)"
+    fi
+    echo ""
+
+    echo "=== 3. vite.config.ts 必须用 fork-local 端口 (54300) + loopback host ==="
+    if [ -f frontend/vite.config.ts ]; then
+        if ! grep -qE "host:\s*['\"]127\.0\.0\.1['\"]" frontend/vite.config.ts; then
+            echo "  ⚠️  frontend/vite.config.ts 缺 host: '127.0.0.1' 配置"
+            EXIT_CODE=1
+        fi
+        if ! grep -qE "port:\s*54300" frontend/vite.config.ts; then
+            echo "  ⚠️  frontend/vite.config.ts 缺 port: 54300 配置"
+            EXIT_CODE=1
+        fi
+        if grep -qE "target:\s*['\"]http://(localhost|127\.0\.0\.1):8000" frontend/vite.config.ts; then
+            echo "  ⚠️  frontend/vite.config.ts proxy.target 仍指向 :8000（应 :54301）"
+            EXIT_CODE=1
+        fi
+        [ $EXIT_CODE -eq 0 ] && echo "  ✓ vite.config.ts host/port/proxy 配置合规"
+    fi
+    echo ""
+
+    if [ $EXIT_CODE -eq 0 ]; then
+        echo "✅ Binding 审计全过"
+    else
+        echo "❌ Binding 审计有违规项（见上）"
+    fi
+    exit $EXIT_CODE
