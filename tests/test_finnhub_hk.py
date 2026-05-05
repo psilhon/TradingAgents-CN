@@ -2,8 +2,8 @@
 测试FINNHUB港股支持
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -132,8 +132,9 @@ def test_optimized_us_data_finnhub_hk():
     print("\n🧪 测试优化数据模块的FINNHUB港股支持...")
 
     try:
-        from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
 
         end_date = datetime.now().strftime('%Y-%m-%d')
         start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
@@ -176,8 +177,9 @@ def test_unified_interface_finnhub_priority():
     print("\n🧪 测试统一接口的FINNHUB优先级...")
 
     try:
-        from tradingagents.dataflows.interface import get_hk_stock_data_unified
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.interface import get_hk_stock_data_unified
 
         end_date = datetime.now().strftime('%Y-%m-%d')
         start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')

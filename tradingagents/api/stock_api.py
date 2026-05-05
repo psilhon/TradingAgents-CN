@@ -5,13 +5,14 @@
 提供便捷的股票数据获取接口，支持完整的降级机制
 """
 
-import sys
 import os
-from typing import Dict, List, Optional, Any
+import sys
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('agents')
 
 # 添加dataflows目录到路径

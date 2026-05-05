@@ -2,8 +2,10 @@
 """
 测试summary和recommendation字段
 """
-import requests
 import json
+
+import requests
+
 
 def test_summary_recommendation():
     """测试summary和recommendation字段"""

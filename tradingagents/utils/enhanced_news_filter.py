@@ -3,12 +3,13 @@
 支持多种过滤策略：规则过滤、语义相似度、本地分类模型
 """
 
-import pandas as pd
-import re
 import logging
-from typing import List, Dict, Tuple, Optional
+import re
 from datetime import datetime
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
+import pandas as pd
 
 # 导入基础过滤器
 from .news_filter import NewsRelevanceFilter, create_news_filter, get_company_name
@@ -87,8 +88,8 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
 
             # 尝试使用transformers库的中文分类模型
             try:
-                from transformers import AutoTokenizer, AutoModelForSequenceClassification
                 import torch
+                from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
                 # 使用轻量级中文文本分类模型
                 model_name = "uer/roberta-base-finetuned-chinanews-chinese"

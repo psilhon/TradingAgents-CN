@@ -5,12 +5,16 @@
 """
 
 import sys
+
 sys.path.append('.')
 
-from langgraph.prebuilt import ToolNode
-from langchain_core.messages import AIMessage, ToolMessage
-from tradingagents.agents.utils.agent_utils import Toolkit
 import json
+
+from langchain_core.messages import AIMessage, ToolMessage
+from langgraph.prebuilt import ToolNode
+
+from tradingagents.agents.utils.agent_utils import Toolkit
+
 
 def test_tool_execution_flow():
     """测试工具执行流程"""

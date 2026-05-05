@@ -4,10 +4,10 @@ VSCode配置验证测试
 验证Python虚拟环境和项目配置是否正确
 """
 
-import os
-import sys
 import json
+import os
 import subprocess
+import sys
 from pathlib import Path
 
 

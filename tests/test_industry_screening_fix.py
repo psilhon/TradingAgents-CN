@@ -5,9 +5,10 @@
 """
 
 import asyncio
-import requests
 import json
-from typing import Dict, Any
+from typing import Any, Dict
+
+import requests
 
 # 配置
 BASE_URL = "http://localhost:8000"

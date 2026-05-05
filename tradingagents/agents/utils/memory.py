@@ -1,15 +1,17 @@
-import chromadb
-from chromadb.config import Settings
-from openai import OpenAI
-import dashscope
-from dashscope import TextEmbedding
+import hashlib
 import os
 import threading
-import hashlib
 from typing import Dict, Optional
+
+import chromadb
+import dashscope
+from chromadb.config import Settings
+from dashscope import TextEmbedding
+from openai import OpenAI
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger
+
 logger = get_logger("agents.utils.memory")
 
 
@@ -33,8 +35,9 @@ class ChromaDBManager:
         if not self._initialized:
             try:
                 # 使用统一的配置模块
-                from .chromadb_config import get_optimal_chromadb_client, is_windows_11
                 import platform
+
+                from .chromadb_config import get_optimal_chromadb_client, is_windows_11
 
                 self._client = get_optimal_chromadb_client()
 

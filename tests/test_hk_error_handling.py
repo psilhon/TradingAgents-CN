@@ -7,6 +7,7 @@
 import os
 import sys
 
+
 def test_hk_data_error_handling():
     """测试港股数据获取错误处理"""
     print("🔧 测试港股数据获取错误处理...")
@@ -83,11 +84,11 @@ def test_akshare_error_recovery():
     print("\n🔧 测试AKShare错误恢复机制...")
 
     try:
-        from tradingagents.dataflows.akshare_utils import format_hk_stock_data_akshare
-        import pandas as pd
-
         # 创建模拟数据（使用正确的日期格式）
         import datetime
+
+        import pandas as pd
+        from tradingagents.dataflows.akshare_utils import format_hk_stock_data_akshare
         test_data = pd.DataFrame({
             'Date': [
                 datetime.datetime(2025, 7, 10),

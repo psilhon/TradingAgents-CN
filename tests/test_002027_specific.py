@@ -49,8 +49,9 @@ def test_002027_specifically():
         print("\n🤖 测试3: LLM处理")
         api_key = os.getenv("DASHSCOPE_API_KEY")
         if api_key:
-            from tradingagents.llm_adapters import ChatDashScopeOpenAI
             from langchain_core.messages import HumanMessage
+
+            from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
             llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=500)
 

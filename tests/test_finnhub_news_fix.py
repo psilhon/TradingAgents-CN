@@ -18,8 +18,10 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from tradingagents.dataflows.config import get_config, set_config
-from tradingagents.dataflows.interface import get_finnhub_news
 from tradingagents.dataflows.finnhub_utils import get_data_in_range
+
+from tradingagents.dataflows.interface import get_finnhub_news
+
 
 def test_data_dir_config():
     """测试数据目录配置"""

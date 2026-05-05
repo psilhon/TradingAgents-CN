@@ -2,10 +2,12 @@
 """
 测试分析报告API功能
 """
-import requests
 import json
 import time
 from datetime import datetime
+
+import requests
+
 
 def login_and_get_token(base_url):
     """登录并获取token"""

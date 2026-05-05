@@ -5,22 +5,26 @@
 测试MongoDB -> Tushare数据接口的完整降级机制
 """
 
-import sys
 import os
+import sys
 import unittest
-from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock, patch
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
 try:
-    from tradingagents.dataflows.stock_data_service import StockDataService, get_stock_data_service
     from tradingagents.api.stock_api import (
-        get_stock_info, get_all_stocks, get_stock_data,
-        search_stocks, get_market_summary, check_service_status
+        check_service_status,
+        get_all_stocks,
+        get_market_summary,
+        get_stock_data,
+        get_stock_info,
+        search_stocks,
     )
+    from tradingagents.dataflows.stock_data_service import StockDataService, get_stock_data_service
     SERVICES_AVAILABLE = True
 except ImportError as e:
     print(f"⚠️ 服务不可用: {e}")

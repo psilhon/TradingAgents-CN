@@ -4,12 +4,15 @@
 最终验证脚本：测试优化后的数据深度级别是否产生不同详细程度的基本面分析报告
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from tradingagents.agents.utils.agent_utils import Toolkit
 import time
+
+from tradingagents.agents.utils.agent_utils import Toolkit
+
 
 def test_analysis_depth_differences():
     """测试不同深度级别产生的报告差异"""

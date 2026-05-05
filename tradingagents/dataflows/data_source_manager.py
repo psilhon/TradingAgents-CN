@@ -6,19 +6,22 @@
 
 import os
 import time
-from typing import Dict, List, Optional, Any
-from enum import Enum
 import warnings
-import pandas as pd
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
 import numpy as np
+import pandas as pd
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('agents')
 warnings.filterwarnings('ignore')
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import setup_dataflow_logging
+
 logger = setup_dataflow_logging()
 
 # 导入统一数据源编码
@@ -184,7 +187,7 @@ class DataSourceManager:
             return None
 
         try:
-            from tradingagents.utils.stock_utils import StockUtils, StockMarket
+            from tradingagents.utils.stock_utils import StockMarket, StockUtils
 
             market = StockUtils.identify_stock_market(symbol)
 
@@ -1790,8 +1793,9 @@ class DataSourceManager:
         logger.debug(f"📊 [MongoDB] 调用参数: symbol={symbol}")
 
         try:
-            from tradingagents.dataflows.cache.mongodb_cache_adapter import get_mongodb_cache_adapter
             import pandas as pd
+
+            from tradingagents.dataflows.cache.mongodb_cache_adapter import get_mongodb_cache_adapter
             adapter = get_mongodb_cache_adapter()
 
             # 从 MongoDB 获取财务数据

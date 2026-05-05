@@ -10,7 +10,8 @@ Google模型工具调用统一处理器
 
 import logging
 from typing import Any, Dict, List, Optional, Tuple
-from langchain_core.messages import HumanMessage, ToolMessage, AIMessage
+
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
 logger = logging.getLogger(__name__)
 
@@ -638,7 +639,7 @@ class GoogleToolCallHandler:
         Returns:
             List: 优化后的消息列表
         """
-        from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
+        from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
         # 计算总长度
         total_length = sum(len(str(msg.content)) for msg in messages if hasattr(msg, 'content'))

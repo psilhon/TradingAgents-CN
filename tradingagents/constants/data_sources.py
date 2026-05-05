@@ -9,9 +9,9 @@
 4. 更新前端的数据源类型选项（如果需要）
 """
 
+from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional
-from dataclasses import dataclass
 
 
 class DataSourceCode(str, Enum):

@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -98,8 +99,8 @@ def test_google_tradingagents_with_memory():
         print("\n🧪 测试带内存的Google AI TradingAgents")
         print("=" * 60)
 
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 检查API密钥
         google_key = os.getenv('GOOGLE_API_KEY')

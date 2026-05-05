@@ -4,8 +4,8 @@
 绕过yfinance依赖问题，直接测试AKShare集成
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

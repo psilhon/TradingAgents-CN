@@ -3,10 +3,12 @@
 测试修复后的分析功能
 """
 
-import requests
-import time
 import json
+import time
 from pathlib import Path
+
+import requests
+
 
 def test_fixed_analysis():
     """测试修复后的分析功能"""

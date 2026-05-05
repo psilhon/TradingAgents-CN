@@ -19,8 +19,8 @@ def test_database_screening_builds_roe_query():
 
 
 def test_database_screening_formats_roe_in_result(monkeypatch):
-    from app.services.database_screening_service import DatabaseScreeningService
     import app.services.database_screening_service as mod
+    from app.services.database_screening_service import DatabaseScreeningService
 
     # Fake collection returning docs that contain 'roe'
     class _FakeCursor:

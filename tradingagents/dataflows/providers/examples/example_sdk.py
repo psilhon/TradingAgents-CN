@@ -8,12 +8,13 @@
 - 职责分离: 适配器只负责数据获取，同步服务负责数据存储
 """
 import asyncio
+import os
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional, Union
+
 import aiohttp
-from typing import Optional, Dict, Any, List, Union
-from datetime import datetime, date
 import pandas as pd
 
-import os
 from ..base_provider import BaseStockDataProvider
 
 

@@ -3,8 +3,10 @@
 验证并发请求不会导致重复的API调用
 """
 import asyncio
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, AsyncMock
+
 from app.services.foreign_stock_service import ForeignStockService
 
 

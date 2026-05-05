@@ -4,11 +4,11 @@
 测试所有数据源的获取过程和优先级切换
 """
 
-import sys
 import os
+import sys
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

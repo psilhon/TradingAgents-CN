@@ -8,22 +8,17 @@
 - 配置兼容层
 """
 
-import pytest
 import os
 import sys
 from pathlib import Path
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 
 # 添加项目根目录到 Python 路径
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.core.startup_validator import (
-    StartupValidator,
-    ConfigItem,
-    ConfigLevel,
-    ValidationResult,
-    ConfigurationError
-)
+from app.core.startup_validator import ConfigItem, ConfigLevel, ConfigurationError, StartupValidator, ValidationResult
 
 
 class TestStartupValidator:

@@ -4,9 +4,9 @@
 专门分析为什么LLM声称调用了工具但实际没有执行
 """
 
+import logging
 import os
 import sys
-import logging
 from datetime import datetime
 
 # 添加项目路径
@@ -34,11 +34,12 @@ def test_tool_call_mechanism():
     try:
         # 1. 导入必要模块
         logger.info("1. 导入模块...")
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from tradingagents.agents.utils.agent_utils import Toolkit
-        from tradingagents.utils.realtime_news_utils import get_realtime_stock_news
         from langchain_core.messages import HumanMessage
         from langchain_core.tools import tool
+        from tradingagents.utils.realtime_news_utils import get_realtime_stock_news
+
+        from tradingagents.agents.utils.agent_utils import Toolkit
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         os.makedirs(os.path.join('data', 'logs'), exist_ok=True)
 
         # 2. 创建LLM实例

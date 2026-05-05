@@ -3,8 +3,9 @@
 测试新的行业API
 """
 
-import requests
 import json
+
+import requests
 
 # 配置
 BASE_URL = "http://localhost:8000"

@@ -4,10 +4,11 @@
 """
 
 import asyncio
-import sys
-import os
-import requests
 import json
+import os
+import sys
+
+import requests
 from dotenv import load_dotenv
 
 # 加载环境变量

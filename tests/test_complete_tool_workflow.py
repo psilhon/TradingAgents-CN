@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -21,9 +22,10 @@ def test_deepseek_complete_workflow():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
-        from langchain_core.tools import BaseTool
         from langchain_core.messages import HumanMessage, ToolMessage
+        from langchain_core.tools import BaseTool
+
+        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 创建DeepSeek实例
         deepseek_llm = ChatDeepSeek(
@@ -138,7 +140,7 @@ def test_dashscope_react_agent():
     print("=" * 60)
 
     try:
-        from langchain.agents import create_react_agent, AgentExecutor
+        from langchain.agents import AgentExecutor, create_react_agent
         from langchain_core.prompts import PromptTemplate
         from langchain_core.tools import BaseTool
 

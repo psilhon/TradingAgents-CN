@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -164,8 +165,8 @@ def test_risk_assessment_integration():
 
         print("🚀 执行实际风险评估测试...")
 
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

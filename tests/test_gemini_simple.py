@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -21,8 +22,8 @@ def test_gemini_simple_analysis():
         print("🧪 测试Gemini简单分析功能")
         print("=" * 60)
 
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 检查API密钥
         google_api_key = os.getenv('GOOGLE_API_KEY')
@@ -104,11 +105,12 @@ def test_gemini_analyst_direct():
         print("\n🧪 直接测试Gemini分析师")
         print("=" * 60)
 
+        from langchain_core.messages import HumanMessage
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
         from tradingagents.agents.analysts.market_analyst import create_market_analyst
         from tradingagents.agents.utils.agent_utils import Toolkit
-        from langchain_google_genai import ChatGoogleGenerativeAI
         from tradingagents.default_config import DEFAULT_CONFIG
-        from langchain_core.messages import HumanMessage
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

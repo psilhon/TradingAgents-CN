@@ -2,9 +2,11 @@
 """
 测试decision数据是否正确保存和获取
 """
-import requests
 import json
 from datetime import datetime
+
+import requests
+
 
 def test_decision_data():
     """测试decision数据的完整流程"""

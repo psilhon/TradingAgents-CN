@@ -20,6 +20,7 @@ from typing import Union
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('agents')
 
 # 导入文件缓存

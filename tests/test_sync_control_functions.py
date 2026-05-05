@@ -2,8 +2,9 @@
 """
 测试同步控制的三个功能：开始同步、刷新状态、清空缓存
 """
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import asyncio
@@ -23,8 +24,8 @@ async def test_sync_control_functions():
     print("=" * 60)
 
     try:
+        from app.core.database import get_mongo_db, init_db
         from app.services.multi_source_basics_sync_service import get_multi_source_sync_service
-        from app.core.database import init_db, get_mongo_db
 
         # 初始化数据库
         await init_db()
@@ -141,7 +142,7 @@ async def test_api_endpoints():
     try:
         # 这里可以添加HTTP客户端测试
         # 但为了简化，我们直接调用路由函数
-        from app.routers.multi_source_sync import get_sync_status, clear_sync_cache, run_stock_basics_sync
+        from app.routers.multi_source_sync import clear_sync_cache, get_sync_status, run_stock_basics_sync
 
         print("1. 📊 测试获取同步状态API...")
         try:

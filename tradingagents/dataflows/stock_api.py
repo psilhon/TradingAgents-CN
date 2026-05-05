@@ -5,11 +5,13 @@
 提供简单易用的股票数据获取接口，内置完整的降级机制
 """
 
-from typing import Dict, List, Optional, Any
-from .stock_data_service import get_stock_data_service
+from typing import Any, Dict, List, Optional
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
+from .stock_data_service import get_stock_data_service
+
 logger = get_logger('agents')
 
 def get_stock_info(stock_code: str) -> Optional[Dict[str, Any]]:

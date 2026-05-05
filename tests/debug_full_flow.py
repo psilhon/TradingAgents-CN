@@ -3,17 +3,20 @@
 调试完整的AKShare数据获取和解析流程
 """
 
-import sys
-import os
 import logging
+import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # 设置详细的日志级别
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
 from tradingagents.dataflows.akshare_utils import get_akshare_provider
+
+from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
+
 
 def debug_full_flow():
     """调试完整的数据获取和解析流程"""

@@ -8,14 +8,16 @@ These tests avoid touching real DB/Redis by mocking.
 """
 
 import asyncio
-from fastapi import FastAPI, Depends
+
+from app.routers.auth import get_current_user
+from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
 # Import router and dependencies to override
 from app.routers import sse as sse_router_mod
 from app.routers.sse import router as sse_router
-from app.routers.auth import get_current_user
-from app.services.queue_service import QueueService, get_queue_service as real_get_queue_service
+from app.services.queue_service import QueueService
+from app.services.queue_service import get_queue_service as real_get_queue_service
 
 
 # ---------- Helpers / Fakes ----------

@@ -3,8 +3,9 @@
 验证统一新闻工具在整体流程中的使用情况
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 class MockLLM:

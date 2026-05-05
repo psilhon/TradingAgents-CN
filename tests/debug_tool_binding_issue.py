@@ -7,16 +7,18 @@
 import os
 import sys
 
+
 def test_tool_isolation():
     """测试工具隔离机制"""
     print("🔧 测试工具隔离机制...")
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
+        from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
-        from langchain_core.tools import tool
-        from langchain_core.messages import HumanMessage
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 检查API密钥
         api_key = os.getenv("DASHSCOPE_API_KEY")
@@ -129,9 +131,9 @@ def test_llm_instance_reuse():
     print("\n🔧 测试LLM实例复用...")
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 创建工具包
         config = DEFAULT_CONFIG.copy()

@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -26,8 +27,8 @@ def test_deepseek_cost_calculation():
         return False
 
     try:
-        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
         from tradingagents.config.config_manager import config_manager
+        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 获取初始统计
         initial_stats = config_manager.get_usage_statistics(1)

@@ -2,11 +2,8 @@
 测试实时PE/PB计算功能
 """
 import pytest
-from tradingagents.dataflows.realtime_metrics import (
-    calculate_realtime_pe_pb,
-    validate_pe_pb,
-    get_pe_pb_with_fallback
-)
+
+from tradingagents.dataflows.realtime_metrics import calculate_realtime_pe_pb, get_pe_pb_with_fallback, validate_pe_pb
 
 
 def test_validate_pe_pb():

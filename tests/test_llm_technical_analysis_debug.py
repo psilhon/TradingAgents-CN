@@ -19,8 +19,8 @@ def test_dashscope_technical_analysis():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
         from langchain.schema import HumanMessage
+        from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
 
         # 创建阿里百炼模型
         llm = ChatDashScope(
@@ -89,8 +89,9 @@ def test_deepseek_technical_analysis():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
         from langchain.schema import HumanMessage
+
+        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 创建DeepSeek模型
         llm = ChatDeepSeek(
@@ -159,8 +160,8 @@ def test_message_sequence_handling():
     print("=" * 60)
 
     try:
+        from langchain.schema import AIMessage, HumanMessage, ToolMessage
         from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
-        from langchain.schema import HumanMessage, AIMessage, ToolMessage
 
         # 创建阿里百炼模型
         llm = ChatDashScope(
@@ -224,8 +225,8 @@ def test_max_tokens_impact():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
         from langchain.schema import HumanMessage
+        from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
 
         prompt = """请生成一份详细的股票技术分析报告，要求不少于800字，包含：
 1. 价格趋势分析

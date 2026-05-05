@@ -4,8 +4,8 @@
 验证导出功能的依赖是否正常工作
 """
 
-import sys
 import os
+import sys
 import tempfile
 from pathlib import Path
 

@@ -5,14 +5,17 @@
 """
 
 import os
-from typing import Any, Dict, List, Optional, Union, Sequence
-from langchain_openai import ChatOpenAI
+from typing import Any, Dict, List, Optional, Sequence, Union
+
 from langchain_core.tools import BaseTool
+from langchain_openai import ChatOpenAI
 from pydantic import Field, SecretStr
-from ..config.config_manager import token_tracker
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
+from ..config.config_manager import token_tracker
+
 logger = get_logger('agents')
 
 

@@ -4,8 +4,9 @@
 """
 
 import asyncio
-import sys
 import os
+import sys
+
 from dotenv import load_dotenv
 
 # 加载环境变量
@@ -21,8 +22,8 @@ async def test_screening_fields():
     try:
         # 导入服务
         from app.core.database import init_db
+        from app.models.screening import OperatorType, ScreeningCondition
         from app.services.database_screening_service import get_database_screening_service
-        from app.models.screening import ScreeningCondition, OperatorType
 
         # 初始化数据库
         await init_db()

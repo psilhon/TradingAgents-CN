@@ -3,9 +3,10 @@
 简单的系统测试 - 验证配置和缓存系统
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
+
 
 def test_basic_system():
     """测试基本系统功能"""

@@ -1,6 +1,7 @@
 """测试振幅 API"""
-import requests
 import json
+
+import requests
 
 # API 配置
 BASE_URL = "http://localhost:8000"

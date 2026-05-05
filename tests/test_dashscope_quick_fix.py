@@ -44,8 +44,9 @@ def test_tool_binding_basic():
     print("=" * 40)
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 定义简单工具
         @tool
@@ -152,9 +153,10 @@ def test_technical_analysis_simulation():
     print("=" * 40)
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 模拟股票数据工具
         @tool

@@ -185,7 +185,7 @@ def test_data_source_availability():
 
         # 检查统一接口
         try:
-            from tradingagents.dataflows.interface import get_hk_stock_info_unified, AKSHARE_HK_AVAILABLE, HK_STOCK_AVAILABLE
+            from tradingagents.dataflows.interface import AKSHARE_HK_AVAILABLE, HK_STOCK_AVAILABLE, get_hk_stock_info_unified
             print("✅ 统一港股接口可用")
             print(f"   AKShare可用标志: {AKSHARE_HK_AVAILABLE}")
             print(f"   Yahoo Finance可用标志: {HK_STOCK_AVAILABLE}")

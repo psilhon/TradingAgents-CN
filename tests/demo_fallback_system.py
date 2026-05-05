@@ -5,8 +5,8 @@
 展示MongoDB -> Tushare数据接口的完整降级机制
 """
 
-import sys
 import os
+import sys
 from datetime import datetime
 
 # 添加项目根目录到Python路径
@@ -56,9 +56,7 @@ def demo_fallback_mechanism():
     print("=" * 50)
 
     try:
-        from tradingagents.api.stock_api import (
-            get_stock_info, check_service_status, get_market_summary
-        )
+        from tradingagents.api.stock_api import check_service_status, get_market_summary, get_stock_info
 
         print("\n📊 1. 检查服务状态:")
         status = check_service_status()

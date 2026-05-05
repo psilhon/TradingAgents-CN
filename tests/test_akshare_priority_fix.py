@@ -17,7 +17,7 @@ def test_default_data_source():
     print("=" * 60)
 
     try:
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         # 创建数据源管理器
         manager = DataSourceManager()
@@ -46,7 +46,7 @@ def test_fallback_priority():
     print("=" * 60)
 
     try:
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         manager = DataSourceManager()
 
@@ -91,11 +91,11 @@ def test_environment_variable_override():
         # 测试设置为tushare
         os.environ['DEFAULT_CHINA_DATA_SOURCE'] = 'tushare'
 
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
-
         # 重新导入以获取新的环境变量
         import importlib
+
         import tradingagents.dataflows.data_source_manager as dsm
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
         importlib.reload(dsm)
 
         manager = dsm.DataSourceManager()
@@ -152,7 +152,7 @@ def test_data_source_switching():
     print("=" * 60)
 
     try:
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         manager = DataSourceManager()
         original_source = manager.current_source
