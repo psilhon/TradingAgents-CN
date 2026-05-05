@@ -1,6 +1,10 @@
 import unittest
 
+import pytest
+
 from app.scripts.normalize_provider_keys import _should_run
+
+pytestmark = pytest.mark.unit
 
 
 class NormalizeProviderKeysScriptTests(unittest.TestCase):

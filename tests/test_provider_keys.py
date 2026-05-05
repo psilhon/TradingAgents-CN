@@ -1,11 +1,15 @@
 import unittest
 
+import pytest
+
 from tradingagents.llm_clients.provider_keys import (
     canonical_aliases,
     default_backend_url,
     env_key_for_provider,
     normalize_provider_key,
 )
+
+pytestmark = pytest.mark.unit
 
 
 class ProviderKeysTests(unittest.TestCase):

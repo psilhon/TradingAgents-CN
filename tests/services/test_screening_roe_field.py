@@ -1,5 +1,9 @@
 import asyncio
 
+import pytest
+
+pytestmark = pytest.mark.unit
+
 
 def test_database_screening_builds_roe_query():
     from app.services.database_screening_service import DatabaseScreeningService
