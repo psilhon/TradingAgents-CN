@@ -35,7 +35,7 @@ def test_akshare_individual_info():
                 if data is not None and not data.empty:
                     print(f"✅ 成功获取{symbol}的信息: {len(data)}条记录")
                     print("   数据结构:")
-                    for i, row in data.iterrows():
+                    for _i, row in data.iterrows():
                         item = row.get('item', 'N/A')
                         value = row.get('value', 'N/A')
                         print(f"     {item}: {value}")

@@ -126,7 +126,7 @@ def test_baostock_adapter_stock_filter():
 
             # 检查是否都是股票
             print("\n   前10条记录:")
-            for i, row in df.head(10).iterrows():
+            for _i, row in df.head(10).iterrows():
                 symbol = row.get('symbol', 'N/A')
                 name = row.get('name', 'N/A')
                 ts_code = row.get('ts_code', 'N/A')
@@ -157,7 +157,7 @@ def test_baostock_adapter_stock_filter():
 
             # 显示前几条记录
             print("   前10条记录:")
-            for i, row in basic_df.head(10).iterrows():
+            for _i, row in basic_df.head(10).iterrows():
                 ts_code = row.get('ts_code', 'N/A')
                 name = row.get('name', 'N/A')
                 pe = row.get('pe', 'N/A')

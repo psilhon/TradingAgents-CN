@@ -41,7 +41,7 @@ def test_akshare_adapter_fixed():
             print(f"✅ 股票列表获取成功: {len(df)}条记录")
             print(f"   列名: {list(df.columns)}")
             print("   前5条记录:")
-            for i, row in df.head().iterrows():
+            for _i, row in df.head().iterrows():
                 print(f"     {row.get('symbol', 'N/A')} - {row.get('name', 'N/A')} - {row.get('ts_code', 'N/A')}")
         else:
             print("❌ 股票列表获取失败")
@@ -60,7 +60,7 @@ def test_akshare_adapter_fixed():
 
             # 显示前几条记录
             print("   前10条记录:")
-            for i, row in basic_df.head(10).iterrows():
+            for _i, row in basic_df.head(10).iterrows():
                 ts_code = row.get('ts_code', 'N/A')
                 name = row.get('name', 'N/A')
                 close = row.get('close', 'N/A')

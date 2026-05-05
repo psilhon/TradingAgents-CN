@@ -68,7 +68,7 @@ def test_baostock_query_all_stock_with_date():
 
                     if len(a_stocks) > 0:
                         print("   A股样本:")
-                        for i, row in enumerate(a_stocks[:3]):
+                        for _i, row in enumerate(a_stocks[:3]):
                             print(f"     {row[0]} - {row[2]}")
                         break  # 找到有效数据就退出
                 else:
@@ -108,7 +108,7 @@ def test_baostock_adapter_fixed():
             print(f"✅ 股票列表获取成功: {len(df)}条记录")
             print(f"   列名: {list(df.columns)}")
             print("   前5条记录:")
-            for i, row in df.head().iterrows():
+            for _i, row in df.head().iterrows():
                 print(f"     {row.get('symbol', 'N/A')} - {row.get('name', 'N/A')} - {row.get('ts_code', 'N/A')}")
         else:
             print("❌ 股票列表获取失败")
@@ -127,7 +127,7 @@ def test_baostock_adapter_fixed():
 
             # 显示前几条记录
             print("   前5条记录:")
-            for i, row in basic_df.head().iterrows():
+            for _i, row in basic_df.head().iterrows():
                 print(f"     {row.get('ts_code', 'N/A')} - {row.get('name', 'N/A')}")
                 print(f"       PE: {row.get('pe', 'N/A')}, PB: {row.get('pb', 'N/A')}")
                 print(f"       收盘价: {row.get('close', 'N/A')}")

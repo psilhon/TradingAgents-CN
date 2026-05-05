@@ -79,7 +79,7 @@ def test_simple_analysis():
     try:
         print("🚀 开始简单分析测试...")
         # 执行简单分析
-        state, decision = graph.propagate("AAPL", "2025-06-27")
+        _state, decision = graph.propagate("AAPL", "2025-06-27")
         print("✅ 分析完成")
         print(f"决策: {decision}")
         return True
@@ -107,7 +107,7 @@ def main():
 
     # 测试图初始化
     print("\n3. 测试图初始化...")
-    success, graph = test_graph_initialization()
+    success, _graph = test_graph_initialization()
     if not success:
         return
 

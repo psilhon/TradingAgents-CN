@@ -60,7 +60,7 @@ def test_akshare_performance():
 
             # 显示样本数据
             print("   📋 样本数据:")
-            for i, row in df.head(3).iterrows():
+            for _i, row in df.head(3).iterrows():
                 ts_code = row.get('ts_code', 'N/A')
                 name = row.get('name', 'N/A')
                 close = row.get('close', 'N/A')

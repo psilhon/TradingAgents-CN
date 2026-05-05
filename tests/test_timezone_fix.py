@@ -87,7 +87,7 @@ async def test_timezone_fix():
 
         service = get_operation_log_service()
         query = OperationLogQuery(page=1, page_size=1)
-        logs, total = await service.get_logs(query)
+        logs, _total = await service.get_logs(query)
 
         if logs:
             log = logs[0]

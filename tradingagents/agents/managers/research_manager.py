@@ -30,7 +30,7 @@ def create_research_manager(llm, memory):
             past_memories = []
 
         past_memory_str = ""
-        for i, rec in enumerate(past_memories, 1):
+        for _i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
         prompt = f"""作为投资组合经理和辩论主持人，您的职责是批判性地评估这轮辩论并做出明确决策：支持看跌分析师、看涨分析师，或者仅在基于所提出论点有强有力理由时选择持有。

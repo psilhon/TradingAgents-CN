@@ -270,7 +270,7 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
 
         filtered_news = []
 
-        for idx, row in news_df.iterrows():
+        for _idx, row in news_df.iterrows():
             title = row.get('新闻标题', row.get('标题', ''))
             content = row.get('新闻内容', row.get('内容', ''))
 

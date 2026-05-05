@@ -98,7 +98,7 @@ def test_akshare_adapter():
 
             # 显示前几条记录
             print("   前5条记录:")
-            for i, row in df.head().iterrows():
+            for _i, row in df.head().iterrows():
                 ts_code = row.get('ts_code', 'N/A')
                 name = row.get('name', 'N/A')
                 pe = row.get('pe', 'N/A')

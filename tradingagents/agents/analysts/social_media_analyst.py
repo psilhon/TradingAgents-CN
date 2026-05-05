@@ -208,7 +208,7 @@ def create_social_media_analyst(llm, toolkit):
             )
 
             # 处理Google模型工具调用
-            report, messages = GoogleToolCallHandler.handle_google_tool_calls(
+            report, _messages = GoogleToolCallHandler.handle_google_tool_calls(
                 result=result,
                 llm=llm,
                 tools=tools,

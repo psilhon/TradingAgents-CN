@@ -113,7 +113,7 @@ def main():
 
     # 3.1 雪球 - 港股个股信息
     try:
-        success, result = test_api(
+        success, _result = test_api(
             "stock_individual_basic_info_hk_xq",
             ak.stock_individual_basic_info_hk_xq,
             symbol=test_symbol

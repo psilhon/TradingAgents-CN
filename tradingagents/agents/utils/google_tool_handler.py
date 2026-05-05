@@ -267,7 +267,7 @@ class GoogleToolCallHandler:
                 logger.error(f"[{analyst_name}] ❌ 消息序列为空，无法生成分析报告")
                 tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
-                return report, [result] + tool_messages
+                return report, [result, *tool_messages]
 
             # 生成最终分析报告
             try:
@@ -310,7 +310,7 @@ class GoogleToolCallHandler:
                         logger.info(f"[{analyst_name}] ✅ Google模型最终分析报告生成成功，长度: {len(report)} 字符")
 
                         # 返回完整的消息序列
-                        all_messages = [result] + tool_messages + [final_result]
+                        all_messages = [result, *tool_messages, final_result]
                         return report, all_messages
                     else:
                         logger.warning(f"[{analyst_name}] ⚠️ Google模型返回内容为空")
@@ -325,7 +325,7 @@ class GoogleToolCallHandler:
                 tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 logger.info(f"[{analyst_name}] 🔄 使用降级报告，长度: {len(report)} 字符")
-                return report, [result] + tool_messages
+                return report, [result, *tool_messages]
 
             except Exception as final_error:
                 logger.error(f"[{analyst_name}] ❌ 最终分析报告生成失败: {final_error}")
@@ -341,7 +341,7 @@ class GoogleToolCallHandler:
                 tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 logger.info(f"[{analyst_name}] 🔄 异常后使用降级报告，长度: {len(report)} 字符")
-                return report, [result] + tool_messages
+                return report, [result, *tool_messages]
 
         except Exception as e:
             logger.error(f"[{analyst_name}] ❌ Google模型工具调用处理失败: {e}")
@@ -647,7 +647,7 @@ class GoogleToolCallHandler:
 
         if total_length <= 50000:
             # 长度合理，直接添加分析提示
-            return messages + [HumanMessage(content=analysis_prompt)]
+            return [*messages, HumanMessage(content=analysis_prompt)]
 
         # 需要优化：保留关键消息
         optimized_messages = []

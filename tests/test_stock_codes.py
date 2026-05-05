@@ -37,7 +37,7 @@ def test_get_stock_codes():
             print(f"{'股票代码':<10} {'股票名称':<15} {'市场'}")
             print("-" * 40)
 
-            for i, (idx, row) in enumerate(stock_data.head(20).iterrows()):
+            for _i, (_idx, row) in enumerate(stock_data.head(20).iterrows()):
                 market = "深圳" if row['sse'] == 'sz' else "上海"
                 print(f"{row['code']:<10} {row['name']:<15} {market}")
 

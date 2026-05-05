@@ -243,7 +243,7 @@ def main():
     results["智能配置"] = config_success
 
     # 测试2: 自适应缓存
-    cache_success, cache_manager = test_adaptive_cache()
+    cache_success, _cache_manager = test_adaptive_cache()
     results["自适应缓存"] = cache_success
 
     # 测试3: 性能测试

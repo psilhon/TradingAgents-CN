@@ -84,7 +84,7 @@ def test_tushare_api_direct():
                 matches = all_stocks[all_stocks['symbol'].str.contains('858', na=False)]
                 if not matches.empty:
                     print(f"✅ 找到{len(matches)}只包含858的股票:")
-                    for idx, row in matches.iterrows():
+                    for _idx, row in matches.iterrows():
                         print(f"   {row['ts_code']} - {row['name']}")
                 else:
                     print("❌ 未找到任何包含858的股票")
@@ -130,7 +130,7 @@ def test_stock_list_search():
 
         if not matches.empty:
             print("✅ 找到000858:")
-            for idx, row in matches.iterrows():
+            for _idx, row in matches.iterrows():
                 print(f"   {row['ts_code']} - {row['name']} - {row.get('industry', 'N/A')}")
         else:
             print("❌ 在股票列表中未找到000858")
@@ -139,7 +139,7 @@ def test_stock_list_search():
             partial_matches = stock_list[stock_list['symbol'].str.contains('858', na=False)]
             if not partial_matches.empty:
                 print(f"✅ 找到{len(partial_matches)}只包含858的股票:")
-                for idx, row in partial_matches.head(5).iterrows():
+                for _idx, row in partial_matches.head(5).iterrows():
                     print(f"   {row['ts_code']} - {row['name']}")
 
         return True

@@ -156,7 +156,7 @@ def test_multiple_concurrent_requests():
 
     # 启动5个并发请求
     threads = []
-    for i in range(5):
+    for _i in range(5):
         thread = threading.Thread(target=make_health_request)
         threads.append(thread)
         thread.start()

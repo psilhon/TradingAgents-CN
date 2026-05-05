@@ -73,7 +73,7 @@ def main():
     results.append(check_akshare_import())
 
     # 2. 检查工具模块
-    success, provider = check_akshare_utils()
+    success, _provider = check_akshare_utils()
     results.append(success)
 
     # 3. 检查数据源管理器

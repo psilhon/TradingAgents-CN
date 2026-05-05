@@ -156,7 +156,7 @@ def main():
     test_toolkit_attributes()
 
     # 测试5: 模拟LLM调用
-    llm_success, llm_result = simulate_llm_tool_call()
+    llm_success, _llm_result = simulate_llm_tool_call()
 
     # 结果汇总
     logger.info("=" * 60)
