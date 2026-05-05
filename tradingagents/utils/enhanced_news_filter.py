@@ -351,4 +351,4 @@ if __name__ == "__main__":
             print(f"- {row['新闻标题']} (综合评分: {row['final_score']:.1f})")
             print(
                 f"  规则评分: {row['rule_score']:.1f}, 语义评分: {row['semantic_score']:.1f}, 分类评分: {row['classification_score']:.1f}"
-            )  # noqa: E501
+            )

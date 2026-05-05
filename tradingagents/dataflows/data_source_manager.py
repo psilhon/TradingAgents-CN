@@ -287,7 +287,7 @@ class DataSourceManager:
 
             if result and "❌" not in result:
                 logger.info(
-                    f"✅ [数据来源: {self.current_source.value}] 成功获取基本面数据: {symbol} ({result_length}字符, 耗时{duration:.2f}秒)",  # noqa: E501
+                    f"✅ [数据来源: {self.current_source.value}] 成功获取基本面数据: {symbol} ({result_length}字符, 耗时{duration:.2f}秒)",
                     extra={
                         "symbol": symbol,
                         "data_source": self.current_source.value,
@@ -629,7 +629,7 @@ class DataSourceManager:
 
     def _get_cached_data(
         self, symbol: str, start_date: str | None = None, end_date: str | None = None, max_age_hours: int = 24
-    ) -> pd.DataFrame | None:  # noqa: E501
+    ) -> pd.DataFrame | None:
         """
         从缓存获取数据
 
@@ -786,18 +786,18 @@ class DataSourceManager:
                 logger.info(f"🔍 [技术指标详情] 第{i}天 ({row.get('date', 'N/A')}):")
                 logger.info(
                     f"   价格: 开={row.get('open', 0):.2f}, 高={row.get('high', 0):.2f}, 低={row.get('low', 0):.2f}, 收={row.get('close', 0):.2f}"
-                )  # noqa: E501
+                )
                 logger.info(
                     f"   MA: MA5={row.get('ma5', 0):.2f}, MA10={row.get('ma10', 0):.2f}, MA20={row.get('ma20', 0):.2f}, MA60={row.get('ma60', 0):.2f}"
-                )  # noqa: E501
+                )
                 logger.info(f"   MACD: DIF={row.get('macd_dif', 0):.4f}, DEA={row.get('macd_dea', 0):.4f}, MACD={row.get('macd', 0):.4f}")
                 logger.info(
                     f"   RSI: RSI6={row.get('rsi6', 0):.2f}, RSI12={row.get('rsi12', 0):.2f}, RSI24={row.get('rsi24', 0):.2f} (同花顺风格)"
-                )  # noqa: E501
+                )
                 logger.info(f"   RSI14: {row.get('rsi14', 0):.2f} (国际标准)")
                 logger.info(
                     f"   BOLL: 上={row.get('boll_upper', 0):.2f}, 中={row.get('boll_mid', 0):.2f}, 下={row.get('boll_lower', 0):.2f}"
-                )  # noqa: E501
+                )
 
             logger.info("🔍 [技术指标详情] ===== 数据详情结束 =====")
 
@@ -938,7 +938,7 @@ class DataSourceManager:
 
     def get_stock_dataframe(
         self, symbol: str, start_date: str | None = None, end_date: str | None = None, period: str = "daily"
-    ) -> pd.DataFrame:  # noqa: E501
+    ) -> pd.DataFrame:
         """
         获取股票数据的 DataFrame 接口，支持多数据源和自动降级
 
@@ -1542,7 +1542,7 @@ class DataSourceManager:
                         try:
                             logger.debug(
                                 f"🔧 [字段归一化] industry原值='{raw_industry}' → 行业='{industry_val}', 市场/板块='{market_val or doc.get('market', '未知')}'"
-                            )  # noqa: E501
+                            )
                         except Exception:
                             pass
 
@@ -1567,7 +1567,7 @@ class DataSourceManager:
                             result["quote_source"] = "market_quotes"
                             logger.info(
                                 f"✅ [股票信息] 附加行情 | price={result['current_price']} pct={result['change_pct']} vol={result['volume']} code={symbol}"
-                            )  # noqa: E501
+                            )
                     except Exception as _e:
                         logger.debug(f"附加行情失败（忽略）：{_e}")
 
@@ -2233,7 +2233,7 @@ def get_china_stock_data_unified(symbol: str, start_date: str, end_date: str) ->
     manager = get_data_source_manager()
     logger.info(
         f"🔍 [股票代码追踪] 调用 manager.get_stock_data，传入参数: symbol='{symbol}', start_date='{start_date}', end_date='{end_date}'"
-    )  # noqa: E501
+    )
     result = manager.get_stock_data(symbol, start_date, end_date)
     # 分析返回结果的详细信息
     if result:

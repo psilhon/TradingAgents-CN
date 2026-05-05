@@ -699,7 +699,7 @@ class OptimizedChinaDataProvider:
                 # 只记录关键字段，避免打印完整文档
                 logger.debug(
                     f"🔍 [股票代码追踪] 从数据库获取到基础信息: code={doc.get('code')}, name={doc.get('name')}, industry={doc.get('industry')}"
-                )  # noqa: E501
+                )
 
                 # 规范化行业与板块（避免把"中小板/创业板"等板块值误作行业）
                 board_labels = {"主板", "中小板", "创业板", "科创板"}
@@ -1135,7 +1135,7 @@ class OptimizedChinaDataProvider:
                                 metrics["pb"] = f"{pb_value:.2f}倍{realtime_tag}"
                                 logger.info(
                                     f"✅ [PB计算-第1层成功] PB={pb_value:.2f}倍 | 来源={realtime_metrics.get('source')} | 实时={is_realtime}"
-                                )  # noqa: E501
+                                )
                         else:
                             # 🔥 检查是否因为亏损导致返回 None
                             # 从 stock_basic_info 获取 pe_ttm 判断是否亏损
@@ -1357,7 +1357,7 @@ class OptimizedChinaDataProvider:
 
             logger.info(
                 f"✅ MongoDB 财务数据解析成功: ROE={metrics.get('roe')}, ROA={metrics.get('roa')}, 毛利率={metrics.get('gross_margin')}, 净利率={metrics.get('net_margin')}"
-            )  # noqa: E501
+            )
             return metrics
 
         except Exception as e:
@@ -1451,7 +1451,7 @@ class OptimizedChinaDataProvider:
                                 metrics["pe"] = f"{pe_value:.1f}倍{realtime_tag}"
                                 logger.info(
                                     f"✅ [AKShare-PE计算-第1层成功] PE={pe_value:.2f}倍 | 来源={realtime_metrics.get('source')} | 实时={is_realtime}"
-                                )  # noqa: E501
+                                )
 
                             # 使用实时PE_TTM
                             pe_ttm_value = realtime_metrics.get("pe_ttm")
@@ -1827,7 +1827,7 @@ class OptimizedChinaDataProvider:
                     metrics["pe"] = f"{pe_ratio:.1f}倍"
                     logger.info(
                         f"✅ Tushare 计算PE({profit_type}): 市值{market_cap / 100000000:.2f}亿元 / 净利润{net_income:.2f}万元 = {pe_ratio:.1f}倍"
-                    )  # noqa: E501
+                    )
                 else:
                     metrics["pe"] = "N/A（亏损）"
 
@@ -1844,7 +1844,7 @@ class OptimizedChinaDataProvider:
                     metrics["ps"] = f"{ps_ratio:.1f}倍"
                     logger.info(
                         f"✅ Tushare 计算PS({revenue_type}): 市值{market_cap / 100000000:.2f}亿元 / 营业收入{total_revenue:.2f}万元 = {ps_ratio:.1f}倍"
-                    )  # noqa: E501
+                    )
                 else:
                     metrics["ps"] = "N/A"
             else:

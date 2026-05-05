@@ -365,13 +365,13 @@ class ConfigManager:
         # 🔍 详细日志：记录保存位置
         logger.info(
             f"💾 [Token记录] 准备保存: {provider}/{model_name}, 输入={input_tokens}, 输出={output_tokens}, 成本=¥{cost:.4f}, session={session_id}"
-        )  # noqa: E501
+        )
 
         # 优先使用MongoDB存储
         if self.mongodb_storage and self.mongodb_storage.is_connected():
             logger.info(
                 f"📊 [Token记录] 使用 MongoDB 存储 (数据库: {self.mongodb_storage.database_name}, 集合: {self.mongodb_storage.collection_name})"
-            )  # noqa: E501
+            )
             success = self.mongodb_storage.save_usage_record(record)
             if success:
                 logger.info(f"✅ [Token记录] MongoDB 保存成功: {provider}/{model_name}")

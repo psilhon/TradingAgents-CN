@@ -289,7 +289,7 @@ def get_finnhub_company_insider_sentiment(
         for entry in senti_list:
             if entry not in seen_dicts:
                 result_str += (
-                    f"### {entry['year']}-{entry['month']}:\nChange: {entry['change']}\nMonthly Share Purchase Ratio: {entry['mspr']}\n\n"  # noqa: E501
+                    f"### {entry['year']}-{entry['month']}:\nChange: {entry['change']}\nMonthly Share Purchase Ratio: {entry['mspr']}\n\n"
                 )
                 seen_dicts.append(entry)
 
@@ -1760,7 +1760,7 @@ def get_hk_stock_data_unified(symbol: str, start_date: str | None = None, end_da
         logger.info(f"📅 [港股智能日期] 计算结果: {start_date} 至 {end_date}")
         logger.info(
             f"📅 [港股智能日期] 实际天数: {(datetime.strptime(end_date, '%Y-%m-%d') - datetime.strptime(start_date, '%Y-%m-%d')).days}天"
-        )  # noqa: E501
+        )
 
         # 🔥 从数据库读取用户启用的数据源配置
         enabled_sources = _get_enabled_hk_data_sources()

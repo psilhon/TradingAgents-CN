@@ -206,7 +206,7 @@ async def main():
     parser.add_argument("--multi-period", action="store_true", help="同步多周期数据（日线、周线、月线）")
     parser.add_argument(
         "--sync-items", type=str, help="指定要同步的数据类型（逗号分隔），可选: basic_info,historical,weekly,monthly,financial,quotes,news"
-    )  # noqa: E501
+    )
     parser.add_argument("--force", action="store_true", help="强制初始化")
     parser.add_argument("--batch-size", type=int, default=100, help="批处理大小")
     parser.add_argument("--check-only", action="store_true", help="仅检查数据库状态")

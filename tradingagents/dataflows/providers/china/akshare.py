@@ -731,7 +731,7 @@ class AKShareProvider(BaseStockDataProvider):
                     quotes = self._build_bid_ask_quotes(code, data_dict)
                     logger.info(
                         f"✅ {code} 实时行情获取成功: 来源=stock_bid_ask_em, 最新价={quotes['price']}, 涨跌幅={quotes['change_percent']}%, 成交量={quotes['volume']}, 成交额={quotes['amount']}"
-                    )  # noqa: E501
+                    )
                     return quotes
 
                 logger.warning(f"⚠️ stock_bid_ask_em 未返回 {code} 的行情数据，尝试备份接口")

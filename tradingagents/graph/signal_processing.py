@@ -190,7 +190,7 @@ class SignalProcessor:
                                 .replace("元", "")
                                 .replace("美元", "")
                                 .strip()
-                            )  # noqa: E501
+                            )
                             target_price = float(clean_price) if clean_price and clean_price.lower() not in ["none", "null", ""] else None
                         elif isinstance(target_price, (int, float)):
                             target_price = float(target_price)
