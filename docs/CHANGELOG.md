@@ -46,6 +46,12 @@
 
 ### Fixed
 
+- **真 bug 类 lint 修复 pass 1**（OpenSpec change `lint-handfix-pass-1`）：`lint-cleanup-baseline` 后剩 870 issues 中含 19 个**真 bug**（runtime 可能崩 / 错 import 模块），本 change 全部修复（870 → 851）：
+  - **F811 重复 import (5)**：`agent_utils.py:11` / `config_manager.py:36` / `graph/trading_graph.py:18` / `tool_logging.py:14` 删 unused `from logging_init import get_logger`（被 `logging_manager` 覆盖）；`dataflows/data_source_manager.py:2134-2143` 删 identical 的第一份 `def get_data_source_manager` + 配套 redundant global var
+  - **F821 缺 import (14)**：tests/ 加 `import os` (×2 文件 / 7 处) + `import logging + logger` 定义 (×2 文件 / 3 处)；`google_tool_handler.py` 加 `import traceback`；`data_source_manager.py:1861` 加 `from tradingagents.config.database_manager import get_database_manager`；`utils/logging_init.py` 加 `import logging` + `get_session_logger` 函数体加 `logger = get_logger(logger_name)` 定义（之前 line 85 用了未定义的 `logger`，跑该函数会 NameError）
+  - 验证：F811 + F821 共 0 errors / 5 个核心模块 import smoke / backend `/api/health` 200
+  - 沉淀 spec MODIFY `lint-policy`：加 "真 bug 类 lint 优先修" + "F811 默认删 previous unused"
+
 - **Lint baseline 治理**（OpenSpec change `lint-cleanup-baseline`）：上游接手时 ruff 报 21,321 issues，本 change 用 Q1=C / Q2=b / Q3=ii 策略治理至 **870 issues（-95.9%）**：
   - **调宽规则**（`pyproject.toml [tool.ruff]`）：`line-length` 100 → 140；`[tool.ruff.lint].ignore = ["RUF001", "RUF002", "RUF003"]`（中文全角字符在中文 codebase 是常态，非代码质量问题）→ 砍 ~7,800 issues
   - **按 rule code 分批 ruff --fix**（每个一个 commit）：W293 (9114) / F541 (1705) / I001 (559) / F401 (379) / UP006 (342) / UP045 (272) / W291 (114) / UP035 (4) / 剩余一把梭 (522) → 砍 ~12,800 issues
