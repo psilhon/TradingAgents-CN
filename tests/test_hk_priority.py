@@ -239,7 +239,7 @@ def main():
         "改进港股提供器优先级"
     ]
 
-    for i, (name, result) in enumerate(zip(test_names, results)):
+    for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
         print(f"{i+1}. {name}: {status}")
 
