@@ -75,21 +75,7 @@ class OpenAICompatibleBase(ChatOpenAI):
 
         # 获取API密钥
         if api_key is None:
-            # 导入 API Key 验证工具
-            try:
-                from tradingagents.utils.api_key_utils import is_valid_api_key
-            except ImportError:
-
-                def is_valid_api_key(key):
-                    if not key or len(key) <= 10:
-                        return False
-                    if key.startswith("your_") or key.startswith("your-"):
-                        return False
-                    if key.endswith("_here") or key.endswith("-here"):
-                        return False
-                    if "..." in key:
-                        return False
-                    return True
+            from tradingagents.utils.api_key_utils import is_valid_api_key, redact_api_key
 
             # 从环境变量读取 API Key
             env_api_key = os.getenv(api_key_env_var)
@@ -97,9 +83,7 @@ class OpenAICompatibleBase(ChatOpenAI):
 
             # 验证环境变量中的 API Key 是否有效（排除占位符）
             if env_api_key and is_valid_api_key(env_api_key):
-                logger.info(
-                    f"✅ [{provider_name}初始化] 环境变量中的 API Key 有效，长度: {len(env_api_key)}, 前10位: {env_api_key[:10]}..."
-                )
+                logger.info(f"✅ [{provider_name}初始化] 环境变量中的 API Key 有效 {redact_api_key(env_api_key)}")
                 api_key = env_api_key
             elif env_api_key:
                 logger.warning(f"⚠️ [{provider_name}初始化] 环境变量中的 API Key 无效（可能是占位符），将被忽略")
@@ -240,21 +224,7 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
 
         # 如果没有传入 API Key，尝试从环境变量读取
         if not api_key:
-            # 导入 API Key 验证工具
-            try:
-                from tradingagents.utils.api_key_utils import is_valid_api_key
-            except ImportError:
-
-                def is_valid_api_key(key):
-                    if not key or len(key) <= 10:
-                        return False
-                    if key.startswith("your_") or key.startswith("your-"):
-                        return False
-                    if key.endswith("_here") or key.endswith("-here"):
-                        return False
-                    if "..." in key:
-                        return False
-                    return True
+            from tradingagents.utils.api_key_utils import is_valid_api_key
 
             env_api_key = os.getenv("QIANFAN_API_KEY")
             if env_api_key and is_valid_api_key(env_api_key):
