@@ -129,7 +129,7 @@ def parse_str_env(env_var: str, default: str = "") -> str:
     return str(value).strip()
 
 
-def parse_list_env(env_var: str, separator: str = ",", default: Optional[list] = None) -> list:
+def parse_list_env(env_var: str, separator: str = ",", default: list | None = None) -> list:
     """
     解析列表类型环境变量
     

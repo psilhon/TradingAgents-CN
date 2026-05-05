@@ -44,7 +44,7 @@ except ImportError:
 
 
 # 便捷函数
-def get_cache_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
+def get_cache_dir(subdir: str | None = None, create: bool = True) -> Path:
     """
     获取缓存目录
     
@@ -63,7 +63,7 @@ def get_cache_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
     return get_data_path('cache', create=create)
 
 
-def get_results_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
+def get_results_dir(subdir: str | None = None, create: bool = True) -> Path:
     """
     获取分析结果目录
     
@@ -82,7 +82,7 @@ def get_results_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
     return get_data_path('analysis_results', create=create)
 
 
-def get_sessions_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
+def get_sessions_dir(subdir: str | None = None, create: bool = True) -> Path:
     """
     获取会话数据目录
     
@@ -101,7 +101,7 @@ def get_sessions_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
     return get_data_path('sessions', create=create)
 
 
-def get_logs_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
+def get_logs_dir(subdir: str | None = None, create: bool = True) -> Path:
     """
     获取日志目录
     
@@ -120,7 +120,7 @@ def get_logs_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
     return get_data_path('logs', create=create)
 
 
-def get_config_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
+def get_config_dir(subdir: str | None = None, create: bool = True) -> Path:
     """
     获取配置目录
     
@@ -139,7 +139,7 @@ def get_config_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
     return get_data_path('config', create=create)
 
 
-def get_temp_dir(subdir: Optional[str] = None, create: bool = True) -> Path:
+def get_temp_dir(subdir: str | None = None, create: bool = True) -> Path:
     """
     获取临时文件目录
     

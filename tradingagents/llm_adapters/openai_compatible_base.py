@@ -43,9 +43,9 @@ class OpenAICompatibleBase(ChatOpenAI):
         model: str,
         api_key_env_var: str,
         base_url: str,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         temperature: float = 0.1,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
         **kwargs
     ):
         """
@@ -148,7 +148,7 @@ class OpenAICompatibleBase(ChatOpenAI):
         logger.info(f"   API Base: {base_url}")
 
     @property
-    def provider_name(self) -> Optional[str]:
+    def provider_name(self) -> str | None:
         return getattr(self, "_provider_name", None)
 
     # 移除model_name property定义，使用Pydantic字段
@@ -157,8 +157,8 @@ class OpenAICompatibleBase(ChatOpenAI):
     def _generate(
         self,
         messages: list[BaseMessage],
-        stop: Optional[list[str]] = None,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        stop: list[str] | None = None,
+        run_manager: CallbackManagerForLLMRun | None = None,
         **kwargs: Any,
     ) -> ChatResult:
         """
@@ -202,9 +202,9 @@ class ChatDeepSeekOpenAI(OpenAICompatibleBase):
     def __init__(
         self,
         model: str = "deepseek-chat",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         temperature: float = 0.1,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
         **kwargs
     ):
         super().__init__(
@@ -225,9 +225,9 @@ class ChatDashScopeOpenAIUnified(OpenAICompatibleBase):
     def __init__(
         self,
         model: str = "qwen-turbo",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         temperature: float = 0.1,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
         **kwargs
     ):
         super().__init__(
@@ -248,9 +248,9 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
     def __init__(
         self,
         model: str = "ernie-3.5-8k",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         temperature: float = 0.1,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
         **kwargs
     ):
         # 千帆新一代API使用单一API Key认证
@@ -345,8 +345,8 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
     def _generate(
         self,
         messages: list[BaseMessage],
-        stop: Optional[list[str]] = None,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        stop: list[str] | None = None,
+        run_manager: CallbackManagerForLLMRun | None = None,
         **kwargs: Any,
     ) -> ChatResult:
         """生成聊天响应，包含千帆模型的token截断逻辑"""
@@ -364,10 +364,10 @@ class ChatZhipuOpenAI(OpenAICompatibleBase):
     def __init__(
         self,
         model: str = "glm-4.6",
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
         temperature: float = 0.1,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
         **kwargs
     ):
         if base_url is None:
@@ -402,10 +402,10 @@ class ChatCustomOpenAI(OpenAICompatibleBase):
     def __init__(
         self,
         model: str = "gpt-3.5-turbo",
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
         temperature: float = 0.1,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
         **kwargs
     ):
         # 如果没有传入 base_url，尝试从环境变量读取
@@ -502,10 +502,10 @@ OPENAI_COMPATIBLE_PROVIDERS = {
 def create_openai_compatible_llm(
     provider: str,
     model: str,
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
     temperature: float = 0.1,
-    max_tokens: Optional[int] = None,
-    base_url: Optional[str] = None,
+    max_tokens: int | None = None,
+    base_url: str | None = None,
     **kwargs
 ) -> OpenAICompatibleBase:
     """创建OpenAI兼容LLM实例的统一工厂函数"""

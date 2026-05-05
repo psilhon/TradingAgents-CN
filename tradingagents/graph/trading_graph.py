@@ -149,10 +149,10 @@ def _create_provider_pair(
     deep_temperature: float,
     deep_max_tokens: int,
     deep_timeout: int,
-    backend_url: Optional[str] = None,
-    api_key: Optional[str] = None,
-    quick_extra_kwargs: Optional[dict[str, Any]] = None,
-    deep_extra_kwargs: Optional[dict[str, Any]] = None,
+    backend_url: str | None = None,
+    api_key: str | None = None,
+    quick_extra_kwargs: dict[str, Any] | None = None,
+    deep_extra_kwargs: dict[str, Any] | None = None,
 ) -> tuple[Any, Any]:
     resolved_backend_url = backend_url if backend_url is not None else config.get("backend_url", "")
     shared_api_key = api_key or config.get("quick_api_key") or config.get("deep_api_key")

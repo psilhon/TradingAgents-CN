@@ -40,10 +40,10 @@ class ChatDeepSeek(ChatOpenAI):
     def __init__(
         self,
         model: str = "deepseek-chat",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         base_url: str = "https://api.deepseek.com",
         temperature: float = 0.1,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
         **kwargs
     ):
         """
@@ -109,8 +109,8 @@ class ChatDeepSeek(ChatOpenAI):
     def _generate(
         self,
         messages: list[BaseMessage],
-        stop: Optional[list[str]] = None,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        stop: list[str] | None = None,
+        run_manager: CallbackManagerForLLMRun | None = None,
         **kwargs: Any,
     ) -> ChatResult:
         """
@@ -233,7 +233,7 @@ class ChatDeepSeek(ChatOpenAI):
     def invoke(
         self,
         input: Union[str, list[BaseMessage]],
-        config: Optional[dict] = None,
+        config: dict | None = None,
         **kwargs: Any,
     ) -> AIMessage:
         """
@@ -267,7 +267,7 @@ class ChatDeepSeek(ChatOpenAI):
 def create_deepseek_llm(
     model: str = "deepseek-chat",
     temperature: float = 0.1,
-    max_tokens: Optional[int] = None,
+    max_tokens: int | None = None,
     **kwargs
 ) -> ChatDeepSeek:
     """

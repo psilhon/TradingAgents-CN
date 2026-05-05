@@ -22,7 +22,7 @@ logger = get_logger('agents')
 tool_logger = get_logger("tools")
 
 
-def log_tool_call(tool_name: Optional[str] = None, log_args: bool = True, log_result: bool = False):
+def log_tool_call(tool_name: str | None = None, log_args: bool = True, log_result: bool = False):
     """
     工具调用日志装饰器
 

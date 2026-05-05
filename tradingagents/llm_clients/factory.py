@@ -26,7 +26,7 @@ _OPENAI_COMPATIBLE = {
 def create_llm_client(
     provider: str,
     model: str,
-    base_url: Optional[str] = None,
+    base_url: str | None = None,
     **kwargs,
 ) -> BaseLLMClient:
     provider_lower = normalize_provider_key(provider)

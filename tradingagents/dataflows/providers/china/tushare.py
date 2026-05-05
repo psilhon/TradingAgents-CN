@@ -39,7 +39,7 @@ class TushareProvider(BaseStockDataProvider):
         if not TUSHARE_AVAILABLE:
             self.logger.error("❌ Tushare库未安装，请运行: pip install tushare")
 
-    def _get_token_from_database(self) -> Optional[str]:
+    def _get_token_from_database(self) -> str | None:
         """
         从数据库读取 Tushare Token
 
@@ -264,7 +264,7 @@ class TushareProvider(BaseStockDataProvider):
 
     # ==================== 基础数据接口 ====================
 
-    def get_stock_list_sync(self, market: str = None) -> Optional[pd.DataFrame]:
+    def get_stock_list_sync(self, market: str = None) -> pd.DataFrame | None:
         """获取股票列表（同步版本）"""
         if not self.is_available():
             return None
@@ -284,7 +284,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票列表失败: {e}")
             return None
 
-    async def get_stock_list(self, market: str = None) -> Optional[list[dict[str, Any]]]:
+    async def get_stock_list(self, market: str = None) -> list[dict[str, Any]] | None:
         """获取股票列表（异步版本）"""
         if not self.is_available():
             return None
@@ -324,7 +324,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票列表失败: {e}")
             return None
 
-    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[dict[str, Any], list[dict[str, Any]]]]:
+    async def get_stock_basic_info(self, symbol: str = None) -> Union[dict[str, Any], list[dict[str, Any]]] | None:
         """获取股票基础信息"""
         if not self.is_available():
             return None
@@ -351,7 +351,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票基础信息失败 symbol={symbol}: {e}")
             return None
 
-    async def get_stock_quotes(self, symbol: str) -> Optional[dict[str, Any]]:
+    async def get_stock_quotes(self, symbol: str) -> dict[str, Any] | None:
         """
         获取单只股票实时行情
 
@@ -414,7 +414,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取实时行情失败 symbol={symbol}: {e}")
             return None
 
-    async def get_realtime_quotes_batch(self) -> Optional[dict[str, dict[str, Any]]]:
+    async def get_realtime_quotes_batch(self) -> dict[str, dict[str, Any]] | None:
         """
         批量获取全市场实时行情
         使用 rt_k 接口的通配符功能，一次性获取所有A股实时行情
@@ -516,7 +516,7 @@ class TushareProvider(BaseStockDataProvider):
         start_date: Union[str, date],
         end_date: Union[str, date] = None,
         period: str = "daily"
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """
         获取历史数据
 
@@ -596,7 +596,7 @@ class TushareProvider(BaseStockDataProvider):
 
     # ==================== 扩展接口 ====================
 
-    async def get_daily_basic(self, trade_date: str) -> Optional[pd.DataFrame]:
+    async def get_daily_basic(self, trade_date: str) -> pd.DataFrame | None:
         """获取每日基础财务数据"""
         if not self.is_available():
             return None
@@ -619,7 +619,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取每日基础数据失败 trade_date={trade_date}: {e}")
             return None
 
-    async def find_latest_trade_date(self) -> Optional[str]:
+    async def find_latest_trade_date(self) -> str | None:
         """查找最新交易日期"""
         if not self.is_available():
             return None
@@ -652,7 +652,7 @@ class TushareProvider(BaseStockDataProvider):
             return None
 
     async def get_financial_data(self, symbol: str, report_type: str = "quarterly",
-                                period: str = None, limit: int = 4) -> Optional[dict[str, Any]]:
+                                period: str = None, limit: int = 4) -> dict[str, Any] | None:
         """
         获取财务数据
 
@@ -768,7 +768,7 @@ class TushareProvider(BaseStockDataProvider):
             return None
 
     async def get_stock_news(self, symbol: str = None, limit: int = 10,
-                           hours_back: int = 24, src: str = None) -> Optional[list[dict[str, Any]]]:
+                           hours_back: int = 24, src: str = None) -> list[dict[str, Any]] | None:
         """
         获取股票新闻（需要Tushare新闻权限）
 
@@ -1008,7 +1008,7 @@ class TushareProvider(BaseStockDataProvider):
 
         return keywords[:5]  # 最多返回5个关键词
 
-    def _parse_tushare_news_time(self, time_str: str) -> Optional[datetime]:
+    def _parse_tushare_news_time(self, time_str: str) -> datetime | None:
         """解析Tushare新闻时间"""
         if not time_str:
             return datetime.utcnow()
@@ -1038,7 +1038,7 @@ class TushareProvider(BaseStockDataProvider):
             return 'other'
 
     async def get_financial_data_by_period(self, symbol: str, start_period: str = None,
-                                         end_period: str = None, report_type: str = "quarterly") -> Optional[list[dict[str, Any]]]:
+                                         end_period: str = None, report_type: str = "quarterly") -> list[dict[str, Any]] | None:
         """
         按时间范围获取财务数据
 
@@ -1102,7 +1102,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 按期间获取Tushare财务数据失败 symbol={symbol}: {e}")
             return None
 
-    async def get_financial_indicators_only(self, symbol: str, limit: int = 4) -> Optional[dict[str, Any]]:
+    async def get_financial_indicators_only(self, symbol: str, limit: int = 4) -> dict[str, Any] | None:
         """
         仅获取财务指标数据（轻量级接口）
 
@@ -1429,7 +1429,7 @@ class TushareProvider(BaseStockDataProvider):
                 "error": str(e)
             }
 
-    def _calculate_ttm_from_tushare(self, income_statements: list, field: str) -> Optional[float]:
+    def _calculate_ttm_from_tushare(self, income_statements: list, field: str) -> float | None:
         """
         从 Tushare 利润表数据计算 TTM（最近12个月）
 
@@ -1546,7 +1546,7 @@ class TushareProvider(BaseStockDataProvider):
         except:
             return "quarterly"
 
-    def _safe_float(self, value) -> Optional[float]:
+    def _safe_float(self, value) -> float | None:
         """安全转换为浮点数，处理各种异常情况"""
         if value is None:
             return None
@@ -1573,7 +1573,7 @@ class TushareProvider(BaseStockDataProvider):
         except (ValueError, TypeError, AttributeError):
             return None
 
-    def _calculate_gross_profit(self, revenue, oper_cost) -> Optional[float]:
+    def _calculate_gross_profit(self, revenue, oper_cost) -> float | None:
         """安全计算毛利润"""
         revenue_float = self._safe_float(revenue)
         oper_cost_float = self._safe_float(oper_cost)
@@ -1582,7 +1582,7 @@ class TushareProvider(BaseStockDataProvider):
             return revenue_float - oper_cost_float
         return None
 
-    def _safe_str(self, value) -> Optional[str]:
+    def _safe_str(self, value) -> str | None:
         """安全转换为字符串，处理NaN值"""
         if value is None:
             return None

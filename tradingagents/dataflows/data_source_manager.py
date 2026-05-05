@@ -91,7 +91,7 @@ class DataSourceManager:
         from tradingagents.config.runtime_settings import use_app_cache_enabled
         return use_app_cache_enabled()
 
-    def _get_data_source_priority_order(self, symbol: Optional[str] = None) -> list[ChinaDataSource]:
+    def _get_data_source_priority_order(self, symbol: str | None = None) -> list[ChinaDataSource]:
         """
         从数据库获取数据源优先级顺序（用于降级）
 
@@ -173,7 +173,7 @@ class DataSourceManager:
         # 只返回可用的数据源
         return [s for s in default_order if s in self.available_sources]
 
-    def _identify_market_category(self, symbol: Optional[str]) -> Optional[str]:
+    def _identify_market_category(self, symbol: str | None) -> str | None:
         """
         识别股票代码所属的市场分类
 
@@ -608,7 +608,7 @@ class DataSourceManager:
     #     logger.error(f"❌ TDX数据源已不再支持")
     #     return None
 
-    def _get_cached_data(self, symbol: str, start_date: str = None, end_date: str = None, max_age_hours: int = 24) -> Optional[pd.DataFrame]:
+    def _get_cached_data(self, symbol: str, start_date: str = None, end_date: str = None, max_age_hours: int = 24) -> pd.DataFrame | None:
         """
         从缓存获取数据
 
@@ -1535,7 +1535,7 @@ class DataSourceManager:
             logger.error(f"❌ [数据来源: {self.current_source.value}异常] 获取股票信息失败: {e}", exc_info=True)
             return self._try_fallback_stock_info(symbol)
 
-    def get_stock_basic_info(self, stock_code: str = None) -> Optional[dict[str, Any]]:
+    def get_stock_basic_info(self, stock_code: str = None) -> dict[str, Any] | None:
         """
         获取股票基础信息（兼容 stock_data_service 接口）
 
@@ -2250,7 +2250,7 @@ class USDataSourceManager:
         from tradingagents.config.runtime_settings import use_app_cache_enabled
         return use_app_cache_enabled()
 
-    def _get_data_source_priority_order(self, symbol: Optional[str] = None) -> list[USDataSource]:
+    def _get_data_source_priority_order(self, symbol: str | None = None) -> list[USDataSource]:
         """
         从数据库获取美股数据源优先级顺序（用于降级）
 

@@ -64,7 +64,7 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.error(f"❌ BaoStock连接测试失败: {e}")
             return False
 
-    def get_stock_list_sync(self) -> Optional[pd.DataFrame]:
+    def get_stock_list_sync(self) -> pd.DataFrame | None:
         """获取股票列表（同步版本）"""
         if not self.connected:
             return None
@@ -206,7 +206,7 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.error(f"❌ BaoStock获取{code}基础信息失败: {e}")
             return {}
 
-    async def get_valuation_data(self, code: str, trade_date: Optional[str] = None) -> dict[str, Any]:
+    async def get_valuation_data(self, code: str, trade_date: str | None = None) -> dict[str, Any]:
         """
         获取股票估值数据（PE、PB、PS、PCF等）
 
@@ -539,7 +539,7 @@ class BaoStockProvider(BaseStockDataProvider):
             return ""
 
     async def get_historical_data(self, code: str, start_date: str, end_date: str,
-                                period: str = "daily") -> Optional[pd.DataFrame]:
+                                period: str = "daily") -> pd.DataFrame | None:
         """
         获取历史数据
 
@@ -636,8 +636,8 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.error(f"❌ BaoStock获取{code}历史数据失败: {e}")
             return None
 
-    async def get_financial_data(self, code: str, year: Optional[int] = None,
-                               quarter: Optional[int] = None) -> dict[str, Any]:
+    async def get_financial_data(self, code: str, year: int | None = None,
+                               quarter: int | None = None) -> dict[str, Any]:
         """
         获取财务数据
 
@@ -720,7 +720,7 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.error(f"❌ BaoStock获取{code}财务数据失败: {e}")
             return {}
 
-    async def _get_profit_data(self, code: str, year: int, quarter: int) -> Optional[dict[str, Any]]:
+    async def _get_profit_data(self, code: str, year: int, quarter: int) -> dict[str, Any] | None:
         """获取盈利能力数据"""
         try:
             def fetch_profit_data():
@@ -754,7 +754,7 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.debug(f"获取{code}盈利能力数据失败: {e}")
             return None
 
-    async def _get_operation_data(self, code: str, year: int, quarter: int) -> Optional[dict[str, Any]]:
+    async def _get_operation_data(self, code: str, year: int, quarter: int) -> dict[str, Any] | None:
         """获取营运能力数据"""
         try:
             def fetch_operation_data():
@@ -788,7 +788,7 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.debug(f"获取{code}营运能力数据失败: {e}")
             return None
 
-    async def _get_growth_data(self, code: str, year: int, quarter: int) -> Optional[dict[str, Any]]:
+    async def _get_growth_data(self, code: str, year: int, quarter: int) -> dict[str, Any] | None:
         """获取成长能力数据"""
         try:
             def fetch_growth_data():
@@ -822,7 +822,7 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.debug(f"获取{code}成长能力数据失败: {e}")
             return None
 
-    async def _get_balance_data(self, code: str, year: int, quarter: int) -> Optional[dict[str, Any]]:
+    async def _get_balance_data(self, code: str, year: int, quarter: int) -> dict[str, Any] | None:
         """获取偿债能力数据"""
         try:
             def fetch_balance_data():
@@ -856,7 +856,7 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.debug(f"获取{code}偿债能力数据失败: {e}")
             return None
 
-    async def _get_cash_flow_data(self, code: str, year: int, quarter: int) -> Optional[dict[str, Any]]:
+    async def _get_cash_flow_data(self, code: str, year: int, quarter: int) -> dict[str, Any] | None:
         """获取现金流量数据"""
         try:
             def fetch_cash_flow_data():

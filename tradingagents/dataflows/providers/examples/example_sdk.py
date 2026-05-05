@@ -99,7 +99,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         self.connected = False
         self.logger.info("ExampleSDK连接已断开")
 
-    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[dict[str, Any], list[dict[str, Any]]]]:
+    async def get_stock_basic_info(self, symbol: str = None) -> Union[dict[str, Any], list[dict[str, Any]]] | None:
         """获取股票基础信息"""
         if not self.connected:
             await self.connect()
@@ -130,7 +130,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取股票基础信息失败 symbol={symbol}")
             return None
 
-    async def get_stock_list(self, market: str = None) -> Optional[list[dict[str, Any]]]:
+    async def get_stock_list(self, market: str = None) -> list[dict[str, Any]] | None:
         """获取股票列表"""
         if not self.connected:
             await self.connect()
@@ -153,7 +153,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取股票列表失败 market={market}")
             return None
 
-    async def get_stock_quotes(self, symbol: str) -> Optional[dict[str, Any]]:
+    async def get_stock_quotes(self, symbol: str) -> dict[str, Any] | None:
         """获取实时行情"""
         if not self.connected:
             await self.connect()
@@ -178,7 +178,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         start_date: Union[str, date], 
         end_date: Union[str, date] = None,
         period: str = "daily"
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """获取历史数据"""
         if not self.connected:
             await self.connect()
@@ -205,7 +205,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取历史数据失败 symbol={symbol}")
             return None
 
-    async def get_financial_data(self, symbol: str, report_type: str = "annual") -> Optional[dict[str, Any]]:
+    async def get_financial_data(self, symbol: str, report_type: str = "annual") -> dict[str, Any] | None:
         """获取财务数据"""
         if not self.connected:
             await self.connect()
@@ -226,7 +226,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取财务数据失败 symbol={symbol}")
             return None
 
-    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> Optional[list[dict[str, Any]]]:
+    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> list[dict[str, Any]] | None:
         """获取股票新闻"""
         if not self.connected:
             await self.connect()

@@ -186,7 +186,7 @@ def get_available_openai_models() -> dict[str, dict[str, Any]]:
 
 def create_dashscope_openai_llm(
     model: str = "qwen-plus-latest",
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
     temperature: float = 0.1,
     max_tokens: int = 2000,
     **kwargs
@@ -204,7 +204,7 @@ def create_dashscope_openai_llm(
 
 def test_dashscope_openai_connection(
     model: str = "qwen-turbo",
-    api_key: Optional[str] = None
+    api_key: str | None = None
 ) -> bool:
     """测试 DashScope OpenAI 兼容接口连接"""
 
@@ -237,7 +237,7 @@ def test_dashscope_openai_connection(
 
 def test_dashscope_openai_function_calling(
     model: str = "qwen-plus-latest",
-    api_key: Optional[str] = None
+    api_key: str | None = None
 ) -> bool:
     """测试 DashScope OpenAI 兼容接口的 Function Calling"""
 

@@ -12,7 +12,7 @@ import aiohttp
 BASE_URL = "http://localhost:8001"
 
 # 全局访问令牌
-access_token: Optional[str] = None
+access_token: str | None = None
 
 async def login():
     """登录获取访问令牌"""

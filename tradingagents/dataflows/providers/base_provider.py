@@ -50,7 +50,7 @@ class BaseStockDataProvider(ABC):
     # ==================== 核心数据接口 ====================
 
     @abstractmethod
-    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[dict[str, Any], list[dict[str, Any]]]]:
+    async def get_stock_basic_info(self, symbol: str = None) -> Union[dict[str, Any], list[dict[str, Any]]] | None:
         """
         获取股票基础信息
         
@@ -63,7 +63,7 @@ class BaseStockDataProvider(ABC):
         pass
 
     @abstractmethod
-    async def get_stock_quotes(self, symbol: str) -> Optional[dict[str, Any]]:
+    async def get_stock_quotes(self, symbol: str) -> dict[str, Any] | None:
         """
         获取实时行情
         
@@ -81,7 +81,7 @@ class BaseStockDataProvider(ABC):
         symbol: str, 
         start_date: Union[str, date], 
         end_date: Union[str, date] = None
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """
         获取历史数据
         
@@ -97,7 +97,7 @@ class BaseStockDataProvider(ABC):
 
     # ==================== 扩展接口 ====================
 
-    async def get_stock_list(self, market: str = None) -> Optional[list[dict[str, Any]]]:
+    async def get_stock_list(self, market: str = None) -> list[dict[str, Any]] | None:
         """
         获取股票列表
         
@@ -109,7 +109,7 @@ class BaseStockDataProvider(ABC):
         """
         return await self.get_stock_basic_info()
 
-    async def get_financial_data(self, symbol: str, report_type: str = "annual") -> Optional[dict[str, Any]]:
+    async def get_financial_data(self, symbol: str, report_type: str = "annual") -> dict[str, Any] | None:
         """
         获取财务数据
         
@@ -219,7 +219,7 @@ class BaseStockDataProvider(ABC):
         market_info = self._determine_market_info(raw_data)
         return market_info.get("market", "CN")
 
-    def _convert_to_float(self, value: Any) -> Optional[float]:
+    def _convert_to_float(self, value: Any) -> float | None:
         """转换为浮点数"""
         if value is None or value == "":
             return None
@@ -228,7 +228,7 @@ class BaseStockDataProvider(ABC):
         except (ValueError, TypeError):
             return None
 
-    def _format_date_output(self, date_value: Any) -> Optional[str]:
+    def _format_date_output(self, date_value: Any) -> str | None:
         """格式化日期为输出格式 (YYYY-MM-DD)"""
         if not date_value:
             return None

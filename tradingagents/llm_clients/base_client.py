@@ -19,7 +19,7 @@ def normalize_content(response):
 class BaseLLMClient(ABC):
     """Minimal provider wrapper used by CLI and future graph integration."""
 
-    def __init__(self, model: str, base_url: Optional[str] = None, **kwargs):
+    def __init__(self, model: str, base_url: str | None = None, **kwargs):
         self.model = model
         self.base_url = base_url
         self.kwargs = kwargs

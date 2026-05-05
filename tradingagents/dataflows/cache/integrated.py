@@ -104,7 +104,7 @@ class IntegratedCacheManager:
                 data_source=data_source
             )
 
-    def load_stock_data(self, cache_key: str) -> Optional[Any]:
+    def load_stock_data(self, cache_key: str) -> Any | None:
         """
         从缓存加载股票数据
         
@@ -122,7 +122,7 @@ class IntegratedCacheManager:
             return self.legacy_cache.load_stock_data(cache_key)
 
     def find_cached_stock_data(self, symbol: str, start_date: str = None, 
-                              end_date: str = None, data_source: str = "default") -> Optional[str]:
+                              end_date: str = None, data_source: str = "default") -> str | None:
         """
         查找缓存的股票数据
         
@@ -165,7 +165,7 @@ class IntegratedCacheManager:
         else:
             return self.legacy_cache.save_news_data(symbol, data, data_source)
 
-    def load_news_data(self, cache_key: str) -> Optional[Any]:
+    def load_news_data(self, cache_key: str) -> Any | None:
         """加载新闻数据"""
         if self.use_adaptive:
             return self.adaptive_cache.load_data(cache_key)
@@ -184,7 +184,7 @@ class IntegratedCacheManager:
         else:
             return self.legacy_cache.save_fundamentals_data(symbol, data, data_source)
 
-    def load_fundamentals_data(self, cache_key: str) -> Optional[Any]:
+    def load_fundamentals_data(self, cache_key: str) -> Any | None:
         """加载基本面数据"""
         if self.use_adaptive:
             return self.adaptive_cache.load_data(cache_key)
@@ -192,7 +192,7 @@ class IntegratedCacheManager:
             return self.legacy_cache.load_fundamentals_data(cache_key)
 
     def find_cached_fundamentals_data(self, symbol: str, data_source: str = None,
-                                     max_age_hours: int = None) -> Optional[str]:
+                                     max_age_hours: int = None) -> str | None:
         """
         查找匹配的基本面缓存数据
 

@@ -26,7 +26,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
     解决Google模型工具调用返回格式与系统期望不匹配的问题
     """
 
-    def __init__(self, base_url: Optional[str] = None, **kwargs):
+    def __init__(self, base_url: str | None = None, **kwargs):
         """
         初始化 Google AI OpenAI 兼容客户端
 
@@ -157,7 +157,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
             return model[7:]  # 移除 "models/" 前缀
         return model or "unknown"
 
-    def _generate(self, messages: list[BaseMessage], stop: Optional[list[str]] = None, **kwargs) -> LLMResult:
+    def _generate(self, messages: list[BaseMessage], stop: list[str] | None = None, **kwargs) -> LLMResult:
         """重写生成方法，优化工具调用处理和内容格式"""
 
         try:
@@ -356,8 +356,8 @@ def get_available_google_models() -> dict[str, dict[str, Any]]:
 
 def create_google_openai_llm(
     model: str = "gemini-2.5-flash-lite-preview-06-17",
-    google_api_key: Optional[str] = None,
-    base_url: Optional[str] = None,
+    google_api_key: str | None = None,
+    base_url: str | None = None,
     temperature: float = 0.1,
     max_tokens: int = 2000,
     **kwargs
@@ -389,7 +389,7 @@ def create_google_openai_llm(
 
 def test_google_openai_connection(
     model: str = "gemini-2.0-flash",
-    google_api_key: Optional[str] = None
+    google_api_key: str | None = None
 ) -> bool:
     """测试 Google AI OpenAI 兼容接口连接"""
 
@@ -422,7 +422,7 @@ def test_google_openai_connection(
 
 def test_google_openai_function_calling(
     model: str = "gemini-2.5-flash-lite-preview-06-17",
-    google_api_key: Optional[str] = None
+    google_api_key: str | None = None
 ) -> bool:
     """测试 Google AI OpenAI 兼容接口的 Function Calling"""
 

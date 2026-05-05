@@ -10,7 +10,7 @@ import pandas as pd
 @dataclass(frozen=True)
 class IndicatorSpec:
     name: str
-    params: Optional[dict[str, Any]] = None
+    params: dict[str, Any] | None = None
 
 
 SUPPORTED = {"ma", "ema", "macd", "rsi", "boll", "atr", "kdj"}

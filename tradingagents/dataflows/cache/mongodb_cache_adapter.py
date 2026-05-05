@@ -47,7 +47,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ MongoDB连接初始化失败: {e}")
             self.use_app_cache = False
 
-    def get_stock_basic_info(self, symbol: str) -> Optional[dict[str, Any]]:
+    def get_stock_basic_info(self, symbol: str) -> dict[str, Any] | None:
         """获取股票基础信息（按数据源优先级查询）"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -161,7 +161,7 @@ class MongoDBCacheAdapter:
         return ['tushare', 'akshare', 'baostock']
 
     def get_historical_data(self, symbol: str, start_date: str = None, end_date: str = None,
-                          period: str = "daily") -> Optional[pd.DataFrame]:
+                          period: str = "daily") -> pd.DataFrame | None:
         """
         获取历史数据，支持多周期，按数据源优先级查询
 
@@ -221,7 +221,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ 获取历史数据失败: {e}")
             return None
 
-    def get_financial_data(self, symbol: str, report_period: str = None) -> Optional[dict[str, Any]]:
+    def get_financial_data(self, symbol: str, report_period: str = None) -> dict[str, Any] | None:
         """获取财务数据，按数据源优先级查询"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -259,7 +259,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ [数据来源: MongoDB-财务数据] 获取财务数据失败: {e}")
             return None
 
-    def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> Optional[list[dict[str, Any]]]:
+    def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]] | None:
         """获取新闻数据"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -293,7 +293,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ [数据来源: MongoDB-新闻数据] 获取新闻数据失败: {e}")
             return None
 
-    def get_social_media_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> Optional[list[dict[str, Any]]]:
+    def get_social_media_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]] | None:
         """获取社媒数据"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -327,7 +327,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ 获取社媒数据失败: {e}")
             return None
 
-    def get_market_quotes(self, symbol: str) -> Optional[dict[str, Any]]:
+    def get_market_quotes(self, symbol: str) -> dict[str, Any] | None:
         """获取实时行情数据"""
         if not self.use_app_cache or self.db is None:
             return None

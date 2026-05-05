@@ -14,7 +14,7 @@ from .stock_data_service import get_stock_data_service
 
 logger = get_logger('agents')
 
-def get_stock_info(stock_code: str) -> Optional[dict[str, Any]]:
+def get_stock_info(stock_code: str) -> dict[str, Any] | None:
     """
     获取单个股票的基础信息
     

@@ -63,8 +63,8 @@ class DataSourceInfo:
     supported_markets: list[str]  # 支持的市场（a_shares, us_stocks, hk_stocks, etc.）
     requires_api_key: bool  # 是否需要 API 密钥
     is_free: bool  # 是否免费
-    official_website: Optional[str] = None  # 官方网站
-    documentation_url: Optional[str] = None  # 文档地址
+    official_website: str | None = None  # 官方网站
+    documentation_url: str | None = None  # 文档地址
     features: list[str] = None  # 特性列表
 
     def __post_init__(self):
@@ -279,7 +279,7 @@ DATA_SOURCE_REGISTRY: dict[str, DataSourceInfo] = {
 
 # ==================== 辅助函数 ====================
 
-def get_data_source_info(code: str) -> Optional[DataSourceInfo]:
+def get_data_source_info(code: str) -> DataSourceInfo | None:
     """
     获取数据源信息
     

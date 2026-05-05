@@ -23,7 +23,7 @@ try:
     from utils.data_config import get_cache_dir
 except Exception:
     # 回退：在项目根目录下的 data/cache/hk
-    def get_cache_dir(subdir: Optional[str] = None, create: bool = True):
+    def get_cache_dir(subdir: str | None = None, create: bool = True):
         base = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'cache')
         if subdir:
             base = os.path.join(base, subdir)

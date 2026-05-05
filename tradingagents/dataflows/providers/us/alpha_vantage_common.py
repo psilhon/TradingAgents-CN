@@ -34,7 +34,7 @@ class AlphaVantageAPIError(Exception):
     pass
 
 
-def _get_api_key_from_database() -> Optional[str]:
+def _get_api_key_from_database() -> str | None:
     """
     从数据库读取 Alpha Vantage API Key
 
