@@ -123,7 +123,7 @@ def test_trading_graph_config():
         config["quick_think_llm"] = "qwen-turbo"
 
         # 尝试初始化（不运行分析）
-        ta = TradingAgentsGraph(debug=False, config=config)
+        TradingAgentsGraph(debug=False, config=config)
 
         print("✅ TradingGraph 配置成功")
         print(f"   深度思考模型: {config['deep_think_llm']}")

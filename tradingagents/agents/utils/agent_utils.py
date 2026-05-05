@@ -203,7 +203,7 @@ class Toolkit:
             # 使用Tushare获取主要指数数据
             from tradingagents.dataflows.providers.china.tushare import get_tushare_adapter
 
-            adapter = get_tushare_adapter()
+            get_tushare_adapter()
 
 
             # 使用Tushare获取主要指数信息
@@ -793,7 +793,7 @@ class Toolkit:
             market_info = StockUtils.get_market_info(ticker)
             is_china = market_info['is_china']
             is_hk = market_info['is_hk']
-            is_us = market_info['is_us']
+            market_info['is_us']
 
             logger.info(f"🔍 [股票代码追踪] StockUtils.get_market_info 返回的市场信息: {market_info}")
             logger.info(f"📊 [统一基本面工具] 股票类型: {market_info['market_name']}")
@@ -1069,7 +1069,7 @@ class Toolkit:
             market_info = StockUtils.get_market_info(ticker)
             is_china = market_info['is_china']
             is_hk = market_info['is_hk']
-            is_us = market_info['is_us']
+            market_info['is_us']
 
             logger.info(f"📈 [统一市场工具] 股票类型: {market_info['market_name']}")
             logger.info(f"📈 [统一市场工具] 货币: {market_info['currency_name']} ({market_info['currency_symbol']}")
@@ -1171,7 +1171,7 @@ class Toolkit:
             market_info = StockUtils.get_market_info(ticker)
             is_china = market_info['is_china']
             is_hk = market_info['is_hk']
-            is_us = market_info['is_us']
+            market_info['is_us']
 
             logger.info(f"📰 [统一新闻工具] 股票类型: {market_info['market_name']}")
 
@@ -1304,7 +1304,7 @@ class Toolkit:
             market_info = StockUtils.get_market_info(ticker)
             is_china = market_info['is_china']
             is_hk = market_info['is_hk']
-            is_us = market_info['is_us']
+            market_info['is_us']
 
             logger.info(f"😊 [统一情绪工具] 股票类型: {market_info['market_name']}")
 

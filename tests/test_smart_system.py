@@ -126,7 +126,7 @@ def test_performance():
 
             # 测试加载性能
             start_time = time.time()
-            loaded_data = cache.load_stock_data(cache_key)
+            cache.load_stock_data(cache_key)
             load_time = time.time() - start_time
             total_load_time += load_time
 

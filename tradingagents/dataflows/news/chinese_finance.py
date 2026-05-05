@@ -277,7 +277,7 @@ def get_chinese_social_sentiment(ticker: str, curr_date: str) -> str:
 注: 由于中国社交媒体平台API限制，当前主要依赖公开财经数据源进行分析。
 """
 
-        overall = sentiment_data.get('overall_sentiment', {})
+        sentiment_data.get('overall_sentiment', {})
         news = sentiment_data.get('news_sentiment', {})
 
         return f"""

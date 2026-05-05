@@ -178,7 +178,7 @@ def test_analysis_stages():
     try:
         from cli.main import CLIUserInterface
 
-        ui = CLIUserInterface()
+        CLIUserInterface()
 
         print("📊 TradingAgents完整分析流程:")
         print("-" * 50)

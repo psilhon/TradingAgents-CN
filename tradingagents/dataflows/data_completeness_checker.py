@@ -89,7 +89,7 @@ class DataCompletenessChecker:
             df[date_col] = pd.to_datetime(df[date_col])
             df = df.sort_values(date_col)
 
-            data_start_date = df[date_col].min()
+            df[date_col].min()
             data_end_date = df[date_col].max()
             details["latest_date_in_data"] = data_end_date.strftime('%Y-%m-%d')
 

@@ -342,7 +342,6 @@ class StockDataPreparer:
         has_basic_info = False
         stock_name = "未知"
         cache_status = ""
-        data_synced = False
 
         try:
             # 1. 检查数据库中的数据是否存在和最新
@@ -358,7 +357,6 @@ class StockDataPreparer:
                 sync_result = self._trigger_data_sync_sync(stock_code, extended_start_date_str, end_date_str)
                 if sync_result["success"]:
                     logger.info(f"✅ [A股数据] 数据同步成功: {sync_result['message']}")
-                    data_synced = True
                     cache_status += "数据已同步; "
                 else:
                     logger.warning(f"⚠️ [A股数据] 数据同步失败: {sync_result['message']}")
@@ -713,7 +711,7 @@ class StockDataPreparer:
             # 🔥 检测是否有正在运行的事件循环
             # 如果有，说明我们在 asyncio.to_thread() 创建的线程中，需要创建新的事件循环
             try:
-                running_loop = asyncio.get_running_loop()
+                asyncio.get_running_loop()
                 # 有正在运行的循环，说明在异步上下文中，不能使用 run_until_complete
                 # 创建新的事件循环在新线程中运行
                 logger.info("🔍 [数据同步] 检测到正在运行的事件循环，创建新事件循环")
