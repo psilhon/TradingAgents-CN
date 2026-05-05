@@ -20,8 +20,8 @@ docker compose down
 # 后端（本地 venv 跑，连 docker 起的 db；端口 54301 见「端口分配」段）
 .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 54301 --reload
 
-# 前端（独立终端）
-cd frontend && npm install && npm run dev    # vite dev 默认 5173，临时不归端口段
+# 前端（独立终端；vite dev 强制 :54300，与 docker frontend 互斥）
+cd frontend && npm install && npm run dev -- --port 54300
 
 # CLI 多智能体演示（需要 .env 里至少 1 个 LLM key）
 .venv/bin/python main.py
@@ -46,7 +46,7 @@ uv pip install -e . --python .venv/bin/python
 | `docker-compose.hub.nginx.yml` | prod-like / amd64 Linux | 作者发布的 `hsliup/tradingagents-backend:v1.0.1` + Nginx 反代 |
 | `docker-compose.hub.nginx.arm.yml` | 同上 / Apple Silicon | 同上，arm64 镜像 |
 
-可选管理 UI：`docker compose --profile management up -d`（redis-commander :8081 / mongo-express :8082）
+可选管理 UI：`docker compose --profile management up -d`（redis-commander :54304 / mongo-express :54305）
 
 **Fork 上游同步**（首次：配 upstream remote；之后：定期合）：
 
@@ -98,7 +98,7 @@ just setup       # 装 pre-commit hook（首次 setup）
 
 **落地方式**：根目录 `docker-compose.override.yml`（已加入 `.git/info/exclude`，本地独有，不污染 fork）会被 `docker compose` 自动 merge 进 `docker-compose.yml`，覆盖端口映射 + 同步 `CORS_ORIGINS`。换机器需重建该文件——内容见本仓库历史或 CLAUDE.md 端口表。
 
-**例外**：vite dev server 默认 `5173` 是临时本地开发端口，**不**纳入本段约定；前端进 docker 后必须走 54300。
+**前端两种运行模式都走 54300**：vite dev (`npm run dev -- --port 54300`) 与 docker frontend 容器（host 端 54300）共用 54300，**互斥** —— 同一时刻只能跑一个（开发用 vite dev 热重载，部署/集测用 docker）。**不修改 `frontend/vite.config.ts`**（专有授权代码），通过命令行 `--port` 参数强制覆盖默认 5173。
 
 ## AI 上下文入口
 
@@ -141,6 +141,7 @@ just setup       # 装 pre-commit hook（首次 setup）
 
 - 🔴 **`uv pip install -e .` 会误删 tracked 文件 `VERSION` / `requirements.txt` / `requirements-lock.txt`**——本会话已实测复现。原因不明（无 `setup.py` / `MANIFEST.in`，文件也不在 `.gitignore`），疑似 setuptools editable build 或 uv 0.11 editable 实现的副作用。**装完立即跑 `git status`**；若有删除，立即 `git checkout HEAD -- VERSION requirements.txt requirements-lock.txt` 恢复。
 - 🟡 **`.chainlit/` 在 import chainlit 时自动生成**且未在 `.gitignore` 中，会污染 `git status`。可加到 `.gitignore` 或在 git 操作前手动忽略。
+- 🟡 **`app/services/config_service.py` 491/500 行 hardcode `port=27017/6379` 作为 fallback 默认值**（专有授权代码不改）。`.env` 必须显式配 `MONGODB_PORT=54302` + `REDIS_PORT=54303`，否则 backend fallback 连 27017/6379 失败（docker 端口已被 override 改成 54302/54303，无监听）。
 - 重装依赖时如果跑 `uv sync`（不带 `--frozen`），会因 `qianfan` extra 在 3.13 无可用 wheel 而失败——必须 `--frozen` 跳过解析
 - `uv pip install` 必须带 `--python .venv/bin/python`，否则 uv 会试图装到系统 homebrew Python，PEP 668 拒绝
 - Docker Desktop 必须先手动启动（GUI 操作，Claude 不能代替）

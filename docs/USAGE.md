@@ -51,7 +51,7 @@ just fix        # 自动修复 ruff lint/format
 # 服务（端口 54300-54309，见 CLAUDE.md）
 docker compose up -d mongodb redis     # 仅起 db，本地跑 backend
 .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 54301 --reload
-cd frontend && npm run dev             # 5173 (vite dev)
+cd frontend && npm run dev -- --port 54300   # vite dev 强制走端口段位 54300（与 docker frontend 互斥）
 
 # CLI demo
 .venv/bin/python main.py
