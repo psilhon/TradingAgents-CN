@@ -40,6 +40,10 @@
 - Python 版本：本地 venv 用 homebrew `python@3.12.13`（上游 Docker 用 `python:3.10-slim`；不修改上游 `.python-version`）
 - `ci.yml` 把 `uv sync --locked --all-extras` 改为 `uv sync --frozen` + `uv pip install -e .`（绕开 lock 不同步问题）
 
+### Fixed
+
+- **主题切换 bug**（OpenSpec change `fix-theme-persistence`）：用户切深色后，路由切换 / API 调用 / 页面刷新会重置回浅色。根因：`stores/auth.ts` 的 `syncUserPreferencesToAppStore()` 在 login / fetchUser / updateUser 三处用后端 `user.preferences.ui_theme`（admin 默认 light）强制覆盖 `appStore.theme`；附加 bug 是 `stores/app.ts toggleTheme()` 未写 localStorage。修复：(1) 删除 auth.ts ui_theme 同步逻辑（后端字段保留 schema 不消费）；(2) toggleTheme 加 `localStorage.setItem('app-theme', ...)`。主题选择现在完全本地持久化。
+
 ### Known Issues — 上游遗留（已记录到 `CLAUDE.md` 已知坑段）
 
 - `uv.lock` 锁的仍是旧版 `tradingagents 0.1.0`（25 个直接依赖），与当前 `1.0.0-preview`（70+ 依赖）不同步

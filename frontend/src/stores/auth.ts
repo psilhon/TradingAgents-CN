@@ -369,6 +369,12 @@ export const useAuthStore = defineStore('auth', {
     },
     
     // 同步用户偏好设置到 appStore
+    //
+    // 注意：主题（ui_theme）不再 sync 自后端，由前端 localStorage 本地持久化。
+    // 见 OpenSpec change `fix-theme-persistence`：之前在此处 sync ui_theme 会让
+    // 用户手动 toggle 的主题被后端 prefs（admin 默认 light）覆盖，每次路由切换 /
+    // user info 刷新都触发 bug。后端 user.preferences.ui_theme 字段保留 schema，
+    // 仅前端不再消费——为未来"多设备主题同步"功能保留 backward compatibility。
     syncUserPreferencesToAppStore() {
       if (!this.user?.preferences) return
 
@@ -376,11 +382,6 @@ export const useAuthStore = defineStore('auth', {
       import('./app').then(({ useAppStore }) => {
         const appStore = useAppStore()
         const prefs = this.user!.preferences
-
-        // 同步主题设置
-        if (prefs.ui_theme) {
-          appStore.setTheme(prefs.ui_theme as 'light' | 'dark' | 'auto')
-        }
 
         // 同步侧边栏宽度
         if (prefs.sidebar_width) {
