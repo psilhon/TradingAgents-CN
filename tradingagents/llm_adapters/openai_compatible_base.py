@@ -77,7 +77,7 @@ class OpenAICompatibleBase(ChatOpenAI):
         if api_key is None:
             # 导入 API Key 验证工具
             try:
-                from app.utils.api_key_utils import is_valid_api_key
+                from tradingagents.utils.api_key_utils import is_valid_api_key
             except ImportError:
 
                 def is_valid_api_key(key):
@@ -242,7 +242,7 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
         if not api_key:
             # 导入 API Key 验证工具
             try:
-                from app.utils.api_key_utils import is_valid_api_key
+                from tradingagents.utils.api_key_utils import is_valid_api_key
             except ImportError:
 
                 def is_valid_api_key(key):

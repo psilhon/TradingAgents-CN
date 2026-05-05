@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **🚨 critical license 边界：移动 api_key_utils 到 tradingagents/**（OpenSpec change `move-api-key-utils-to-tradingagents`）：v1.1.0 review 发现 Apache 2.0 的 `tradingagents/llm_adapters/` 反向 import 专有授权 `app.utils.api_key_utils.is_valid_api_key` 共 5 处——违反 fork 双轨 license 分层。本 change `git mv app/utils/api_key_utils.py tradingagents/utils/api_key_utils.py`，更新 5 处 tradingagents/ + 2 处 app/ import 路径。新建 capability `license-boundary` 锁定方向铁律 + 记录 baseline = 22（剩余 app.core/services/worker 反向 import，由 follow-up `eliminate-app-business-layer-imports` 消除）。
+
 - **🚨 critical 删除假数据 fallback 污染 LLM 决策链**（OpenSpec change `remove-fake-data-fallback`）：v1.1.0 review 发现数据源失败时 dataflows 返回**伪造业务数据**给 agent——`optimized_china_data.py` 用 `random.uniform(10, 50)` 假 A 股股价、`providers/us/optimized.py` 用 `random.uniform(100, 300)` 假美股股价（audit 漏抓本 change 一并修）、`chinese_finance.py` 用 hardcoded `f"{term}相关财经新闻标题"` 假新闻流入 sentiment 分析。模型无法区分降级 vs 真实信号——直接污染交易决策。本 change 删 3 个 `_generate_fallback_*` 方法，替换为 `_render_data_unavailable` / 返回 `[]`：仅返回明确"数据不可用"标识，无任何业务数字字段。新建 spec `dataflow-integrity` 锁定铁律 ⨯ 3 scenario。
 
 ### Changed

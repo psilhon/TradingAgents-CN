@@ -120,7 +120,7 @@ def _sanitize_datasource_configs(items):
     3. 如果都没有，返回 None
     """
     try:
-        from app.utils.api_key_utils import (
+        from tradingagents.utils.api_key_utils import (
             is_valid_api_key,
             truncate_api_key,
             get_env_api_key_for_datasource
@@ -249,7 +249,7 @@ async def get_llm_providers(
 ):
     """获取所有大模型厂家"""
     try:
-        from app.utils.api_key_utils import (
+        from tradingagents.utils.api_key_utils import (
             is_valid_api_key,
             truncate_api_key,
             get_env_api_key_for_provider
@@ -321,7 +321,7 @@ async def add_llm_provider(
 ):
     """添加大模型厂家"""
     try:
-        from app.utils.api_key_utils import should_skip_api_key_update
+        from tradingagents.utils.api_key_utils import should_skip_api_key_update
 
         provider_data = request.model_dump()
 
@@ -368,7 +368,7 @@ async def update_llm_provider(
 ):
     """更新大模型厂家"""
     try:
-        from app.utils.api_key_utils import should_skip_api_key_update
+        from tradingagents.utils.api_key_utils import should_skip_api_key_update
 
         update_data = request.model_dump(exclude_unset=True)
 
@@ -763,7 +763,7 @@ async def add_data_source_config(
 
         # 添加新的数据源配置
         # 🔥 修改：支持保存 API Key（与大模型厂家管理逻辑一致）
-        from app.utils.api_key_utils import should_skip_api_key_update, is_valid_api_key
+        from tradingagents.utils.api_key_utils import should_skip_api_key_update, is_valid_api_key
 
         _req = request.model_dump()
 
@@ -1147,7 +1147,7 @@ async def update_data_source_config(
             )
 
         # 查找并更新数据源配置
-        from app.utils.api_key_utils import should_skip_api_key_update, is_valid_api_key
+        from tradingagents.utils.api_key_utils import should_skip_api_key_update, is_valid_api_key
 
         def _truncate_api_key(api_key: str, prefix_len: int = 6, suffix_len: int = 6) -> str:
             """截断 API Key 用于显示"""
