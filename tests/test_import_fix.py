@@ -63,8 +63,8 @@ def test_stock_utils_functions():
             print(f"    港股: {hk_result} {'✅' if hk_result == expect_hk else '❌'}")
             print(f"    美股: {us_result} {'✅' if us_result == expect_us else '❌'}")
 
-            if (china_result != expect_china or 
-                hk_result != expect_hk or 
+            if (china_result != expect_china or
+                hk_result != expect_hk or
                 us_result != expect_us):
                 print(f"❌ {ticker} 识别结果不正确")
                 return False

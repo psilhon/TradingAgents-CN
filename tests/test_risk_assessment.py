@@ -90,7 +90,7 @@ def test_risk_assessment_extraction():
             # 验证报告内容
             required_sections = [
                 "激进风险分析师观点",
-                "中性风险分析师观点", 
+                "中性风险分析师观点",
                 "保守风险分析师观点",
                 "风险管理委员会最终决议"
             ]

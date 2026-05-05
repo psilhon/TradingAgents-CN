@@ -34,7 +34,7 @@ def test_stock_type_detection():
             print(f"    是否美股: {market_info['is_us']}")
 
             # 验证结果
-            if (expected_market in market_info['market_name'] and 
+            if (expected_market in market_info['market_name'] and
                 market_info['currency_name'] == expected_currency and
                 market_info['currency_symbol'] == expected_symbol):
                 print("    ✅ 识别正确")
@@ -127,7 +127,7 @@ def test_trader_currency_detection():
             print(f"    检测到的货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
             print(f"    期望的货币: {expected_currency} ({expected_symbol})")
 
-            if (market_info['currency_name'] == expected_currency and 
+            if (market_info['currency_name'] == expected_currency and
                 market_info['currency_symbol'] == expected_symbol):
                 print("    ✅ 货币检测正确")
             else:

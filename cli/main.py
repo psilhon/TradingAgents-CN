@@ -1280,7 +1280,7 @@ def run_analysis():
                     msg_type = "System"
 
                 # Add message to buffer
-                message_buffer.add_message(msg_type, content)                
+                message_buffer.add_message(msg_type, content)
 
                 # If it's a tool call, add it to tool calls
                 if hasattr(last_message, "tool_calls"):

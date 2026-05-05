@@ -194,7 +194,7 @@ def test_real_scenario_simulation():
         print("\n📈 市场分析师工作过程:")
         market_outputs = [
             "获取市场数据...",
-            "分析价格趋势...", 
+            "分析价格趋势...",
             "计算技术指标...",
             "生成市场报告..."
         ]

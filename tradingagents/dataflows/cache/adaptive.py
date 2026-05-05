@@ -42,7 +42,7 @@ class AdaptiveCacheSystem:
 
         self.logger.info(f"自适应缓存系统初始化 - 主要后端: {self.primary_backend}")
 
-    def _get_cache_key(self, symbol: str, start_date: str = "", end_date: str = "", 
+    def _get_cache_key(self, symbol: str, start_date: str = "", end_date: str = "",
                       data_source: str = "default", data_type: str = "stock_data") -> str:
         """生成缓存键"""
         key_data = f"{symbol}_{start_date}_{end_date}_{data_source}_{data_type}"
@@ -231,7 +231,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"MongoDB缓存加载失败: {e}")
             return None
 
-    def save_data(self, symbol: str, data: Any, start_date: str = "", end_date: str = "", 
+    def save_data(self, symbol: str, data: Any, start_date: str = "", end_date: str = "",
                   data_source: str = "default", data_type: str = "stock_data") -> str:
         """保存数据到缓存"""
         # 生成缓存键
@@ -303,7 +303,7 @@ class AdaptiveCacheSystem:
 
         return cache_data['data']
 
-    def find_cached_data(self, symbol: str, start_date: str = "", end_date: str = "", 
+    def find_cached_data(self, symbol: str, start_date: str = "", end_date: str = "",
                         data_source: str = "default", data_type: str = "stock_data") -> str | None:
         """查找缓存的数据"""
         cache_key = self._get_cache_key(symbol, start_date, end_date, data_source, data_type)

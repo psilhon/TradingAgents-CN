@@ -74,7 +74,7 @@ def test_baostock_stock_types():
             print(f"\n📊 数据类型统计 (前{count}条记录):")
             type_names = {
                 '1': '股票',
-                '2': '指数', 
+                '2': '指数',
                 '3': '其它',
                 '4': '可转债',
                 '5': 'ETF'

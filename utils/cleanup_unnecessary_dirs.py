@@ -32,7 +32,7 @@ def cleanup_directories():
     # 需要清理的文件模式
     cleanup_patterns = [
         "*.pyc",
-        "*.pyo", 
+        "*.pyo",
         "*.pyd",
         ".DS_Store",
         "Thumbs.db"
@@ -76,7 +76,7 @@ def update_gitignore():
         "*.egg-info/",
         "tradingagents.egg-info/",
         "",
-        "# 临时输出文件", 
+        "# 临时输出文件",
         "enhanced_analysis_reports/",
         "analysis_reports/",
         "",

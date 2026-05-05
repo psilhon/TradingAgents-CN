@@ -24,7 +24,7 @@ def check_all_api_keys():
 
     api_keys = {
         'DASHSCOPE_API_KEY': '阿里百炼API',
-        'FINNHUB_API_KEY': '金融数据API', 
+        'FINNHUB_API_KEY': '金融数据API',
         'GOOGLE_API_KEY': 'Google API',
         'REDDIT_CLIENT_ID': 'Reddit客户端ID',
         'REDDIT_CLIENT_SECRET': 'Reddit客户端密钥',
@@ -136,7 +136,7 @@ def test_tradingagents_with_new_apis():
         except ImportError:
             print("❌ Google News工具不可用")
 
-        # 检查Reddit相关工具  
+        # 检查Reddit相关工具
         try:
             from tradingagents.dataflows.reddit_utils import get_reddit_sentiment
             print("✅ Reddit情绪分析工具可用")

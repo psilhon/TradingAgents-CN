@@ -367,7 +367,7 @@ def get_enhanced_data_adapter() -> MongoDBCacheAdapter:
     return get_mongodb_cache_adapter()
 
 
-def get_stock_data_with_fallback(symbol: str, start_date: str = None, end_date: str = None, 
+def get_stock_data_with_fallback(symbol: str, start_date: str = None, end_date: str = None,
                                 fallback_func=None) -> Union[pd.DataFrame, str, None]:
     """
     带降级的股票数据获取

@@ -75,7 +75,7 @@ def test_real_estate_screening():
                 "limit": 10
             }
 
-            response = requests.post(f"{BASE_URL}/api/screening/run", 
+            response = requests.post(f"{BASE_URL}/api/screening/run",
                                    json=screening_request, headers=headers)
 
             if response.status_code == 200:

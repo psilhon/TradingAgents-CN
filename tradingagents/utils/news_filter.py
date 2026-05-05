@@ -118,7 +118,7 @@ class NewsRelevanceFilter:
             logger.debug(f"[过滤器] 排除关键词匹配: {exclude_matches[:3]}...")
 
         # 6. 特殊规则：如果标题完全不包含公司信息但包含排除词，严重减分
-        if (self.company_name not in title and self.stock_code not in title and 
+        if (self.company_name not in title and self.stock_code not in title and
             any(keyword in title_lower for keyword in self.exclude_keywords)):
             score -= 30
             logger.debug("[过滤器] 标题无公司信息但含排除词: -30分")
@@ -204,7 +204,7 @@ class NewsRelevanceFilter:
 STOCK_COMPANY_MAPPING = {
     # A股主要银行
     '600036': '招商银行',
-    '000001': '平安银行', 
+    '000001': '平安银行',
     '600000': '浦发银行',
     '601166': '兴业银行',
     '002142': '宁波银行',

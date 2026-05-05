@@ -49,7 +49,7 @@ def test_data_dir_configuration():
             # 检查子目录结构
             expected_subdirs = [
                 "finnhub",
-                "finnhub/news", 
+                "finnhub/news",
                 "finnhub/insider_sentiment",
                 "finnhub/insider_transactions"
             ]

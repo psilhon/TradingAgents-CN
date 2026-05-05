@@ -85,7 +85,7 @@ def check_specific_stock(stock_symbol="000001"):
 
     try:
         reports = mongodb_report_manager.get_analysis_reports(
-            limit=10, 
+            limit=10,
             stock_symbol=stock_symbol
         )
 

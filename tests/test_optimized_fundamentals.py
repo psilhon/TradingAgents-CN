@@ -28,7 +28,7 @@ def test_optimized_fundamentals():
     today = datetime.now()
     test_cases = [
         ("basic", 7, "基础分析 - 1周数据"),
-        ("standard", 14, "标准分析 - 2周数据"), 
+        ("standard", 14, "标准分析 - 2周数据"),
         ("full", 21, "完整分析 - 3周数据"),
         ("detailed", 28, "详细分析 - 4周数据"),
         ("comprehensive", 30, "全面分析 - 1个月数据")

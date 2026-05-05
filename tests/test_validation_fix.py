@@ -113,7 +113,7 @@ def test_regex_patterns():
 
         test_symbols = [
             "0700.HK",
-            "9988.HK", 
+            "9988.HK",
             "3690.HK",
             "0700",
             "9988",
