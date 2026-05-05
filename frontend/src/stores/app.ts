@@ -118,6 +118,9 @@ export const useAppStore = defineStore('app', {
       const currentIndex = themes.indexOf(this.theme)
       this.theme = themes[(currentIndex + 1) % themes.length]
       this.applyTheme()
+      // OpenSpec change `fix-theme-persistence`: 修复 useStorage 单向绑定 bug，
+      // toggleTheme 必须显式写 localStorage（与 setTheme 行为一致），否则刷新页面丢失。
+      localStorage.setItem('app-theme', this.theme)
     },
     
     // 设置主题
