@@ -99,7 +99,7 @@ async def test_timezone_fix():
                 try:
                     parsed_time = datetime.datetime.fromisoformat(log.timestamp.replace('Z', ''))
                     print(f"📋 解析后的时间: {parsed_time}")
-                except:
+                except Exception:
                     print("❌ 时间字符串解析失败")
 
         print("\n🎉 时区测试完成！")
