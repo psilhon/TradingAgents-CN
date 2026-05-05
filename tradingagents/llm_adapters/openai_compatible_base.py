@@ -5,7 +5,7 @@ OpenAI兼容适配器基类
 
 import os
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.messages import BaseMessage
@@ -16,7 +16,7 @@ from langchain_openai import ChatOpenAI
 from tradingagents.utils.logging_init import setup_llm_logging
 
 # 导入日志模块
-from tradingagents.utils.logging_manager import get_logger, get_logger_manager
+from tradingagents.utils.logging_manager import get_logger
 
 logger = get_logger('agents')
 logger = setup_llm_logging()

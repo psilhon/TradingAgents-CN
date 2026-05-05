@@ -5,7 +5,6 @@
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, Optional
 
 import pandas as pd
 

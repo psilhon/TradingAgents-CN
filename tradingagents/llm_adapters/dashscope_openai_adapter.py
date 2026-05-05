@@ -5,11 +5,9 @@
 """
 
 import os
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, Optional
 
-from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
-from pydantic import Field, SecretStr
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

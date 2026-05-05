@@ -4,7 +4,6 @@
 确保项目中所有版本号引用都是一致的
 """
 
-import os
 import re
 from pathlib import Path
 

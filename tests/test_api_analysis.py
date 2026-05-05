@@ -3,7 +3,6 @@
 测试API分析功能的脚本
 """
 
-import json
 import time
 
 import requests

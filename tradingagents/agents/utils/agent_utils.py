@@ -1,14 +1,8 @@
-import functools
-import os
-from datetime import date, datetime, timedelta
-from typing import Annotated, List
+from datetime import datetime
+from typing import Annotated
 
-import pandas as pd
-from dateutil.relativedelta import relativedelta
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, RemoveMessage, ToolMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import HumanMessage, RemoveMessage
 from langchain_core.tools import tool
-from langchain_openai import ChatOpenAI
 
 import tradingagents.dataflows.interface as interface
 from tradingagents.default_config import DEFAULT_CONFIG
@@ -18,7 +12,7 @@ from tradingagents.utils.logging_init import get_logger
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
-from tradingagents.utils.tool_logging import log_analysis_step, log_tool_call
+from tradingagents.utils.tool_logging import log_tool_call
 
 logger = get_logger('agents')
 

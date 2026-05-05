@@ -3,9 +3,7 @@
 检查MongoDB中的分析记录
 """
 
-import os
 import sys
-from datetime import datetime
 from pathlib import Path
 
 # 添加项目根目录到Python路径

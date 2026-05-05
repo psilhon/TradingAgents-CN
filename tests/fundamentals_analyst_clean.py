@@ -3,7 +3,6 @@
 使用统一工具自动识别股票类型并调用相应数据源
 """
 
-from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 

@@ -8,7 +8,7 @@
 import os
 import sys
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

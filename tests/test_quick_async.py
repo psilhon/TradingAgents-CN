@@ -4,7 +4,6 @@
 验证API是否不再阻塞
 """
 
-import json
 import time
 
 import requests

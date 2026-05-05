@@ -108,8 +108,6 @@ def test_web_currency_display():
     """测试Web界面货币显示修复"""
 
     try:
-        import streamlit as st
-        from web.components.results_display import render_decision_summary
 
         print("🌐 测试Web界面货币显示...")
 

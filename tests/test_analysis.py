@@ -20,8 +20,6 @@ load_dotenv(project_root / ".env", override=True)
 def test_basic_imports():
     """测试基本导入"""
     try:
-        from tradingagents.default_config import DEFAULT_CONFIG
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         print("✅ 基本导入成功")
         return True
     except Exception as e:

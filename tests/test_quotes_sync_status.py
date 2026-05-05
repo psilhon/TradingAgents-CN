@@ -11,7 +11,6 @@
 import asyncio
 import sys
 from datetime import datetime
-from datetime import time as dtime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 

@@ -121,7 +121,6 @@ def test_backward_compatibility():
         print(f"  FINNHUB_API_KEY: {'✅ 已设置' if finnhub_key else '❌ 未设置'}")
 
         # 测试CLI工具兼容性
-        from cli.main import check_api_keys
 
         # 模拟CLI检查
         if dashscope_key and finnhub_key:

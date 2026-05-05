@@ -28,7 +28,7 @@ def test_deepseek_adapter():
         return True  # 跳过而不是失败
 
     try:
-        from tradingagents.config.config_manager import config_manager, token_tracker
+        from tradingagents.config.config_manager import config_manager
         from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 获取初始统计

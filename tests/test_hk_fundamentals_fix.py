@@ -4,7 +4,6 @@
 验证港股代码识别、工具选择和货币处理是否正确
 """
 
-import os
 import sys
 
 

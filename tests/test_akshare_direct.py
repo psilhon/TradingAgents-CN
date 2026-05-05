@@ -5,7 +5,6 @@
 """
 
 import akshare as ak
-import pandas as pd
 
 
 def test_akshare_financial_apis():

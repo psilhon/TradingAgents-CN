@@ -3,7 +3,6 @@
 测试新的行业API
 """
 
-import json
 
 import requests
 

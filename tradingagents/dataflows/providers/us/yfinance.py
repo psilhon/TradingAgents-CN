@@ -1,6 +1,5 @@
 # gets data/stats
 
-import os
 from datetime import datetime
 from functools import wraps
 from typing import Annotated, Any, Callable, Optional
@@ -10,7 +9,7 @@ import yfinance as yf
 from dateutil.relativedelta import relativedelta
 from pandas import DataFrame
 
-from tradingagents.utils.dataflow_utils import SavePathType, decorate_all_methods, save_output
+from tradingagents.utils.dataflow_utils import SavePathType, decorate_all_methods
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

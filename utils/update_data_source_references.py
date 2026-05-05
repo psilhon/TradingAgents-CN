@@ -4,8 +4,6 @@
 将所有"通达信"引用更新为"Tushare"或通用描述
 """
 
-import os
-import re
 from pathlib import Path
 
 # 导入日志模块

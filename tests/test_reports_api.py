@@ -2,8 +2,6 @@
 """
 测试分析报告API功能
 """
-import json
-import time
 from datetime import datetime
 
 import requests

@@ -8,7 +8,6 @@ Test CLI Fix - KeyError: 'stock_symbol' Issue
 This test verifies the fix for the selections dictionary key mismatch issue in CLI
 """
 
-import os
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch

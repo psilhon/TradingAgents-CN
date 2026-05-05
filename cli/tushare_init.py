@@ -5,9 +5,7 @@ Tushare数据初始化CLI工具
 """
 import argparse
 import asyncio
-import os
 import sys
-from datetime import datetime
 from pathlib import Path
 
 # 添加项目根目录到Python路径

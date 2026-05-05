@@ -3,7 +3,6 @@
 测试日志修复效果的脚本
 """
 
-import os
 import sys
 from pathlib import Path
 

@@ -7,8 +7,8 @@ import time
 from typing import Any, Dict, List, Optional, Union
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
-from langchain_core.outputs import ChatGeneration, ChatResult
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
+from langchain_core.outputs import ChatResult
 from langchain_openai import ChatOpenAI
 
 # 导入统一日志系统

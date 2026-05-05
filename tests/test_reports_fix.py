@@ -3,7 +3,6 @@
 测试reports和analysts字段修复
 """
 
-import json
 import time
 
 import requests

@@ -4,11 +4,10 @@
 集成缓存策略，减少API调用，提高响应速度
 """
 
-import os
 import random
 import time
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from datetime import datetime
+from typing import Optional
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -351,7 +350,7 @@ class OptimizedUSDataProvider:
         """从FINNHUB API获取股票数据"""
         try:
             import os
-            from datetime import datetime, timedelta
+            from datetime import datetime
 
             import finnhub
 
@@ -428,7 +427,6 @@ class OptimizedUSDataProvider:
     def _get_data_from_alpha_vantage(self, symbol: str, start_date: str, end_date: str) -> str:
         """从 Alpha Vantage API 获取股票数据"""
         try:
-            from datetime import datetime
 
             import requests
 

@@ -3,7 +3,6 @@
 基于实时行情和财务数据计算PE/PB等指标
 """
 import logging
-from datetime import datetime
 from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)

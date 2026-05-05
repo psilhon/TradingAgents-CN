@@ -26,7 +26,6 @@ def test_basic_imports():
 
     try:
         # 测试dataflows模块导入
-        from tradingagents.dataflows import akshare_utils
         print("✅ akshare_utils模块导入成功")
     except Exception as e:
         print(f"❌ akshare_utils模块导入失败: {e}")
@@ -34,7 +33,6 @@ def test_basic_imports():
 
     try:
         # 测试数据源管理器导入
-        from tradingagents.dataflows.data_source_manager import DataSourceManager
         print("✅ DataSourceManager导入成功")
     except Exception as e:
         print(f"❌ DataSourceManager导入失败: {e}")

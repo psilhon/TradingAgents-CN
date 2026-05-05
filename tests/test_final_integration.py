@@ -6,7 +6,6 @@
 
 import os
 import sys
-from datetime import datetime
 
 # 添加项目根目录到路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -77,7 +76,6 @@ def test_final_integration():
 
         # 2. 测试新闻分析师的工具加载
         print("\n📰 第二步：测试新闻分析师工具加载...")
-        from tradingagents.agents.analysts.news_analyst import create_news_analyst
 
         # 检查新闻分析师是否正确导入了统一新闻工具
         print("  ✅ 新闻分析师模块导入成功")

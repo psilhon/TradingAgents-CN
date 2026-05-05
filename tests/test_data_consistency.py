@@ -27,7 +27,6 @@ def test_data_consistency_checker():
     try:
         from app.services.data_source_adapters import DataSourceManager
 
-        from app.services.data_consistency_checker import DataConsistencyChecker
 
         # 1. 测试数据源管理器初始化
         print("\n1. 初始化数据源管理器...")

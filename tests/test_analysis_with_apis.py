@@ -46,7 +46,6 @@ def test_news_analyst_with_google():
         # 创建测试状态
         from langchain_core.messages import HumanMessage
 
-        from tradingagents.agents.utils.agent_states import AgentState
 
         test_state = {
             "messages": [HumanMessage(content="分析AAPL的新闻情况")],

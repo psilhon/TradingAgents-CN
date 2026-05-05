@@ -4,12 +4,11 @@
 解决新闻滞后性问题
 """
 
-import json
 import os
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import List
 from zoneinfo import ZoneInfo
 
 import requests

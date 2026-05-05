@@ -5,9 +5,7 @@ AKShare功能检查测试
 """
 
 import os
-import sys
 import traceback
-from typing import Any, Dict, List
 
 
 def test_akshare_import():

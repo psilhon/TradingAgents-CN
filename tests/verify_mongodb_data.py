@@ -6,8 +6,7 @@ MongoDB数据验证脚本
 """
 
 import os
-from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 try:
     from pymongo import MongoClient
