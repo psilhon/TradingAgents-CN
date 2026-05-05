@@ -28,7 +28,7 @@
 | `app/worker.py` / `app/worker/` | apscheduler 定时任务 | 后台 worker |
 | `main.py` | `python main.py` | LangGraph 多智能体 CLI demo（Google AI 默认）|
 | `cli/main.py` | `python -m cli.main` | 数据初始化 CLI |
-| `frontend/src/main.ts` | `npm run dev`（vite :5173）| Vue 前端入口 |
+| `frontend/src/main.ts` | `npm run dev -- --port 54300` | Vue 前端入口（强制段位 54300，与 docker frontend 互斥）|
 | `tradingagents/graph/trading_graph.py` | 被 `main.py` import | **多智能体编排核心** |
 
 ## 配置文件
