@@ -678,19 +678,6 @@ def get_hk_stock_data_akshare(symbol: str, start_date: str | None = None, end_da
         return f"❌ 港股{symbol}历史数据获取失败: {e!s}"
 
 
-# 🔥 全局缓存：缓存 AKShare 的所有港股数据
-_akshare_hk_spot_cache = {
-    "data": None,
-    "timestamp": None,
-    "ttl": 600,  # 缓存 10 分钟（参考美股实时行情缓存时长）
-}
-
-# 🔥 线程锁：防止多个线程同时调用 AKShare API
-import threading  # noqa: E402
-
-_akshare_hk_spot_lock = threading.Lock()
-
-
 def _safe_float(value: Any) -> float | None:
     try:
         if value is None or value == "" or (isinstance(value, float) and value != value):
