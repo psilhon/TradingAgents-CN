@@ -61,21 +61,7 @@ class ChatDeepSeek(ChatOpenAI):
 
         # 获取API密钥
         if api_key is None:
-            # 导入 API Key 验证工具
-            try:
-                from tradingagents.utils.api_key_utils import is_valid_api_key
-            except ImportError:
-
-                def is_valid_api_key(key):
-                    if not key or len(key) <= 10:
-                        return False
-                    if key.startswith("your_") or key.startswith("your-"):
-                        return False
-                    if key.endswith("_here") or key.endswith("-here"):
-                        return False
-                    if "..." in key:
-                        return False
-                    return True
+            from tradingagents.utils.api_key_utils import is_valid_api_key
 
             # 从环境变量读取 API Key
             env_api_key = os.getenv("DEEPSEEK_API_KEY")

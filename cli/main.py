@@ -46,7 +46,6 @@ DEFAULT_MAX_TOOL_ARGS_LENGTH = 100
 DEFAULT_MAX_CONTENT_LENGTH = 200
 DEFAULT_MAX_DISPLAY_MESSAGES = 12
 DEFAULT_REFRESH_RATE = 4
-DEFAULT_API_KEY_DISPLAY_LENGTH = 12
 
 # 初始化日志系统
 logger = get_logger("cli")
@@ -1540,30 +1539,32 @@ def config():
     anthropic_key = os.getenv("ANTHROPIC_API_KEY")
     google_key = os.getenv("GOOGLE_API_KEY")
 
+    from tradingagents.utils.api_key_utils import redact_api_key
+
     api_keys_table.add_row(
         "DASHSCOPE_API_KEY",
         "✅ 已配置" if dashscope_key else "❌ 未配置",
-        f"阿里百炼 | {dashscope_key[:DEFAULT_API_KEY_DISPLAY_LENGTH]}..." if dashscope_key else "阿里百炼API密钥",
+        f"阿里百炼 | {redact_api_key(dashscope_key)}" if dashscope_key else "阿里百炼API密钥",
     )
     api_keys_table.add_row(
         "FINNHUB_API_KEY",
         "✅ 已配置" if finnhub_key else "❌ 未配置",
-        f"金融数据 | {finnhub_key[:DEFAULT_API_KEY_DISPLAY_LENGTH]}..." if finnhub_key else "金融数据API密钥",
+        f"金融数据 | {redact_api_key(finnhub_key)}" if finnhub_key else "金融数据API密钥",
     )
     api_keys_table.add_row(
         "OPENAI_API_KEY",
         "✅ 已配置" if openai_key else "❌ 未配置",
-        f"OpenAI | {openai_key[:DEFAULT_API_KEY_DISPLAY_LENGTH]}..." if openai_key else "OpenAI API密钥",
+        f"OpenAI | {redact_api_key(openai_key)}" if openai_key else "OpenAI API密钥",
     )
     api_keys_table.add_row(
         "ANTHROPIC_API_KEY",
         "✅ 已配置" if anthropic_key else "❌ 未配置",
-        f"Anthropic | {anthropic_key[:DEFAULT_API_KEY_DISPLAY_LENGTH]}..." if anthropic_key else "Anthropic API密钥",
+        f"Anthropic | {redact_api_key(anthropic_key)}" if anthropic_key else "Anthropic API密钥",
     )
     api_keys_table.add_row(
         "GOOGLE_API_KEY",
         "✅ 已配置" if google_key else "❌ 未配置",
-        f"Google AI | {google_key[:DEFAULT_API_KEY_DISPLAY_LENGTH]}..." if google_key else "Google AI API密钥",
+        f"Google AI | {redact_api_key(google_key)}" if google_key else "Google AI API密钥",
     )
 
     console.print(api_keys_table)

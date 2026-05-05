@@ -21,6 +21,15 @@ from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 
+from tradingagents.utils.api_key_utils import redact_api_key as _redact_full
+
+
+def _redact_for_preview(api_key: str | None) -> str:
+    # api_key_preview 字段语义：可读但脱敏
+    if not api_key:
+        return "未配置"
+    return _redact_full(api_key)
+
 # 发出废弃警告
 warnings.warn(
     "ConfigManager is deprecated and will be removed in version 2.0 (2026-03-31). "
@@ -115,7 +124,9 @@ class ConfigManager:
             # 对OpenAI密钥进行格式验证（始终启用）
             if provider.lower() == "openai" and api_key:
                 if not self.validate_openai_api_key_format(api_key):
-                    logger.warning(f"⚠️ OpenAI API密钥格式不正确，将被忽略: {api_key[:10]}...")
+                    from tradingagents.utils.api_key_utils import redact_api_key
+
+                    logger.warning(f"⚠️ OpenAI API密钥格式不正确，将被忽略: {redact_api_key(api_key)}")
                     return ""
             return api_key
         return ""
@@ -644,7 +655,7 @@ class ConfigManager:
             "api_key_valid_format": key_valid,
             "enabled": self.is_openai_enabled(),
             "models_available": self.is_openai_enabled() and key_valid,
-            "api_key_preview": f"{openai_key[:10]}..." if openai_key else "未配置",
+            "api_key_preview": _redact_for_preview(openai_key),
         }
 
 
