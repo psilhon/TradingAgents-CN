@@ -47,7 +47,7 @@ class GraphSetup:
         invest_judge_memory,
         risk_manager_memory,
         conditional_logic: ConditionalLogic,
-        config: dict[str, Any] = None,
+        config: dict[str, Any] | None = None,
         react_llm = None,
     ):
         """Initialize with required components."""

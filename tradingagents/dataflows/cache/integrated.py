@@ -28,7 +28,7 @@ except ImportError as e:
 class IntegratedCacheManager:
     """集成缓存管理器 - 智能选择缓存策略"""
 
-    def __init__(self, cache_dir: str = None):
+    def __init__(self, cache_dir: str | None = None):
         self.logger = setup_dataflow_logging()
 
         # 初始化原有缓存系统（作为备用）
@@ -68,8 +68,8 @@ class IntegratedCacheManager:
         else:
             self.logger.info("📁 使用传统文件缓存系统")
 
-    def save_stock_data(self, symbol: str, data: Any, start_date: str = None,
-                       end_date: str = None, data_source: str = "default") -> str:
+    def save_stock_data(self, symbol: str, data: Any, start_date: str | None = None,
+                       end_date: str | None = None, data_source: str = "default") -> str:
         """
         保存股票数据到缓存
         
@@ -120,8 +120,8 @@ class IntegratedCacheManager:
             # 使用传统缓存系统
             return self.legacy_cache.load_stock_data(cache_key)
 
-    def find_cached_stock_data(self, symbol: str, start_date: str = None,
-                              end_date: str = None, data_source: str = "default") -> str | None:
+    def find_cached_stock_data(self, symbol: str, start_date: str | None = None,
+                              end_date: str | None = None, data_source: str = "default") -> str | None:
         """
         查找缓存的股票数据
         
@@ -190,8 +190,8 @@ class IntegratedCacheManager:
         else:
             return self.legacy_cache.load_fundamentals_data(cache_key)
 
-    def find_cached_fundamentals_data(self, symbol: str, data_source: str = None,
-                                     max_age_hours: int = None) -> str | None:
+    def find_cached_fundamentals_data(self, symbol: str, data_source: str | None = None,
+                                     max_age_hours: int | None = None) -> str | None:
         """
         查找匹配的基本面缓存数据
 
@@ -209,8 +209,8 @@ class IntegratedCacheManager:
         else:
             return self.legacy_cache.find_cached_fundamentals_data(symbol, data_source, max_age_hours)
 
-    def is_fundamentals_cache_valid(self, symbol: str, data_source: str = None,
-                                   max_age_hours: int = None) -> bool:
+    def is_fundamentals_cache_valid(self, symbol: str, data_source: str | None = None,
+                                   max_age_hours: int | None = None) -> bool:
         """
         检查基本面缓存是否有效
 
@@ -393,6 +393,6 @@ def get_stock_cache():
     """向后兼容：获取股票缓存"""
     return get_cache()
 
-def create_cache_manager(cache_dir: str = None):
+def create_cache_manager(cache_dir: str | None = None):
     """向后兼容：创建缓存管理器"""
     return IntegratedCacheManager(cache_dir)

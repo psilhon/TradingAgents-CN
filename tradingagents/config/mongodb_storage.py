@@ -31,7 +31,7 @@ except ImportError:
 class MongoDBStorage:
     """MongoDB存储适配器"""
 
-    def __init__(self, connection_string: str = None, database_name: str = "tradingagents"):
+    def __init__(self, connection_string: str | None = None, database_name: str = "tradingagents"):
         if not MONGODB_AVAILABLE:
             raise ImportError("pymongo is not installed. Please install it with: pip install pymongo")
 
@@ -147,7 +147,7 @@ class MongoDBStorage:
             logger.error(f"   堆栈: {traceback.format_exc()}")
             return False
 
-    def load_usage_records(self, limit: int = 10000, days: int = None) -> list[UsageRecord]:
+    def load_usage_records(self, limit: int = 10000, days: int | None = None) -> list[UsageRecord]:
         """从MongoDB加载使用记录"""
         if not self._connected:
             return []

@@ -22,7 +22,7 @@ logger = get_logger('agents')
 class StockDataCache:
     """股票数据缓存管理器 - 支持美股和A股数据缓存优化"""
 
-    def __init__(self, cache_dir: str = None):
+    def __init__(self, cache_dir: str | None = None):
         """
         初始化缓存管理器
 
@@ -185,7 +185,7 @@ class StockDataCache:
         cache_key = hashlib.md5(params_str.encode()).hexdigest()[:12]
         return f"{symbol}_{data_type}_{cache_key}"
 
-    def _get_cache_path(self, data_type: str, cache_key: str, file_format: str = "json", symbol: str = None) -> Path:
+    def _get_cache_path(self, data_type: str, cache_key: str, file_format: str = "json", symbol: str | None = None) -> Path:
         """获取缓存文件路径 - 支持市场分类"""
         if symbol:
             market_type = self._determine_market_type(symbol)
@@ -231,7 +231,7 @@ class StockDataCache:
             logger.error(f"⚠️ 加载元数据失败: {e}")
             return None
 
-    def is_cache_valid(self, cache_key: str, max_age_hours: int = None, symbol: str = None, data_type: str = None) -> bool:
+    def is_cache_valid(self, cache_key: str, max_age_hours: int | None = None, symbol: str | None = None, data_type: str | None = None) -> bool:
         """检查缓存是否有效 - 支持智能TTL配置"""
         metadata = self._load_metadata(cache_key)
         if not metadata:
@@ -265,7 +265,7 @@ class StockDataCache:
         return is_valid
 
     def save_stock_data(self, symbol: str, data: pd.DataFrame | str,
-                       start_date: str = None, end_date: str = None,
+                       start_date: str | None = None, end_date: str | None = None,
                        data_source: str = "unknown") -> str:
         """
         保存股票数据到缓存 - 支持美股和A股分类存储
@@ -352,9 +352,9 @@ class StockDataCache:
             logger.error(f"⚠️ 加载缓存数据失败: {e}")
             return None
 
-    def find_cached_stock_data(self, symbol: str, start_date: str = None,
-                              end_date: str = None, data_source: str = None,
-                              max_age_hours: int = None) -> str | None:
+    def find_cached_stock_data(self, symbol: str, start_date: str | None = None,
+                              end_date: str | None = None, data_source: str | None = None,
+                              max_age_hours: int | None = None) -> str | None:
         """
         查找匹配的缓存数据 - 支持智能市场分类查找
 
@@ -412,7 +412,7 @@ class StockDataCache:
         return None
 
     def save_news_data(self, symbol: str, news_data: str,
-                      start_date: str = None, end_date: str = None,
+                      start_date: str | None = None, end_date: str | None = None,
                       data_source: str = "unknown") -> str:
         """保存新闻数据到缓存"""
         # 检查内容长度是否需要跳过缓存
@@ -509,8 +509,8 @@ class StockDataCache:
             logger.error(f"⚠️ 加载基本面缓存数据失败: {e}")
             return None
 
-    def find_cached_fundamentals_data(self, symbol: str, data_source: str = None,
-                                    max_age_hours: int = None) -> str | None:
+    def find_cached_fundamentals_data(self, symbol: str, data_source: str | None = None,
+                                    max_age_hours: int | None = None) -> str | None:
         """
         查找匹配的基本面缓存数据
         

@@ -91,7 +91,7 @@ def get_all_stocks() -> list[dict[str, Any]]:
 
     return result if isinstance(result, list) else [result]
 
-def get_stock_data(stock_code: str, start_date: str = None, end_date: str = None) -> str:
+def get_stock_data(stock_code: str, start_date: str | None = None, end_date: str | None = None) -> str:
     """
     获取股票历史数据（带降级机制）
     
