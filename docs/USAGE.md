@@ -79,16 +79,22 @@ cd frontend && npm run dev -- --port 54300   # vite dev 强制走端口段位 54
 
 主开发战场：`tradingagents/`（Apache 2.0）。`app/` 和 `frontend/` 是上游专有授权，仅本机学习目的可改。
 
-## 4. 上游同步流程
+## 4. Fork 状态：独立分叉
+
+本 fork 不再定期 sync 上游 `hsliuping/TradingAgents-CN`。需要上游某项功能 / 修复时手动 cherry-pick：
 
 ```bash
+# 添加 upstream remote 仅作 cherry-pick 临时用
+git remote add upstream https://github.com/hsliuping/TradingAgents-CN.git
 git fetch upstream
-git log --oneline HEAD..upstream/main  # 看新增改动
-git merge upstream/main                 # 或 rebase
-# 冲突大概率发生在 pyproject.toml / .gitignore；CLAUDE.md / docs/ 等 fork 新文件不冲突
+git log upstream/main -- <path>                   # 看上游某文件历史
+git cherry-pick <commit-hash>                     # 单独引入特定 commit
+git remote remove upstream                        # 用完即删，避免误 merge
 ```
 
-`.github/workflows/upstream-sync-check.yml` 已上游自带，会定期检查上游新 commit 数。
+**不要** `git merge upstream/main` 或 `git pull upstream main`——这会引入大量本 fork 已删的内容（Windows 脚本 / 学习中心 / streamlit 等），违反 `repository-scope` spec。
+
+注：上游遗留的 `.github/workflows/upstream-sync-check.yml` 仍跑（提示上游新 commit 数），仅供参考，不应触发同步行动。
 
 ## 5. 常见坑（同步自 `CLAUDE.md` 已知坑段）
 
