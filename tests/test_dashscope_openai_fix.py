@@ -25,7 +25,7 @@ def test_openai_adapter_import():
         from tradingagents.llm_adapters.dashscope_openai_adapter import (
             create_dashscope_openai_llm,
             test_dashscope_openai_connection,
-            test_dashscope_openai_function_calling
+            test_dashscope_openai_function_calling,
         )
         print("✅ 相关函数导入成功")
 
@@ -94,10 +94,11 @@ def test_technical_analysis_with_new_adapter():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from tradingagents.agents.utils.agent_utils import Toolkit
         from langchain_core.messages import HumanMessage
         from langchain_core.tools import tool
+
+        from tradingagents.agents.utils.agent_utils import Toolkit
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 创建新的 OpenAI 兼容适配器
         llm = ChatDashScopeOpenAI(

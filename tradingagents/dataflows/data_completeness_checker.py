@@ -6,7 +6,8 @@
 
 import logging
 from datetime import datetime, timedelta
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
+
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -191,8 +192,9 @@ class DataCompletenessChecker:
         try:
             if market == "CN":
                 # A股：使用 Tushare 查找最新交易日
-                from tradingagents.dataflows.providers.china.tushare import TushareProvider
                 import asyncio
+
+                from tradingagents.dataflows.providers.china.tushare import TushareProvider
 
                 provider = TushareProvider()
                 if provider.is_available():

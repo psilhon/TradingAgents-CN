@@ -76,8 +76,8 @@ def test_enhanced_screening_enriches_from_db(monkeypatch):
 
 
 def test_quotes_ingestion_run_once_writes_bulk(monkeypatch):
-    from app.services.quotes_ingestion_service import QuotesIngestionService
     import app.services.quotes_ingestion_service as qis_mod
+    from app.services.quotes_ingestion_service import QuotesIngestionService
 
     # Fake DataSourceManager to avoid external calls
     class _FakeManager:

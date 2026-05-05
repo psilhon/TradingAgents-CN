@@ -4,16 +4,19 @@ MongoDB 缓存适配器
 根据 TA_USE_APP_CACHE 配置，优先使用 MongoDB 中的同步数据
 """
 
-import pandas as pd
-from typing import Optional, Dict, Any, List, Union
 from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional, Union
+
+import pandas as pd
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('agents')
 
 # 导入配置
 from tradingagents.config.runtime_settings import use_app_cache_enabled
+
 
 class MongoDBCacheAdapter:
     """MongoDB 缓存适配器（从 app 的 MongoDB 读取同步数据）"""
@@ -90,7 +93,7 @@ class MongoDBCacheAdapter:
         """
         try:
             # 1. 识别市场分类
-            from tradingagents.utils.stock_utils import StockUtils, StockMarket
+            from tradingagents.utils.stock_utils import StockMarket, StockUtils
             market = StockUtils.identify_stock_market(symbol)
 
             market_mapping = {

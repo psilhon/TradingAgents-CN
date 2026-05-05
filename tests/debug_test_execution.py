@@ -4,9 +4,10 @@
 逐步检查测试脚本闪退的原因
 """
 
-import sys
 import os
+import sys
 import traceback
+
 
 def step1_basic_check():
     """步骤1: 基本环境检查"""
@@ -147,8 +148,9 @@ def step6_tool_binding_test():
             print("⚠️ DASHSCOPE_API_KEY未设置，跳过工具绑定测试")
             return True
 
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         print("🔄 定义测试工具...")
         @tool
@@ -180,9 +182,10 @@ def step7_actual_call_test():
             print("⚠️ DASHSCOPE_API_KEY未设置，跳过实际调用测试")
             return True
 
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         @tool
         def test_tool(text: str) -> str:

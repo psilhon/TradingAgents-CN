@@ -5,12 +5,14 @@
 验证300750的估值指标是否正确显示
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.agents.utils.agent_utils import Toolkit
+from tradingagents.default_config import DEFAULT_CONFIG
+
 
 def test_300750_fundamentals():
     """测试300750的基本面分析"""

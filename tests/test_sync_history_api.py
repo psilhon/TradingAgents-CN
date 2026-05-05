@@ -3,8 +3,9 @@
 测试同步历史API功能
 验证历史记录的获取和显示
 """
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import asyncio
@@ -24,7 +25,7 @@ async def test_sync_history_api():
     print("=" * 60)
 
     try:
-        from app.core.database import init_db, get_mongo_db
+        from app.core.database import get_mongo_db, init_db
         from app.services.multi_source_basics_sync_service import get_multi_source_sync_service
 
         # 初始化数据库

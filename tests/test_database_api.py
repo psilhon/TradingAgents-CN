@@ -4,11 +4,13 @@
 """
 
 import asyncio
-import sys
 import os
+import sys
+
 sys.path.append('.')
 
 from app.services.database_service import DatabaseService
+
 
 async def test_database_service():
     """测试数据库服务"""

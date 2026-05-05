@@ -5,14 +5,14 @@
 """
 
 import os
-import time
 import random
+import time
 from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
 from zoneinfo import ZoneInfo
 
-from typing import Optional, Dict, Any
-import yfinance as yf
 import pandas as pd
+import yfinance as yf
 
 # 导入缓存管理器（支持新旧路径）
 try:
@@ -30,8 +30,10 @@ except ImportError:
         return {}
 
 from tradingagents.config.runtime_settings import get_float, get_timezone_name
+
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+
 logger = get_logger('agents')
 
 
@@ -86,7 +88,7 @@ class OptimizedUSDataProvider:
         # 检查缓存（除非强制刷新）
         if not force_refresh:
             # 🔥 按照数据源优先级顺序查找缓存
-            from ...data_source_manager import get_us_data_source_manager, USDataSource
+            from ...data_source_manager import USDataSource, get_us_data_source_manager
             us_manager = get_us_data_source_manager()
 
             # 获取数据源优先级顺序
@@ -348,9 +350,10 @@ class OptimizedUSDataProvider:
     def _get_data_from_finnhub(self, symbol: str, start_date: str, end_date: str) -> str:
         """从FINNHUB API获取股票数据"""
         try:
-            import finnhub
             import os
             from datetime import datetime, timedelta
+
+            import finnhub
 
 
             # 获取API密钥
@@ -425,9 +428,11 @@ class OptimizedUSDataProvider:
     def _get_data_from_alpha_vantage(self, symbol: str, start_date: str, end_date: str) -> str:
         """从 Alpha Vantage API 获取股票数据"""
         try:
-            from tradingagents.dataflows.providers.us.alpha_vantage_common import get_api_key
-            import requests
             from datetime import datetime
+
+            import requests
+
+            from tradingagents.dataflows.providers.us.alpha_vantage_common import get_api_key
 
             # 获取 API Key
             api_key = get_api_key()
@@ -534,9 +539,10 @@ def get_us_stock_data_cached(symbol: str, start_date: str, end_date: str,
         格式化的股票数据字符串
     """
     # 🔧 智能日期范围处理：自动扩展到配置的回溯天数，处理周末/节假日
-    from tradingagents.utils.dataflow_utils import get_trading_date_range
-    from app.core.config import get_settings
     from datetime import datetime
+
+    from app.core.config import get_settings
+    from tradingagents.utils.dataflow_utils import get_trading_date_range
 
     original_start_date = start_date
     original_end_date = end_date

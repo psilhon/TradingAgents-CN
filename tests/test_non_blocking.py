@@ -5,9 +5,11 @@
 """
 
 import asyncio
-import aiohttp
-import time
 import json
+import time
+
+import aiohttp
+
 
 async def test_non_blocking_analysis():
     """测试非阻塞分析功能"""

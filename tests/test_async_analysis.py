@@ -5,11 +5,13 @@
 """
 
 import asyncio
-import aiohttp
-import websockets
 import json
 import time
 from datetime import datetime
+
+import aiohttp
+import websockets
+
 
 async def test_async_analysis():
     """测试异步分析功能"""

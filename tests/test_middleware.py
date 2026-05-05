@@ -4,8 +4,9 @@
 """
 
 import asyncio
-import sys
 import os
+import sys
+
 import httpx
 
 # 添加项目根目录到Python路径

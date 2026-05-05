@@ -88,7 +88,7 @@ def test_fundamentals_with_cache():
     print("\n🧪 测试基本面数据获取函数的缓存功能...")
 
     try:
-        from tradingagents.dataflows.interface import get_fundamentals_openai, get_fundamentals_finnhub
+        from tradingagents.dataflows.interface import get_fundamentals_finnhub, get_fundamentals_openai
 
         test_symbol = "MSFT"
         curr_date = datetime.now().strftime('%Y-%m-%d')

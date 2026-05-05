@@ -28,8 +28,9 @@ def test_finnhub_fundamentals_with_cache():
     print("\n📊 测试Finnhub基本面数据获取和缓存功能...")
 
     try:
-        from tradingagents.dataflows.interface import get_fundamentals_finnhub
         from tradingagents.dataflows.cache_manager import get_cache
+
+        from tradingagents.dataflows.interface import get_fundamentals_finnhub
 
         # 清理可能存在的缓存
         cache = get_cache()

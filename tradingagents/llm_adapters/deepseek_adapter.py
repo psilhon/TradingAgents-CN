@@ -5,16 +5,18 @@ DeepSeek LLM适配器，支持Token使用统计
 import os
 import time
 from typing import Any, Dict, List, Optional, Union
-from langchain_core.messages import BaseMessage, AIMessage, HumanMessage, SystemMessage
+
+from langchain_core.callbacks import CallbackManagerForLLMRun
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_openai import ChatOpenAI
-from langchain_core.callbacks import CallbackManagerForLLMRun
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import setup_llm_logging
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger, get_logger_manager
+
 logger = get_logger('agents')
 logger = setup_llm_logging()
 

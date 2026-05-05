@@ -11,9 +11,10 @@ from datetime import datetime
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
-from tradingagents.config.config_manager import config_manager, token_tracker
 from langchain_core.messages import HumanMessage
+from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
+
+from tradingagents.config.config_manager import config_manager, token_tracker
 
 
 def test_dashscope_token_tracking():

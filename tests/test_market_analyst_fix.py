@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -22,9 +23,9 @@ def test_deepseek_market_analyst():
 
     try:
         from tradingagents.agents.analysts.market_analyst import create_market_analyst
-        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 创建DeepSeek LLM
         deepseek_llm = ChatDeepSeek(
@@ -95,8 +96,9 @@ def test_dashscope_market_analyst():
             print("⚠️ 未找到DASHSCOPE_API_KEY，跳过百炼测试")
             return True  # 跳过不算失败
 
-        from tradingagents.agents.analysts.market_analyst import create_market_analyst_react
         from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
+
+        from tradingagents.agents.analysts.market_analyst import create_market_analyst_react
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
 

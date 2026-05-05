@@ -5,8 +5,8 @@
 """
 
 import os
-import sys
 import subprocess
+import sys
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +19,7 @@ def test_cli_logging_setup():
 
     try:
         # 导入CLI模块，触发日志设置
-        from cli.main import setup_cli_logging, logger
+        from cli.main import logger, setup_cli_logging
         from tradingagents.utils.logging_manager import get_logger_manager
 
         print("📊 测试前的日志处理器:")
@@ -89,8 +89,9 @@ def test_log_file_writing():
     print("=" * 60)
 
     try:
-        from cli.main import logger
         import glob
+
+        from cli.main import logger
 
         # 写入测试日志
         test_message = "CLI日志修复测试消息 - 这应该只出现在日志文件中"

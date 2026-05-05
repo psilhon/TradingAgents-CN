@@ -3,8 +3,8 @@
 验证港股代码识别、数据获取和处理功能
 """
 
-import sys
 import os
+import sys
 import traceback
 
 # 添加项目根目录到路径
@@ -132,8 +132,9 @@ def test_hk_stock_data():
     print("\n🧪 测试港股数据获取...")
 
     try:
-        from tradingagents.dataflows.hk_stock_utils import get_hk_stock_data
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.hk_stock_utils import get_hk_stock_data
 
         # 设置测试日期范围（最近30天）
         end_date = datetime.now().strftime('%Y-%m-%d')
@@ -176,8 +177,9 @@ def test_optimized_us_data_hk_support():
     print("\n🧪 测试优化数据模块港股支持...")
 
     try:
-        from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
         from datetime import datetime, timedelta
+
+        from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
 
         # 设置测试日期范围
         end_date = datetime.now().strftime('%Y-%m-%d')

@@ -8,7 +8,8 @@
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
+
 
 class DatabaseManager:
     """智能数据库管理器"""

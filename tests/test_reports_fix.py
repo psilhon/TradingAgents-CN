@@ -3,10 +3,12 @@
 测试reports和analysts字段修复
 """
 
-import requests
-import time
 import json
+import time
+
+import requests
 from pymongo import MongoClient
+
 
 def test_reports_and_analysts_fix():
     """测试reports和analysts字段修复"""

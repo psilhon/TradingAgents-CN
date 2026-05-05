@@ -90,8 +90,9 @@ def test_langchain_adapter():
     print("\n🔍 测试4: 检查LangChain适配器...")
 
     try:
-        from tradingagents.llm_adapters import ChatDashScope
         from langchain_core.messages import HumanMessage
+
+        from tradingagents.llm_adapters import ChatDashScope
 
         # 创建适配器实例
         llm = ChatDashScope(model="qwen-turbo")
@@ -112,8 +113,8 @@ def test_trading_graph_config():
     print("\n🔍 测试5: 检查TradingGraph配置...")
 
     try:
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 创建阿里百炼配置
         config = DEFAULT_CONFIG.copy()

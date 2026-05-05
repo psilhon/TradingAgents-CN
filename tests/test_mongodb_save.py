@@ -3,10 +3,12 @@
 测试MongoDB保存功能
 """
 
-import requests
-import time
 import json
+import time
+
+import requests
 from pymongo import MongoClient
+
 
 def check_mongodb_before_after():
     """检查MongoDB保存前后的数据"""

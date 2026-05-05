@@ -64,9 +64,10 @@ def test_tool_binding():
             print("⚠️ 未找到DASHSCOPE_API_KEY，跳过工具绑定测试")
             return True
 
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        from langchain_core.tools import tool
         from langchain_core.messages import HumanMessage
+        from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 定义测试工具
         @tool
@@ -119,9 +120,10 @@ def test_vs_old_adapter():
             print("⚠️ 未找到DASHSCOPE_API_KEY，跳过对比测试")
             return True
 
-        from tradingagents.llm_adapters import ChatDashScope, ChatDashScopeOpenAI
         from langchain_core.messages import HumanMessage
         from langchain_core.tools import tool
+
+        from tradingagents.llm_adapters import ChatDashScope, ChatDashScopeOpenAI
 
         # 定义测试工具
         @tool

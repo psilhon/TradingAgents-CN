@@ -4,9 +4,11 @@
 验证API是否不再阻塞
 """
 
-import requests
-import time
 import json
+import time
+
+import requests
+
 
 def test_api_non_blocking():
     """测试API非阻塞功能"""
@@ -139,8 +141,8 @@ def test_multiple_concurrent_requests():
 
     base_url = "http://localhost:8000"
 
-    import threading
     import queue
+    import threading
 
     results = queue.Queue()
 

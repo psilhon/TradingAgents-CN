@@ -3,9 +3,10 @@
 智能系统完整测试 - 验证自适应配置和缓存系统
 """
 
-import time
 import sys
+import time
 from datetime import datetime
+
 
 def test_smart_config():
     """测试智能配置系统"""
@@ -13,7 +14,7 @@ def test_smart_config():
     print("-" * 30)
 
     try:
-        from smart_config import get_smart_config, get_config
+        from smart_config import get_config, get_smart_config
 
         # 获取配置管理器
         config_manager = get_smart_config()

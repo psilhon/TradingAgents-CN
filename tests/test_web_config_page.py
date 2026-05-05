@@ -57,10 +57,10 @@ def test_streamlit_components():
     print("=" * 50)
 
     try:
-        import streamlit as st
         import pandas as pd
         import plotly.express as px
         import plotly.graph_objects as go
+        import streamlit as st
 
         print("✅ Streamlit导入成功")
         print("✅ Pandas导入成功")

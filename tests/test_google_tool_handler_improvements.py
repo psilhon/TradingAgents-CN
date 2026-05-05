@@ -1,18 +1,19 @@
 """
 测试Google工具处理器的改进
 """
-import sys
-import os
 import logging
+import os
+import sys
 from datetime import datetime
 
 # 添加项目根目录到Python路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
-from tradingagents.agents.utils.agent_utils import Toolkit
+from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.schema import HumanMessage, AIMessage, SystemMessage
+
+from tradingagents.agents.utils.agent_utils import Toolkit
+from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
 # 配置日志
 os.makedirs(os.path.join('data', 'logs'), exist_ok=True)

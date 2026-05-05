@@ -3,10 +3,10 @@
 Tushare数据初始化CLI工具
 用于首次部署时的数据初始化操作
 """
-import asyncio
 import argparse
-import sys
+import asyncio
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 

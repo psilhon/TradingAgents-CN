@@ -2,11 +2,13 @@
 """
 测试AKShare的替代财务数据接口
 """
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import logging
+
 import pandas as pd
 
 # 设置日志

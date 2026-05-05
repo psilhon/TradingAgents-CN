@@ -4,10 +4,11 @@ AKShare功能检查测试
 检查当前分支中AKShare的可用性和功能完整性
 """
 
-import sys
 import os
+import sys
 import traceback
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 
 def test_akshare_import():
     """测试AKShare库导入"""
@@ -24,7 +25,7 @@ def test_data_source_manager():
     """测试数据源管理器中的AKShare支持"""
     print("\n🔍 测试数据源管理器...")
     try:
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         # 检查AKShare是否在枚举中
         akshare_enum = ChinaDataSource.AKSHARE
@@ -153,10 +154,8 @@ def test_unified_data_interface():
     print("\n🔍 测试统一数据接口...")
 
     try:
-        from tradingagents.dataflows.interface import get_china_stock_data_unified
-
         # 设置使用AKShare数据源
-        from tradingagents.dataflows.interface import switch_china_data_source
+        from tradingagents.dataflows.interface import get_china_stock_data_unified, switch_china_data_source
         switch_china_data_source("akshare")
 
         # 测试获取股票数据

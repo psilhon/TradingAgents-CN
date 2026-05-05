@@ -4,12 +4,12 @@
 """
 
 from .data_sources import (
+    DATA_SOURCE_REGISTRY,
     DataSourceCode,
     DataSourceInfo,
-    DATA_SOURCE_REGISTRY,
     get_data_source_info,
-    list_all_data_sources,
     is_data_source_supported,
+    list_all_data_sources,
 )
 
 __all__ = [

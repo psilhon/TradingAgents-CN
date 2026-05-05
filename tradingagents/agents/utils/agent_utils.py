@@ -1,25 +1,25 @@
-from langchain_core.messages import BaseMessage, HumanMessage, ToolMessage, AIMessage
-from typing import List
-from typing import Annotated
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import RemoveMessage
-from langchain_core.tools import tool
-from datetime import date, timedelta, datetime
 import functools
-import pandas as pd
 import os
+from datetime import date, datetime, timedelta
+from typing import Annotated, List
+
+import pandas as pd
 from dateutil.relativedelta import relativedelta
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, RemoveMessage, ToolMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
+
 import tradingagents.dataflows.interface as interface
 from tradingagents.default_config import DEFAULT_CONFIG
-from langchain_core.messages import HumanMessage
 
 # 导入统一日志系统和工具日志装饰器
 from tradingagents.utils.logging_init import get_logger
-from tradingagents.utils.tool_logging import log_tool_call, log_analysis_step
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
+from tradingagents.utils.tool_logging import log_analysis_step, log_tool_call
+
 logger = get_logger('agents')
 
 
@@ -794,8 +794,9 @@ class Toolkit:
         original_ticker = ticker
 
         try:
-            from tradingagents.utils.stock_utils import StockUtils
             from datetime import datetime, timedelta
+
+            from tradingagents.utils.stock_utils import StockUtils
 
             # 自动识别股票类型
             market_info = StockUtils.get_market_info(ticker)
@@ -1171,8 +1172,9 @@ class Toolkit:
         logger.info(f"📰 [统一新闻工具] 分析股票: {ticker}")
 
         try:
-            from tradingagents.utils.stock_utils import StockUtils
             from datetime import datetime, timedelta
+
+            from tradingagents.utils.stock_utils import StockUtils
 
             # 自动识别股票类型
             market_info = StockUtils.get_market_info(ticker)

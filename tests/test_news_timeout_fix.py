@@ -5,21 +5,23 @@
 这个测试程序验证新闻获取超时修复的有效性，特别是在一个新闻源失败时能否正确轮询到下一个新闻源。
 """
 
-import sys
 import os
+import sys
 import time
 import unittest
-from unittest.mock import patch, MagicMock
-import pandas as pd
 from datetime import datetime
+from unittest.mock import MagicMock, patch
+
+import pandas as pd
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # 导入需要测试的模块
-from tradingagents.dataflows.realtime_news_utils import get_realtime_stock_news
-from tradingagents.dataflows.googlenews_utils import getNewsData, make_request
 from tradingagents.dataflows.akshare_utils import get_stock_news_em
+from tradingagents.dataflows.googlenews_utils import getNewsData, make_request
+
+from tradingagents.dataflows.realtime_news_utils import get_realtime_stock_news
 
 
 class TestNewsTimeoutFix(unittest.TestCase):

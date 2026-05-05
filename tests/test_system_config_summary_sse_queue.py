@@ -1,10 +1,10 @@
 import pytest
-from fastapi import FastAPI, Depends
+from app.routers.auth import get_current_user
+from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
 # Import the router and its dependency to override
 from app.routers import system_config as system_cfg_router
-from app.routers.auth import get_current_user
 
 
 @pytest.fixture()

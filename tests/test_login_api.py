@@ -1,6 +1,8 @@
 import asyncio
-import aiohttp
 import json
+
+import aiohttp
+
 
 async def test_login_api():
     """测试登录API是否正常工作"""

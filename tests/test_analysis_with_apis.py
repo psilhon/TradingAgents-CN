@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -23,8 +24,8 @@ def test_news_analyst_with_google():
 
         from tradingagents.agents.analysts.news_analyst import create_news_analyst
         from tradingagents.agents.utils.agent_utils import Toolkit
-        from tradingagents.llm_adapters import ChatDashScope
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.llm_adapters import ChatDashScope
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()
@@ -43,8 +44,9 @@ def test_news_analyst_with_google():
         print("✅ 新闻分析师创建成功")
 
         # 创建测试状态
-        from tradingagents.agents.utils.agent_states import AgentState
         from langchain_core.messages import HumanMessage
+
+        from tradingagents.agents.utils.agent_states import AgentState
 
         test_state = {
             "messages": [HumanMessage(content="分析AAPL的新闻情况")],
@@ -85,8 +87,8 @@ def test_social_analyst_with_reddit():
 
         from tradingagents.agents.analysts.social_media_analyst import create_social_media_analyst
         from tradingagents.agents.utils.agent_utils import Toolkit
-        from tradingagents.llm_adapters import ChatDashScope
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.llm_adapters import ChatDashScope
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

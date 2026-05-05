@@ -5,12 +5,14 @@
 简化的估值指标测试
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.agents.utils.agent_utils import Toolkit
 from tradingagents.default_config import DEFAULT_CONFIG
+
 
 def test_valuation_simple():
     """简化的估值指标测试"""

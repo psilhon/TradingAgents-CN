@@ -4,9 +4,10 @@
 """
 
 import asyncio
-import sys
 import os
+import sys
 import time
+
 from dotenv import load_dotenv
 
 # 加载环境变量
@@ -22,8 +23,8 @@ async def test_enhanced_screening():
     try:
         # 导入服务
         from app.core.database import init_db
+        from app.models.screening import OperatorType, ScreeningCondition
         from app.services.enhanced_screening_service import get_enhanced_screening_service
-        from app.models.screening import ScreeningCondition, OperatorType
 
         # 初始化数据库
         await init_db()

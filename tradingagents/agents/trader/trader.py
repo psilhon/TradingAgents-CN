@@ -1,10 +1,12 @@
 import functools
-import time
 import json
+import time
+
+from tradingagents.agents.utils.instrument_utils import build_instrument_context
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger
-from tradingagents.agents.utils.instrument_utils import build_instrument_context
+
 logger = get_logger("default")
 
 

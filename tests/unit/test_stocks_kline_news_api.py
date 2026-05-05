@@ -1,11 +1,12 @@
+from unittest.mock import patch
+
 import pytest
+from app.routers.auth import get_current_user
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from unittest.mock import patch
 
 # Build a minimal app that mounts only the stocks router to avoid triggering app.main lifespan
 from app.routers import stocks as stocks_router
-from app.routers.auth import get_current_user
 
 
 def create_test_app():

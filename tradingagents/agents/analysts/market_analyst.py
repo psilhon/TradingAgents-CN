@@ -1,13 +1,15 @@
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-import time
 import json
+import time
 import traceback
+
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+# 导入统一日志系统
+from tradingagents.utils.logging_init import get_logger
 
 # 导入分析模块日志装饰器
 from tradingagents.utils.tool_logging import log_analyst_module
 
-# 导入统一日志系统
-from tradingagents.utils.logging_init import get_logger
 logger = get_logger("default")
 
 # 导入Google工具调用处理器
@@ -309,7 +311,7 @@ def create_market_analyst(llm, toolkit):
 
                 try:
                     # 执行工具调用
-                    from langchain_core.messages import ToolMessage, HumanMessage
+                    from langchain_core.messages import HumanMessage, ToolMessage
 
                     tool_messages = []
                     for tool_call in result.tool_calls:

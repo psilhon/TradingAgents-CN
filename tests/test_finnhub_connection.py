@@ -3,8 +3,9 @@
 测试FINNHUB API连接
 """
 
-import sys
 import os
+import sys
+
 sys.path.append('..')
 
 def test_finnhub_api():

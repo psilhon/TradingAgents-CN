@@ -2,9 +2,11 @@
 """
 测试分析结果数据结构
 """
-import requests
 import json
 from datetime import datetime
+
+import requests
+
 
 def test_analysis_result():
     """测试分析结果的数据结构"""

@@ -3,11 +3,11 @@
 测试增强的分析历史功能
 """
 
-import sys
-import os
-from pathlib import Path
-from datetime import datetime, timedelta
 import json
+import os
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
 
 # 添加项目根目录到路径
 project_root = Path(__file__).parent.parent
@@ -45,10 +45,7 @@ def test_load_analysis_results():
 def test_comparison_functions():
     """测试对比功能"""
     try:
-        from web.components.analysis_results import (
-            calculate_text_similarity,
-            get_report_content
-        )
+        from web.components.analysis_results import calculate_text_similarity, get_report_content
 
         print("🔍 测试对比功能...")
 
@@ -80,10 +77,7 @@ def test_chart_functions():
     """测试图表功能"""
     try:
         import pandas as pd
-        from web.components.analysis_results import (
-            render_comprehensive_dashboard,
-            render_time_distribution_charts
-        )
+        from web.components.analysis_results import render_comprehensive_dashboard, render_time_distribution_charts
 
         print("🔍 测试图表功能...")
 

@@ -5,12 +5,13 @@
 这个脚本测试新闻分析师在DashScope模型不调用工具时的补救机制。
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from datetime import datetime
 import logging
+from datetime import datetime
 
 # 设置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(message)s')

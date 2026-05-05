@@ -9,9 +9,10 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from app.services.quotes_ingestion_service import QuotesIngestionService
-from app.core.database import get_mongo_db, init_db, close_db
 from datetime import datetime
+
+from app.core.database import close_db, get_mongo_db, init_db
+from app.services.quotes_ingestion_service import QuotesIngestionService
 
 
 async def test_normalize_stock_code():

@@ -4,14 +4,15 @@
 验证强制调用和备用工具调用是否正确传递了所需参数
 """
 
-import sys
 import os
+import sys
 from datetime import datetime
 
 # 添加项目路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.agents.utils.agent_utils import Toolkit
+
 
 def test_tool_parameters():
     """测试工具参数是否正确"""

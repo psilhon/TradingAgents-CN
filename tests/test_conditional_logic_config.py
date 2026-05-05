@@ -3,9 +3,10 @@
 验证辩论轮次配置是否正确传递到 TradingAgentsGraph
 """
 import pytest
+
+from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.graph.conditional_logic import ConditionalLogic
 from tradingagents.graph.trading_graph import TradingAgentsGraph
-from tradingagents.default_config import DEFAULT_CONFIG
 
 
 class TestConditionalLogicConfig:

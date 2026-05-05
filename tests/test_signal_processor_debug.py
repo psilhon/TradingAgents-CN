@@ -3,8 +3,9 @@
 测试信号处理器的调试脚本
 """
 
-import sys
 import os
+import sys
+
 sys.path.append('..')
 
 def test_signal_processor():
@@ -72,8 +73,8 @@ def test_trading_graph():
     print("🔍 测试完整交易图...")
 
     try:
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

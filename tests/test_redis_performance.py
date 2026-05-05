@@ -3,12 +3,14 @@
 Redis连接和性能测试脚本
 """
 
-import redis
-import time
-import statistics
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
+import statistics
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import redis
+
 
 class RedisPerformanceTester:
     """Redis性能测试器"""

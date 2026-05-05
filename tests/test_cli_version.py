@@ -6,6 +6,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -47,8 +48,8 @@ def test_cli_config():
     print("=" * 60)
 
     try:
-        from tradingagents.default_config import DEFAULT_CONFIG
         from tradingagents.config.config_manager import config_manager
+        from tradingagents.default_config import DEFAULT_CONFIG
 
         print("🔧 测试默认配置...")
         print(f"   LLM提供商: {DEFAULT_CONFIG.get('llm_provider', 'N/A')}")
@@ -90,8 +91,8 @@ def test_cli_graph_creation():
         return True
 
     try:
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         print("🔧 创建测试配置...")
         config = DEFAULT_CONFIG.copy()

@@ -4,11 +4,13 @@
 简单的深度级别验证脚本
 """
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.agents.utils.agent_utils import Toolkit
+
 
 def test_depth_level(depth):
     """测试指定深度级别"""

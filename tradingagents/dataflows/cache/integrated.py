@@ -5,10 +5,11 @@
 提供向后兼容的接口
 """
 
-import os
 import logging
+import os
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
+
 import pandas as pd
 
 # 导入统一日志系统
@@ -19,8 +20,9 @@ from .file_cache import StockDataCache
 
 # 导入自适应缓存系统
 try:
-    from .adaptive import AdaptiveCacheSystem
     from tradingagents.config.database_manager import get_database_manager
+
+    from .adaptive import AdaptiveCacheSystem
     ADAPTIVE_CACHE_AVAILABLE = True
 except ImportError as e:
     ADAPTIVE_CACHE_AVAILABLE = False
@@ -301,6 +303,7 @@ class IntegratedCacheManager:
             try:
                 from datetime import datetime, timedelta
                 from zoneinfo import ZoneInfo
+
                 from tradingagents.config.runtime_settings import get_timezone_name
 
                 mongodb_db = self.db_manager.get_mongodb_db()

@@ -15,6 +15,7 @@ from tradingagents.agents.analysts.news_analyst import create_news_analyst
 from tradingagents.agents.utils.agent_utils import Toolkit
 from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
+
 def test_unified_news_tool():
     """测试统一新闻工具的集成效果"""
 

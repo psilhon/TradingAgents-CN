@@ -3,9 +3,11 @@
 测试前端显示问题的脚本
 """
 
-import requests
-import time
 import json
+import time
+
+import requests
+
 
 def test_frontend_display():
     """测试前端显示问题"""

@@ -2,8 +2,8 @@
 测试CLI港股输入功能
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +15,7 @@ def test_cli_market_selection():
 
     try:
         # 导入CLI相关模块
-        from cli.main import select_market, get_ticker
+        from cli.main import get_ticker, select_market
 
         # 模拟港股市场配置
         hk_market = {

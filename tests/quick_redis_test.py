@@ -3,9 +3,11 @@
 Redis快速连接测试脚本
 """
 
-import redis
-import time
 import sys
+import time
+
+import redis
+
 
 def quick_redis_test(host=None, port=None, password=None):
     """快速Redis连接和性能测试"""

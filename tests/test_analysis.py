@@ -7,6 +7,7 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 添加项目根目录到Python路径
@@ -19,8 +20,8 @@ load_dotenv(project_root / ".env", override=True)
 def test_basic_imports():
     """测试基本导入"""
     try:
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
         print("✅ 基本导入成功")
         return True
     except Exception as e:
@@ -40,8 +41,8 @@ def test_environment_variables():
 def test_graph_initialization():
     """测试图初始化"""
     try:
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

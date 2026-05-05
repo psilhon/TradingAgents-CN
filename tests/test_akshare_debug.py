@@ -3,9 +3,9 @@
 AKShare财务数据获取调试脚本
 """
 
-import sys
-import os
 import logging
+import os
+import sys
 
 # 设置日志级别为DEBUG以查看详细信息
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s')
@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s | %(name)-20s | %(l
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from tradingagents.dataflows.akshare_utils import AKShareProvider
+
 
 def test_akshare_financial_data():
     """测试AKShare财务数据获取"""

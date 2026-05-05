@@ -4,15 +4,16 @@
 """
 
 import asyncio
-import sys
 import os
+import sys
 
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app.core.database import init_db, get_mongo_db
-from app.services.operation_log_service import log_operation, get_operation_log_service
+from app.core.database import get_mongo_db, init_db
 from app.models.operation_log import ActionType
+from app.services.operation_log_service import get_operation_log_service, log_operation
+
 
 async def test_operation_logs():
     """测试操作日志功能"""

@@ -4,8 +4,8 @@
 添加路径设置以解决模块导入问题
 """
 
-import sys
 import os
+import sys
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -37,7 +37,7 @@ def check_akshare_utils():
 def check_data_source_manager():
     """检查数据源管理器"""
     try:
-        from tradingagents.dataflows.data_source_manager import DataSourceManager, ChinaDataSource
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         # 检查AKShare枚举
         akshare_enum = ChinaDataSource.AKSHARE

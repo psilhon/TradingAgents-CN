@@ -4,11 +4,12 @@
 """
 
 import re
-from typing import Dict, Tuple, Optional
 from enum import Enum
+from typing import Dict, Optional, Tuple
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger
+
 logger = get_logger("default")
 
 
