@@ -5,9 +5,8 @@ LLM 适配器模板 - 适用于 OpenAI 兼容提供商
 并根据目标提供商修改 provider_name、base_url、API Key 环境变量等信息。
 """
 
-from typing import Any, Dict
-import os
 import logging
+from typing import Any
 
 from tradingagents.llm_adapters.openai_compatible_base import OpenAICompatibleBase
 
@@ -40,7 +39,7 @@ class ChatProviderTemplate(OpenAICompatibleBase):
 
 
 # 供 openai_compatible_base.py 注册参考
-PROVIDER_TEMPLATE_MODELS: Dict[str, Dict[str, Any]] = {
+PROVIDER_TEMPLATE_MODELS: dict[str, dict[str, Any]] = {
     "{default-model-name}": {"context_length": 8192, "supports_function_calling": True},
     "{advanced-model-name}": {"context_length": 32768, "supports_function_calling": True},
 }
