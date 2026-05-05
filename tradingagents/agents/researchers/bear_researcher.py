@@ -82,7 +82,7 @@ def create_bear_researcher(llm, memory):
             past_memories = []
 
         past_memory_str = ""
-        for i, rec in enumerate(past_memories, 1):
+        for _i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
         prompt = f"""你是一位看跌分析师，负责论证不投资股票 {company_name}（股票代码：{ticker}）的理由。

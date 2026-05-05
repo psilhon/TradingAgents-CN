@@ -93,7 +93,7 @@ def create_bull_researcher(llm, memory):
             past_memories = []
 
         past_memory_str = ""
-        for i, rec in enumerate(past_memories, 1):
+        for _i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
         prompt = f"""你是一位看涨分析师，负责为股票 {company_name}（股票代码：{ticker}）的投资建立强有力的论证。

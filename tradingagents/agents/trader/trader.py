@@ -43,7 +43,7 @@ def create_trader(llm, memory):
             logger.warning("⚠️ [DEBUG] memory可用，获取历史记忆")
             past_memories = memory.get_memories(curr_situation, n_matches=2)
             past_memory_str = ""
-            for i, rec in enumerate(past_memories, 1):
+            for _i, rec in enumerate(past_memories, 1):
                 past_memory_str += rec["recommendation"] + "\n\n"
         else:
             logger.warning("⚠️ [DEBUG] memory为None，跳过历史记忆检索")

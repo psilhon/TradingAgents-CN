@@ -1193,7 +1193,7 @@ def run_analysis():
 
             # 获取选定市场的数据源类型
             selected_market = None
-            for choice, market in {
+            for _choice, _market in {
                 "1": {"data_source": "yahoo_finance"},
                 "2": {"data_source": "china_stock"},
                 "3": {"data_source": "yahoo_finance"}
@@ -1802,7 +1802,7 @@ def data_config(
             # 显示创建的目录结构
             if os.path.exists(set_dir):
                 logger.info("\n[blue]📂 目录结构:[/blue]")
-                for root, dirs, files in os.walk(set_dir):
+                for root, _dirs, _files in os.walk(set_dir):
                     level = root.replace(set_dir, '').count(os.sep)
                     if level > 2:  # 限制显示深度
                         continue
