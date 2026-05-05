@@ -22,6 +22,8 @@
 
 ### Changed
 
+- **`tests/` 大扫除：87 个 ad-hoc 脚本归档**（OpenSpec change `tests-cleanup-debug-scripts`）：v1.1.0 review 发现 tests/ 顶层有 ~100 个 lifecycle-named 脚本——`test_*_fix.py` / `test_*_quick.py` / `test_*_simple.py` / `test_*_final.py` / `test_*_debug.py` / `debug_*.py` / `quick_*.py` / `verify_*.py` / `check_*.py` / `analyze_*.py` / `demo_*.py` / ticker-编号 ad-hoc 等。命名暴露生命周期、多数引用已删除模块、与正式 test 混在一起拉低 review 信噪比。本 change git mv 87 个文件到 `tests/_legacy/`（保留 git history），`pyproject.toml [tool.pytest.ini_options] norecursedirs` 加 `_legacy` 排除 collect。pytest collect 从 644 → 477 tests。spec `lint-policy` 加 requirement "tests/ 不得含 lifecycle-named ad-hoc 脚本"。
+
 - **CLAUDE.md 漂移修正**（OpenSpec change `claude-md-doc-drift`）：6 处与现状不符内容修正——版本号 `1.0.0-preview → 1.1.0`、阶段从"Phase 0 完成"更新为"v1.1.0 已发布，持续维护期"、删除不存在的 `docker-compose.hub.nginx.{,arm.}yml` 变体描述、删除已废弃 streamlit / chainlit 残留段、pre-commit 模式 `WARN-ONLY → STRICT`。spec `audit-tooling` 加 requirement "CLAUDE.md 必须反映项目当前状态"。
 
 - **测试 unit marker 批量补 1**（OpenSpec change `tests-mark-unit-batch-1`）：v1.1.0 后 review 发现 226 个 test 文件中标 `unit` 的 = 0 个，pre-commit hook `pytest -m unit` 永远 collect 0。本 change 给 5 个纯 mock / 纯函数 test 文件加 `pytestmark = pytest.mark.unit`：`test_trace_id` / `test_screening_roe_field` / `test_provider_keys` / `test_normalize_provider_keys_script` / `test_indicators_uil`，共 12 个 unit test。pre-commit hook 从 collect 0 → 12 passed。剩 5 个候选文件因 mock 漂移失败，作 follow-up backlog `tests-fix-stale-mocks`（service 实现变更 test 未跟上）。spec `lint-policy` 加 requirement "纯 mock test 必须显式标 unit"。
