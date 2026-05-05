@@ -44,6 +44,16 @@
 
 - **主题切换 bug**（OpenSpec change `fix-theme-persistence`）：用户切深色后，路由切换 / API 调用 / 页面刷新会重置回浅色。根因：`stores/auth.ts` 的 `syncUserPreferencesToAppStore()` 在 login / fetchUser / updateUser 三处用后端 `user.preferences.ui_theme`（admin 默认 light）强制覆盖 `appStore.theme`；附加 bug 是 `stores/app.ts toggleTheme()` 未写 localStorage。修复：(1) 删除 auth.ts ui_theme 同步逻辑（后端字段保留 schema 不消费）；(2) toggleTheme 加 `localStorage.setItem('app-theme', ...)`。主题选择现在完全本地持久化。
 
+### Fixed
+
+- **Lint baseline 治理**（OpenSpec change `lint-cleanup-baseline`）：上游接手时 ruff 报 21,321 issues，本 change 用 Q1=C / Q2=b / Q3=ii 策略治理至 **870 issues（-95.9%）**：
+  - **调宽规则**（`pyproject.toml [tool.ruff]`）：`line-length` 100 → 140；`[tool.ruff.lint].ignore = ["RUF001", "RUF002", "RUF003"]`（中文全角字符在中文 codebase 是常态，非代码质量问题）→ 砍 ~7,800 issues
+  - **按 rule code 分批 ruff --fix**（每个一个 commit）：W293 (9114) / F541 (1705) / I001 (559) / F401 (379) / UP006 (342) / UP045 (272) / W291 (114) / UP035 (4) / 剩余一把梭 (522) → 砍 ~12,800 issues
+  - 每 commit 后验证：`tradingagents` 包 import + backend `/api/health` 200 + 6 个核心模块 import smoke test 全过
+  - **剩 870 issues** 全部无 fixable，需手动改（F841 unused-vars / E402 import-not-at-top / B007 unused-loop-ctrl / F821 undefined-name 等真 bug + 复杂度类）→ 留给后续 hotfix change `lint-handfix-pass-1`
+  - 建立 base spec `lint-policy`：定义中文项目友好放行 + 按 rule code 分批 + warn-only 治理过程
+  - **CI 仍 red**（870 errors > 0）；转严格模式留给 `lint-strict-mode-enable` change
+
 ### Changed
 
 - **CLAUDE.md 瘦身 + 长尾外置**（OpenSpec change `claude-md-trim`）：CLAUDE.md 从 179 行压到 151 行（仍超 150 模板上限但 ≤ spec 放宽后的 175）。「已知坑」段（10 行）外置到 `docs/ai-context/known-issues.md`（77 行，含完整 fork 撞坑记录 + 上游遗留 + workaround）；「Secrets / 凭据」段（19 行）压成 3 行指引到 `docs/USAGE.md`；「OpenSpec 状态」段（5 行）压成 2 行。MODIFY base spec `repository-scope`「文档范围」Requirement 加"CLAUDE.md ≤ 175 行 + 长尾外置"约束。清理已知坑过时项（chainlit / 专有目录重复）。
