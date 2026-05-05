@@ -39,9 +39,10 @@ repos:
       # pre-push: unit tests only — STRICT
       # 默认所有未标 marker 的 test auto-mark requires_env（不在此跑），
       # 只有显式 @pytest.mark.unit 的 test 才在 pre-push 跑。
+      # exit 5 = "no tests collected"（unit marker 0 时合法）—— bash wrapper 处理。
       - id: pytest
         name: pytest -m unit
-        entry: uv run --no-sync pytest -m unit -p no:cacheprovider --no-header
+        entry: bash -c 'uv run --no-sync pytest -m unit -p no:cacheprovider --no-header; status=$?; [ $status -eq 0 ] || [ $status -eq 5 ]'
         language: system
         pass_filenames: false
         stages: [pre-push]
