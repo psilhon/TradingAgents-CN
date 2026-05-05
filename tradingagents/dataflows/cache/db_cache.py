@@ -43,8 +43,8 @@ class DatabaseCacheManager:
     """MongoDB + Redis 数据库缓存管理器"""
 
     def __init__(self,
-                 mongodb_url: Optional[str] = None,
-                 redis_url: Optional[str] = None,
+                 mongodb_url: str | None = None,
+                 redis_url: str | None = None,
                  mongodb_db: str = "tradingagents",
                  redis_db: int = 0):
         """
@@ -265,7 +265,7 @@ class DatabaseCacheManager:
 
         return cache_key
 
-    def load_stock_data(self, cache_key: str) -> Optional[Union[pd.DataFrame, str]]:
+    def load_stock_data(self, cache_key: str) -> Union[pd.DataFrame, str] | None:
         """从Redis或MongoDB加载股票数据"""
 
         # 首先尝试从Redis加载（更快）
@@ -323,7 +323,7 @@ class DatabaseCacheManager:
 
     def find_cached_stock_data(self, symbol: str, start_date: str = None,
                               end_date: str = None, data_source: str = None,
-                              max_age_hours: int = 6) -> Optional[str]:
+                              max_age_hours: int = 6) -> str | None:
         """查找匹配的缓存数据"""
 
         # 生成精确匹配的缓存键

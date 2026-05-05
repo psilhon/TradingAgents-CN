@@ -2056,7 +2056,7 @@ class OptimizedChinaDataProvider:
 - 建议等待基本面改善或估值回落
 - 风险承受能力较低的投资者应避免"""
 
-    def _try_get_old_cache(self, symbol: str, start_date: str, end_date: str) -> Optional[str]:
+    def _try_get_old_cache(self, symbol: str, start_date: str, end_date: str) -> str | None:
         """尝试获取过期的缓存数据作为备用"""
         try:
             # 查找任何相关的缓存，不考虑TTL

@@ -151,7 +151,7 @@ class DataCompletenessChecker:
             self.logger.error(f"❌ 检查数据完整性失败: {e}")
             return False, f"检查失败: {str(e)}", details
 
-    def _parse_data_to_dataframe(self, data: str) -> Optional[pd.DataFrame]:
+    def _parse_data_to_dataframe(self, data: str) -> pd.DataFrame | None:
         """将数据字符串解析为 DataFrame"""
         try:
             # 尝试多种解析方式
@@ -187,7 +187,7 @@ class DataCompletenessChecker:
             self.logger.error(f"❌ 解析数据失败: {e}")
             return None
 
-    def _get_latest_trade_date(self, market: str = "CN") -> Optional[str]:
+    def _get_latest_trade_date(self, market: str = "CN") -> str | None:
         """获取最新交易日"""
         try:
             if market == "CN":

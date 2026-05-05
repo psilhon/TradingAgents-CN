@@ -45,7 +45,7 @@ class HKStockProvider:
 
         self.last_request_time = time.time()
 
-    def get_stock_data(self, symbol: str, start_date: str = None, end_date: str = None) -> Optional[pd.DataFrame]:
+    def get_stock_data(self, symbol: str, start_date: str = None, end_date: str = None) -> pd.DataFrame | None:
         """
         获取港股历史数据
 
@@ -166,7 +166,7 @@ class HKStockProvider:
                 'error': str(e)
             }
 
-    def get_real_time_price(self, symbol: str) -> Optional[dict]:
+    def get_real_time_price(self, symbol: str) -> dict | None:
         """
         获取港股实时价格
 

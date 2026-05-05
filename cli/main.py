@@ -1778,7 +1778,7 @@ def version():
 )
 def data_config(
     show: bool = typer.Option(False, "--show", "-s", help="显示当前配置 | Show current configuration"),
-    set_dir: Optional[str] = typer.Option(None, "--set", "-d", help="设置数据目录 | Set data directory"),
+    set_dir: str | None = typer.Option(None, "--set", "-d", help="设置数据目录 | Set data directory"),
     reset: bool = typer.Option(False, "--reset", "-r", help="重置为默认配置 | Reset to default configuration")
 ):
     """

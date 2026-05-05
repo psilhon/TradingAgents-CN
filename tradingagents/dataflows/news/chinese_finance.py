@@ -181,7 +181,7 @@ class ChineseFinanceDataAggregator:
 
         return (positive_count - negative_count) / (positive_count + negative_count)
 
-    def _get_company_chinese_name(self, ticker: str) -> Optional[str]:
+    def _get_company_chinese_name(self, ticker: str) -> str | None:
         """获取公司中文名称"""
         # 简单的映射表，实际可以从数据库或API获取
         name_mapping = {

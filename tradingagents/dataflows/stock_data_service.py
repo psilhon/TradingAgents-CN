@@ -59,7 +59,7 @@ class StockDataService:
                 logger.error(f"⚠️ 数据库管理器初始化失败: {e}")
                 self.db_manager = None
 
-    def get_stock_basic_info(self, stock_code: str = None) -> Optional[dict[str, Any]]:
+    def get_stock_basic_info(self, stock_code: str = None) -> dict[str, Any] | None:
         """
         获取股票基础信息（单个股票或全部股票）
         
@@ -98,7 +98,7 @@ class StockDataService:
         logger.error("❌ 所有数据源都不可用")
         return self._get_fallback_data(stock_code)
 
-    def _get_from_mongodb(self, stock_code: str = None) -> Optional[dict[str, Any]]:
+    def _get_from_mongodb(self, stock_code: str = None) -> dict[str, Any] | None:
         """从MongoDB获取数据"""
         try:
             mongodb_client = self.db_manager.get_mongodb_client()
@@ -122,7 +122,7 @@ class StockDataService:
             logger.error(f"MongoDB查询失败: {e}")
             return None
 
-    def _get_from_enhanced_fetcher(self, stock_code: str = None) -> Optional[dict[str, Any]]:
+    def _get_from_enhanced_fetcher(self, stock_code: str = None) -> dict[str, Any] | None:
         """从增强获取器获取数据"""
         try:
             if stock_code:
