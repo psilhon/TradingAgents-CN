@@ -8,7 +8,9 @@
 
 ## [Unreleased]
 
-—（暂无）
+### Removed
+
+- **`.github/workflows/upstream-sync-check.yml`**（OpenSpec change `delete-upstream-sync-workflow`）：与项目"独立分叉，不再 sync upstream"铁律正面冲突的 workflow。含 cron 定时 + `git push origin main` + `gh issue create` 等 HARD-GATE 明令禁止的自动外部写入动作；所引脚本 `scripts/sync_upstream.py` 不存在，从未成功运行。spec `repository-scope` 增加 scenario 锁定"仓库内不存在自动化 sync workflow"。
 
 ---
 
