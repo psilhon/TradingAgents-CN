@@ -79,32 +79,28 @@ except ImportError:
 #     TDXProvider = None
 
 __all__ = [
-    # 基类
-    'BaseStockDataProvider',
-
-    # 中国市场
-    'TushareProvider',
+    'AKSHARE_AVAILABLE',
+    'BAOSTOCK_AVAILABLE',
+    'FINNHUB_AVAILABLE',
+    'HK_PROVIDER_AVAILABLE',
+    'OPTIMIZED_US_AVAILABLE',
+    'TUSHARE_AVAILABLE',
+    'YFINANCE_AVAILABLE',
     'AKShareProvider',
     'BaoStockProvider',
-    'AKSHARE_AVAILABLE',
-    'TUSHARE_AVAILABLE',
-    'BAOSTOCK_AVAILABLE',
-
+    # 基类
+    'BaseStockDataProvider',
+    'FinnhubProvider',
     # 港股
     'ImprovedHKStockProvider',
-    'get_improved_hk_provider',
-    'HK_PROVIDER_AVAILABLE',
-
+    'OptimizedUSDataProvider',
+    # 中国市场
+    'TushareProvider',
     # 美股
     'YFinanceUtils',
-    'OptimizedUSDataProvider',
-    'get_data_in_range',
-    'YFINANCE_AVAILABLE',
-    'OPTIMIZED_US_AVAILABLE',
-    'FINNHUB_AVAILABLE',
-
     # 其他（预留）
     'YahooProvider',
-    'FinnhubProvider',
+    'get_data_in_range',
+    'get_improved_hk_provider',
     # 'TDXProvider'  # 已移除
 ]

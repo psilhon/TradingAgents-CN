@@ -38,22 +38,19 @@ except ImportError:
     CHINESE_FINANCE_AVAILABLE = False
 
 __all__ = [
-    # Google News
-    'getNewsData',
+    'CHINESE_FINANCE_AVAILABLE',
     'GOOGLE_NEWS_AVAILABLE',
-
-    # Reddit
-    'fetch_top_from_category',
-    'REDDIT_AVAILABLE',
-
-    # Realtime News
-    'get_realtime_news',
-    'get_news_with_sentiment',
-    'search_news_by_keyword',
     'REALTIME_NEWS_AVAILABLE',
-
+    'REDDIT_AVAILABLE',
     # Chinese Finance
     'ChineseFinanceDataAggregator',
-    'CHINESE_FINANCE_AVAILABLE',
+    # Reddit
+    'fetch_top_from_category',
+    # Google News
+    'getNewsData',
+    'get_news_with_sentiment',
+    # Realtime News
+    'get_realtime_news',
+    'search_news_by_keyword',
 ]
 

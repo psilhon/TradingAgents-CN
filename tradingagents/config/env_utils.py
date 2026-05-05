@@ -13,7 +13,7 @@ def parse_bool_env(env_var: str, default: bool = False) -> bool:
 
     支持的格式：
     - true/True/TRUE
-    - false/False/FALSE  
+    - false/False/FALSE
     - 1/0
     - yes/Yes/YES
     - no/No/NO

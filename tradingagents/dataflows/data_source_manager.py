@@ -13,10 +13,11 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-# 导入日志模块
-from tradingagents.utils.logging_manager import get_logger
 # 导入数据库管理器（用于 _get_valuation_indicators 等方法读 mongo 估值指标）
 from tradingagents.config.database_manager import get_database_manager
+
+# 导入日志模块
+from tradingagents.utils.logging_manager import get_logger
 
 logger = get_logger('agents')
 warnings.filterwarnings('ignore')

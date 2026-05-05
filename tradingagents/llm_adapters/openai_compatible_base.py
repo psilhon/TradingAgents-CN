@@ -545,7 +545,7 @@ def test_openai_compatible_adapters():
                 # 千帆新一代API仅需QIANFAN_API_KEY，格式: bce-v3/ALTAK-xxx/xxx
                 cls(model="ernie-3.5-8k", api_key="bce-v3/test-key/test-secret")
             else:
-                cls(model=list(info["models"].keys())[0], api_key="test")
+                cls(model=next(iter(info["models"].keys())), api_key="test")
             logger.info(f"✅ 适配器实例化成功: {provider}")
         except Exception as e:
             logger.warning(f"⚠️ 适配器实例化失败（预期或可忽略）: {provider} - {e}")
