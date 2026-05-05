@@ -25,19 +25,19 @@ def test_data_flow():
         logger = get_logger("default")
         logger.setLevel("INFO")
 
-        print(f"\n🔧 测试数据源管理器...")
+        print("\n🔧 测试数据源管理器...")
 
         # 测试数据源管理器
         from tradingagents.dataflows.data_source_manager import get_china_stock_data_unified
 
         result = get_china_stock_data_unified(test_ticker, "2025-07-01", "2025-07-15")
 
-        print(f"\n✅ 数据源管理器调用完成")
+        print("\n✅ 数据源管理器调用完成")
         print(f"📊 返回结果长度: {len(result) if result else 0}")
 
         # 检查结果中的股票代码
         if result:
-            print(f"\n🔍 检查结果中的股票代码...")
+            print("\n🔍 检查结果中的股票代码...")
             if "002027" in result:
                 print("✅ 结果中包含正确的股票代码 002027")
             else:
@@ -49,7 +49,7 @@ def test_data_flow():
                 print("✅ 结果中不包含错误的股票代码 002021")
 
             # 显示结果的前500字符
-            print(f"\n📄 结果前500字符:")
+            print("\n📄 结果前500字符:")
             print("-" * 60)
             print(result[:500])
             print("-" * 60)
@@ -74,19 +74,19 @@ def test_tushare_direct():
         from tradingagents.utils.logging_init import get_logger
         logger.setLevel("INFO")
 
-        print(f"\n🔧 测试Tushare接口...")
+        print("\n🔧 测试Tushare接口...")
 
         # 测试Tushare接口
         from tradingagents.dataflows.interface import get_china_stock_data_tushare
 
         result = get_china_stock_data_tushare(test_ticker, "2025-07-01", "2025-07-15")
 
-        print(f"\n✅ Tushare接口调用完成")
+        print("\n✅ Tushare接口调用完成")
         print(f"📊 返回结果长度: {len(result) if result else 0}")
 
         # 检查结果中的股票代码
         if result:
-            print(f"\n🔍 检查结果中的股票代码...")
+            print("\n🔍 检查结果中的股票代码...")
             if "002027" in result:
                 print("✅ 结果中包含正确的股票代码 002027")
             else:
@@ -98,7 +98,7 @@ def test_tushare_direct():
                 print("✅ 结果中不包含错误的股票代码 002021")
 
             # 显示结果的前500字符
-            print(f"\n📄 结果前500字符:")
+            print("\n📄 结果前500字符:")
             print("-" * 60)
             print(result[:500])
             print("-" * 60)
@@ -123,7 +123,7 @@ def test_tushare_provider():
         from tradingagents.utils.logging_init import get_logger
         logger.setLevel("INFO")
 
-        print(f"\n🔧 测试Tushare提供器...")
+        print("\n🔧 测试Tushare提供器...")
 
         # 测试Tushare提供器
         from tradingagents.dataflows.tushare_utils import get_tushare_provider

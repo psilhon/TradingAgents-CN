@@ -119,7 +119,7 @@ def test_markdown_conversion():
             # 检查文件是否生成
             if os.path.exists(output_file):
                 file_size = os.path.getsize(output_file)
-                print(f"✅ Markdown → DOCX 转换成功")
+                print("✅ Markdown → DOCX 转换成功")
                 print(f"   文件大小: {file_size} 字节")
 
                 # 清理临时文件
@@ -147,7 +147,7 @@ def test_markdown_conversion():
 
             if os.path.exists(output_file):
                 file_size = os.path.getsize(output_file)
-                print(f"✅ Markdown → PDF 转换成功")
+                print("✅ Markdown → PDF 转换成功")
                 print(f"   文件大小: {file_size} 字节")
 
                 # 清理临时文件
@@ -174,7 +174,7 @@ def test_report_exporter():
 
         # 创建导出器实例
         exporter = ReportExporter()
-        print(f"✅ 报告导出器创建成功")
+        print("✅ 报告导出器创建成功")
         print(f"   导出功能可用: {exporter.export_available}")
         print(f"   Pandoc可用: {exporter.pandoc_available}")
 

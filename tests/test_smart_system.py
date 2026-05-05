@@ -21,7 +21,7 @@ def test_smart_config():
 
         # 获取配置信息
         config = get_config()
-        print(f"\n✅ 配置获取成功")
+        print("\n✅ 配置获取成功")
         print(f"主要缓存后端: {config['cache']['primary_backend']}")
 
         return True, config_manager
@@ -134,7 +134,7 @@ def test_performance():
         avg_save_time = total_save_time / len(symbols)
         avg_load_time = total_load_time / len(symbols)
 
-        print(f"\n📈 平均性能:")
+        print("\n📈 平均性能:")
         print(f"  保存时间: {avg_save_time:.4f}秒")
         print(f"  加载时间: {avg_load_time:.4f}秒")
 
@@ -265,7 +265,7 @@ def main():
     # 保存配置（如果可用）
     if config_manager:
         config_manager.save_config("test_config.json")
-        print(f"\n💾 测试配置已保存: test_config.json")
+        print("\n💾 测试配置已保存: test_config.json")
 
     # 返回总体结果
     return all(results.values())

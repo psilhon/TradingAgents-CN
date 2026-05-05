@@ -188,7 +188,7 @@ def main():
     results['简化TradingAgents'] = test_gemini_simple_analysis()
 
     # 总结结果
-    print(f"\n📊 简化测试结果总结:")
+    print("\n📊 简化测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

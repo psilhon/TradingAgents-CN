@@ -64,7 +64,7 @@ def test_api_analysis():
             return False
 
         # 3. 监控任务状态
-        print(f"\n3. 监控任务状态...")
+        print("\n3. 监控任务状态...")
         max_wait_time = 300  # 最多等待5分钟
         start_time = time.time()
 
@@ -93,7 +93,7 @@ def test_api_analysis():
 
                     if result_response.status_code == 200:
                         result_data = result_response.json()
-                        print(f"\n📊 分析结果:")
+                        print("\n📊 分析结果:")
                         print(f"   股票代码: {result_data.get('stock_code')}")
                         print(f"   分析日期: {result_data.get('analysis_date')}")
 

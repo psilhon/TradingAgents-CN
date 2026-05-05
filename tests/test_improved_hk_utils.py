@@ -33,7 +33,7 @@ def test_improved_hk_provider():
             "1234.HK",  # 不存在的股票
         ]
 
-        print(f"\n📊 测试港股公司名称获取:")
+        print("\n📊 测试港股公司名称获取:")
         for symbol in test_symbols:
             try:
                 company_name = provider.get_company_name(symbol)
@@ -41,9 +41,9 @@ def test_improved_hk_provider():
 
                 # 验证不是默认格式
                 if not company_name.startswith('港股'):
-                    print(f"      ✅ 成功获取具体公司名称")
+                    print("      ✅ 成功获取具体公司名称")
                 else:
-                    print(f"      ⚠️ 使用默认格式")
+                    print("      ⚠️ 使用默认格式")
 
             except Exception as e:
                 print(f"   {symbol:10} -> ❌ 错误: {e}")

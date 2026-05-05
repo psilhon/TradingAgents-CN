@@ -60,7 +60,7 @@ def test_tool_binding_basic():
         llm_with_tools = llm.bind_tools([simple_tool])
 
         print("✅ 工具绑定成功")
-        print(f"   绑定的工具数量: 1")
+        print("   绑定的工具数量: 1")
 
         return True
 

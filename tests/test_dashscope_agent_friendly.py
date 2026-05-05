@@ -79,7 +79,7 @@ def main():
             HumanMessage(content="请简单回复：你好")
         ])
 
-        flush_print(f"✅ 简单调用成功")
+        flush_print("✅ 简单调用成功")
         flush_print(f"   响应长度: {len(simple_response.content)}字符")
         flush_print(f"   响应内容: {simple_response.content}")
 

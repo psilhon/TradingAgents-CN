@@ -32,17 +32,17 @@ def test_finnhub_api():
         toolkit.update_config(config)
 
         # 测试FINNHUB新闻API
-        print(f"\n📰 测试FINNHUB新闻API...")
+        print("\n📰 测试FINNHUB新闻API...")
         try:
             news_result = toolkit.get_finnhub_news.invoke({
                 'ticker': 'AAPL',
                 'start_date': '2025-06-25',
                 'end_date': '2025-06-29'
             })
-            print(f"✅ FINNHUB新闻API调用成功")
+            print("✅ FINNHUB新闻API调用成功")
             print(f"新闻数据长度: {len(news_result) if news_result else 0}")
             if news_result and len(news_result) > 100:
-                print(f"新闻内容前200字符:")
+                print("新闻内容前200字符:")
                 print(news_result[:200])
             else:
                 print(f"新闻内容: {news_result}")
@@ -50,17 +50,17 @@ def test_finnhub_api():
             print(f"❌ FINNHUB新闻API调用失败: {e}")
 
         # 测试Yahoo Finance数据API
-        print(f"\n📊 测试Yahoo Finance数据API...")
+        print("\n📊 测试Yahoo Finance数据API...")
         try:
             stock_result = toolkit.get_YFin_data_online.invoke({
                 'symbol': 'AAPL',
                 'start_date': '2025-06-25',
                 'end_date': '2025-06-29'
             })
-            print(f"✅ Yahoo Finance API调用成功")
+            print("✅ Yahoo Finance API调用成功")
             print(f"股票数据长度: {len(stock_result) if stock_result else 0}")
             if stock_result and len(stock_result) > 100:
-                print(f"股票数据前200字符:")
+                print("股票数据前200字符:")
                 print(stock_result[:200])
             else:
                 print(f"股票数据: {stock_result}")
@@ -68,16 +68,16 @@ def test_finnhub_api():
             print(f"❌ Yahoo Finance API调用失败: {e}")
 
         # 测试OpenAI基本面API
-        print(f"\n💼 测试OpenAI基本面API...")
+        print("\n💼 测试OpenAI基本面API...")
         try:
             fundamentals_result = toolkit.get_fundamentals_openai.invoke({
                 'ticker': 'AAPL',
                 'curr_date': '2025-06-29'
             })
-            print(f"✅ OpenAI基本面API调用成功")
+            print("✅ OpenAI基本面API调用成功")
             print(f"基本面数据长度: {len(fundamentals_result) if fundamentals_result else 0}")
             if fundamentals_result and len(fundamentals_result) > 100:
-                print(f"基本面数据前200字符:")
+                print("基本面数据前200字符:")
                 print(fundamentals_result[:200])
             else:
                 print(f"基本面数据: {fundamentals_result}")
@@ -110,17 +110,17 @@ def test_china_stock_api():
         toolkit.update_config(config)
 
         # 测试中国股票数据API
-        print(f"\n📊 测试中国股票数据API...")
+        print("\n📊 测试中国股票数据API...")
         try:
             china_result = toolkit.get_china_stock_data.invoke({
                 'stock_code': '000001',
                 'start_date': '2025-06-25',
                 'end_date': '2025-06-29'
             })
-            print(f"✅ 中国股票数据API调用成功")
+            print("✅ 中国股票数据API调用成功")
             print(f"股票数据长度: {len(china_result) if china_result else 0}")
             if china_result and len(china_result) > 100:
-                print(f"股票数据前200字符:")
+                print("股票数据前200字符:")
                 print(china_result[:200])
             else:
                 print(f"股票数据: {china_result}")
@@ -128,16 +128,16 @@ def test_china_stock_api():
             print(f"❌ 中国股票数据API调用失败: {e}")
 
         # 测试中国股票基本面API
-        print(f"\n💼 测试中国股票基本面API...")
+        print("\n💼 测试中国股票基本面API...")
         try:
             china_fundamentals_result = toolkit.get_china_fundamentals.invoke({
                 'ticker': '000001',
                 'curr_date': '2025-06-29'
             })
-            print(f"✅ 中国股票基本面API调用成功")
+            print("✅ 中国股票基本面API调用成功")
             print(f"基本面数据长度: {len(china_fundamentals_result) if china_fundamentals_result else 0}")
             if china_fundamentals_result and len(china_fundamentals_result) > 100:
-                print(f"基本面数据前200字符:")
+                print("基本面数据前200字符:")
                 print(china_fundamentals_result[:200])
             else:
                 print(f"基本面数据: {china_fundamentals_result}")

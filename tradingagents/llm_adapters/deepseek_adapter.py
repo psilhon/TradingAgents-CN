@@ -166,7 +166,7 @@ class ChatDeepSeek(ChatOpenAI):
 
                     if usage_record:
                         if usage_record.cost == 0.0:
-                            logger.warning(f"⚠️ [DeepSeek] 成本计算为0，可能配置有问题")
+                            logger.warning("⚠️ [DeepSeek] 成本计算为0，可能配置有问题")
                         else:
                             logger.info(f"💰 [DeepSeek] 本次调用成本: ¥{usage_record.cost:.6f}")
 
@@ -178,7 +178,7 @@ class ChatDeepSeek(ChatOpenAI):
                             session_id
                         )
                     else:
-                        logger.warning(f"⚠️ [DeepSeek] 未创建使用记录")
+                        logger.warning("⚠️ [DeepSeek] 未创建使用记录")
 
                 except Exception as track_error:
                     logger.error(f"⚠️ [DeepSeek] Token统计失败: {track_error}", exc_info=True)

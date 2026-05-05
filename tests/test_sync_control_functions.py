@@ -125,7 +125,7 @@ async def test_sync_control_functions():
         except Exception as e:
             print(f"   ❌ 最终状态检查失败: {e}")
 
-        print(f"\n🎉 同步控制功能测试完成")
+        print("\n🎉 同步控制功能测试完成")
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
@@ -170,7 +170,7 @@ async def test_api_endpoints():
         except Exception as e:
             print(f"   ❌ API调用失败: {e}")
 
-        print(f"\n🎉 API端点测试完成")
+        print("\n🎉 API端点测试完成")
 
     except Exception as e:
         print(f"❌ API测试失败: {e}")

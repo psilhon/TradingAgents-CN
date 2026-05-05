@@ -32,7 +32,7 @@ def test_fundamentals_analyst():
             "messages": []
         }
 
-        print(f"\n🔧 开始调用基本面分析师...")
+        print("\n🔧 开始调用基本面分析师...")
 
         # 导入基本面分析师
         from tradingagents.agents.analysts.fundamentals_analyst import fundamentals_analyst
@@ -44,7 +44,7 @@ def test_fundamentals_analyst():
         # 调用基本面分析师
         result = fundamentals_analyst(state, toolkit)
 
-        print(f"\n✅ 基本面分析师调用完成")
+        print("\n✅ 基本面分析师调用完成")
         print(f"📊 返回状态类型: {type(result)}")
 
         # 检查返回的状态
@@ -55,7 +55,7 @@ def test_fundamentals_analyst():
 
                 # 检查报告中的股票代码
                 if report:
-                    print(f"\n🔍 检查报告中的股票代码...")
+                    print("\n🔍 检查报告中的股票代码...")
                     if "002027" in report:
                         print("✅ 报告中包含正确的股票代码 002027")
                     else:
@@ -67,7 +67,7 @@ def test_fundamentals_analyst():
                         print("✅ 报告中不包含错误的股票代码 002021")
 
                     # 显示报告的前500字符
-                    print(f"\n📄 报告前500字符:")
+                    print("\n📄 报告前500字符:")
                     print("-" * 60)
                     print(report[:500])
                     print("-" * 60)
@@ -102,7 +102,7 @@ def test_unified_tool_direct():
         # 创建工具包实例
         toolkit = AgentUtils()
 
-        print(f"\n🔧 调用统一基本面工具...")
+        print("\n🔧 调用统一基本面工具...")
 
         # 直接调用统一基本面工具
         result = toolkit.get_stock_fundamentals_unified.invoke({
@@ -112,12 +112,12 @@ def test_unified_tool_direct():
             'curr_date': '2025-07-15'
         })
 
-        print(f"\n✅ 统一基本面工具调用完成")
+        print("\n✅ 统一基本面工具调用完成")
         print(f"📊 返回结果长度: {len(result) if result else 0}")
 
         # 检查结果中的股票代码
         if result:
-            print(f"\n🔍 检查结果中的股票代码...")
+            print("\n🔍 检查结果中的股票代码...")
             if "002027" in result:
                 print("✅ 结果中包含正确的股票代码 002027")
             else:
@@ -129,7 +129,7 @@ def test_unified_tool_direct():
                 print("✅ 结果中不包含错误的股票代码 002021")
 
             # 显示结果的前500字符
-            print(f"\n📄 结果前500字符:")
+            print("\n📄 结果前500字符:")
             print("-" * 60)
             print(result[:500])
             print("-" * 60)

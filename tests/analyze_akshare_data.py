@@ -38,15 +38,15 @@ def analyze_akshare_data():
         print("❌ 未获取到主要财务指标")
         return
 
-    print(f"\n📊 主要财务指标数据结构分析:")
+    print("\n📊 主要财务指标数据结构分析:")
     print(f"   数据类型: {type(main_indicators)}")
     print(f"   数据形状: {main_indicators.shape}")
     print(f"   列名: {list(main_indicators.columns)}")
 
-    print(f"\n📋 前5行数据:")
+    print("\n📋 前5行数据:")
     print(main_indicators.head())
 
-    print(f"\n🔍 查找PE、PB、ROE相关指标:")
+    print("\n🔍 查找PE、PB、ROE相关指标:")
 
     # 查找包含关键词的行
     pe_rows = main_indicators[main_indicators['指标'].str.contains('市盈率|PE', na=False, case=False)]
@@ -88,14 +88,14 @@ def analyze_akshare_data():
         print(f"\n🎯 精确匹配 - 净资产收益率(ROE): {roe_value}")
 
         # 显示ROE的历史数据（前5个季度）
-        print(f"   历史数据:")
+        print("   历史数据:")
         for i in range(2, min(7, len(main_indicators.columns))):
             col_name = main_indicators.columns[i]
             value = roe_exact.iloc[0][col_name]
             print(f"     {col_name}: {value}")
 
     # 查找可能的PE、PB替代指标
-    print(f"\n🔍 查找可能的PE、PB替代指标:")
+    print("\n🔍 查找可能的PE、PB替代指标:")
 
     # 查找每股相关指标
     eps_rows = main_indicators[main_indicators['指标'].str.contains('每股收益|每股净利润', na=False, case=False)]
@@ -112,7 +112,7 @@ def analyze_akshare_data():
         print(f"   {row['指标']}: {latest_value}")
 
     # 显示所有指标名称
-    print(f"\n📋 所有指标名称:")
+    print("\n📋 所有指标名称:")
     for i, indicator in enumerate(main_indicators['指标']):
         print(f"   {i:2d}. {indicator}")
 

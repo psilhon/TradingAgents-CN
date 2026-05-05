@@ -36,16 +36,16 @@ def test_config_loading():
         settings = get_settings()
         lookback_days = settings.MARKET_ANALYST_LOOKBACK_DAYS
 
-        print(f"✅ 配置加载成功")
+        print("✅ 配置加载成功")
         print(f"📅 MARKET_ANALYST_LOOKBACK_DAYS = {lookback_days}天")
 
         # 验证配置值
         if lookback_days == 250:
-            print(f"✅ 配置值正确：250天（专业配置）")
+            print("✅ 配置值正确：250天（专业配置）")
         elif lookback_days == 120:
-            print(f"⚠️  配置值：120天（标准配置）")
+            print("⚠️  配置值：120天（标准配置）")
         elif lookback_days == 60:
-            print(f"⚠️  配置值：60天（最小配置）")
+            print("⚠️  配置值：60天（最小配置）")
         else:
             print(f"⚠️  配置值：{lookback_days}天（自定义配置）")
 
@@ -73,7 +73,7 @@ def test_date_range_calculation(lookback_days):
         end_dt = datetime.strptime(end_date, "%Y-%m-%d")
         actual_days = (end_dt - start_dt).days
 
-        print(f"✅ 日期范围计算成功")
+        print("✅ 日期范围计算成功")
         print(f"📅 目标日期: {target_date}")
         print(f"📅 配置回溯: {lookback_days}天")
         print(f"📅 开始日期: {start_date}")
@@ -108,7 +108,7 @@ def test_data_fetching(start_date, end_date):
 
         print(f"📊 测试股票: {test_ticker}")
         print(f"📅 日期范围: {start_date} 至 {end_date}")
-        print(f"⏳ 正在获取数据...")
+        print("⏳ 正在获取数据...")
 
         # 调用统一接口获取数据
         result = get_china_stock_data_unified(
@@ -119,7 +119,7 @@ def test_data_fetching(start_date, end_date):
 
         # 检查结果
         if result and not result.startswith("❌"):
-            print(f"✅ 数据获取成功")
+            print("✅ 数据获取成功")
             print(f"📊 返回数据长度: {len(result)} 字符")
 
             # 检查是否包含技术指标
@@ -129,26 +129,26 @@ def test_data_fetching(start_date, end_date):
             print(f"📈 包含技术指标: {', '.join(found_indicators)}")
 
             if len(found_indicators) == len(indicators):
-                print(f"✅ 所有技术指标都已计算")
+                print("✅ 所有技术指标都已计算")
             else:
                 missing = set(indicators) - set(found_indicators)
                 print(f"⚠️  缺少技术指标: {', '.join(missing)}")
 
             # 显示部分结果（前1000字符）
-            print(f"\n📄 数据预览（前1000字符）:")
+            print("\n📄 数据预览（前1000字符）:")
             print("-" * 80)
             print(result[:1000])
             print("-" * 80)
 
             # 显示最后500字符
-            print(f"\n📄 数据预览（最后500字符）:")
+            print("\n📄 数据预览（最后500字符）:")
             print("-" * 80)
             print(result[-500:])
             print("-" * 80)
 
             return True
         else:
-            print(f"❌ 数据获取失败")
+            print("❌ 数据获取失败")
             print(f"错误信息: {result}")
             return False
     except Exception as e:
@@ -176,7 +176,7 @@ def test_technical_indicators_accuracy(lookback_days):
     }
 
     print(f"📊 当前配置: {lookback_days}天")
-    print(f"\n技术指标数据要求检查:")
+    print("\n技术指标数据要求检查:")
     print("-" * 80)
 
     all_passed = True
@@ -205,9 +205,9 @@ def test_technical_indicators_accuracy(lookback_days):
     print("-" * 80)
 
     if all_passed:
-        print(f"✅ 所有技术指标都满足推荐或专业级要求")
+        print("✅ 所有技术指标都满足推荐或专业级要求")
     else:
-        print(f"⚠️  部分技术指标未达到推荐级要求")
+        print("⚠️  部分技术指标未达到推荐级要求")
 
     return all_passed
 
@@ -247,11 +247,11 @@ def main():
     print(f"{'✅' if indicators_ok else '⚠️ '} 技术指标: {'满足要求' if indicators_ok else '部分不足'}")
 
     if lookback_days == 250 and data_success and indicators_ok:
-        print(f"\n🎉 完美！配置已设置为250天（专业级），所有测试通过！")
+        print("\n🎉 完美！配置已设置为250天（专业级），所有测试通过！")
     elif data_success:
-        print(f"\n✅ 配置生效，数据获取正常")
+        print("\n✅ 配置生效，数据获取正常")
     else:
-        print(f"\n⚠️  存在问题，请检查日志")
+        print("\n⚠️  存在问题，请检查日志")
 
     print("=" * 80)
 

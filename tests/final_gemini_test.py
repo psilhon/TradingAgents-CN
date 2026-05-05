@@ -28,7 +28,7 @@ def test_recommended_model():
         google_key = os.getenv('GOOGLE_API_KEY')
         dashscope_key = os.getenv('DASHSCOPE_API_KEY')
 
-        print(f"🔑 API密钥状态:")
+        print("🔑 API密钥状态:")
         print(f"   Google API: {'✅ 已配置' if google_key else '❌ 未配置'}")
         print(f"   阿里百炼API: {'✅ 已配置' if dashscope_key else '❌ 未配置'}")
 
@@ -162,7 +162,7 @@ def main():
     compare_models()
 
     # 最终建议
-    print(f"\n📊 最终测试结果:")
+    print("\n📊 最终测试结果:")
     print("=" * 50)
 
     if success:

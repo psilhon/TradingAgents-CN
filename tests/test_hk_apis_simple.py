@@ -28,7 +28,7 @@ def test_stock_hk_spot():
             print(f"\n找到 {test_symbol} (腾讯控股):")
             print(matched.to_string())
 
-        print(f"\n前5只股票:")
+        print("\n前5只股票:")
         print(df.head(5)[['代码', '中文名称', '最新价', '涨跌幅']].to_string())
 
         return True, df
@@ -49,7 +49,7 @@ def test_stock_hk_daily():
         print(f"成功! 返回 {len(df)} 条历史数据")
         print(f"列名: {list(df.columns)}")
 
-        print(f"\n最近5个交易日:")
+        print("\n最近5个交易日:")
         print(df.tail(5).to_string())
 
         return True, df
@@ -76,7 +76,7 @@ def test_stock_hk_spot_em():
             print(f"\n找到 {test_symbol} (腾讯控股):")
             print(matched.to_string())
 
-        print(f"\n前5只股票:")
+        print("\n前5只股票:")
         print(df.head(5)[['代码', '名称', '最新价', '涨跌幅']].to_string())
 
         return True, df

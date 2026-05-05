@@ -44,7 +44,7 @@ def test_pricing_config_loading():
                 print(f"   {i}. {config['provider']}/{config['model_name']}")
 
         # 使用ConfigManager加载
-        print(f"\n📊 使用ConfigManager加载:")
+        print("\n📊 使用ConfigManager加载:")
         pricing_configs = config_manager.load_pricing()
         print(f"📊 加载的配置数量: {len(pricing_configs)}")
 

@@ -176,7 +176,7 @@ async def test_api_response():
 
             if records:
                 latest = records[0]
-                print(f"📊 最新记录:")
+                print("📊 最新记录:")
                 print(f"   状态: {latest.get('status')}")
                 print(f"   开始时间: {latest.get('started_at')}")
                 print(f"   完成时间: {latest.get('finished_at')}")
@@ -195,21 +195,21 @@ if __name__ == "__main__":
     result = asyncio.run(test_multiple_sync_records())
 
     if result:
-        print(f"\n📊 测试结果摘要:")
+        print("\n📊 测试结果摘要:")
         print(f"   历史记录总数: {result['total_records']}")
         print(f"   记录创建正确: {'✅' if result['records_created'] else '❌'}")
         print(f"   时区显示正确: {'✅' if result['timezone_correct'] else '❌'}")
 
         if result['records_created'] and result['timezone_correct']:
-            print(f"\n🎉 所有测试通过！修复成功！")
+            print("\n🎉 所有测试通过！修复成功！")
         else:
-            print(f"\n⚠️ 部分测试失败，需要进一步检查")
+            print("\n⚠️ 部分测试失败，需要进一步检查")
 
     # 测试API
     asyncio.run(test_api_response())
 
-    print(f"\n📝 现在你可以在前端测试:")
-    print(f"   1. 多次点击'强制重新同步'")
-    print(f"   2. 每次同步后刷新历史记录")
-    print(f"   3. 应该能看到多条历史记录")
-    print(f"   4. 时间显示应该是正确的本地时间")
+    print("\n📝 现在你可以在前端测试:")
+    print("   1. 多次点击'强制重新同步'")
+    print("   2. 每次同步后刷新历史记录")
+    print("   3. 应该能看到多条历史记录")
+    print("   4. 时间显示应该是正确的本地时间")

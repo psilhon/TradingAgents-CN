@@ -296,7 +296,7 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
             logger.info(f"[增强过滤器] 增强过滤完成，保留 {len(filtered_df)}条 新闻")
         else:
             filtered_df = pd.DataFrame()
-            logger.warning(f"[增强过滤器] 所有新闻都被过滤，无符合条件的新闻")
+            logger.warning("[增强过滤器] 所有新闻都被过滤，无符合条件的新闻")
 
         return filtered_df
 

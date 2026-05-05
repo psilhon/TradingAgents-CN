@@ -67,7 +67,7 @@ async def test_enhanced_screening():
         )
         end_time = time.time()
 
-        print(f"✅ 筛选完成:")
+        print("✅ 筛选完成:")
         print(f"  - 总数量: {result['total']}")
         print(f"  - 返回数量: {len(result['items'])}")
         print(f"  - 耗时: {result.get('took_ms', 0)}ms")
@@ -96,7 +96,7 @@ async def test_enhanced_screening():
         field_info = await service.get_field_info("total_mv")
         if field_info:
             stats = field_info.get('statistics', {})
-            print(f"  - 总市值统计:")
+            print("  - 总市值统计:")
             print(f"    最小值: {stats.get('min')}亿")
             print(f"    最大值: {stats.get('max')}亿")
             print(f"    平均值: {stats.get('avg')}亿")
@@ -167,7 +167,7 @@ async def test_enhanced_screening():
             order_by=[{"field": "total_mv", "direction": "desc"}]
         )
 
-        print(f"✅ 复杂筛选完成:")
+        print("✅ 复杂筛选完成:")
         print(f"  - 总数量: {complex_result['total']}")
         print(f"  - 返回数量: {len(complex_result['items'])}")
         print(f"  - 耗时: {complex_result.get('took_ms', 0)}ms")

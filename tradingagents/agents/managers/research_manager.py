@@ -25,7 +25,7 @@ def create_research_manager(llm, memory):
         if memory is not None:
             past_memories = memory.get_memories(curr_situation, n_matches=2)
         else:
-            logger.warning(f"⚠️ [DEBUG] memory为None，跳过历史记忆检索")
+            logger.warning("⚠️ [DEBUG] memory为None，跳过历史记忆检索")
             past_memories = []
 
         past_memory_str = ""
@@ -77,7 +77,7 @@ def create_research_manager(llm, memory):
         prompt_length = len(prompt)
         estimated_tokens = int(prompt_length / 1.8)
 
-        logger.info(f"📊 [Research Manager] Prompt 统计:")
+        logger.info("📊 [Research Manager] Prompt 统计:")
         logger.info(f"   - 辩论历史长度: {len(history)} 字符")
         logger.info(f"   - 总 Prompt 长度: {prompt_length} 字符")
         logger.info(f"   - 估算输入 Token: ~{estimated_tokens} tokens")

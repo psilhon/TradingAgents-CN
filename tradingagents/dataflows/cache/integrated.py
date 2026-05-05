@@ -62,7 +62,7 @@ class IntegratedCacheManager:
             mongodb_available = self.db_manager.is_mongodb_available()
             redis_available = self.db_manager.is_redis_available()
 
-            self.logger.info(f"📊 缓存配置:")
+            self.logger.info("📊 缓存配置:")
             self.logger.info(f"  主要后端: {backend}")
             self.logger.info(f"  MongoDB: {'✅ 可用' if mongodb_available else '❌ 不可用'}")
             self.logger.info(f"  Redis: {'✅ 可用' if redis_available else '❌ 不可用'}")
@@ -289,10 +289,10 @@ class IntegratedCacheManager:
                 if max_age_days == 0:
                     # 清空所有缓存
                     redis_client.flushdb()
-                    self.logger.info(f"🧹 Redis 缓存已全部清空")
+                    self.logger.info("🧹 Redis 缓存已全部清空")
                 else:
                     # Redis 会自动过期，这里只记录日志
-                    self.logger.info(f"🧹 Redis 缓存会自动过期（TTL机制）")
+                    self.logger.info("🧹 Redis 缓存会自动过期（TTL机制）")
             except Exception as e:
                 self.logger.error(f"⚠️ Redis 缓存清理失败: {e}")
 
@@ -329,7 +329,7 @@ class IntegratedCacheManager:
                 cleared_count += file_cleared
                 self.logger.info(f"🧹 文件缓存清理了 {file_cleared} 个文件")
             else:
-                self.logger.info(f"🧹 文件缓存清理完成（返回值为None）")
+                self.logger.info("🧹 文件缓存清理完成（返回值为None）")
         except Exception as e:
             self.logger.error(f"⚠️ 文件缓存清理失败: {e}")
 

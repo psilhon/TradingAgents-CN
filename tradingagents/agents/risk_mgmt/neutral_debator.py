@@ -23,7 +23,7 @@ def create_neutral_debator(llm):
         trader_decision = state["trader_investment_plan"]
 
         # 📊 记录所有输入数据的长度，用于性能分析
-        logger.info(f"📊 [Neutral Analyst] 输入数据长度统计:")
+        logger.info("📊 [Neutral Analyst] 输入数据长度统计:")
         logger.info(f"  - market_report: {len(market_research_report):,} 字符 (~{len(market_research_report)//4:,} tokens)")
         logger.info(f"  - sentiment_report: {len(sentiment_report):,} 字符 (~{len(sentiment_report)//4:,} tokens)")
         logger.info(f"  - news_report: {len(news_report):,} 字符 (~{len(news_report)//4:,} tokens)")
@@ -54,7 +54,7 @@ def create_neutral_debator(llm):
 
 通过批判性地分析双方来积极参与，解决激进和保守论点中的弱点，倡导更平衡的方法。挑战他们的每个观点，说明为什么适度风险策略可能提供两全其美的效果，既提供增长潜力又防范极端波动。专注于辩论而不是简单地呈现数据，旨在表明平衡的观点可以带来最可靠的结果。请用中文以对话方式输出，就像您在说话一样，不使用任何特殊格式。"""
 
-        logger.info(f"⏱️ [Neutral Analyst] 开始调用LLM...")
+        logger.info("⏱️ [Neutral Analyst] 开始调用LLM...")
         llm_start_time = time.time()
 
         response = llm.invoke(prompt)

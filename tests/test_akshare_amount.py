@@ -25,13 +25,13 @@ async def test_akshare_amount():
         print("   ❌ AKShare 不可用")
         return
 
-    print(f"\n2️⃣ 获取实时行情")
+    print("\n2️⃣ 获取实时行情")
 
     # 获取实时行情
     quotes = await provider.get_stock_quotes(test_code)
 
     if quotes:
-        print(f"   ✅ 获取成功")
+        print("   ✅ 获取成功")
         print(f"   最新价: {quotes.get('close')}")
         print(f"   成交额原始值: {quotes.get('amount')}")
         if quotes.get('amount'):
@@ -40,9 +40,9 @@ async def test_akshare_amount():
             print(f"   成交额(亿元): {amount / 1e8:.2f}")
             print(f"   成交额(万元): {amount / 1e4:.2f}")
     else:
-        print(f"   ❌ 获取失败")
+        print("   ❌ 获取失败")
 
-    print(f"\n3️⃣ 获取历史数据")
+    print("\n3️⃣ 获取历史数据")
 
     # 获取历史数据（最近5天）
     from datetime import datetime, timedelta
@@ -61,7 +61,7 @@ async def test_akshare_amount():
 
         # 显示最新一条数据
         latest = hist_df.iloc[-1]
-        print(f"\n   最新数据:")
+        print("\n   最新数据:")
         print(f"   日期: {latest.name if hasattr(latest, 'name') else latest.get('date')}")
         print(f"   收盘价: {latest.get('close')}")
         print(f"   成交额原始值: {latest.get('amount')}")
@@ -71,7 +71,7 @@ async def test_akshare_amount():
             print(f"   成交额(亿元): {amount / 1e8:.2f}")
             print(f"   成交额(万元): {amount / 1e4:.2f}")
     else:
-        print(f"   ❌ 获取失败")
+        print("   ❌ 获取失败")
 
     print("\n" + "=" * 80)
     print("💡 AKShare 官方文档说明:")

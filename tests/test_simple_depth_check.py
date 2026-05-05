@@ -38,13 +38,13 @@ def test_depth_level(depth):
             depth_level = line.split(":")[-1].strip()
             break
 
-    print(f"📊 结果统计:")
+    print("📊 结果统计:")
     print(f"   - 数据深度级别: {depth_level}")
     print(f"   - 总行数: {len(lines)}")
     print(f"   - 总字符数: {char_count}")
 
     # 显示前几行内容
-    print(f"\n📝 前10行内容:")
+    print("\n📝 前10行内容:")
     for i, line in enumerate(lines[:10]):
         if line.strip():
             print(f"   {i+1}: {line[:100]}...")
@@ -83,7 +83,7 @@ def main():
         levels = [results[d]['depth_level'] for d in [1, 3, 5]]
         chars = [results[d]['chars'] for d in [1, 3, 5]]
 
-        print(f"\n✅ 验证结果:")
+        print("\n✅ 验证结果:")
         print(f"   - 深度级别是否不同: {len(set(levels)) > 1}")
         print(f"   - 字符数变化: {chars[0]} → {chars[1]} → {chars[2]}")
         print(f"   - 数据量增长倍数: {chars[2] / chars[0]:.1f}x")

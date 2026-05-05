@@ -15,7 +15,7 @@ def test_baostock_import():
     print("🔍 测试BaoStock导入...")
     try:
         import baostock as bs
-        print(f"✅ BaoStock导入成功")
+        print("✅ BaoStock导入成功")
         print(f"   版本: {bs.__version__}")
         return True
     except ImportError as e:
@@ -34,7 +34,7 @@ def test_baostock_connection():
             print(f"❌ BaoStock登录失败: {lg.error_msg}")
             return False
 
-        print(f"✅ BaoStock登录成功")
+        print("✅ BaoStock登录成功")
 
         # 测试获取数据
         rs = bs.query_history_k_data_plus(
@@ -55,7 +55,7 @@ def test_baostock_connection():
         while (rs.error_code == '0') & rs.next():
             data_list.append(rs.get_row_data())
 
-        print(f"✅ BaoStock数据获取成功")
+        print("✅ BaoStock数据获取成功")
         print(f"   数据条数: {len(data_list)}")
         if data_list:
             print(f"   最新数据: {data_list[-1]}")
@@ -80,17 +80,17 @@ def test_data_source_manager():
         from tradingagents.dataflows.data_source_manager import DataSourceManager
 
         manager = DataSourceManager()
-        print(f"✅ 数据源管理器初始化成功")
+        print("✅ 数据源管理器初始化成功")
         print(f"   当前数据源: {manager.current_source.value}")
         print(f"   可用数据源: {[s.value for s in manager.available_sources]}")
 
         # 检查BaoStock是否在可用数据源中
         available_sources = [s.value for s in manager.available_sources]
         if 'baostock' in available_sources:
-            print(f"✅ BaoStock已被识别为可用数据源")
+            print("✅ BaoStock已被识别为可用数据源")
             return True
         else:
-            print(f"❌ BaoStock未被识别为可用数据源")
+            print("❌ BaoStock未被识别为可用数据源")
             return False
 
     except Exception as e:
@@ -121,7 +121,7 @@ def main():
     passed = sum(1 for _, result in results if result)
     total = len(results)
 
-    print(f"\n📊 测试结果:")
+    print("\n📊 测试结果:")
     print("=" * 40)
 
     for test_name, result in results:
@@ -131,15 +131,15 @@ def main():
     print(f"\n📈 总体结果: {passed}/{total}")
 
     if passed == total:
-        print(f"🎉 BaoStock配置完成！")
-        print(f"✅ 现在中国股票数据源包括:")
-        print(f"   1. Tushare (主要)")
-        print(f"   2. AKShare (备用)")
-        print(f"   3. BaoStock (历史数据备用)")
-        print(f"   4. TDX (将被淘汰)")
+        print("🎉 BaoStock配置完成！")
+        print("✅ 现在中国股票数据源包括:")
+        print("   1. Tushare (主要)")
+        print("   2. AKShare (备用)")
+        print("   3. BaoStock (历史数据备用)")
+        print("   4. TDX (将被淘汰)")
     else:
-        print(f"⚠️ BaoStock配置存在问题")
-        print(f"❌ 请检查网络连接和库安装")
+        print("⚠️ BaoStock配置存在问题")
+        print("❌ 请检查网络连接和库安装")
 
     return passed == total
 
@@ -147,11 +147,11 @@ if __name__ == "__main__":
     success = main()
 
     if success:
-        print(f"\n🎯 下一步:")
+        print("\n🎯 下一步:")
         print("1. 重新运行完整数据源测试")
         print("2. python tests/test_data_sources_comprehensive.py")
     else:
-        print(f"\n🔧 故障排除:")
+        print("\n🔧 故障排除:")
         print("1. 检查网络连接")
         print("2. 重新安装: pip install baostock")
         print("3. 查看BaoStock官方文档")

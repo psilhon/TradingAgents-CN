@@ -27,7 +27,7 @@ class ChatDashScopeOpenAI(ChatOpenAI):
         """初始化 DashScope OpenAI 兼容客户端"""
 
         # 🔍 [DEBUG] 读取环境变量前的日志
-        logger.info(f"🔍 [DashScope初始化] 开始初始化 ChatDashScopeOpenAI")
+        logger.info("🔍 [DashScope初始化] 开始初始化 ChatDashScopeOpenAI")
         logger.info(f"🔍 [DashScope初始化] kwargs 中是否包含 api_key: {'api_key' in kwargs}")
 
         # 🔥 优先使用 kwargs 中传入的 API Key（来自数据库配置）
@@ -61,13 +61,13 @@ class ChatDashScopeOpenAI(ChatOpenAI):
                 logger.info(f"✅ [DashScope初始化] 环境变量中的 API Key 有效，长度: {len(env_api_key)}, 前10位: {env_api_key[:10]}...")
                 api_key_from_kwargs = env_api_key
             elif env_api_key:
-                logger.warning(f"⚠️ [DashScope初始化] 环境变量中的 API Key 无效（可能是占位符），将被忽略")
+                logger.warning("⚠️ [DashScope初始化] 环境变量中的 API Key 无效（可能是占位符），将被忽略")
                 api_key_from_kwargs = None
             else:
-                logger.warning(f"⚠️ [DashScope初始化] DASHSCOPE_API_KEY 环境变量为空")
+                logger.warning("⚠️ [DashScope初始化] DASHSCOPE_API_KEY 环境变量为空")
                 api_key_from_kwargs = None
         else:
-            logger.info(f"✅ [DashScope初始化] 使用 kwargs 中传入的 API Key（来自数据库配置）")
+            logger.info("✅ [DashScope初始化] 使用 kwargs 中传入的 API Key（来自数据库配置）")
 
         # 设置 DashScope OpenAI 兼容接口的默认配置
         kwargs.setdefault("base_url", "https://dashscope.aliyuncs.com/compatible-mode/v1")
@@ -83,7 +83,7 @@ class ChatDashScopeOpenAI(ChatOpenAI):
         logger.info(f"🔍 [DashScope初始化] 最终使用的 base_url: {final_base_url}")
 
         if not final_api_key:
-            logger.error(f"❌ [DashScope初始化] API Key 检查失败，即将抛出异常")
+            logger.error("❌ [DashScope初始化] API Key 检查失败，即将抛出异常")
             raise ValueError(
                 "DashScope API key not found. Please configure API key in web interface "
                 "(Settings -> LLM Providers) or set DASHSCOPE_API_KEY environment variable."
@@ -92,7 +92,7 @@ class ChatDashScopeOpenAI(ChatOpenAI):
         # 调用父类初始化
         super().__init__(**kwargs)
 
-        logger.info(f"✅ 阿里百炼 OpenAI 兼容适配器初始化成功")
+        logger.info("✅ 阿里百炼 OpenAI 兼容适配器初始化成功")
         logger.info(f"   模型: {kwargs.get('model', 'qwen-turbo')}")
 
         # 兼容不同版本的属性名
@@ -208,7 +208,7 @@ def test_dashscope_openai_connection(
     """测试 DashScope OpenAI 兼容接口连接"""
 
     try:
-        logger.info(f"🧪 测试 DashScope OpenAI 兼容接口连接")
+        logger.info("🧪 测试 DashScope OpenAI 兼容接口连接")
         logger.info(f"   模型: {model}")
 
         # 创建客户端
@@ -222,11 +222,11 @@ def test_dashscope_openai_connection(
         response = llm.invoke("你好，请简单介绍一下你自己。")
 
         if response and hasattr(response, 'content') and response.content:
-            logger.info(f"✅ DashScope OpenAI 兼容接口连接成功")
+            logger.info("✅ DashScope OpenAI 兼容接口连接成功")
             logger.info(f"   响应: {response.content[:100]}...")
             return True
         else:
-            logger.error(f"❌ DashScope OpenAI 兼容接口响应为空")
+            logger.error("❌ DashScope OpenAI 兼容接口响应为空")
             return False
 
     except Exception as e:
@@ -241,7 +241,7 @@ def test_dashscope_openai_function_calling(
     """测试 DashScope OpenAI 兼容接口的 Function Calling"""
 
     try:
-        logger.info(f"🧪 测试 DashScope OpenAI Function Calling")
+        logger.info("🧪 测试 DashScope OpenAI Function Calling")
         logger.info(f"   模型: {model}")
 
         # 创建客户端
@@ -271,7 +271,7 @@ def test_dashscope_openai_function_calling(
         # 测试工具调用
         response = llm_with_tools.invoke("请使用test_tool查询'hello world'")
 
-        logger.info(f"✅ DashScope OpenAI Function Calling 测试完成")
+        logger.info("✅ DashScope OpenAI Function Calling 测试完成")
         logger.info(f"   响应类型: {type(response)}")
 
         if hasattr(response, 'tool_calls') and response.tool_calls:
@@ -288,8 +288,8 @@ def test_dashscope_openai_function_calling(
 
 if __name__ == "__main__":
     """测试脚本"""
-    logger.info(f"🧪 DashScope OpenAI 兼容适配器测试")
-    logger.info(f"=" * 50)
+    logger.info("🧪 DashScope OpenAI 兼容适配器测试")
+    logger.info("=" * 50)
 
     # 测试连接
     connection_ok = test_dashscope_openai_connection()
@@ -299,8 +299,8 @@ if __name__ == "__main__":
         function_calling_ok = test_dashscope_openai_function_calling()
 
         if function_calling_ok:
-            logger.info(f"\n🎉 所有测试通过！DashScope OpenAI 兼容适配器工作正常")
+            logger.info("\n🎉 所有测试通过！DashScope OpenAI 兼容适配器工作正常")
         else:
-            logger.error(f"\n⚠️ Function Calling 测试失败")
+            logger.error("\n⚠️ Function Calling 测试失败")
     else:
-        logger.error(f"\n❌ 连接测试失败")
+        logger.error("\n❌ 连接测试失败")

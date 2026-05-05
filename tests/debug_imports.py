@@ -166,7 +166,7 @@ def main():
     google_success = test_google_news_import()
     reddit_success = test_reddit_import()
 
-    print(f"\n📊 诊断结果:")
+    print("\n📊 诊断结果:")
     print(f"  Google News工具: {'✅ 可用' if google_success else '❌ 不可用'}")
     print(f"  Reddit工具: {'✅ 可用' if reddit_success else '❌ 不可用'}")
 

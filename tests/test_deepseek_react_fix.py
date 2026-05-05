@@ -58,12 +58,12 @@ def test_deepseek_react_market_analyst():
         # 执行分析
         result = market_analyst(state)
 
-        print(f"📊 分析结果:")
+        print("📊 分析结果:")
         print(f"   消息数量: {len(result.get('messages', []))}")
 
         market_report = result.get('market_report', '')
         print(f"   市场报告长度: {len(market_report)}")
-        print(f"   市场报告前500字符:")
+        print("   市场报告前500字符:")
         print("-" * 50)
         print(market_report[:500])
         print("-" * 50)
@@ -73,7 +73,7 @@ def test_deepseek_react_market_analyst():
         has_analysis = len(market_report) > 500
         not_placeholder = "正在调用工具" not in market_report and "(调用工具" not in market_report
 
-        print(f"📊 报告质量检查:")
+        print("📊 报告质量检查:")
         print(f"   包含实际数据: {'✅' if has_data else '❌'}")
         print(f"   分析内容充实: {'✅' if has_analysis else '❌'}")
         print(f"   非占位符内容: {'✅' if not_placeholder else '❌'}")
@@ -118,7 +118,7 @@ def test_graph_setup_logic():
         config["deep_think_llm"] = "deepseek-chat"
         config["quick_think_llm"] = "deepseek-chat"
 
-        print(f"📊 配置信息:")
+        print("📊 配置信息:")
         print(f"   LLM提供商: {config['llm_provider']}")
         print(f"   深度思考模型: {config['deep_think_llm']}")
         print(f"   快速思考模型: {config['quick_think_llm']}")
@@ -127,10 +127,10 @@ def test_graph_setup_logic():
         graph = TradingAgentsGraph(config)
 
         # 设置分析师（这会触发选择逻辑）
-        print(f"\n📈 设置市场分析师...")
+        print("\n📈 设置市场分析师...")
         graph.setup_and_compile(selected_analysts=["market"])
 
-        print(f"✅ 图设置完成")
+        print("✅ 图设置完成")
         return True
 
     except Exception as e:

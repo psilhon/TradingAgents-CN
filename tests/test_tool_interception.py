@@ -57,15 +57,15 @@ def test_hk_fundamentals_with_interception():
         print(f"  是否港股: {market_info['is_hk']}")
 
         if not market_info['is_hk']:
-            print(f"❌ 股票类型识别错误")
+            print("❌ 股票类型识别错误")
             return False
 
-        print(f"\n🔄 调用基本面分析师（带工具拦截机制）...")
+        print("\n🔄 调用基本面分析师（带工具拦截机制）...")
 
         # 调用分析师
         result = analyst(state)
 
-        print(f"✅ 基本面分析师调用完成")
+        print("✅ 基本面分析师调用完成")
         print(f"  结果类型: {type(result)}")
 
         if isinstance(result, dict) and 'fundamentals_report' in result:
@@ -75,23 +75,23 @@ def test_hk_fundamentals_with_interception():
 
             # 检查报告质量
             if len(report) > 500:
-                print(f"  ✅ 报告长度合格（>500字符）")
+                print("  ✅ 报告长度合格（>500字符）")
             else:
                 print(f"  ⚠️ 报告长度偏短（{len(report)}字符）")
 
             # 检查是否包含港币相关内容
             if 'HK$' in report or '港币' in report or '港元' in report:
-                print(f"  ✅ 报告包含港币计价")
+                print("  ✅ 报告包含港币计价")
             else:
-                print(f"  ⚠️ 报告未包含港币计价")
+                print("  ⚠️ 报告未包含港币计价")
 
             # 检查是否包含投资建议
             if any(word in report for word in ['买入', '持有', '卖出', '建议']):
-                print(f"  ✅ 报告包含投资建议")
+                print("  ✅ 报告包含投资建议")
             else:
-                print(f"  ⚠️ 报告未包含投资建议")
+                print("  ⚠️ 报告未包含投资建议")
         else:
-            print(f"  ❌ 未找到基本面报告")
+            print("  ❌ 未找到基本面报告")
             return False
 
         return True
@@ -150,9 +150,9 @@ def test_tool_selection_logic():
             print(f"  期望工具: {expected_tool}")
 
             if primary_tool == expected_tool:
-                print(f"  ✅ 工具选择正确")
+                print("  ✅ 工具选择正确")
             else:
-                print(f"  ❌ 工具选择错误")
+                print("  ❌ 工具选择错误")
                 return False
 
         print("✅ 工具选择逻辑验证通过")

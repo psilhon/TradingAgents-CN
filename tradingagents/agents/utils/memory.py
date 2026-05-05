@@ -44,7 +44,7 @@ class ChromaDBManager:
                     if is_windows_11():
                         logger.info(f"📚 [ChromaDB] Windows 11优化配置初始化完成 (构建号: {platform.version()})")
                     else:
-                        logger.info(f"📚 [ChromaDB] Windows 10兼容配置初始化完成")
+                        logger.info("📚 [ChromaDB] Windows 10兼容配置初始化完成")
                 else:
                     logger.info(f"📚 [ChromaDB] {system}标准配置初始化完成")
 
@@ -59,7 +59,7 @@ class ChromaDBManager:
                         is_persistent=False
                     )
                     self._client = chromadb.Client(settings)
-                    logger.info(f"📚 [ChromaDB] 使用备用配置初始化完成")
+                    logger.info("📚 [ChromaDB] 使用备用配置初始化完成")
                 except Exception as backup_error:
                     # 最后的备用方案
                     self._client = chromadb.Client()
@@ -122,7 +122,7 @@ class FinancialSituationMemory:
                     from dashscope import TextEmbedding
 
                     dashscope.api_key = dashscope_key
-                    logger.info(f"✅ DashScope API密钥已配置，启用记忆功能")
+                    logger.info("✅ DashScope API密钥已配置，启用记忆功能")
 
                     # 可选：测试API连接（简单验证）
                     # 这里不做实际调用，只验证导入和密钥设置
@@ -131,18 +131,18 @@ class FinancialSituationMemory:
                     # DashScope包未安装
                     logger.error(f"❌ DashScope包未安装: {e}")
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ 记忆功能已禁用")
+                    logger.warning("⚠️ 记忆功能已禁用")
 
                 except Exception as e:
                     # 其他初始化错误
                     logger.error(f"❌ DashScope初始化失败: {e}")
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ 记忆功能已禁用")
+                    logger.warning("⚠️ 记忆功能已禁用")
             else:
                 # 没有DashScope密钥，禁用记忆功能
                 self.client = "DISABLED"
-                logger.warning(f"⚠️ 未找到DASHSCOPE_API_KEY，记忆功能已禁用")
-                logger.info(f"💡 系统将继续运行，但不会保存或检索历史记忆")
+                logger.warning("⚠️ 未找到DASHSCOPE_API_KEY，记忆功能已禁用")
+                logger.info("💡 系统将继续运行，但不会保存或检索历史记忆")
         elif self.llm_provider == "qianfan":
             # 千帆（文心一言）embedding配置
             # 千帆目前没有独立的embedding API，使用阿里百炼作为降级选项
@@ -156,20 +156,20 @@ class FinancialSituationMemory:
                     dashscope.api_key = dashscope_key
                     self.embedding = "text-embedding-v3"
                     self.client = None
-                    logger.info(f"💡 千帆使用阿里百炼嵌入服务")
+                    logger.info("💡 千帆使用阿里百炼嵌入服务")
                 except ImportError as e:
                     logger.error(f"❌ DashScope包未安装: {e}")
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ 千帆记忆功能已禁用")
+                    logger.warning("⚠️ 千帆记忆功能已禁用")
                 except Exception as e:
                     logger.error(f"❌ 千帆嵌入初始化失败: {e}")
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ 千帆记忆功能已禁用")
+                    logger.warning("⚠️ 千帆记忆功能已禁用")
             else:
                 # 没有DashScope密钥，禁用记忆功能
                 self.client = "DISABLED"
-                logger.warning(f"⚠️ 千帆未找到DASHSCOPE_API_KEY，记忆功能已禁用")
-                logger.info(f"💡 系统将继续运行，但不会保存或检索历史记忆")
+                logger.warning("⚠️ 千帆未找到DASHSCOPE_API_KEY，记忆功能已禁用")
+                logger.info("💡 系统将继续运行，但不会保存或检索历史记忆")
         elif self.llm_provider == "deepseek":
             # 检查是否强制使用OpenAI嵌入
             force_openai = os.getenv('FORCE_OPENAI_EMBEDDING', 'false').lower() == 'true'
@@ -187,7 +187,7 @@ class FinancialSituationMemory:
                         # 验证TextEmbedding可用性（不需要实际调用）
                         self.embedding = "text-embedding-v3"
                         self.client = None
-                        logger.info(f"💡 DeepSeek使用阿里百炼嵌入服务")
+                        logger.info("💡 DeepSeek使用阿里百炼嵌入服务")
                     except ImportError as e:
                         logger.error(f"⚠️ DashScope包未安装: {e}")
                         dashscope_key = None  # 强制降级
@@ -206,7 +206,7 @@ class FinancialSituationMemory:
                         api_key=openai_key,
                         base_url=config.get("backend_url", "https://api.openai.com/v1")
                     )
-                    logger.warning(f"⚠️ DeepSeek回退到OpenAI嵌入服务")
+                    logger.warning("⚠️ DeepSeek回退到OpenAI嵌入服务")
                 else:
                     # 最后尝试DeepSeek自己的嵌入
                     deepseek_key = os.getenv('DEEPSEEK_API_KEY')
@@ -216,16 +216,16 @@ class FinancialSituationMemory:
                                 api_key=deepseek_key,
                                 base_url="https://api.deepseek.com"
                             )
-                            logger.info(f"💡 DeepSeek使用自己的嵌入服务")
+                            logger.info("💡 DeepSeek使用自己的嵌入服务")
                         except Exception as e:
                             logger.error(f"❌ DeepSeek嵌入服务不可用: {e}")
                             # 禁用内存功能
                             self.client = "DISABLED"
-                            logger.info(f"🚨 内存功能已禁用，系统将继续运行但不保存历史记忆")
+                            logger.info("🚨 内存功能已禁用，系统将继续运行但不保存历史记忆")
                     else:
                         # 禁用内存功能而不是抛出异常
                         self.client = "DISABLED"
-                        logger.info(f"🚨 未找到可用的嵌入服务，内存功能已禁用")
+                        logger.info("🚨 未找到可用的嵌入服务，内存功能已禁用")
         elif self.llm_provider == "google":
             # Google AI使用阿里百炼嵌入（如果可用），否则禁用记忆功能
             dashscope_key = os.getenv('DASHSCOPE_API_KEY')
@@ -243,28 +243,28 @@ class FinancialSituationMemory:
 
                     # 检查是否有OpenAI密钥作为降级选项
                     if openai_key:
-                        logger.info(f"💡 Google AI使用阿里百炼嵌入服务（OpenAI作为降级选项）")
+                        logger.info("💡 Google AI使用阿里百炼嵌入服务（OpenAI作为降级选项）")
                         self.fallback_available = True
                         self.fallback_client = OpenAI(api_key=openai_key, base_url=config["backend_url"])
                         self.fallback_embedding = "text-embedding-3-small"
                     else:
-                        logger.info(f"💡 Google AI使用阿里百炼嵌入服务（无降级选项）")
+                        logger.info("💡 Google AI使用阿里百炼嵌入服务（无降级选项）")
                         self.fallback_available = False
 
                 except ImportError as e:
                     logger.error(f"❌ DashScope包未安装: {e}")
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ Google AI记忆功能已禁用")
+                    logger.warning("⚠️ Google AI记忆功能已禁用")
                 except Exception as e:
                     logger.error(f"❌ DashScope初始化失败: {e}")
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ Google AI记忆功能已禁用")
+                    logger.warning("⚠️ Google AI记忆功能已禁用")
             else:
                 # 没有DashScope密钥，禁用记忆功能
                 self.client = "DISABLED"
                 self.fallback_available = False
-                logger.warning(f"⚠️ Google AI未找到DASHSCOPE_API_KEY，记忆功能已禁用")
-                logger.info(f"💡 系统将继续运行，但不会保存或检索历史记忆")
+                logger.warning("⚠️ Google AI未找到DASHSCOPE_API_KEY，记忆功能已禁用")
+                logger.info("💡 系统将继续运行，但不会保存或检索历史记忆")
         elif self.llm_provider == "openrouter":
             # OpenRouter支持：优先使用阿里百炼嵌入，否则禁用记忆功能
             dashscope_key = os.getenv('DASHSCOPE_API_KEY')
@@ -277,20 +277,20 @@ class FinancialSituationMemory:
                     self.embedding = "text-embedding-v3"
                     self.client = None
                     dashscope.api_key = dashscope_key
-                    logger.info(f"💡 OpenRouter使用阿里百炼嵌入服务")
+                    logger.info("💡 OpenRouter使用阿里百炼嵌入服务")
                 except ImportError as e:
                     logger.error(f"❌ DashScope包未安装: {e}")
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ OpenRouter记忆功能已禁用")
+                    logger.warning("⚠️ OpenRouter记忆功能已禁用")
                 except Exception as e:
                     logger.error(f"❌ DashScope初始化失败: {e}")
                     self.client = "DISABLED"
-                    logger.warning(f"⚠️ OpenRouter记忆功能已禁用")
+                    logger.warning("⚠️ OpenRouter记忆功能已禁用")
             else:
                 # 没有DashScope密钥，禁用记忆功能
                 self.client = "DISABLED"
-                logger.warning(f"⚠️ OpenRouter未找到DASHSCOPE_API_KEY，记忆功能已禁用")
-                logger.info(f"💡 系统将继续运行，但不会保存或检索历史记忆")
+                logger.warning("⚠️ OpenRouter未找到DASHSCOPE_API_KEY，记忆功能已禁用")
+                logger.info("💡 系统将继续运行，但不会保存或检索历史记忆")
         elif config["backend_url"] == "http://localhost:11434/v1":
             self.embedding = "nomic-embed-text"
             self.client = OpenAI(base_url=config["backend_url"])
@@ -304,7 +304,7 @@ class FinancialSituationMemory:
                 )
             else:
                 self.client = "DISABLED"
-                logger.warning(f"⚠️ 未找到OPENAI_API_KEY，记忆功能已禁用")
+                logger.warning("⚠️ 未找到OPENAI_API_KEY，记忆功能已禁用")
 
         # 使用单例ChromaDB管理器
         self.chroma_manager = ChromaDBManager()
@@ -354,17 +354,17 @@ class FinancialSituationMemory:
         # 检查记忆功能是否被禁用
         if self.client == "DISABLED":
             # 内存功能已禁用，返回空向量
-            logger.debug(f"⚠️ 记忆功能已禁用，返回空向量")
+            logger.debug("⚠️ 记忆功能已禁用，返回空向量")
             return [0.0] * 1024  # 返回1024维的零向量
 
         # 验证输入文本
         if not text or not isinstance(text, str):
-            logger.warning(f"⚠️ 输入文本为空或无效，返回空向量")
+            logger.warning("⚠️ 输入文本为空或无效，返回空向量")
             return [0.0] * 1024
 
         text_length = len(text)
         if text_length == 0:
-            logger.warning(f"⚠️ 输入文本长度为0，返回空向量")
+            logger.warning("⚠️ 输入文本长度为0，返回空向量")
             return [0.0] * 1024
 
         # 检查是否启用长度限制
@@ -410,7 +410,7 @@ class FinancialSituationMemory:
 
                 # 检查DashScope API密钥是否可用
                 if not hasattr(dashscope, 'api_key') or not dashscope.api_key:
-                    logger.warning(f"⚠️ DashScope API密钥未设置，记忆功能降级")
+                    logger.warning("⚠️ DashScope API密钥未设置，记忆功能降级")
                     return [0.0] * 1024  # 返回空向量
 
                 # 尝试调用DashScope API
@@ -435,7 +435,7 @@ class FinancialSituationMemory:
 
                         # 检查是否有降级选项
                         if hasattr(self, 'fallback_available') and self.fallback_available:
-                            logger.info(f"💡 尝试使用OpenAI降级处理长文本")
+                            logger.info("💡 尝试使用OpenAI降级处理长文本")
                             try:
                                 response = self.fallback_client.embeddings.create(
                                     model=self.fallback_embedding,
@@ -446,10 +446,10 @@ class FinancialSituationMemory:
                                 return embedding
                             except Exception as fallback_error:
                                 logger.error(f"❌ OpenAI降级失败: {str(fallback_error)}")
-                                logger.info(f"💡 所有降级选项失败，记忆功能降级")
+                                logger.info("💡 所有降级选项失败，记忆功能降级")
                                 return [0.0] * 1024
                         else:
-                            logger.info(f"💡 无可用降级选项，记忆功能降级")
+                            logger.info("💡 无可用降级选项，记忆功能降级")
                             return [0.0] * 1024
                     else:
                         logger.error(f"❌ DashScope API错误: {error_msg}")
@@ -464,7 +464,7 @@ class FinancialSituationMemory:
 
                     # 检查是否有降级选项
                     if hasattr(self, 'fallback_available') and self.fallback_available:
-                        logger.info(f"💡 尝试使用OpenAI降级处理长文本")
+                        logger.info("💡 尝试使用OpenAI降级处理长文本")
                         try:
                             response = self.fallback_client.embeddings.create(
                                 model=self.fallback_embedding,
@@ -475,10 +475,10 @@ class FinancialSituationMemory:
                             return embedding
                         except Exception as fallback_error:
                             logger.error(f"❌ OpenAI降级失败: {str(fallback_error)}")
-                            logger.info(f"💡 所有降级选项失败，记忆功能降级")
+                            logger.info("💡 所有降级选项失败，记忆功能降级")
                             return [0.0] * 1024
                     else:
-                        logger.info(f"💡 无可用降级选项，记忆功能降级")
+                        logger.info("💡 无可用降级选项，记忆功能降级")
                         return [0.0] * 1024
                 elif 'import' in error_str:
                     logger.error(f"❌ DashScope包未安装: {str(e)}")
@@ -489,16 +489,16 @@ class FinancialSituationMemory:
                 else:
                     logger.error(f"❌ DashScope embedding异常: {str(e)}")
 
-                logger.warning(f"⚠️ 记忆功能降级，返回空向量")
+                logger.warning("⚠️ 记忆功能降级，返回空向量")
                 return [0.0] * 1024
         else:
             # 使用OpenAI兼容的嵌入模型
             if self.client is None:
-                logger.warning(f"⚠️ 嵌入客户端未初始化，返回空向量")
+                logger.warning("⚠️ 嵌入客户端未初始化，返回空向量")
                 return [0.0] * 1024  # 返回空向量
             elif self.client == "DISABLED":
                 # 内存功能已禁用，返回空向量
-                logger.debug(f"⚠️ 内存功能已禁用，返回空向量")
+                logger.debug("⚠️ 内存功能已禁用，返回空向量")
                 return [0.0] * 1024  # 返回1024维的零向量
 
             # 尝试调用OpenAI兼容的embedding API
@@ -525,7 +525,7 @@ class FinancialSituationMemory:
                 if is_length_error:
                     # 长度限制错误：直接降级，不截断重试
                     logger.warning(f"⚠️ {self.llm_provider}长度限制: {str(e)}")
-                    logger.info(f"💡 为保证分析准确性，不截断文本，记忆功能降级")
+                    logger.info("💡 为保证分析准确性，不截断文本，记忆功能降级")
                 else:
                     # 其他类型的错误
                     if 'attributeerror' in error_str:
@@ -539,7 +539,7 @@ class FinancialSituationMemory:
                     else:
                         logger.error(f"❌ {self.llm_provider} embedding异常: {str(e)}")
 
-                logger.warning(f"⚠️ 记忆功能降级，返回空向量")
+                logger.warning("⚠️ 记忆功能降级，返回空向量")
                 return [0.0] * 1024
 
     def get_embedding_config_status(self):
@@ -587,13 +587,13 @@ class FinancialSituationMemory:
 
         # 检查是否为空向量（记忆功能被禁用或出错）
         if all(x == 0.0 for x in query_embedding):
-            logger.debug(f"⚠️ 查询embedding为空向量，返回空结果")
+            logger.debug("⚠️ 查询embedding为空向量，返回空结果")
             return []
 
         # 检查是否有足够的数据进行查询
         collection_count = self.situation_collection.count()
         if collection_count == 0:
-            logger.debug(f"📭 记忆库为空，返回空结果")
+            logger.debug("📭 记忆库为空，返回空结果")
             return []
 
         # 调整查询数量，不能超过集合中的文档数量

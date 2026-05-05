@@ -310,7 +310,7 @@ def main():
     test_results['unified_interface'] = test_unified_data_interface()
 
     # 总结结果
-    print(f"\n📊 AKShare功能检查总结")
+    print("\n📊 AKShare功能检查总结")
     print("=" * 60)
 
     passed = sum(test_results.values())

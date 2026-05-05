@@ -73,7 +73,7 @@ def test_frontend_backend_integration():
             return False
 
         submit_data = submit_response.json()
-        print(f"✅ 任务提交成功")
+        print("✅ 任务提交成功")
         print(f"📋 响应格式: {json.dumps(submit_data, indent=2, ensure_ascii=False)}")
 
         # 检查响应格式是否符合前端期望
@@ -97,7 +97,7 @@ def test_frontend_backend_integration():
         return False
 
     # 3. 查询任务状态（模拟前端轮询）
-    print(f"\n🔍 查询任务状态...")
+    print("\n🔍 查询任务状态...")
 
     try:
         status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", 
@@ -110,7 +110,7 @@ def test_frontend_backend_integration():
             return False
 
         status_data = status_response.json()
-        print(f"✅ 状态查询成功")
+        print("✅ 状态查询成功")
         print(f"📊 状态响应: {json.dumps(status_data, indent=2, ensure_ascii=False)}")
 
         # 检查状态响应格式
@@ -135,7 +135,7 @@ def test_frontend_backend_integration():
         return False
 
     # 4. 测试任务列表
-    print(f"\n📋 测试任务列表...")
+    print("\n📋 测试任务列表...")
 
     try:
         tasks_response = requests.get(f"{base_url}/api/analysis/tasks", 
@@ -147,7 +147,7 @@ def test_frontend_backend_integration():
             print(f"响应内容: {tasks_response.text}")
         else:
             tasks_data = tasks_response.json()
-            print(f"✅ 任务列表查询成功")
+            print("✅ 任务列表查询成功")
             tasks = tasks_data.get("data", {}).get("tasks", [])
             print(f"📝 任务数量: {len(tasks)}")
 
@@ -159,11 +159,11 @@ def test_frontend_backend_integration():
         print(f"❌ 任务列表查询异常: {e}")
 
     # 5. 总结
-    print(f"\n📈 集成测试总结:")
-    print(f"  ✅ 登录成功")
+    print("\n📈 集成测试总结:")
+    print("  ✅ 登录成功")
     print(f"  ✅ 任务提交成功 (耗时: {submit_time:.2f}秒)")
-    print(f"  ✅ 状态查询成功")
-    print(f"  ✅ 响应格式正确")
+    print("  ✅ 状态查询成功")
+    print("  ✅ 响应格式正确")
     print(f"  📝 任务ID: {task_id}")
     print(f"  📊 当前状态: {task_status} ({progress}%)")
 

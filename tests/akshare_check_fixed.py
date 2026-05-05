@@ -196,7 +196,7 @@ def main():
     test_results['unified_interface'] = test_unified_interface()
 
     # 总结结果
-    print(f"\n📊 AKShare功能检查总结")
+    print("\n📊 AKShare功能检查总结")
     print("=" * 50)
 
     passed = sum(test_results.values())
@@ -223,7 +223,7 @@ def main():
 if __name__ == "__main__":
     success = main()
 
-    print(f"\n🎯 分支管理建议:")
+    print("\n🎯 分支管理建议:")
     if success:
         print("✅ AKShare功能基本正常，可以考虑删除重复分支")
         print("   - feature/akshare-integration")

@@ -40,7 +40,7 @@ def test_progress_time_calculation_basic():
     assert data['remaining_time'] == pytest.approx(expected_remaining, abs=1), \
         f"预计剩余应该约为{expected_remaining}秒（{expected_remaining/60:.1f}分钟）"
 
-    print(f"✅ 测试通过：")
+    print("✅ 测试通过：")
     print(f"   已用时间: {data['elapsed_time']:.1f}秒")
     print(f"   预计总时长: {data['estimated_total_time']:.1f}秒 ({data['estimated_total_time']/60:.1f}分钟)")
     print(f"   预计剩余: {data['remaining_time']:.1f}秒 ({data['remaining_time']/60:.1f}分钟)")
@@ -72,7 +72,7 @@ def test_progress_time_calculation_10_percent():
     assert data['remaining_time'] == pytest.approx(expected_remaining, abs=1), \
         f"预计剩余应该约为{expected_remaining}秒（{expected_remaining/60:.1f}分钟）"
 
-    print(f"✅ 测试通过：")
+    print("✅ 测试通过：")
     print(f"   已用时间: {data['elapsed_time']:.1f}秒")
     print(f"   预计总时长: {data['estimated_total_time']:.1f}秒 ({data['estimated_total_time']/60:.1f}分钟)")
     print(f"   预计剩余: {data['remaining_time']:.1f}秒 ({data['remaining_time']/60:.1f}分钟)")
@@ -104,7 +104,7 @@ def test_progress_time_calculation_50_percent():
     assert data['remaining_time'] == pytest.approx(expected_remaining, abs=1), \
         f"预计剩余应该约为{expected_remaining}秒（{expected_remaining/60:.1f}分钟）"
 
-    print(f"✅ 测试通过：")
+    print("✅ 测试通过：")
     print(f"   已用时间: {data['elapsed_time']:.1f}秒")
     print(f"   预计总时长: {data['estimated_total_time']:.1f}秒 ({data['estimated_total_time']/60:.1f}分钟)")
     print(f"   预计剩余: {data['remaining_time']:.1f}秒 ({data['remaining_time']/60:.1f}分钟)")
@@ -134,7 +134,7 @@ def test_progress_time_calculation_zero_progress():
     assert data['remaining_time'] == pytest.approx(expected_remaining, abs=1), \
         f"预计剩余应该约为{expected_remaining}秒（{expected_remaining/60:.1f}分钟）"
 
-    print(f"✅ 测试通过：")
+    print("✅ 测试通过：")
     print(f"   已用时间: {data['elapsed_time']:.1f}秒")
     print(f"   预计总时长: {data['estimated_total_time']:.1f}秒 ({data['estimated_total_time']/60:.1f}分钟)")
     print(f"   预计剩余: {data['remaining_time']:.1f}秒 ({data['remaining_time']/60:.1f}分钟)")
@@ -163,7 +163,7 @@ def test_progress_time_calculation_completed():
     assert data['estimated_total_time'] == 300, "预计总时长应该等于已用时间"
     assert data['remaining_time'] == 0, "预计剩余应该为0"
 
-    print(f"✅ 测试通过：")
+    print("✅ 测试通过：")
     print(f"   已用时间: {data['elapsed_time']:.1f}秒")
     print(f"   预计总时长: {data['estimated_total_time']:.1f}秒 ({data['estimated_total_time']/60:.1f}分钟)")
     print(f"   预计剩余: {data['remaining_time']:.1f}秒")

@@ -102,7 +102,7 @@ def test_gemini_25_pro_tradingagents():
         os.makedirs(config["data_cache_dir"], exist_ok=True)
 
         print("✅ 配置创建成功")
-        print(f"   模型: gemini-2.5-pro")
+        print("   模型: gemini-2.5-pro")
         print(f"   内存功能: {config['memory_enabled']}")
 
         # 创建TradingAgentsGraph实例
@@ -236,7 +236,7 @@ def main():
     results['TradingAgents集成'] = test_gemini_25_pro_tradingagents()
 
     # 总结结果
-    print(f"\n📊 Gemini 2.5 Pro测试结果总结:")
+    print("\n📊 Gemini 2.5 Pro测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

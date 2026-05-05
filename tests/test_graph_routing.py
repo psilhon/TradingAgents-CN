@@ -43,7 +43,7 @@ def test_graph_routing():
             "memory_enabled": False
         })
 
-        print(f"📊 配置信息:")
+        print("📊 配置信息:")
         print(f"   LLM提供商: {config['llm_provider']}")
         print(f"   深度思考模型: {config['deep_think_llm']}")
         print(f"   快速思考模型: {config['quick_think_llm']}")
@@ -52,10 +52,10 @@ def test_graph_routing():
         graph = TradingAgentsGraph(config)
 
         # 设置分析师（只选择市场分析师，减少复杂度）
-        print(f"📈 设置分析师...")
+        print("📈 设置分析师...")
         graph.setup_and_compile(selected_analysts=["market"])
 
-        print(f"✅ 图设置完成")
+        print("✅ 图设置完成")
 
         # 准备输入
         input_data = {
@@ -79,7 +79,7 @@ def test_graph_routing():
         # 输出结果摘要
         if result and "decision" in result:
             decision = result["decision"]
-            print(f"\n📋 分析结果摘要:")
+            print("\n📋 分析结果摘要:")
             print(f"   投资建议: {decision.get('action', 'N/A')}")
             print(f"   置信度: {decision.get('confidence', 'N/A')}")
             print(f"   目标价格: {decision.get('target_price', 'N/A')}")

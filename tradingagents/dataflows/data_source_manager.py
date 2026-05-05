@@ -73,11 +73,11 @@ class DataSourceManager:
             from .cache import get_cache
             self.cache_manager = get_cache()
             self.cache_enabled = True
-            logger.info(f"✅ 统一缓存管理器已启用")
+            logger.info("✅ 统一缓存管理器已启用")
         except Exception as e:
             logger.warning(f"⚠️ 统一缓存管理器初始化失败: {e}")
 
-        logger.info(f"📊 数据源管理器初始化完成")
+        logger.info("📊 数据源管理器初始化完成")
         logger.info(f"   MongoDB缓存: {'✅ 已启用' if self.use_mongodb_cache else '❌ 未启用'}")
         logger.info(f"   统一缓存: {'✅ 已启用' if self.cache_enabled else '❌ 未启用'}")
         logger.info(f"   默认数据源: {self.default_source.value}")
@@ -495,9 +495,9 @@ class DataSourceManager:
             try:
                 import baostock as bs
                 available.append(ChinaDataSource.BAOSTOCK)
-                logger.info(f"✅ BaoStock数据源可用且已启用")
+                logger.info("✅ BaoStock数据源可用且已启用")
             except ImportError:
-                logger.warning(f"⚠️ BaoStock数据源不可用: 库未安装")
+                logger.warning("⚠️ BaoStock数据源不可用: 库未安装")
         else:
             logger.info("ℹ️ BaoStock数据源已在数据库中禁用")
 
@@ -753,7 +753,7 @@ class DataSourceManager:
             data['boll_upper'] = data['boll_mid'] + 2 * std
             data['boll_lower'] = data['boll_mid'] - 2 * std
 
-            logger.info(f"✅ [技术指标] 技术指标计算完成")
+            logger.info("✅ [技术指标] 技术指标计算完成")
 
             # 🔧 只保留最后3-5天的数据用于展示（减少token消耗）
             display_rows = min(5, len(data))
@@ -771,7 +771,7 @@ class DataSourceManager:
                 logger.info(f"   RSI14: {row.get('rsi14', 0):.2f} (国际标准)")
                 logger.info(f"   BOLL: 上={row.get('boll_upper', 0):.2f}, 中={row.get('boll_mid', 0):.2f}, 下={row.get('boll_lower', 0):.2f}")
 
-            logger.info(f"🔍 [技术指标详情] ===== 数据详情结束 =====")
+            logger.info("🔍 [技术指标详情] ===== 数据详情结束 =====")
 
             # 计算最新价格和涨跌幅
             latest_price = latest_data.get('close', 0)
@@ -788,7 +788,7 @@ class DataSourceManager:
             result += f"📈 涨跌额: {change:+.2f} ({change_pct:+.2f}%)\n\n"
 
             # 添加技术指标
-            result += f"📊 移动平均线 (MA):\n"
+            result += "📊 移动平均线 (MA):\n"
             result += f"   MA5:  ¥{latest_data['ma5']:.2f}"
             if latest_price > latest_data['ma5']:
                 result += " (价格在MA5上方 ↑)\n"
@@ -814,7 +814,7 @@ class DataSourceManager:
                 result += " (价格在MA60下方 ↓)\n\n"
 
             # MACD指标
-            result += f"📈 MACD指标:\n"
+            result += "📈 MACD指标:\n"
             result += f"   DIF:  {latest_data['macd_dif']:.3f}\n"
             result += f"   DEA:  {latest_data['macd_dea']:.3f}\n"
             result += f"   MACD: {latest_data['macd']:.3f}"
@@ -843,7 +843,7 @@ class DataSourceManager:
             rsi6 = latest_data['rsi6']
             rsi12 = latest_data['rsi12']
             rsi24 = latest_data['rsi24']
-            result += f"📉 RSI指标 (同花顺风格):\n"
+            result += "📉 RSI指标 (同花顺风格):\n"
             result += f"   RSI6:  {rsi6:.2f}"
             if rsi6 >= 80:
                 result += " (超买 ⚠️)\n"
@@ -877,7 +877,7 @@ class DataSourceManager:
                 result += "   趋势: 震荡整理 ↔\n\n"
 
             # 布林带
-            result += f"📊 布林带 (BOLL):\n"
+            result += "📊 布林带 (BOLL):\n"
             result += f"   上轨: ¥{latest_data['boll_upper']:.2f}\n"
             result += f"   中轨: ¥{latest_data['boll_mid']:.2f}\n"
             result += f"   下轨: ¥{latest_data['boll_lower']:.2f}\n"
@@ -1168,7 +1168,7 @@ class DataSourceManager:
                 # 调用统一的格式化方法（包含技术指标计算）
                 result = self._format_stock_data_response(df, symbol, stock_name, start_date, end_date)
 
-                logger.info(f"✅ [MongoDB] 已计算技术指标: MA5/10/20/60, MACD, RSI, BOLL")
+                logger.info("✅ [MongoDB] 已计算技术指标: MA5/10/20/60, MACD, RSI, BOLL")
                 return result, "mongodb"
             else:
                 # MongoDB没有数据（adapter内部已记录详细的数据源信息），降级到其他数据源
@@ -1188,7 +1188,7 @@ class DataSourceManager:
         logger.info(f"🔍 [股票代码追踪] _get_tushare_data 接收到的股票代码: '{symbol}' (类型: {type(symbol)})")
         logger.info(f"🔍 [股票代码追踪] 股票代码长度: {len(str(symbol))}")
         logger.info(f"🔍 [股票代码追踪] 股票代码字符: {list(str(symbol))}")
-        logger.info(f"🔍 [DataSourceManager详细日志] _get_tushare_data 开始执行")
+        logger.info("🔍 [DataSourceManager详细日志] _get_tushare_data 开始执行")
         logger.info(f"🔍 [DataSourceManager详细日志] 当前数据源: {self.current_source.value}")
 
         start_time = time.time()
@@ -1221,11 +1221,11 @@ class DataSourceManager:
 
             # 2. 缓存未命中，从provider获取
             logger.info(f"🔍 [股票代码追踪] 调用 tushare_provider，传入参数: symbol='{symbol}'")
-            logger.info(f"🔍 [DataSourceManager详细日志] 开始调用tushare_provider...")
+            logger.info("🔍 [DataSourceManager详细日志] 开始调用tushare_provider...")
 
             provider = self._get_tushare_adapter()
             if not provider:
-                return f"❌ Tushare提供器不可用"
+                return "❌ Tushare提供器不可用"
 
             # 使用异步方法获取历史数据
             import asyncio
@@ -1308,7 +1308,7 @@ class DataSourceManager:
                 result = self._format_stock_data_response(data, symbol, stock_name, start_date, end_date)
 
                 logger.debug(f"📊 [AKShare] 调用成功: 耗时={duration:.2f}s, 数据条数={len(data)}, 结果长度={len(result)}")
-                logger.info(f"✅ [AKShare] 已计算技术指标: MA5/10/20/60, MACD, RSI, BOLL")
+                logger.info("✅ [AKShare] 已计算技术指标: MA5/10/20/60, MACD, RSI, BOLL")
                 return result
             else:
                 result = f"❌ 未能获取{symbol}的股票数据"
@@ -1349,7 +1349,7 @@ class DataSourceManager:
             # 调用统一的格式化方法（包含技术指标计算）
             result = self._format_stock_data_response(data, symbol, stock_name, start_date, end_date)
 
-            logger.info(f"✅ [BaoStock] 已计算技术指标: MA5/10/20/60, MACD, RSI, BOLL")
+            logger.info("✅ [BaoStock] 已计算技术指标: MA5/10/20/60, MACD, RSI, BOLL")
             return result
         else:
             return f"❌ 未能获取{symbol}的股票数据"
@@ -1835,8 +1835,8 @@ class DataSourceManager:
 
     def _get_tushare_fundamentals(self, symbol: str) -> str:
         """从 Tushare 获取基本面数据 - 暂时不可用，需要实现"""
-        logger.warning(f"⚠️ Tushare基本面数据功能暂时不可用")
-        return f"⚠️ Tushare基本面数据功能暂时不可用，请使用其他数据源"
+        logger.warning("⚠️ Tushare基本面数据功能暂时不可用")
+        return "⚠️ Tushare基本面数据功能暂时不可用，请使用其他数据源"
 
     def _get_akshare_fundamentals(self, symbol: str) -> str:
         """从 AKShare 生成基本面分析"""
@@ -1893,7 +1893,7 @@ class DataSourceManager:
 
             # 基本信息
             report += f"📅 报告期: {latest.get('report_period', latest.get('end_date', '未知'))}\n"
-            report += f"📈 数据来源: MongoDB财务数据库\n\n"
+            report += "📈 数据来源: MongoDB财务数据库\n\n"
 
             # 财务指标
             report += "💰 财务指标:\n"
@@ -2074,7 +2074,7 @@ class DataSourceManager:
         """从Tushare获取新闻数据"""
         try:
             # Tushare新闻功能暂时不可用，返回空列表
-            logger.warning(f"⚠️ [数据来源: Tushare] Tushare新闻功能暂时不可用")
+            logger.warning("⚠️ [数据来源: Tushare] Tushare新闻功能暂时不可用")
             return []
 
         except Exception as e:
@@ -2085,7 +2085,7 @@ class DataSourceManager:
         """从AKShare获取新闻数据"""
         try:
             # AKShare新闻功能暂时不可用，返回空列表
-            logger.warning(f"⚠️ [数据来源: AKShare] AKShare新闻功能暂时不可用")
+            logger.warning("⚠️ [数据来源: AKShare] AKShare新闻功能暂时不可用")
             return []
 
         except Exception as e:
@@ -2171,7 +2171,7 @@ def get_china_stock_data_unified(symbol: str, start_date: str, end_date: str) ->
         if len(data_lines) > 0:
             logger.info(f"🔍 [股票代码追踪] 数据行示例: 第1行='{data_lines[0][:100]}', 最后1行='{data_lines[-1][:100]}'")
     else:
-        logger.info(f"🔍 [股票代码追踪] 返回结果: None")
+        logger.info("🔍 [股票代码追踪] 返回结果: None")
     return result
 
 
@@ -2237,7 +2237,7 @@ class USDataSourceManager:
         self.default_source = self._get_default_source()
         self.current_source = self.default_source
 
-        logger.info(f"📊 美股数据源管理器初始化完成")
+        logger.info("📊 美股数据源管理器初始化完成")
         logger.info(f"   MongoDB缓存: {'✅ 已启用' if self.use_mongodb_cache else '❌ 未启用'}")
         logger.info(f"   默认数据源: {self.default_source.value}")
         logger.info(f"   可用数据源: {[s.value for s in self.available_sources]}")

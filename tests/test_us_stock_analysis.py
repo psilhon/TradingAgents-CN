@@ -26,7 +26,7 @@ def test_us_stock_market_analysis():
         toolkit.update_config(config)
 
         # 检查工具包是否有正确的方法
-        print(f"✅ 工具包方法检查:")
+        print("✅ 工具包方法检查:")
         print(f"  - get_YFin_data_online: {hasattr(toolkit, 'get_YFin_data_online')}")
         print(f"  - get_china_stock_data: {hasattr(toolkit, 'get_china_stock_data')}")
 
@@ -45,18 +45,18 @@ def test_us_stock_market_analysis():
             'market_report': ''
         }
 
-        print(f"\n🔄 开始美股市场分析...")
+        print("\n🔄 开始美股市场分析...")
         result = analyst(test_state)
 
-        print(f"✅ 美股市场分析完成")
+        print("✅ 美股市场分析完成")
         print(f"市场报告长度: {len(result['market_report'])}")
 
         if len(result['market_report']) > 100:
-            print(f"✅ 报告内容正常")
-            print(f"报告前300字符:")
+            print("✅ 报告内容正常")
+            print("报告前300字符:")
             print(result['market_report'][:300])
         else:
-            print(f"❌ 报告内容异常:")
+            print("❌ 报告内容异常:")
             print(result['market_report'])
 
         return result
@@ -87,7 +87,7 @@ def test_us_stock_fundamentals_analysis():
         toolkit.update_config(config)
 
         # 检查工具包是否有正确的方法
-        print(f"✅ 工具包方法检查:")
+        print("✅ 工具包方法检查:")
         print(f"  - get_YFin_data_online: {hasattr(toolkit, 'get_YFin_data_online')}")
         print(f"  - get_fundamentals_openai: {hasattr(toolkit, 'get_fundamentals_openai')}")
 
@@ -106,18 +106,18 @@ def test_us_stock_fundamentals_analysis():
             'fundamentals_report': ''
         }
 
-        print(f"\n🔄 开始美股基本面分析...")
+        print("\n🔄 开始美股基本面分析...")
         result = analyst(test_state)
 
-        print(f"✅ 美股基本面分析完成")
+        print("✅ 美股基本面分析完成")
         print(f"基本面报告长度: {len(result['fundamentals_report'])}")
 
         if len(result['fundamentals_report']) > 100:
-            print(f"✅ 报告内容正常")
-            print(f"报告前300字符:")
+            print("✅ 报告内容正常")
+            print("报告前300字符:")
             print(result['fundamentals_report'][:300])
         else:
-            print(f"❌ 报告内容异常:")
+            print("❌ 报告内容异常:")
             print(result['fundamentals_report'])
 
         return result

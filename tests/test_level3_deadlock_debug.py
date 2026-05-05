@@ -140,11 +140,11 @@ def test_level3_deadlock():
 
         # 分析是否可能导致死循环
         if result == "tools_fundamentals" and report_len == 0:
-            print(f"  ⚠️  可能的死循环风险: 报告为空但继续调用工具")
+            print("  ⚠️  可能的死循环风险: 报告为空但继续调用工具")
         elif result == "tools_fundamentals" and report_len > 100:
-            print(f"  🚨 潜在死循环: 报告已完成但仍要调用工具!")
+            print("  🚨 潜在死循环: 报告已完成但仍要调用工具!")
         else:
-            print(f"  ✅ 正常流程")
+            print("  ✅ 正常流程")
 
     # 4. 检查可能的死循环原因
     print("\n🔍 4. 死循环原因分析")

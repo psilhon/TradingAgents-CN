@@ -91,14 +91,14 @@ async def test_async_analysis():
             print(f"📊 当前状态: {status_data['data']['status']} ({status_data['data']['progress']}%)")
 
         # 4. 测试 WebSocket 实时进度
-        print(f"\n🔌 测试 WebSocket 实时进度...")
+        print("\n🔌 测试 WebSocket 实时进度...")
         try:
             await test_websocket_progress(task_id, ws_url)
         except Exception as e:
             print(f"⚠️ WebSocket 测试失败: {e}")
 
         # 5. 轮询任务状态直到完成
-        print(f"\n⏳ 等待任务完成...")
+        print("\n⏳ 等待任务完成...")
         max_wait_time = 300  # 最多等待5分钟
         start_wait = time.time()
 
@@ -127,7 +127,7 @@ async def test_async_analysis():
             final_data = await final_response.json()
             task_data = final_data['data']
 
-            print(f"\n📈 最终结果:")
+            print("\n📈 最终结果:")
             print(f"  状态: {task_data['status']}")
             print(f"  进度: {task_data['progress']}%")
             print(f"  执行时间: {task_data.get('execution_time', 'N/A')}秒")
@@ -139,7 +139,7 @@ async def test_async_analysis():
                 print(f"  置信度: {result.get('confidence_score', 'N/A')}")
 
         # 7. 测试任务列表
-        print(f"\n📋 测试任务列表...")
+        print("\n📋 测试任务列表...")
         tasks_response = await session.get(f"{base_url}/api/analysis/tasks", 
                                          headers=headers)
 
@@ -214,7 +214,7 @@ async def test_concurrent_requests():
     avg_time = sum(duration for _, duration in results) / len(results)
     max_time = max(duration for _, duration in results)
 
-    print(f"📊 性能统计:")
+    print("📊 性能统计:")
     print(f"  平均响应时间: {avg_time:.3f}秒")
     print(f"  最大响应时间: {max_time:.3f}秒")
 

@@ -188,8 +188,8 @@ def main():
     multiple_success = test_multiple_calls()
 
     # 测试实际分析（可选，比较耗时）
-    print(f"\n❓ 是否要测试完整的股票分析？（比较耗时，约1-2分钟）")
-    print(f"   如果只想验证成本计算，前面的测试已经足够了。")
+    print("\n❓ 是否要测试完整的股票分析？（比较耗时，约1-2分钟）")
+    print("   如果只想验证成本计算，前面的测试已经足够了。")
 
     # 这里我们跳过完整分析，因为比较耗时
     analysis_success = True  # test_real_deepseek_analysis()

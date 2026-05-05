@@ -73,7 +73,7 @@ def test_frontend_display():
             return False
 
         # 3. 等待任务完成
-        print(f"\n3. 等待任务完成...")
+        print("\n3. 等待任务完成...")
         for i in range(60):  # 最多等待5分钟
             status_response = requests.get(
                 f"{base_url}/api/analysis/tasks/{task_id}/status",
@@ -88,16 +88,16 @@ def test_frontend_display():
                     print("✅ 分析任务完成!")
                     break
                 elif status == "failed":
-                    print(f"❌ 分析任务失败")
+                    print("❌ 分析任务失败")
                     return False
 
             time.sleep(5)
         else:
-            print(f"⏰ 任务执行超时")
+            print("⏰ 任务执行超时")
             return False
 
         # 4. 测试新的result端点
-        print(f"\n4. 测试新的result端点...")
+        print("\n4. 测试新的result端点...")
         result_response = requests.get(
             f"{base_url}/api/analysis/tasks/{task_id}/result",
             headers=headers
@@ -105,11 +105,11 @@ def test_frontend_display():
 
         if result_response.status_code == 200:
             result_data = result_response.json()
-            print(f"✅ 成功获取分析结果")
+            print("✅ 成功获取分析结果")
 
             # 检查数据结构
             data = result_data["data"]
-            print(f"\n📊 结果数据结构检查:")
+            print("\n📊 结果数据结构检查:")
             print(f"   stock_code: {data.get('stock_code', 'NOT_FOUND')}")
             print(f"   stock_symbol: {data.get('stock_symbol', 'NOT_FOUND')}")
             print(f"   analysis_date: {data.get('analysis_date', 'NOT_FOUND')}")
@@ -124,7 +124,7 @@ def test_frontend_display():
                     else:
                         print(f"   - {report_type}: {type(content)}")
             else:
-                print(f"❌ 未找到reports字段或为空")
+                print("❌ 未找到reports字段或为空")
 
                 # 检查detailed_analysis字段
                 detailed_analysis = data.get('detailed_analysis')
@@ -136,7 +136,7 @@ def test_frontend_display():
                             if isinstance(value, str) and len(value) > 50:
                                 print(f"   - {key}: {len(value)} 字符 (可作为报告)")
                 else:
-                    print(f"❌ 也未找到detailed_analysis字段")
+                    print("❌ 也未找到detailed_analysis字段")
 
             return True
         else:

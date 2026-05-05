@@ -52,7 +52,7 @@ def test_akshare_utils_direct():
         akshare_utils_path = os.path.join(project_root, 'tradingagents', 'dataflows', 'akshare_utils.py')
 
         if os.path.exists(akshare_utils_path):
-            print(f"✅ 找到akshare_utils.py文件")
+            print("✅ 找到akshare_utils.py文件")
 
             # 使用exec直接执行文件内容
             with open(akshare_utils_path, 'r', encoding='utf-8') as f:
@@ -125,7 +125,7 @@ def check_data_source_enum():
 
             return True
         else:
-            print(f"❌ data_source_manager.py文件不存在")
+            print("❌ data_source_manager.py文件不存在")
             return False
 
     except Exception as e:
@@ -181,7 +181,7 @@ def main():
     test_results['yfinance_analysis'] = analyze_yfinance_issue()
 
     # 总结结果
-    print(f"\n📊 独立测试总结")
+    print("\n📊 独立测试总结")
     print("=" * 60)
 
     passed = sum(test_results.values())
@@ -199,7 +199,7 @@ def main():
         print("💡 问题只是yfinance依赖导致的模块导入问题")
         print("✅ 可以安全删除重复的AKShare分支")
 
-        print(f"\n🎯 分支管理建议:")
+        print("\n🎯 分支管理建议:")
         print("✅ AKShare功能本身完全正常")
         print("✅ feature/tushare-integration包含完整的AKShare集成")
         print("✅ 可以安全删除以下分支:")
@@ -215,12 +215,12 @@ if __name__ == "__main__":
     success = main()
 
     if success:
-        print(f"\n🚀 下一步建议:")
+        print("\n🚀 下一步建议:")
         print("1. 修复yfinance依赖问题（可选）")
         print("2. 删除重复的AKShare分支")
         print("3. 发布v0.1.6版本")
     else:
-        print(f"\n🔧 需要修复的问题:")
+        print("\n🔧 需要修复的问题:")
         print("1. 检查AKShare集成代码")
         print("2. 修复依赖问题")
         print("3. 重新测试后再考虑分支清理")

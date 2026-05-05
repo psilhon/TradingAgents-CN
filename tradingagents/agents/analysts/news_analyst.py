@@ -98,13 +98,13 @@ def create_news_analyst(llm, toolkit):
         logger.info(f"[新闻分析师] 公司名称: {company_name}")
 
         # 🔧 使用统一新闻工具，简化工具调用
-        logger.info(f"[新闻分析师] 使用统一新闻工具，自动识别股票类型并获取相应新闻")
+        logger.info("[新闻分析师] 使用统一新闻工具，自动识别股票类型并获取相应新闻")
    # 创建统一新闻工具
         unified_news_tool = create_unified_news_tool(toolkit)
         unified_news_tool.name = "get_stock_news_unified"
 
         tools = [unified_news_tool]
-        logger.info(f"[新闻分析师] 已加载统一新闻工具: get_stock_news_unified")
+        logger.info("[新闻分析师] 已加载统一新闻工具: get_stock_news_unified")
 
         system_message = (
             """您是一位专业的财经新闻分析师，负责分析最新的市场新闻和事件对股票价格的潜在影响。
@@ -212,7 +212,7 @@ def create_news_analyst(llm, toolkit):
             logger.warning(f"[新闻分析师] 🚨 检测到{llm.__class__.__name__}模型，启动预处理强制新闻获取...")
             try:
                 # 强制预先获取新闻数据
-                logger.info(f"[新闻分析师] 🔧 预处理：强制调用统一新闻工具...")
+                logger.info("[新闻分析师] 🔧 预处理：强制调用统一新闻工具...")
                 logger.info(f"[新闻分析师] 📊 调用参数: stock_code={ticker}, max_news=10, model_info={model_info}")
 
                 pre_fetched_news = unified_news_tool(stock_code=ticker, max_news=10, model_info=model_info)
@@ -225,7 +225,7 @@ def create_news_analyst(llm, toolkit):
 
                     # 直接基于预获取的新闻生成分析，跳过工具调用
                     # 🔧 重要：构建不包含工具调用指导的系统提示词
-                    analysis_system_prompt = f"""您是一位专业的财经新闻分析师。
+                    analysis_system_prompt = """您是一位专业的财经新闻分析师。
 
 您的职责是基于提供的新闻数据，对股票进行深入的新闻分析。
 
@@ -248,7 +248,7 @@ def create_news_analyst(llm, toolkit):
 3. 市场情绪评估
 4. 投资建议"""
 
-                    logger.info(f"[新闻分析师] 🔄 使用预获取新闻数据直接生成分析...")
+                    logger.info("[新闻分析师] 🔄 使用预获取新闻数据直接生成分析...")
                     logger.info(f"[新闻分析师] 📝 系统提示词长度: {len(analysis_system_prompt)} 字符")
                     logger.info(f"[新闻分析师] 📝 用户提示词长度: {len(enhanced_prompt)} 字符")
 
@@ -283,7 +283,7 @@ def create_news_analyst(llm, toolkit):
                             "news_tool_call_count": tool_call_count + 1
                         }
                     else:
-                        logger.warning(f"[新闻分析师] ⚠️ LLM返回结果为空，回退到标准模式")
+                        logger.warning("[新闻分析师] ⚠️ LLM返回结果为空，回退到标准模式")
 
                 else:
                     logger.warning(f"[新闻分析师] ⚠️ 预处理获取新闻失败或内容过短（{len(pre_fetched_news) if pre_fetched_news else 0}字符），回退到标准模式")
@@ -308,7 +308,7 @@ def create_news_analyst(llm, toolkit):
 
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(llm):
-            logger.info(f"📊 [新闻分析师] 检测到Google模型，使用统一工具调用处理器")
+            logger.info("📊 [新闻分析师] 检测到Google模型，使用统一工具调用处理器")
 
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(
@@ -342,7 +342,7 @@ def create_news_analyst(llm, toolkit):
 
                 try:
                     # 强制获取新闻数据
-                    logger.info(f"[新闻分析师] 🔧 强制调用统一新闻工具获取新闻数据...")
+                    logger.info("[新闻分析师] 🔧 强制调用统一新闻工具获取新闻数据...")
                     logger.info(f"[新闻分析师] 📊 调用参数: stock_code={ticker}, max_news=10")
 
                     forced_news = unified_news_tool(stock_code=ticker, max_news=10, model_info=model_info)
@@ -366,7 +366,7 @@ def create_news_analyst(llm, toolkit):
 请基于上述真实新闻数据撰写详细的中文分析报告。
 """
 
-                        logger.info(f"[新闻分析师] 🔄 基于强制获取的新闻数据重新生成完整分析...")
+                        logger.info("[新闻分析师] 🔄 基于强制获取的新闻数据重新生成完整分析...")
                         logger.info(f"[新闻分析师] 📝 强制提示词长度: {len(forced_prompt)} 字符")
 
                         forced_result = llm.invoke([{"role": "user", "content": forced_prompt}])
@@ -376,7 +376,7 @@ def create_news_analyst(llm, toolkit):
                             logger.info(f"[新闻分析师] ✅ 强制补救成功，生成基于真实数据的报告，长度: {len(report)} 字符")
                             logger.info(f"[新闻分析师] 📄 报告预览 (前300字符): {report[:300]}")
                         else:
-                            logger.warning(f"[新闻分析师] ⚠️ 强制补救LLM返回为空，使用原始结果")
+                            logger.warning("[新闻分析师] ⚠️ 强制补救LLM返回为空，使用原始结果")
                             report = result.content if hasattr(result, 'content') else ""
                     else:
                         logger.warning(f"[新闻分析师] ⚠️ 统一新闻工具获取失败或内容过短（{len(forced_news) if forced_news else 0}字符），使用原始结果")

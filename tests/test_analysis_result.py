@@ -32,7 +32,7 @@ def test_analysis_result():
         return
 
     token = result["data"]["access_token"]
-    print(f"✅ 登录成功")
+    print("✅ 登录成功")
 
     headers = {
         "Content-Type": "application/json",
@@ -77,21 +77,21 @@ def test_analysis_result():
 
         report_detail = detail_data["data"]
 
-        print(f"\n📊 报告数据结构分析:")
+        print("\n📊 报告数据结构分析:")
         print(f"   报告ID: {report_detail.get('id')}")
         print(f"   股票代码: {report_detail.get('stock_symbol')}")
         print(f"   分析日期: {report_detail.get('analysis_date')}")
         print(f"   状态: {report_detail.get('status')}")
 
         # 检查关键字段
-        print(f"\n🔍 关键字段检查:")
+        print("\n🔍 关键字段检查:")
         print(f"   有 decision 字段: {bool(report_detail.get('decision'))}")
         print(f"   有 state 字段: {bool(report_detail.get('state'))}")
         print(f"   有 reports 字段: {bool(report_detail.get('reports'))}")
         print(f"   有 recommendation 字段: {bool(report_detail.get('recommendation'))}")
 
         # 显示所有顶级字段
-        print(f"\n📋 所有顶级字段:")
+        print("\n📋 所有顶级字段:")
         for key in sorted(report_detail.keys()):
             value = report_detail[key]
             if isinstance(value, dict):
@@ -105,7 +105,7 @@ def test_analysis_result():
 
         # 如果有 reports 字段，详细分析
         if report_detail.get('reports'):
-            print(f"\n📄 Reports 字段详细分析:")
+            print("\n📄 Reports 字段详细分析:")
             reports = report_detail['reports']
             for key, content in reports.items():
                 if isinstance(content, str):
@@ -117,17 +117,17 @@ def test_analysis_result():
         # 保存完整数据到文件用于分析
         with open('analysis_result_sample.json', 'w', encoding='utf-8') as f:
             json.dump(report_detail, f, ensure_ascii=False, indent=2, default=str)
-        print(f"\n💾 完整数据已保存到 analysis_result_sample.json")
+        print("\n💾 完整数据已保存到 analysis_result_sample.json")
 
         # 模拟前端的数据处理逻辑
-        print(f"\n🎭 模拟前端数据处理:")
+        print("\n🎭 模拟前端数据处理:")
 
         # 检查是否会显示结果
         has_decision = bool(report_detail.get('decision'))
         has_state = bool(report_detail.get('state'))
         has_reports = bool(report_detail.get('reports'))
 
-        print(f"   showResults 条件: analysisResults 存在 = True")
+        print("   showResults 条件: analysisResults 存在 = True")
         print(f"   decision 部分显示: {has_decision}")
         print(f"   reports 部分显示 (state): {has_state}")
         print(f"   reports 部分显示 (reports): {has_reports}")
@@ -137,12 +137,12 @@ def test_analysis_result():
         reports_data = None
         if report_detail.get('reports'):
             reports_data = report_detail['reports']
-            print(f"   使用 data.reports")
+            print("   使用 data.reports")
         elif report_detail.get('state'):
             reports_data = report_detail['state']
-            print(f"   使用 data.state")
+            print("   使用 data.state")
         else:
-            print(f"   没有找到报告数据")
+            print("   没有找到报告数据")
             return
 
         # 检查报告映射
@@ -162,7 +162,7 @@ def test_analysis_result():
         print(f"   报告数量: {len(found_reports)}")
 
         if len(found_reports) == 0:
-            print(f"   ⚠️ 没有找到任何报告模块！")
+            print("   ⚠️ 没有找到任何报告模块！")
             print(f"   实际的键: {list(reports_data.keys())}")
 
     except Exception as e:

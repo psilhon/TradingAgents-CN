@@ -88,7 +88,7 @@ def test_dashscope_token_tracking():
             dashscope_stats = provider_stats.get("dashscope", {})
 
             if dashscope_stats:
-                print(f"📊 DashScope统计:")
+                print("📊 DashScope统计:")
                 print(f"   - 成本: ¥{dashscope_stats.get('cost', 0):.4f}")
                 print(f"   - 输入tokens: {dashscope_stats.get('input_tokens', 0)}")
                 print(f"   - 输出tokens: {dashscope_stats.get('output_tokens', 0)}")
@@ -147,7 +147,7 @@ def main():
 
     # 显示配置状态
     env_status = config_manager.get_env_config_status()
-    print(f"📋 配置状态:")
+    print("📋 配置状态:")
     print(f"   - .env文件存在: {env_status['env_file_exists']}")
     print(f"   - DashScope API: {env_status['api_keys']['dashscope']}")
 

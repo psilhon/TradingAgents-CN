@@ -58,7 +58,7 @@ def test_available_tools():
                 print(f"    ❌ {tool_name}: 不可用")
                 return False
 
-        print(f"\n  所有可用工具:")
+        print("\n  所有可用工具:")
         for tool_name in sorted(all_tools):
             print(f"    - {tool_name}")
 
@@ -113,12 +113,12 @@ def test_fundamentals_analyst_tool_selection():
 
                 # 验证只选择了统一工具
                 if len(tools) == 1 and tools[0].name == 'get_stock_fundamentals_unified':
-                    print(f"    ✅ 正确选择统一基本面工具")
+                    print("    ✅ 正确选择统一基本面工具")
                 else:
-                    print(f"    ❌ 工具选择错误")
+                    print("    ❌ 工具选择错误")
                     return False
             else:
-                print(f"    跳过（online_tools=False）")
+                print("    跳过（online_tools=False）")
 
         print("✅ 基本面分析师工具选择测试通过")
         return True
@@ -169,12 +169,12 @@ def test_market_analyst_tool_selection():
 
                 # 验证只选择了统一工具
                 if len(tools) == 1 and tools[0].name == 'get_stock_market_data_unified':
-                    print(f"    ✅ 正确选择统一市场数据工具")
+                    print("    ✅ 正确选择统一市场数据工具")
                 else:
-                    print(f"    ❌ 工具选择错误")
+                    print("    ❌ 工具选择错误")
                     return False
             else:
-                print(f"    跳过（online_tools=False）")
+                print("    跳过（online_tools=False）")
 
         print("✅ 市场分析师工具选择测试通过")
         return True

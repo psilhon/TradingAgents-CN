@@ -60,7 +60,7 @@ def test_baostock_valuation_direct():
 
                     if result_list:
                         row = result_list[0]
-                        print(f"✅ 估值数据获取成功:")
+                        print("✅ 估值数据获取成功:")
                         print(f"   日期: {row[0]}")
                         print(f"   代码: {row[1]}")
                         print(f"   收盘价: {row[2]}")
@@ -69,7 +69,7 @@ def test_baostock_valuation_direct():
                         print(f"   滚动市销率(psTTM): {row[5]}")
                         print(f"   滚动市现率(pcfNcfTTM): {row[6]}")
                     else:
-                        print(f"⚠️ 无数据返回")
+                        print("⚠️ 无数据返回")
                 else:
                     print(f"❌ 查询失败: {rs.error_msg}")
 
@@ -78,7 +78,7 @@ def test_baostock_valuation_direct():
 
         # 登出
         bs.logout()
-        print(f"\n✅ BaoStock直接API测试完成")
+        print("\n✅ BaoStock直接API测试完成")
 
     except ImportError:
         print("❌ BaoStock未安装")
@@ -118,7 +118,7 @@ def test_baostock_provider_valuation():
                     # 显示最新数据
                     if len(valuation_df) > 0:
                         latest = valuation_df.iloc[-1]
-                        print(f"   最新数据:")
+                        print("   最新数据:")
                         print(f"     日期: {latest.get('date', 'N/A')}")
                         print(f"     收盘价: {latest.get('close', 'N/A')}")
                         print(f"     PE(TTM): {latest.get('peTTM', 'N/A')}")
@@ -126,12 +126,12 @@ def test_baostock_provider_valuation():
                         print(f"     PS(TTM): {latest.get('psTTM', 'N/A')}")
                         print(f"     PCF(TTM): {latest.get('pcfNcfTTM', 'N/A')}")
                 else:
-                    print(f"⚠️ 未获取到估值数据")
+                    print("⚠️ 未获取到估值数据")
 
             except Exception as e:
                 print(f"❌ 测试失败: {e}")
 
-        print(f"\n✅ BaoStock Provider估值测试完成")
+        print("\n✅ BaoStock Provider估值测试完成")
 
     except Exception as e:
         print(f"❌ Provider测试失败: {e}")
@@ -166,7 +166,7 @@ def test_baostock_adapter_daily_basic():
             print(f"   列名: {list(df.columns)}")
 
             # 显示前几条记录
-            print(f"\n📊 前5条记录:")
+            print("\n📊 前5条记录:")
             for i, row in df.head().iterrows():
                 print(f"   {i+1}. {row.get('ts_code', 'N/A')} - {row.get('name', 'N/A')}")
                 print(f"      PE: {row.get('pe', 'N/A')}, PB: {row.get('pb', 'N/A')}")
@@ -176,14 +176,14 @@ def test_baostock_adapter_daily_basic():
             pe_count = df['pe'].notna().sum() if 'pe' in df.columns else 0
             pb_count = df['pb'].notna().sum() if 'pb' in df.columns else 0
 
-            print(f"\n📈 数据统计:")
+            print("\n📈 数据统计:")
             print(f"   有PE数据的股票: {pe_count}只")
             print(f"   有PB数据的股票: {pb_count}只")
 
         else:
-            print(f"❌ 未获取到daily_basic数据")
+            print("❌ 未获取到daily_basic数据")
 
-        print(f"\n✅ BaoStock适配器测试完成")
+        print("\n✅ BaoStock适配器测试完成")
 
     except Exception as e:
         print(f"❌ 适配器测试失败: {e}")
@@ -224,7 +224,7 @@ def test_data_source_manager_with_baostock():
                 print(f"✅ Fallback获取成功: {len(df)}条记录，来源: {source}")
 
                 if source == 'baostock':
-                    print(f"🎯 使用了BaoStock数据源!")
+                    print("🎯 使用了BaoStock数据源!")
                     # 检查BaoStock特有的估值指标
                     if 'ps' in df.columns:
                         ps_count = df['ps'].notna().sum()
@@ -235,11 +235,11 @@ def test_data_source_manager_with_baostock():
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
             else:
-                print(f"❌ Fallback获取失败")
+                print("❌ Fallback获取失败")
         else:
-            print(f"❌ 未找到BaoStock适配器")
+            print("❌ 未找到BaoStock适配器")
 
-        print(f"\n✅ 数据源管理器测试完成")
+        print("\n✅ 数据源管理器测试完成")
 
     except Exception as e:
         print(f"❌ 数据源管理器测试失败: {e}")

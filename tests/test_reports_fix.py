@@ -75,7 +75,7 @@ def test_reports_and_analysts_fix():
             return False
 
         # 3. 等待任务完成
-        print(f"\n3. 等待任务完成...")
+        print("\n3. 等待任务完成...")
         for i in range(120):  # 最多等待10分钟（深度分析需要更长时间）
             status_response = requests.get(
                 f"{base_url}/api/analysis/tasks/{task_id}/status",
@@ -94,16 +94,16 @@ def test_reports_and_analysts_fix():
                     print("✅ 分析任务完成!")
                     break
                 elif status == "failed":
-                    print(f"❌ 分析任务失败")
+                    print("❌ 分析任务失败")
                     return False
 
             time.sleep(5)
         else:
-            print(f"⏰ 任务执行超时")
+            print("⏰ 任务执行超时")
             return False
 
         # 4. 检查API返回的结果
-        print(f"\n4. 检查API返回的结果...")
+        print("\n4. 检查API返回的结果...")
         result_response = requests.get(
             f"{base_url}/api/analysis/tasks/{task_id}/result",
             headers=headers
@@ -113,7 +113,7 @@ def test_reports_and_analysts_fix():
             result_data = result_response.json()
             data = result_data["data"]
 
-            print(f"✅ 成功获取分析结果")
+            print("✅ 成功获取分析结果")
             print(f"   stock_symbol: {data.get('stock_symbol')}")
             print(f"   analysts: {data.get('analysts', [])}")
             print(f"   research_depth: {data.get('research_depth')}")
@@ -128,12 +128,12 @@ def test_reports_and_analysts_fix():
                     else:
                         print(f"   - {report_type}: {type(content)}")
             else:
-                print(f"❌ API返回未包含reports字段")
+                print("❌ API返回未包含reports字段")
         else:
             print(f"❌ 获取API结果失败: {result_response.status_code}")
 
         # 5. 检查MongoDB保存的数据
-        print(f"\n5. 检查MongoDB保存的数据...")
+        print("\n5. 检查MongoDB保存的数据...")
 
         try:
             client = MongoClient('mongodb://localhost:27017/')
@@ -144,7 +144,7 @@ def test_reports_and_analysts_fix():
             latest_record = collection.find({"stock_symbol": "000006"}).sort("created_at", -1).limit(1)
 
             for record in latest_record:
-                print(f"📋 MongoDB记录详情:")
+                print("📋 MongoDB记录详情:")
                 print(f"   analysis_id: {record.get('analysis_id')}")
                 print(f"   stock_symbol: {record.get('stock_symbol')}")
                 print(f"   analysts: {record.get('analysts', [])}")
@@ -165,10 +165,10 @@ def test_reports_and_analysts_fix():
 
                     return True
                 else:
-                    print(f"❌ MongoDB未包含reports字段或为空")
+                    print("❌ MongoDB未包含reports字段或为空")
                     return False
 
-            print(f"❌ 未找到MongoDB记录")
+            print("❌ 未找到MongoDB记录")
             return False
 
         except Exception as e:
