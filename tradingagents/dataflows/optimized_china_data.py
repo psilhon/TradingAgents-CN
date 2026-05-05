@@ -1349,9 +1349,9 @@ class OptimizedChinaDataProvider:
         """解析AKShare财务数据为指标"""
         try:
             # 获取最新的财务数据
-            balance_sheet = financial_data.get('balance_sheet', [])
-            income_statement = financial_data.get('income_statement', [])
-            cash_flow = financial_data.get('cash_flow', [])
+            financial_data.get('balance_sheet', [])
+            financial_data.get('income_statement', [])
+            financial_data.get('cash_flow', [])
             main_indicators = financial_data.get('main_indicators')
 
             # main_indicators 可能是 DataFrame 或 list（to_dict('records') 的结果）
@@ -1718,7 +1718,7 @@ class OptimizedChinaDataProvider:
 
             latest_balance = balance_sheet[0] if balance_sheet else {}
             latest_income = income_statement[0] if income_statement else {}
-            latest_cash = cash_flow[0] if cash_flow else {}
+            cash_flow[0] if cash_flow else {}
 
             # 计算财务指标
             metrics = {}
@@ -1773,7 +1773,7 @@ class OptimizedChinaDataProvider:
             # 降级到单期数据
             total_revenue = ttm_revenue if ttm_revenue else (latest_income.get('total_revenue', 0) or 0)
             net_income = ttm_net_income if ttm_net_income else (latest_income.get('n_income', 0) or 0)
-            operate_profit = latest_income.get('operate_profit', 0) or 0
+            latest_income.get('operate_profit', 0) or 0
 
             revenue_type = "TTM" if ttm_revenue else "单期"
             profit_type = "TTM" if ttm_net_income else "单期"

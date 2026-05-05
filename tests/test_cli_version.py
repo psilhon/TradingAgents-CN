@@ -105,7 +105,7 @@ def test_cli_graph_creation():
 
         print("📊 创建交易分析图...")
         # 使用CLI的方式创建图
-        graph = TradingAgentsGraph(
+        TradingAgentsGraph(
             ["market"],  # 只使用市场分析师
             config=config,
             debug=True

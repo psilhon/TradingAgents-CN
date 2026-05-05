@@ -22,7 +22,7 @@ def create_bear_researcher(llm, memory):
         ticker = state.get('company_of_interest', 'Unknown')
         from tradingagents.utils.stock_utils import StockUtils
         market_info = StockUtils.get_market_info(ticker)
-        is_china = market_info['is_china']
+        market_info['is_china']
 
         # 获取公司名称
         def _get_company_name(ticker_code: str, market_info_dict: dict) -> str:
@@ -66,8 +66,8 @@ def create_bear_researcher(llm, memory):
             return f"股票代码{ticker_code}"
 
         company_name = _get_company_name(ticker, market_info)
-        is_hk = market_info['is_hk']
-        is_us = market_info['is_us']
+        market_info['is_hk']
+        market_info['is_us']
 
         currency = market_info['currency_name']
         currency_symbol = market_info['currency_symbol']

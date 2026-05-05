@@ -66,7 +66,7 @@ async def test_enhanced_screening():
             limit=10,
             use_database_optimization=True
         )
-        end_time = time.time()
+        time.time()
 
         print("✅ 筛选完成:")
         print(f"  - 总数量: {result['total']}")

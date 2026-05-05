@@ -82,7 +82,7 @@ def test_data_source_manager_volume_access():
         from tradingagents.dataflows.data_source_manager import DataSourceManager
 
         # 创建数据源管理器
-        manager = DataSourceManager()
+        DataSourceManager()
 
         # 创建模拟数据（已经标准化的）
         mock_standardized_data = pd.DataFrame({
@@ -177,7 +177,7 @@ def test_column_mapping_logic():
         from tradingagents.dataflows.tushare_adapter import TushareAdapter
 
         # 创建适配器实例
-        adapter = TushareAdapter()
+        TushareAdapter()
 
         # 创建包含'vol'列的测试数据
         test_data = pd.DataFrame({

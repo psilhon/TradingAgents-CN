@@ -154,7 +154,7 @@ def check_debug_output():
         start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
 
         # 这应该会产生调试输出
-        result = Toolkit.get_china_stock_data("000001", start_date, end_date)
+        Toolkit.get_china_stock_data("000001", start_date, end_date)
 
         print("✅ 调试输出检查完成")
         print("💡 请查看上面的调试输出，确认是否显示:")

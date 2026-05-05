@@ -51,7 +51,7 @@ def test_news_analyst_integration():
         mock_llm = MockLLM()
 
         # 创建新闻分析师
-        news_analyst = create_news_analyst(mock_llm, mock_toolkit)
+        create_news_analyst(mock_llm, mock_toolkit)
         print("  ✅ 新闻分析师创建成功")
 
         # 2. 检查统一新闻工具的导入和使用
@@ -127,12 +127,6 @@ def test_news_analyst_integration():
 
         try:
             # 模拟状态
-            mock_state = {
-                "messages": [],
-                "company_of_interest": "000001",
-                "trade_date": "2025-01-28",
-                "session_id": "test_session"
-            }
 
             # 测试新闻分析师调用（会因为LLM配置问题失败，但可以验证工具加载）
             print("  🔧 测试新闻分析师节点调用...")

@@ -58,7 +58,7 @@ def test_tool_binding_basic():
         llm = ChatDashScopeOpenAI(model="qwen-turbo", max_tokens=50)
 
         # 绑定工具
-        llm_with_tools = llm.bind_tools([simple_tool])
+        llm.bind_tools([simple_tool])
 
         print("✅ 工具绑定成功")
         print("   绑定的工具数量: 1")
@@ -177,7 +177,7 @@ def test_technical_analysis_simulation():
 
         # 创建LLM并绑定工具
         llm = ChatDashScopeOpenAI(model="qwen-turbo", max_tokens=200)
-        llm_with_tools = llm.bind_tools([mock_get_stock_data])
+        llm.bind_tools([mock_get_stock_data])
 
         print("✅ 技术面分析流程模拟成功")
         print("   - LLM创建: ✅")

@@ -33,7 +33,7 @@ def test_finnhub_fundamentals_with_cache():
         from tradingagents.dataflows.interface import get_fundamentals_finnhub
 
         # 清理可能存在的缓存
-        cache = get_cache()
+        get_cache()
         test_ticker = "AAPL"
         curr_date = datetime.now().strftime('%Y-%m-%d')
 

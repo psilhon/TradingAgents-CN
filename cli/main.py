@@ -61,7 +61,7 @@ def setup_cli_logging():
 
     from tradingagents.utils.logging_manager import get_logger_manager
 
-    logger_manager = get_logger_manager()
+    get_logger_manager()
 
     # 获取根日志器
     root_logger = logging.getLogger()
@@ -1142,7 +1142,7 @@ def run_analysis():
     # Now start the display layout
     layout = create_layout()
 
-    with Live(layout, refresh_per_second=DEFAULT_REFRESH_RATE) as live:
+    with Live(layout, refresh_per_second=DEFAULT_REFRESH_RATE):
         # Initial display
         update_display(layout)
 
@@ -1186,13 +1186,12 @@ def run_analysis():
             from tradingagents.utils.stock_validator import prepare_stock_data
 
             # 确定市场类型
-            market_type_map = {
+            {
                 "china_stock": "A股",
                 "yahoo_finance": "港股" if ".HK" in selections["ticker"] else "美股"
             }
 
             # 获取选定市场的数据源类型
-            selected_market = None
             for _choice, _market in {
                 "1": {"data_source": "yahoo_finance"},
                 "2": {"data_source": "china_stock"},
@@ -1253,14 +1252,6 @@ def run_analysis():
 
         # Stream the analysis
         trace = []
-        current_analyst = None
-        analysis_steps = {
-            "market_report": "📈 市场分析师",
-            "fundamentals_report": "📊 基本面分析师",
-            "technical_report": "🔍 技术分析师",
-            "sentiment_report": "💭 情感分析师",
-            "final_report": "🤖 信号处理器"
-        }
 
         # 跟踪已完成的分析师，避免重复提示
         completed_analysts = set()
@@ -1565,7 +1556,7 @@ def run_analysis():
 
         # Get final state and decision
         final_state = trace[-1]
-        decision = graph.process_signal(final_state["final_trade_decision"], selections['ticker'])
+        graph.process_signal(final_state["final_trade_decision"], selections['ticker'])
 
         ui.show_success("🤖 投资信号处理完成")
 
@@ -1814,7 +1805,7 @@ def data_config(
 
     # 显示当前配置（默认行为或使用--show）
     settings = config_manager.load_settings()
-    current_data_dir = get_data_dir()
+    get_data_dir()
 
     # 配置信息表格
     config_table = Table(show_header=True, header_style="bold magenta")

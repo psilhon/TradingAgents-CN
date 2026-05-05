@@ -187,17 +187,13 @@ def test_technical_indicators_accuracy(lookback_days):
 
         if lookback_days >= pro_days:
             status = "✅ 专业级"
-            level = "professional"
         elif lookback_days >= rec_days:
             status = "✅ 推荐级"
-            level = "recommended"
         elif lookback_days >= min_days:
             status = "⚠️  最小级"
-            level = "minimum"
             all_passed = False
         else:
             status = "❌ 不足"
-            level = "insufficient"
             all_passed = False
 
         print(f"{indicator:8s} | 最小:{min_days:3d}天 | 推荐:{rec_days:3d}天 | 专业:{pro_days:3d}天 | {status}")

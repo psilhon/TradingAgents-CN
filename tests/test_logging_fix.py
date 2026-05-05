@@ -45,7 +45,7 @@ def test_logging_fix():
         logger.info(f"   调试模式: {config['debug']}")
 
         # 创建分析图
-        graph = TradingAgentsGraph(
+        TradingAgentsGraph(
             selected_analysts=["market"],  # 只使用市场分析师进行快速测试
             debug=True,
             config=config

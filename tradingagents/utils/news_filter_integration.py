@@ -156,11 +156,11 @@ def create_filtered_realtime_news_function():
                     from tradingagents.dataflows.providers.china.akshare import get_akshare_provider
 
                     # 清理股票代码
-                    clean_ticker = ticker.replace('.SH', '').replace('.SZ', '').replace('.SS', '')\
+                    ticker.replace('.SH', '').replace('.SZ', '').replace('.SS', '')\
                                     .replace('.XSHE', '').replace('.XSHG', '')
 
                     # 使用 AKShareProvider 获取新闻（如果有相应方法）
-                    provider = get_akshare_provider()
+                    get_akshare_provider()
                     # TODO: 需要实现 get_stock_news 方法
                     # original_news_df = provider.get_stock_news(clean_ticker)
                     # 暂时跳过，返回原始报告

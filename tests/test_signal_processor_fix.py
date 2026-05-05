@@ -112,28 +112,8 @@ def test_web_currency_display():
         print("🌐 测试Web界面货币显示...")
 
         # 模拟中国A股结果
-        china_results = {
-            'stock_symbol': '000001',
-            'decision': {
-                'action': '持有',
-                'confidence': 0.75,
-                'risk_score': 0.40,
-                'target_price': 15.00,
-                'reasoning': '基于综合分析的投资建议'
-            }
-        }
 
         # 模拟美股结果
-        us_results = {
-            'stock_symbol': 'AAPL',
-            'decision': {
-                'action': '买入',
-                'confidence': 0.80,
-                'risk_score': 0.30,
-                'target_price': 180.00,
-                'reasoning': '基于综合分析的投资建议'
-            }
-        }
 
         print("✅ Web界面货币显示修复已实现")
         print("📝 中国A股应显示: ¥15.00")

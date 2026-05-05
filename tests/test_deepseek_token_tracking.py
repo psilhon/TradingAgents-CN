@@ -107,7 +107,7 @@ def test_trading_graph_integration():
         })
 
         # 创建TradingAgentsGraph
-        ta = TradingAgentsGraph(
+        TradingAgentsGraph(
             selected_analysts=["fundamentals"],
             config=config,
             debug=False  # 减少输出

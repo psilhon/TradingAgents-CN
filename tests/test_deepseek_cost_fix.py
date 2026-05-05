@@ -50,7 +50,6 @@ def test_deepseek_cost_calculation():
             "分析一下投资风险。"
         ]
 
-        total_expected_cost = 0
 
         for i, prompt in enumerate(test_cases, 1):
             print(f"\n🔍 测试 {i}: {prompt}")

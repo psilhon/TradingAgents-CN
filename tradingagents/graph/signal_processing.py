@@ -57,7 +57,7 @@ class SignalProcessor:
 
         market_info = StockUtils.get_market_info(stock_symbol)
         is_china = market_info['is_china']
-        is_hk = market_info['is_hk']
+        market_info['is_hk']
         currency = market_info['currency_name']
         currency_symbol = market_info['currency_symbol']
 

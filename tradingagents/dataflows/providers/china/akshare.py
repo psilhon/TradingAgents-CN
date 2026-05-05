@@ -585,7 +585,6 @@ class AKShareProvider(BaseStockDataProvider):
 
                 try:
                     spot_df = await asyncio.to_thread(fetch_spot_data_sina)
-                    data_source = "sina"
                     logger.debug("✅ 使用新浪财经接口获取数据")
                 except Exception as e:
                     logger.warning(f"⚠️ 新浪财经接口失败: {e}，尝试东方财富接口...")
@@ -595,7 +594,6 @@ class AKShareProvider(BaseStockDataProvider):
                         time.sleep(0.5)
                         return self.ak.stock_zh_a_spot_em()
                     spot_df = await asyncio.to_thread(fetch_spot_data_em)
-                    data_source = "eastmoney"
                     logger.debug("✅ 使用东方财富接口获取数据")
 
                 if spot_df is None or spot_df.empty:

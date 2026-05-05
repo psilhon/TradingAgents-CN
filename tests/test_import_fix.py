@@ -121,7 +121,7 @@ def test_complete_analysis_flow():
         print("  ✅ 基本面分析师导入成功")
 
         # 测试配置创建
-        config = DEFAULT_CONFIG.copy()
+        DEFAULT_CONFIG.copy()
         print("  ✅ 配置创建成功")
 
         print("  ✅ 完整分析流程导入测试通过")

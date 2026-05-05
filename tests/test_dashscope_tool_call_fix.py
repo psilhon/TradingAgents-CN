@@ -121,14 +121,6 @@ def test_dashscope_tool_call_detection():
                     print(f"📰 新闻内容预览: {forced_news[:100]}...")
 
                     # 模拟基于真实新闻数据重新生成分析
-                    forced_prompt = f"""
-基于以下最新获取的新闻数据，对股票 {ticker} 进行详细的新闻分析：
-
-=== 最新新闻数据 ===
-{forced_news}
-
-请基于上述真实新闻数据撰写详细的中文分析报告。
-"""
 
                     print("🔄 基于强制获取的新闻数据重新生成完整分析...")
                     # 模拟重新生成的结果
