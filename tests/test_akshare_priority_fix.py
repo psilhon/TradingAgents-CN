@@ -134,7 +134,7 @@ def test_akshare_availability():
         print("📊 测试AKShare基本功能...")
 
         # 这里不实际调用API，只测试导入
-        from tradingagents.dataflows.akshare_utils import get_china_stock_data_akshare
+        from tradingagents.dataflows.akshare_utils import get_china_stock_data_akshare  # noqa: F401
         print("✅ AKShare工具函数导入成功")
 
         return True

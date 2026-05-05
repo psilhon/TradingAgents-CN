@@ -32,15 +32,15 @@ warnings.warn(
 
 # 导入统一日志系统
 # 运行时设置：读取系统时区
-from tradingagents.config.runtime_settings import get_timezone_name
+from tradingagents.config.runtime_settings import get_timezone_name  # noqa: E402
 
 # 导入日志模块
-from tradingagents.utils.logging_manager import get_logger
+from tradingagents.utils.logging_manager import get_logger  # noqa: E402
 
 logger = get_logger('agents')
 
 # 导入数据模型（避免循环导入）
-from .usage_models import ModelConfig, PricingConfig, UsageRecord
+from .usage_models import ModelConfig, PricingConfig, UsageRecord  # noqa: E402
 
 try:
     from .mongodb_storage import MongoDBStorage
@@ -404,11 +404,11 @@ class ConfigManager:
         )
 
         # 🔍 详细日志：记录保存位置
-        logger.info(f"💾 [Token记录] 准备保存: {provider}/{model_name}, 输入={input_tokens}, 输出={output_tokens}, 成本=¥{cost:.4f}, session={session_id}")
+        logger.info(f"💾 [Token记录] 准备保存: {provider}/{model_name}, 输入={input_tokens}, 输出={output_tokens}, 成本=¥{cost:.4f}, session={session_id}")  # noqa: E501
 
         # 优先使用MongoDB存储
         if self.mongodb_storage and self.mongodb_storage.is_connected():
-            logger.info(f"📊 [Token记录] 使用 MongoDB 存储 (数据库: {self.mongodb_storage.database_name}, 集合: {self.mongodb_storage.collection_name})")
+            logger.info(f"📊 [Token记录] 使用 MongoDB 存储 (数据库: {self.mongodb_storage.database_name}, 集合: {self.mongodb_storage.collection_name})")  # noqa: E501
             success = self.mongodb_storage.save_usage_record(record)
             if success:
                 logger.info(f"✅ [Token记录] MongoDB 保存成功: {provider}/{model_name}")

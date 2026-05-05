@@ -8,9 +8,9 @@ import pytest
 pytest.importorskip("enhanced_stock_list_fetcher")
 pytestmark = pytest.mark.integration
 
-import json
+import json  # noqa: E402
 
-from enhanced_stock_list_fetcher import get_mainmarket_ip, load_tdx_servers_config
+from enhanced_stock_list_fetcher import get_mainmarket_ip, load_tdx_servers_config  # noqa: E402
 
 
 def test_server_config():

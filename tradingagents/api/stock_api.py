@@ -20,7 +20,7 @@ if dataflows_path not in sys.path:
     sys.path.append(dataflows_path)
 
 # 导入统一日志系统
-from tradingagents.utils.logging_init import get_logger
+from tradingagents.utils.logging_init import get_logger  # noqa: E402
 
 try:
     from stock_data_service import get_stock_data_service

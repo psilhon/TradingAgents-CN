@@ -11,7 +11,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from tradingagents.config.config_manager import ConfigManager, ModelConfig, PricingConfig, TokenTracker
+from tradingagents.config.config_manager import ConfigManager, ModelConfig, PricingConfig, TokenTracker  # noqa: E402
 
 
 def test_config_manager():

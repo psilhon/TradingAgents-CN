@@ -17,7 +17,7 @@ def get_data_in_range(ticker, start_date, end_date, data_type, data_dir, period=
         data_type (str): Type of data from finnhub to fetch. Can be insider_trans, SEC_filings, news_data, insider_senti, or fin_as_reported.
         data_dir (str): Directory where the data is saved.
         period (str): Default to none, if there is a period specified, should be annual or quarterly.
-    """
+    """  # noqa: E501
 
     if period:
         data_path = os.path.join(

@@ -13,7 +13,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from tradingagents.utils.logging_manager import get_logger, setup_logging
+from tradingagents.utils.logging_manager import get_logger, setup_logging  # noqa: E402
 
 
 def init_logging(config_override: dict | None = None) -> None:

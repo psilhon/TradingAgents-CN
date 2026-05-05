@@ -9,11 +9,11 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # noqa: E402
 
-import pytest
+import pytest  # noqa: E402
 
-from app.services.memory_state_manager import TaskState, TaskStatus
+from app.services.memory_state_manager import TaskState, TaskStatus  # noqa: E402
 
 
 def test_progress_time_calculation_basic():

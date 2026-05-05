@@ -61,7 +61,7 @@ def test_data_source_manager_in_thread_pool():
         except Exception as e:
             # 如果是事件循环错误，测试失败
             if "There is no current event loop" in str(e):
-                raise AssertionError(f"事件循环错误未修复: {e}")
+                raise AssertionError(f"事件循环错误未修复: {e}")  # noqa: B904
             # 其他错误（如API配置问题）可以接受
             return f"其他错误（可接受）: {type(e).__name__}"
 

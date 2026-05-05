@@ -16,10 +16,10 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from tradingagents.dataflows.config import get_config
-from tradingagents.dataflows.finnhub_utils import get_data_in_range
+from tradingagents.dataflows.config import get_config  # noqa: E402
+from tradingagents.dataflows.finnhub_utils import get_data_in_range  # noqa: E402
 
-from tradingagents.dataflows.interface import get_finnhub_news
+from tradingagents.dataflows.interface import get_finnhub_news  # noqa: E402
 
 
 def test_data_dir_config():

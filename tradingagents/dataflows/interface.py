@@ -15,7 +15,7 @@ from tradingagents.utils.logging_init import setup_dataflow_logging
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-from .news.google_news import *
+from .news.google_news import *  # noqa: F403
 
 # 导入 Finnhub 工具（支持新旧路径）
 from .providers.us import get_data_in_range
@@ -169,23 +169,23 @@ def _get_enabled_us_data_sources() -> list:
 
 # 尝试导入yfinance相关模块，如果失败则跳过
 try:
-    from .providers.us.yfinance import *
+    from .providers.us.yfinance import *  # noqa: F403
     YFIN_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"⚠️ yfinance工具不可用: {e}")
     YFIN_AVAILABLE = False
 
 try:
-    from .technical.stockstats import *
+    from .technical.stockstats import *  # noqa: F403
     STOCKSTATS_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"⚠️ stockstats工具不可用: {e}")
     STOCKSTATS_AVAILABLE = False
 
-import pandas as pd
-from dateutil.relativedelta import relativedelta
-from openai import OpenAI
-from tqdm import tqdm
+import pandas as pd  # noqa: E402
+from dateutil.relativedelta import relativedelta  # noqa: E402
+from openai import OpenAI  # noqa: E402
+from tqdm import tqdm  # noqa: E402
 
 # 尝试导入yfinance，如果失败则设置为None
 try:
@@ -195,7 +195,7 @@ except ImportError as e:
     logger.warning(f"⚠️ yfinance库不可用: {e}")
     yf = None
     YF_AVAILABLE = False
-from tradingagents.config.config_manager import config_manager
+from tradingagents.config.config_manager import config_manager  # noqa: E402
 
 # 获取数据目录
 DATA_DIR = config_manager.get_data_dir()
@@ -289,13 +289,13 @@ def get_finnhub_company_insider_sentiment(
     for _date, senti_list in data.items():
         for entry in senti_list:
             if entry not in seen_dicts:
-                result_str += f"### {entry['year']}-{entry['month']}:\nChange: {entry['change']}\nMonthly Share Purchase Ratio: {entry['mspr']}\n\n"
+                result_str += f"### {entry['year']}-{entry['month']}:\nChange: {entry['change']}\nMonthly Share Purchase Ratio: {entry['mspr']}\n\n"  # noqa: E501
                 seen_dicts.append(entry)
 
     return (
         f"## {ticker} Insider Sentiment Data for {before} to {curr_date}:\n"
         + result_str
-        + "The change field refers to the net buying/selling from all insiders' transactions. The mspr field refers to monthly share purchase ratio."
+        + "The change field refers to the net buying/selling from all insiders' transactions. The mspr field refers to monthly share purchase ratio."  # noqa: E501
     )
 
 
@@ -331,13 +331,13 @@ def get_finnhub_company_insider_transactions(
     for _date, senti_list in data.items():
         for entry in senti_list:
             if entry not in seen_dicts:
-                result_str += f"### Filing Date: {entry['filingDate']}, {entry['name']}:\nChange:{entry['change']}\nShares: {entry['share']}\nTransaction Price: {entry['transactionPrice']}\nTransaction Code: {entry['transactionCode']}\n\n"
+                result_str += f"### Filing Date: {entry['filingDate']}, {entry['name']}:\nChange:{entry['change']}\nShares: {entry['share']}\nTransaction Price: {entry['transactionPrice']}\nTransaction Code: {entry['transactionCode']}\n\n"  # noqa: E501
                 seen_dicts.append(entry)
 
     return (
         f"## {ticker} insider transactions from {before} to {curr_date}:\n"
         + result_str
-        + "The change field reflects the variation in share count—here a negative number indicates a reduction in holdings—while share specifies the total number of shares involved. The transactionPrice denotes the per-share price at which the trade was executed, and transactionDate marks when the transaction occurred. The name field identifies the insider making the trade, and transactionCode (e.g., S for sale) clarifies the nature of the transaction. FilingDate records when the transaction was officially reported, and the unique id links to the specific SEC filing, as indicated by the source. Additionally, the symbol ties the transaction to a particular company, isDerivative flags whether the trade involves derivative securities, and currency notes the currency context of the transaction."
+        + "The change field reflects the variation in share count—here a negative number indicates a reduction in holdings—while share specifies the total number of shares involved. The transactionPrice denotes the per-share price at which the trade was executed, and transactionDate marks when the transaction occurred. The name field identifies the insider making the trade, and transactionCode (e.g., S for sale) clarifies the nature of the transaction. FilingDate records when the transaction was officially reported, and the unique id links to the specific SEC filing, as indicated by the source. Additionally, the symbol ties the transaction to a particular company, isDerivative flags whether the trade involves derivative securities, and currency notes the currency context of the transaction."  # noqa: E501
     )
 
 
@@ -384,7 +384,7 @@ def get_simfin_balance_sheet(
     return (
         f"## {freq} balance sheet for {ticker} released on {str(latest_balance_sheet['Publish Date'])[0:10]}: \n"
         + str(latest_balance_sheet)
-        + "\n\nThis includes metadata like reporting dates and currency, share details, and a breakdown of assets, liabilities, and equity. Assets are grouped as current (liquid items like cash and receivables) and noncurrent (long-term investments and property). Liabilities are split between short-term obligations and long-term debts, while equity reflects shareholder funds such as paid-in capital and retained earnings. Together, these components ensure that total assets equal the sum of liabilities and equity."
+        + "\n\nThis includes metadata like reporting dates and currency, share details, and a breakdown of assets, liabilities, and equity. Assets are grouped as current (liquid items like cash and receivables) and noncurrent (long-term investments and property). Liabilities are split between short-term obligations and long-term debts, while equity reflects shareholder funds such as paid-in capital and retained earnings. Together, these components ensure that total assets equal the sum of liabilities and equity."  # noqa: E501
     )
 
 
@@ -431,7 +431,7 @@ def get_simfin_cashflow(
     return (
         f"## {freq} cash flow statement for {ticker} released on {str(latest_cash_flow['Publish Date'])[0:10]}: \n"
         + str(latest_cash_flow)
-        + "\n\nThis includes metadata like reporting dates and currency, share details, and a breakdown of cash movements. Operating activities show cash generated from core business operations, including net income adjustments for non-cash items and working capital changes. Investing activities cover asset acquisitions/disposals and investments. Financing activities include debt transactions, equity issuances/repurchases, and dividend payments. The net change in cash represents the overall increase or decrease in the company's cash position during the reporting period."
+        + "\n\nThis includes metadata like reporting dates and currency, share details, and a breakdown of cash movements. Operating activities show cash generated from core business operations, including net income adjustments for non-cash items and working capital changes. Investing activities cover asset acquisitions/disposals and investments. Financing activities include debt transactions, equity issuances/repurchases, and dividend payments. The net change in cash represents the overall increase or decrease in the company's cash position during the reporting period."  # noqa: E501
     )
 
 
@@ -478,7 +478,7 @@ def get_simfin_income_statements(
     return (
         f"## {freq} income statement for {ticker} released on {str(latest_income['Publish Date'])[0:10]}: \n"
         + str(latest_income)
-        + "\n\nThis includes metadata like reporting dates and currency, share details, and a comprehensive breakdown of the company's financial performance. Starting with Revenue, it shows Cost of Revenue and resulting Gross Profit. Operating Expenses are detailed, including SG&A, R&D, and Depreciation. The statement then shows Operating Income, followed by non-operating items and Interest Expense, leading to Pretax Income. After accounting for Income Tax and any Extraordinary items, it concludes with Net Income, representing the company's bottom-line profit or loss for the period."
+        + "\n\nThis includes metadata like reporting dates and currency, share details, and a comprehensive breakdown of the company's financial performance. Starting with Revenue, it shows Cost of Revenue and resulting Gross Profit. Operating Expenses are detailed, including SG&A, R&D, and Depreciation. The statement then shows Operating Income, followed by non-operating items and Interest Expense, leading to Pretax Income. After accounting for Income Tax and any Extraordinary items, it concludes with Net Income, representing the company's bottom-line profit or loss for the period."  # noqa: E501
     )
 
 
@@ -515,7 +515,7 @@ def get_google_news(
     before = before.strftime("%Y-%m-%d")
 
     logger.info(f"[Google新闻] 开始获取新闻，查询: {query}, 时间范围: {before} 至 {curr_date}")
-    news_results = getNewsData(query, before, curr_date)
+    news_results = getNewsData(query, before, curr_date)  # noqa: F405
 
     news_str = ""
 
@@ -544,7 +544,7 @@ def get_reddit_global_news(
         end_date: End date in yyyy-mm-dd format
     Returns:
         str: A formatted dataframe containing the latest news articles posts on reddit and meta information in these columns: "created_utc", "id", "title", "selftext", "score", "num_comments", "url"
-    """
+    """  # noqa: E501
 
     start_date = datetime.strptime(start_date, "%Y-%m-%d")
     before = start_date - relativedelta(days=look_back_days)
@@ -598,7 +598,7 @@ def get_reddit_company_news(
         end_date: End date in yyyy-mm-dd format
     Returns:
         str: A formatted dataframe containing the latest news articles posts on reddit and meta information in these columns: "created_utc", "id", "title", "selftext", "score", "num_comments", "url"
-    """
+    """  # noqa: E501
 
     start_date = datetime.strptime(start_date, "%Y-%m-%d")
     before = start_date - relativedelta(days=look_back_days)
@@ -792,7 +792,7 @@ def get_stockstats_indicator(
     curr_date = curr_date.strftime("%Y-%m-%d")
 
     try:
-        indicator_value = StockstatsUtils.get_stock_stats(
+        indicator_value = StockstatsUtils.get_stock_stats(  # noqa: F405
             symbol,
             indicator,
             curr_date,
@@ -941,7 +941,7 @@ def get_stock_news_openai(ticker, curr_date):
                 "content": [
                     {
                         "type": "input_text",
-                        "text": f"Can you search Social Media for {ticker} from 7 days before {curr_date} to {curr_date}? Make sure you only get the data posted during that period.",
+                        "text": f"Can you search Social Media for {ticker} from 7 days before {curr_date} to {curr_date}? Make sure you only get the data posted during that period.",  # noqa: E501
                     }
                 ],
             }
@@ -976,7 +976,7 @@ def get_global_news_openai(curr_date):
                 "content": [
                     {
                         "type": "input_text",
-                        "text": f"Can you search global or macroeconomics news from 7 days before {curr_date} to {curr_date} that would be informative for trading purposes? Make sure you only get the data posted during that period.",
+                        "text": f"Can you search global or macroeconomics news from 7 days before {curr_date} to {curr_date} that would be informative for trading purposes? Make sure you only get the data posted during that period.",  # noqa: E501
                     }
                 ],
             }
@@ -1365,7 +1365,7 @@ def _get_fundamentals_openai_impl(ticker, curr_date, config, cache):
                     "content": [
                         {
                             "type": "input_text",
-                            "text": f"Can you search Fundamental for discussions on {ticker} during of the month before {curr_date} to the month of {curr_date}. Make sure you only get the data posted during that period. List as a table, with PE/PS/Cash flow/ etc",
+                            "text": f"Can you search Fundamental for discussions on {ticker} during of the month before {curr_date} to the month of {curr_date}. Make sure you only get the data posted during that period. List as a table, with PE/PS/Cash flow/ etc",  # noqa: E501
                         }
                     ],
                 }
@@ -1778,7 +1778,7 @@ def get_hk_stock_data_unified(symbol: str, start_date: str | None = None, end_da
         logger.info(f"📅 [港股智能日期] 原始输入: {original_start_date} 至 {original_end_date}")
         logger.info(f"📅 [港股智能日期] 回溯天数: {lookback_days}天")
         logger.info(f"📅 [港股智能日期] 计算结果: {start_date} 至 {end_date}")
-        logger.info(f"📅 [港股智能日期] 实际天数: {(datetime.strptime(end_date, '%Y-%m-%d') - datetime.strptime(start_date, '%Y-%m-%d')).days}天")
+        logger.info(f"📅 [港股智能日期] 实际天数: {(datetime.strptime(end_date, '%Y-%m-%d') - datetime.strptime(start_date, '%Y-%m-%d')).days}天")  # noqa: E501
 
         # 🔥 从数据库读取用户启用的数据源配置
         enabled_sources = _get_enabled_hk_data_sources()

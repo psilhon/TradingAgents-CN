@@ -89,7 +89,7 @@ class DatabaseManager:
             return False, "MongoDB未启用 (MONGODB_ENABLED=false)"
 
         try:
-            import pymongo
+            import pymongo  # noqa: F401
             from pymongo import MongoClient
 
             # 构建连接参数

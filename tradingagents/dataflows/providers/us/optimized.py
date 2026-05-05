@@ -395,7 +395,7 @@ class OptimizedUSDataProvider:
 - 日内振幅: {((quote.get('h', 0) - quote.get('l', 0)) / max(quote.get('pc', 1), 0.01) * 100):.2f}%
 
 生成时间: {datetime.now(ZoneInfo(get_timezone_name())).strftime('%Y-%m-%d %H:%M:%S')}
-"""
+"""  # noqa: E501
 
             return formatted_data
 
@@ -560,7 +560,7 @@ def get_us_stock_data_cached(symbol: str, start_date: str, end_date: str,
     logger.info(f"📅 [美股智能日期] 原始输入: {original_start_date} 至 {original_end_date}")
     logger.info(f"📅 [美股智能日期] 回溯天数: {lookback_days}天")
     logger.info(f"📅 [美股智能日期] 计算结果: {start_date} 至 {end_date}")
-    logger.info(f"📅 [美股智能日期] 实际天数: {(datetime.strptime(end_date, '%Y-%m-%d') - datetime.strptime(start_date, '%Y-%m-%d')).days}天")
+    logger.info(f"📅 [美股智能日期] 实际天数: {(datetime.strptime(end_date, '%Y-%m-%d') - datetime.strptime(start_date, '%Y-%m-%d')).days}天")  # noqa: E501
 
     provider = get_optimized_us_data_provider()
     return provider.get_stock_data(symbol, start_date, end_date, force_refresh)

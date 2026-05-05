@@ -29,7 +29,7 @@ def is_rate_limited(response):
 
 
 @retry(
-    retry=(retry_if_result(is_rate_limited) | retry_if_exception_type(requests.exceptions.ConnectionError) | retry_if_exception_type(requests.exceptions.Timeout)),
+    retry=(retry_if_result(is_rate_limited) | retry_if_exception_type(requests.exceptions.ConnectionError) | retry_if_exception_type(requests.exceptions.Timeout)),  # noqa: E501
     wait=wait_exponential(multiplier=1, min=4, max=60),
     stop=stop_after_attempt(5),
 )

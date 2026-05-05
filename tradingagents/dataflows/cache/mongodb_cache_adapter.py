@@ -15,7 +15,7 @@ from tradingagents.utils.logging_manager import get_logger
 logger = get_logger('agents')
 
 # 导入配置
-from tradingagents.config.runtime_settings import use_app_cache_enabled
+from tradingagents.config.runtime_settings import use_app_cache_enabled  # noqa: E402
 
 
 class MongoDBCacheAdapter:
