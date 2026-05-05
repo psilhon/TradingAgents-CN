@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **`config_manager` lazy singleton**（OpenSpec change `lazy-config-manager`）：v1.1.0 review 发现 `tradingagents/config/config_manager.py:744-745` module-level `ConfigManager(...)` 立即实例化——任何 `import tradingagents.*` 都触发：连 MongoDB ~50-100ms / 读 `.env` / `Path.mkdir` / 写 4 个 JSON 文件 / 触发 DeprecationWarning。CLI 启动 / pytest collect / 仅 import utility 都受拖累。本 change 改 PEP 562 `__getattr__` lazy singleton：纯 utility import 不再触发；`config_manager` 首次属性访问时才初始化。新增 spec `secret-handling` requirement "module import 不得触发 secret/DB 副作用"。
+
 - **API key 日志脱敏**（OpenSpec change `redact-api-key-logs`）：v1.1.0 review 发现 8+ 处 API key **前缀**直接输出到 log / Rich 表格——`key[:10]` 或 `key[:12]`——OpenAI sk- key 前 10 字符泄露 7+ 个有效熵字符显著降低暴破搜索空间，违反全局 CLAUDE.md secret 边界。本 change 加 `redact_api_key()` helper（仅返回 `(len=N, ends ...XXXX)`），替换 5 处 tradingagents/ + 5 处 cli/main.py + config_manager 调用，删除 cli/main.py 已不用的 `DEFAULT_API_KEY_DISPLAY_LENGTH` 常量。新建 capability `secret-handling` 锁定铁律。
 
 - **🚨 critical license 边界：移动 api_key_utils 到 tradingagents/**（OpenSpec change `move-api-key-utils-to-tradingagents`）：v1.1.0 review 发现 Apache 2.0 的 `tradingagents/llm_adapters/` 反向 import 专有授权 `app.utils.api_key_utils.is_valid_api_key` 共 5 处——违反 fork 双轨 license 分层。本 change `git mv app/utils/api_key_utils.py tradingagents/utils/api_key_utils.py`，更新 5 处 tradingagents/ + 2 处 app/ import 路径。新建 capability `license-boundary` 锁定方向铁律 + 记录 baseline = 22（剩余 app.core/services/worker 反向 import，由 follow-up `eliminate-app-business-layer-imports` 消除）。
