@@ -8,6 +8,14 @@
 
 ## [Unreleased]
 
+—（暂无）
+
+---
+
+## [1.1.1] — 2026-05-06
+
+**Fork patch release**——v1.1.0 后第一次系统性 review 驱动的修复（`docs/code-review-2026-05-05.md` 第一+第二梯队 10 条 OpenSpec changes 全部完成）。包含 2 个 critical fix（假数据污染 LLM 决策链 / license 边界跨越）+ 安全增强 + 工具链优化。
+
 ### Fixed
 
 - **OpenAI key validator 接受 sk-proj-/sk-svcacct-**（OpenSpec change `fix-openai-key-validator`）：v1.1.0 review 发现 `config_manager.py:157` 硬编码 `len(api_key) == 51` + pattern `^sk-[A-Za-z0-9]{48}$` 不接受 OpenAI 2024+ 推出的 `sk-proj-` 项目级 key（更长、含 `-_`）+ `sk-svcacct-` 服务账号 key——用户配了正确 key 也被错误拒绝。本 change 改 pattern 为 `^sk-[A-Za-z0-9_-]{29,}$` + 最小长度 32（无上限）。8 个 test case 全过：classic 51-char / sk-proj- / sk-svcacct- 接受；wrong prefix / too short / 含空格 拒绝。spec `secret-handling` 加 requirement "API key validator 必须接受供应商当前所有合法格式"。
