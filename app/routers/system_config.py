@@ -96,7 +96,7 @@ async def validate_config():
         }
 
         try:
-            from app.utils.api_key_utils import (
+            from tradingagents.utils.api_key_utils import (
                 is_valid_api_key,
                 get_env_api_key_for_provider
             )
@@ -170,7 +170,7 @@ async def validate_config():
                 mongodb_validation["llm_providers"].append(validation_item)
 
             # 验证数据源配置
-            from app.utils.api_key_utils import (
+            from tradingagents.utils.api_key_utils import (
                 is_valid_api_key,
                 get_env_api_key_for_datasource
             )

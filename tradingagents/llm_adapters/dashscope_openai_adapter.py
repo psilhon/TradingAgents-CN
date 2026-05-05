@@ -39,7 +39,7 @@ class ChatDashScopeOpenAI(ChatOpenAI):
             # 导入 API Key 验证工具
             try:
                 # 尝试从 app.utils 导入（后端环境）
-                from app.utils.api_key_utils import is_valid_api_key
+                from tradingagents.utils.api_key_utils import is_valid_api_key
             except ImportError:
                 # 如果导入失败，使用本地简化版本
                 def is_valid_api_key(key):

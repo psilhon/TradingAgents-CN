@@ -245,6 +245,26 @@
 
 ---
 
+## 反向 import baseline（v1.1.0 后）
+
+OpenSpec spec `license-boundary` 要求 `tradingagents/ → app/` 反向 import 数量单调不增。**v1.1.0 后 baseline = 22**（修完 `move-api-key-utils-to-tradingagents` 之后），具体清单见下：
+
+```
+tradingagents/config/runtime_settings.py:55 (注释行 # type: ignore)
+tradingagents/tools/unified_news_tool.py:259 → app.services.news_data_service
+tradingagents/utils/stock_validator.py:{342,512,786,790,841} → app.core.config / app.worker.*
+tradingagents/dataflows/realtime_metrics.py:{58,375} → app.core.config
+tradingagents/dataflows/interface.py:{65,120,1501,1739} → app.core.database / app.core.config
+tradingagents/dataflows/data_source_manager.py:{113,433,529,2340,2471,2502} → app.core.database
+tradingagents/dataflows/providers/us/alpha_vantage_common.py:51 → app.core.database
+tradingagents/dataflows/providers/us/optimized.py:532 → app.core.config
+tradingagents/dataflows/providers/china/tushare.py:53 → app.core.database
+```
+
+后续 OpenSpec change `eliminate-app-business-layer-imports`（梯队 3）将系统性消除这些。任何新 PR 都不得增加该数字。
+
+---
+
 ## 推荐 OpenSpec changes（按 ROI 排序）
 
 下表按"影响范围 × 实施成本"排序——前面的优先做。每条对应未来一个独立 OpenSpec change（`/opsx:propose <id>`）。
