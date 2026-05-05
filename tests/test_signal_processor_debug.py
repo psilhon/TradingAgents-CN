@@ -6,7 +6,8 @@
 import os
 import sys
 
-sys.path.append('..')
+sys.path.append("..")
+
 
 def test_signal_processor():
     """测试信号处理器功能"""
@@ -17,11 +18,7 @@ def test_signal_processor():
         from tradingagents.llm_adapters import ChatDashScope
 
         # 创建LLM实例
-        llm = ChatDashScope(
-            model="qwen-plus-latest",
-            temperature=0.1,
-            max_tokens=1000
-        )
+        llm = ChatDashScope(model="qwen-plus-latest", temperature=0.1, max_tokens=1000)
 
         # 创建信号处理器
         processor = SignalProcessor(llm)
@@ -64,12 +61,14 @@ def test_signal_processor():
     except Exception as e:
         print(f"❌ 测试失败: {e!s}")
         import traceback
+
         traceback.print_exc()
         return None
 
+
 def test_trading_graph():
     """测试完整的交易图"""
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("🔍 测试完整交易图...")
 
     try:
@@ -78,9 +77,9 @@ def test_trading_graph():
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()
-        config['llm_provider'] = '阿里百炼'
-        config['quick_think_llm'] = 'qwen-plus-latest'
-        config['deep_think_llm'] = 'qwen-plus-latest'
+        config["llm_provider"] = "阿里百炼"
+        config["quick_think_llm"] = "qwen-plus-latest"
+        config["deep_think_llm"] = "qwen-plus-latest"
 
         print("📊 配置信息:")
         print(f"  LLM提供商: {config['llm_provider']}")
@@ -89,7 +88,7 @@ def test_trading_graph():
 
         # 创建交易图
         print("\n🔄 创建交易图...")
-        graph = TradingAgentsGraph(analysts=['market'], config=config, debug=False)
+        graph = TradingAgentsGraph(analysts=["market"], config=config, debug=False)
         print("✅ 交易图创建成功")
 
         # 测试信号处理器
@@ -106,12 +105,14 @@ def test_trading_graph():
     except Exception as e:
         print(f"❌ 测试失败: {e!s}")
         import traceback
+
         traceback.print_exc()
         return None
 
+
 if __name__ == "__main__":
     print("🚀 开始信号处理器调试测试")
-    print("="*50)
+    print("=" * 50)
 
     # 检查API密钥
     api_key = os.getenv("DASHSCOPE_API_KEY")
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     # 测试交易图
     result2 = test_trading_graph()
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("🎯 测试总结:")
     print(f"信号处理器测试: {'✅ 成功' if result1 else '❌ 失败'}")
     print(f"交易图测试: {'✅ 成功' if result2 else '❌ 失败'}")

@@ -13,11 +13,10 @@ from .data_sources import (
 )
 
 __all__ = [
-    'DATA_SOURCE_REGISTRY',
-    'DataSourceCode',
-    'DataSourceInfo',
-    'get_data_source_info',
-    'is_data_source_supported',
-    'list_all_data_sources',
+    "DATA_SOURCE_REGISTRY",
+    "DataSourceCode",
+    "DataSourceInfo",
+    "get_data_source_info",
+    "is_data_source_supported",
+    "list_all_data_sources",
 ]
-

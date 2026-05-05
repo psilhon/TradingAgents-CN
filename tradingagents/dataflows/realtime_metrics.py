@@ -2,16 +2,14 @@
 实时估值指标计算模块
 基于实时行情和财务数据计算PE/PB等指标
 """
+
 import logging
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def calculate_realtime_pe_pb(
-    symbol: str,
-    db_client=None
-) -> dict[str, Any] | None:
+def calculate_realtime_pe_pb(symbol: str, db_client=None) -> dict[str, Any] | None:
     """
     基于实时行情和 Tushare TTM 数据计算动态 PE/PB
 
@@ -43,6 +41,7 @@ def calculate_realtime_pe_pb(
         # 获取数据库连接（确保是同步客户端）
         if db_client is None:
             from tradingagents.config.database_manager import get_database_manager
+
             db_manager = get_database_manager()
             if not db_manager.is_mongodb_available():
                 logger.debug("MongoDB不可用，无法计算实时PE/PB")
@@ -52,15 +51,16 @@ def calculate_realtime_pe_pb(
         # 检查是否是异步客户端（AsyncIOMotorClient）
         # 如果是异步客户端，需要转换为同步客户端
         client_type = type(db_client).__name__
-        if 'AsyncIOMotorClient' in client_type or 'Motor' in client_type:
+        if "AsyncIOMotorClient" in client_type or "Motor" in client_type:
             # 这是异步客户端，创建同步客户端
             from pymongo import MongoClient
 
             from app.core.config import settings
+
             logger.debug(f"检测到异步客户端 {client_type}，转换为同步客户端")
             db_client = MongoClient(settings.MONGO_URI)
 
-        db = db_client['tradingagents']
+        db = db_client["tradingagents"]
         code6 = str(symbol).zfill(6)
 
         logger.info(f"🔍 [实时PE计算] 开始计算股票 {code6}")
@@ -102,7 +102,7 @@ def calculate_realtime_pe_pb(
             else:
                 logger.warning(f"⚠️ [动态PE计算] 使用其他数据源: {basic_info.get('source', 'unknown')}")
                 # 如果不是 Tushare 数据，可能缺少关键字段，直接返回 None
-                if basic_info.get('source') != 'tushare':
+                if basic_info.get("source") != "tushare":
                     logger.warning(f"⚠️ [动态PE计算-失败] 数据源 {basic_info.get('source')} 不包含 pe_ttm 等字段")
                     logger.warning(f"   可用字段: {list(basic_info.keys())}")
                     return None
@@ -207,12 +207,16 @@ def calculate_realtime_pe_pb(
                 # total_mv_yi 是昨天的市值，用 pre_close 反推股本
                 total_shares_wan = (total_mv_yi * 10000) / pre_close
                 yesterday_mv_yi = total_mv_yi
-                logger.info(f"   ✓ stock_basic_info 是昨天的数据，用 pre_close 反推总股本: {total_mv_yi:.2f}亿元 / {pre_close:.2f}元 = {total_shares_wan:.2f}万股")  # noqa: E501
+                logger.info(
+                    f"   ✓ stock_basic_info 是昨天的数据，用 pre_close 反推总股本: {total_mv_yi:.2f}亿元 / {pre_close:.2f}元 = {total_shares_wan:.2f}万股"
+                )  # noqa: E501
             else:
                 # total_mv_yi 是今天的市值，用 realtime_price 反推股本
                 total_shares_wan = (total_mv_yi * 10000) / realtime_price
                 yesterday_mv_yi = (total_shares_wan * pre_close) / 10000
-                logger.info(f"   ✓ stock_basic_info 是今天的数据，用 realtime_price 反推总股本: {total_mv_yi:.2f}亿元 / {realtime_price:.2f}元 = {total_shares_wan:.2f}万股")  # noqa: E501
+                logger.info(
+                    f"   ✓ stock_basic_info 是今天的数据，用 realtime_price 反推总股本: {total_mv_yi:.2f}亿元 / {realtime_price:.2f}元 = {total_shares_wan:.2f}万股"
+                )  # noqa: E501
                 logger.info(f"   ✓ 昨日市值: {total_shares_wan:.2f}万股 × {pre_close:.2f}元 / 10000 = {yesterday_mv_yi:.2f}亿元")
 
         # 方案3：只有 total_mv_yi，没有 pre_close（market_quotes 数据不完整）
@@ -321,10 +325,7 @@ def validate_pe_pb(pe: float | None, pb: float | None) -> bool:
     return True
 
 
-def get_pe_pb_with_fallback(
-    symbol: str,
-    db_client=None
-) -> dict[str, Any]:
+def get_pe_pb_with_fallback(symbol: str, db_client=None) -> dict[str, Any]:
     """
     获取PE/PB，智能降级策略
 
@@ -359,6 +360,7 @@ def get_pe_pb_with_fallback(
     try:
         if db_client is None:
             from tradingagents.config.database_manager import get_database_manager
+
             db_manager = get_database_manager()
             if not db_manager.is_mongodb_available():
                 logger.error("❌ [PE智能策略-失败] MongoDB不可用")
@@ -367,10 +369,11 @@ def get_pe_pb_with_fallback(
 
         # 检查是否是异步客户端
         client_type = type(db_client).__name__
-        if 'AsyncIOMotorClient' in client_type or 'Motor' in client_type:
+        if "AsyncIOMotorClient" in client_type or "Motor" in client_type:
             from pymongo import MongoClient
 
             from app.core.config import settings
+
             logger.debug(f"检测到异步客户端 {client_type}，转换为同步客户端")
             db_client = MongoClient(settings.MONGO_URI)
 
@@ -385,8 +388,8 @@ def get_pe_pb_with_fallback(
     realtime_metrics = calculate_realtime_pe_pb(symbol, db_client)
     if realtime_metrics:
         # 验证数据合理性
-        pe = realtime_metrics.get('pe')
-        pb = realtime_metrics.get('pb')
+        pe = realtime_metrics.get("pe")
+        pb = realtime_metrics.get("pb")
         if validate_pe_pb(pe, pb):
             logger.info(f"✅ [PE智能策略-成功] 使用动态PE: PE={pe}, PB={pb}")
             logger.info(f"   └─ 数据来源: {realtime_metrics.get('source')}")
@@ -400,7 +403,7 @@ def get_pe_pb_with_fallback(
     logger.info("   💡 说明: 使用Tushare官方PE_TTM，基于昨日收盘价")
 
     try:
-        db = db_client['tradingagents']
+        db = db_client["tradingagents"]
         code6 = str(symbol).zfill(6)
 
         # 🔥 优先查询 Tushare 数据源
@@ -428,7 +431,7 @@ def get_pe_pb_with_fallback(
                     "source": "daily_basic",
                     "is_realtime": False,
                     "updated_at": updated_at,
-                    "note": "使用Tushare最近一个交易日的数据（基于TTM）"
+                    "note": "使用Tushare最近一个交易日的数据（基于TTM）",
                 }
 
         logger.warning("⚠️ [PE智能策略-方案2失败] Tushare静态数据不可用")
@@ -438,4 +441,3 @@ def get_pe_pb_with_fallback(
 
     logger.error(f"❌ [PE智能策略-全部失败] 无法获取股票 {symbol} 的PE/PB")
     return {}
-

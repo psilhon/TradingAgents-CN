@@ -10,17 +10,20 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
+
 def test_baostock_import():
     """测试BaoStock导入"""
     print("🔍 测试BaoStock导入...")
     try:
         import baostock as bs
+
         print("✅ BaoStock导入成功")
         print(f"   版本: {bs.__version__}")
         return True
     except ImportError as e:
         print(f"❌ BaoStock导入失败: {e}")
         return False
+
 
 def test_baostock_connection():
     """测试BaoStock连接"""
@@ -30,7 +33,7 @@ def test_baostock_connection():
 
         # 登录系统
         lg = bs.login()
-        if lg.error_code != '0':
+        if lg.error_code != "0":
             print(f"❌ BaoStock登录失败: {lg.error_msg}")
             return False
 
@@ -40,19 +43,19 @@ def test_baostock_connection():
         rs = bs.query_history_k_data_plus(
             "sz.000001",  # 平安银行
             "date,code,open,high,low,close,volume",
-            start_date='2025-07-01',
-            end_date='2025-07-12',
-            frequency="d"
+            start_date="2025-07-01",
+            end_date="2025-07-12",
+            frequency="d",
         )
 
-        if rs.error_code != '0':
+        if rs.error_code != "0":
             print(f"❌ BaoStock数据获取失败: {rs.error_msg}")
             bs.logout()
             return False
 
         # 获取数据
         data_list = []
-        while (rs.error_code == '0') & rs.next():
+        while (rs.error_code == "0") & rs.next():
             data_list.append(rs.get_row_data())
 
         print("✅ BaoStock数据获取成功")
@@ -68,10 +71,12 @@ def test_baostock_connection():
         print(f"❌ BaoStock连接异常: {e}")
         try:
             import baostock as bs
+
             bs.logout()
         except Exception:
             pass
         return False
+
 
 def test_data_source_manager():
     """测试数据源管理器中的BaoStock"""
@@ -86,7 +91,7 @@ def test_data_source_manager():
 
         # 检查BaoStock是否在可用数据源中
         available_sources = [s.value for s in manager.available_sources]
-        if 'baostock' in available_sources:
+        if "baostock" in available_sources:
             print("✅ BaoStock已被识别为可用数据源")
             return True
         else:
@@ -97,6 +102,7 @@ def test_data_source_manager():
         print(f"❌ 数据源管理器测试异常: {e}")
         return False
 
+
 def main():
     """主测试函数"""
     print("🧪 BaoStock快速测试")
@@ -106,16 +112,16 @@ def main():
 
     # 1. 测试导入
     import_result = test_baostock_import()
-    results.append(('BaoStock导入', import_result))
+    results.append(("BaoStock导入", import_result))
 
     # 2. 测试连接（只有导入成功才测试）
     if import_result:
         connection_result = test_baostock_connection()
-        results.append(('BaoStock连接', connection_result))
+        results.append(("BaoStock连接", connection_result))
 
         # 3. 测试数据源管理器
         manager_result = test_data_source_manager()
-        results.append(('数据源管理器', manager_result))
+        results.append(("数据源管理器", manager_result))
 
     # 统计结果
     passed = sum(1 for _, result in results if result)
@@ -142,6 +148,7 @@ def main():
         print("❌ 请检查网络连接和库安装")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

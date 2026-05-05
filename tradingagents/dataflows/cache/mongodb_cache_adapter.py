@@ -12,7 +12,7 @@ import pandas as pd
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 # 导入配置
 from tradingagents.config.runtime_settings import use_app_cache_enabled  # noqa: E402
@@ -36,9 +36,10 @@ class MongoDBCacheAdapter:
         """初始化MongoDB连接"""
         try:
             from tradingagents.config.database_manager import get_mongodb_client
+
             self.mongodb_client = get_mongodb_client()
             if self.mongodb_client:
-                self.db = self.mongodb_client.get_database('tradingagents')
+                self.db = self.mongodb_client.get_database("tradingagents")
                 logger.debug("✅ MongoDB连接初始化成功")
             else:
                 logger.warning("⚠️ MongoDB客户端不可用，回退到传统模式")
@@ -94,12 +95,13 @@ class MongoDBCacheAdapter:
         try:
             # 1. 识别市场分类
             from tradingagents.utils.stock_utils import StockMarket, StockUtils
+
             market = StockUtils.identify_stock_market(symbol)
 
             market_mapping = {
-                StockMarket.CHINA_A: 'a_shares',
-                StockMarket.US: 'us_stocks',
-                StockMarket.HONG_KONG: 'hk_stocks',
+                StockMarket.CHINA_A: "a_shares",
+                StockMarket.US: "us_stocks",
+                StockMarket.HONG_KONG: "hk_stocks",
             }
             market_category = market_mapping.get(market)
             logger.info(f"📊 [数据源优先级] 股票代码: {symbol}, 市场分类: {market_category}")
@@ -107,22 +109,19 @@ class MongoDBCacheAdapter:
             # 2. 从数据库读取配置
             if self.db is not None:
                 config_collection = self.db.system_configs
-                config_data = config_collection.find_one(
-                    {"is_active": True},
-                    sort=[("version", -1)]
-                )
+                config_data = config_collection.find_one({"is_active": True}, sort=[("version", -1)])
 
-                if config_data and config_data.get('data_source_configs'):
-                    configs = config_data['data_source_configs']
+                if config_data and config_data.get("data_source_configs"):
+                    configs = config_data["data_source_configs"]
                     logger.info(f"📊 [数据源优先级] 从数据库读取到 {len(configs)} 个数据源配置")
 
                     # 3. 过滤启用的数据源
                     enabled = []
                     for ds in configs:
-                        ds_type = ds.get('type', '')
-                        ds_enabled = ds.get('enabled', True)
-                        ds_priority = ds.get('priority', 0)
-                        ds_categories = ds.get('market_categories', [])
+                        ds_type = ds.get("type", "")
+                        ds_enabled = ds.get("enabled", True)
+                        ds_priority = ds.get("priority", 0)
+                        ds_categories = ds.get("market_categories", [])
 
                         logger.info(f"📊 [数据源配置] 类型: {ds_type}, 启用: {ds_enabled}, 优先级: {ds_priority}, 市场: {ds_categories}")
 
@@ -141,10 +140,10 @@ class MongoDBCacheAdapter:
                     logger.info(f"📊 [数据源优先级] 过滤后启用的数据源: {len(enabled)} 个")
 
                     # 4. 按优先级排序（数字越大优先级越高）
-                    enabled.sort(key=lambda x: x.get('priority', 0), reverse=True)
+                    enabled.sort(key=lambda x: x.get("priority", 0), reverse=True)
 
                     # 5. 返回数据源类型列表
-                    result = [ds.get('type', '').lower() for ds in enabled if ds.get('type')]
+                    result = [ds.get("type", "").lower() for ds in enabled if ds.get("type")]
                     if result:
                         logger.info(f"✅ [数据源优先级] {symbol} ({market_category}): {result}")
                         return result
@@ -158,10 +157,11 @@ class MongoDBCacheAdapter:
 
         # 默认顺序：Tushare > AKShare > BaoStock
         logger.info("📊 [数据源优先级] 使用默认顺序: ['tushare', 'akshare', 'baostock']")
-        return ['tushare', 'akshare', 'baostock']
+        return ["tushare", "akshare", "baostock"]
 
-    def get_historical_data(self, symbol: str, start_date: str | None = None, end_date: str | None = None,
-                          period: str = "daily") -> pd.DataFrame | None:
+    def get_historical_data(
+        self, symbol: str, start_date: str | None = None, end_date: str | None = None, period: str = "daily"
+    ) -> pd.DataFrame | None:
         """
         获取历史数据，支持多周期，按数据源优先级查询
 
@@ -190,7 +190,7 @@ class MongoDBCacheAdapter:
                 query = {
                     "symbol": code6,
                     "period": period,
-                    "data_source": data_source  # 指定数据源
+                    "data_source": data_source,  # 指定数据源
                 }
 
                 if start_date:
@@ -238,7 +238,7 @@ class MongoDBCacheAdapter:
                 # 构建查询条件
                 query = {
                     "code": code6,
-                    "data_source": data_source  # 指定数据源
+                    "data_source": data_source,  # 指定数据源
                 }
                 if report_period:
                     query["report_period"] = report_period
@@ -354,6 +354,7 @@ class MongoDBCacheAdapter:
 # 全局实例
 _mongodb_cache_adapter = None
 
+
 def get_mongodb_cache_adapter() -> MongoDBCacheAdapter:
     """获取 MongoDB 缓存适配器实例"""
     global _mongodb_cache_adapter
@@ -361,14 +362,16 @@ def get_mongodb_cache_adapter() -> MongoDBCacheAdapter:
         _mongodb_cache_adapter = MongoDBCacheAdapter()
     return _mongodb_cache_adapter
 
+
 # 向后兼容的别名
 def get_enhanced_data_adapter() -> MongoDBCacheAdapter:
     """获取增强数据适配器实例（向后兼容，推荐使用 get_mongodb_cache_adapter）"""
     return get_mongodb_cache_adapter()
 
 
-def get_stock_data_with_fallback(symbol: str, start_date: str | None = None, end_date: str | None = None,
-                                fallback_func=None) -> pd.DataFrame | str | None:
+def get_stock_data_with_fallback(
+    symbol: str, start_date: str | None = None, end_date: str | None = None, fallback_func=None
+) -> pd.DataFrame | str | None:
     """
     带降级的股票数据获取
 

@@ -19,15 +19,9 @@ def test_frontend_display():
     try:
         # 1. 登录获取token
         print("1. 登录获取token...")
-        login_data = {
-            "username": "admin",
-            "password": "admin123"
-        }
+        login_data = {"username": "admin", "password": "admin123"}
 
-        login_response = requests.post(
-            f"{base_url}/api/auth/login",
-            json=login_data
-        )
+        login_response = requests.post(f"{base_url}/api/auth/login", json=login_data)
 
         if login_response.status_code == 200:
             login_result = login_response.json()
@@ -50,20 +44,13 @@ def test_frontend_display():
                 "include_risk": False,
                 "language": "zh-CN",
                 "quick_analysis_model": "qwen-turbo",
-                "deep_analysis_model": "qwen-max"
-            }
+                "deep_analysis_model": "qwen-max",
+            },
         }
 
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}"
-        }
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
 
-        response = requests.post(
-            f"{base_url}/api/analysis/single",
-            json=analysis_request,
-            headers=headers
-        )
+        response = requests.post(f"{base_url}/api/analysis/single", json=analysis_request, headers=headers)
 
         if response.status_code == 200:
             result = response.json()
@@ -76,10 +63,7 @@ def test_frontend_display():
         # 3. 等待任务完成
         print("\n3. 等待任务完成...")
         for _i in range(60):  # 最多等待5分钟
-            status_response = requests.get(
-                f"{base_url}/api/analysis/tasks/{task_id}/status",
-                headers=headers
-            )
+            status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", headers=headers)
 
             if status_response.status_code == 200:
                 status_data = status_response.json()
@@ -99,10 +83,7 @@ def test_frontend_display():
 
         # 4. 测试新的result端点
         print("\n4. 测试新的result端点...")
-        result_response = requests.get(
-            f"{base_url}/api/analysis/tasks/{task_id}/result",
-            headers=headers
-        )
+        result_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/result", headers=headers)
 
         if result_response.status_code == 200:
             result_data = result_response.json()
@@ -116,7 +97,7 @@ def test_frontend_display():
             print(f"   analysis_date: {data.get('analysis_date', 'NOT_FOUND')}")
 
             # 检查reports字段
-            reports = data.get('reports', {})
+            reports = data.get("reports", {})
             if reports:
                 print(f"✅ 找到reports字段，包含 {len(reports)} 个报告:")
                 for report_type, content in reports.items():
@@ -128,7 +109,7 @@ def test_frontend_display():
                 print("❌ 未找到reports字段或为空")
 
                 # 检查detailed_analysis字段
-                detailed_analysis = data.get('detailed_analysis')
+                detailed_analysis = data.get("detailed_analysis")
                 if detailed_analysis:
                     print(f"⚠️ 但找到detailed_analysis字段: {type(detailed_analysis)}")
                     if isinstance(detailed_analysis, dict):
@@ -148,6 +129,7 @@ def test_frontend_display():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = test_frontend_display()

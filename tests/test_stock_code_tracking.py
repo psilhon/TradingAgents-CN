@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_stock_code_tracking():
     """测试股票代码在整个流程中的传递"""
     print("\n🔍 股票代码追踪测试")
@@ -33,10 +34,7 @@ def test_stock_code_tracking():
 
         # 调用统一基本面分析工具
         result = AgentUtils.get_stock_fundamentals_unified(
-            ticker=test_ticker,
-            start_date='2025-06-01',
-            end_date='2025-07-15',
-            curr_date='2025-07-15'
+            ticker=test_ticker, start_date="2025-06-01", end_date="2025-07-15", curr_date="2025-07-15"
         )
 
         print("\n✅ 统一基本面分析工具调用完成")
@@ -66,8 +64,10 @@ def test_stock_code_tracking():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_individual_components():
     """测试各个组件的股票代码处理"""
@@ -80,12 +80,14 @@ def test_individual_components():
         # 1. 测试股票市场识别
         print("\n1️⃣ 测试股票市场识别...")
         from tradingagents.utils.stock_utils import StockUtils
+
         market_info = StockUtils.get_market_info(test_ticker)
         print(f"   市场信息: {market_info}")
 
         # 2. 测试Tushare代码标准化
         print("\n2️⃣ 测试Tushare代码标准化...")
         from tradingagents.dataflows.tushare_utils import get_tushare_provider
+
         provider = get_tushare_provider()
         if provider:
             normalized = provider._normalize_symbol(test_ticker)
@@ -94,6 +96,7 @@ def test_individual_components():
         # 3. 测试数据源管理器
         print("\n3️⃣ 测试数据源管理器...")
         from tradingagents.dataflows.data_source_manager import get_china_stock_data_unified
+
         data_result = get_china_stock_data_unified(test_ticker, "2025-07-01", "2025-07-15")
         print(f"   数据获取结果长度: {len(data_result) if data_result else 0}")
 
@@ -102,8 +105,10 @@ def test_individual_components():
     except Exception as e:
         print(f"❌ 组件测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 开始股票代码追踪测试")

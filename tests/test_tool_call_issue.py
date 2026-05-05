@@ -10,19 +10,17 @@ import sys
 
 # 添加项目路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-os.makedirs(os.path.join('data', 'logs'), exist_ok=True)
+os.makedirs(os.path.join("data", "logs"), exist_ok=True)
 
 # 设置日志
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s | %(name)s | %(levelname)s | %(message)s',
-    handlers=[
-        logging.FileHandler(os.path.join('data', 'logs', 'test_tool_call_issue.log')),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
+    handlers=[logging.FileHandler(os.path.join("data", "logs", "test_tool_call_issue.log")), logging.StreamHandler()],
 )
 
 logger = logging.getLogger(__name__)
+
 
 def test_tool_call_mechanism():
     """测试工具调用机制"""
@@ -38,15 +36,12 @@ def test_tool_call_mechanism():
 
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        os.makedirs(os.path.join('data', 'logs'), exist_ok=True)
+
+        os.makedirs(os.path.join("data", "logs"), exist_ok=True)
 
         # 2. 创建LLM实例
         logger.info("2. 创建LLM实例...")
-        llm = ChatDashScopeOpenAI(
-            model="qwen-plus-latest",
-            temperature=0.1,
-            max_tokens=1000
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-plus-latest", temperature=0.1, max_tokens=1000)
         logger.info(f"   LLM类型: {llm.__class__.__name__}")
 
         # 3. 创建Toolkit
@@ -67,9 +62,7 @@ def test_tool_call_mechanism():
 
         # 6. 测试工具调用
         logger.info("6. 测试工具调用...")
-        test_message = HumanMessage(
-            content="请调用get_realtime_stock_news工具获取000001.SZ的最新新闻"
-        )
+        test_message = HumanMessage(content="请调用get_realtime_stock_news工具获取000001.SZ的最新新闻")
 
         logger.info("   开始LLM调用...")
         result = llm_with_tools.invoke([test_message])
@@ -80,18 +73,18 @@ def test_tool_call_mechanism():
         logger.info(f"   结果类型: {type(result)}")
         logger.info(f"   是否有tool_calls属性: {hasattr(result, 'tool_calls')}")
 
-        if hasattr(result, 'tool_calls'):
+        if hasattr(result, "tool_calls"):
             tool_calls = result.tool_calls
             logger.info(f"   工具调用数量: {len(tool_calls)}")
 
             if len(tool_calls) > 0:
                 logger.info("   工具调用详情:")
                 for i, call in enumerate(tool_calls):
-                    logger.info(f"     调用 {i+1}:")
+                    logger.info(f"     调用 {i + 1}:")
                     logger.info(f"       类型: {type(call)}")
-                    if hasattr(call, 'name'):
+                    if hasattr(call, "name"):
                         logger.info(f"       名称: {call.name}")
-                    if hasattr(call, 'args'):
+                    if hasattr(call, "args"):
                         logger.info(f"       参数: {call.args}")
                     if isinstance(call, dict):
                         logger.info(f"       字典内容: {call}")
@@ -100,13 +93,13 @@ def test_tool_call_mechanism():
                 logger.info("8. 尝试手动执行工具调用...")
                 for i, call in enumerate(tool_calls):
                     try:
-                        logger.info(f"   执行工具调用 {i+1}...")
+                        logger.info(f"   执行工具调用 {i + 1}...")
 
                         # 获取参数
-                        if hasattr(call, 'args'):
+                        if hasattr(call, "args"):
                             args = call.args
-                        elif isinstance(call, dict) and 'args' in call:
-                            args = call['args']
+                        elif isinstance(call, dict) and "args" in call:
+                            args = call["args"]
                         else:
                             logger.error(f"     无法获取参数: {call}")
                             continue
@@ -114,8 +107,8 @@ def test_tool_call_mechanism():
                         logger.info(f"     参数: {args}")
 
                         # 执行工具
-                        if 'ticker' in args:
-                            ticker = args['ticker']
+                        if "ticker" in args:
+                            ticker = args["ticker"]
                             logger.info(f"     调用 get_realtime_stock_news(ticker='{ticker}')")
 
                             # 直接调用函数
@@ -129,6 +122,7 @@ def test_tool_call_mechanism():
                     except Exception as e:
                         logger.error(f"     工具执行失败: {e}")
                         import traceback
+
                         logger.error(f"     错误详情: {traceback.format_exc()}")
             else:
                 logger.warning("   LLM没有调用任何工具")
@@ -137,7 +131,7 @@ def test_tool_call_mechanism():
 
         # 9. 检查响应内容
         logger.info("9. 检查响应内容...")
-        if hasattr(result, 'content'):
+        if hasattr(result, "content"):
             content = result.content
             logger.info(f"   响应内容长度: {len(content)} 字符")
             logger.info(f"   响应内容前200字符: {content[:200]}...")
@@ -153,8 +147,10 @@ def test_tool_call_mechanism():
     except Exception as e:
         logger.error(f"测试失败: {e}")
         import traceback
+
         logger.error(f"错误详情: {traceback.format_exc()}")
         return False
+
 
 if __name__ == "__main__":
     test_tool_call_mechanism()

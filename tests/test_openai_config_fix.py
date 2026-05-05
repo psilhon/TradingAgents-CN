@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_openai_config_detection():
     """测试OpenAI配置检测逻辑"""
     print("\n🔍 测试OpenAI配置检测逻辑")
@@ -29,6 +30,7 @@ def test_openai_config_detection():
 
         # 检查配置
         from tradingagents.dataflows.config import get_config
+
         config = get_config()
 
         print("\n📊 当前系统配置:")
@@ -76,8 +78,10 @@ def test_openai_config_detection():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_fundamentals_api_selection():
     """测试基本面数据API选择逻辑"""
@@ -87,6 +91,7 @@ def test_fundamentals_api_selection():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -132,8 +137,10 @@ def test_fundamentals_api_selection():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_config_scenarios():
     """测试不同配置场景"""
@@ -145,20 +152,20 @@ def test_config_scenarios():
             "name": "场景1: 无OpenAI Key + Google配置",
             "openai_key": None,
             "backend_url": "https://generativelanguage.googleapis.com/v1",
-            "expected": "跳过OpenAI，使用FinnHub"
+            "expected": "跳过OpenAI，使用FinnHub",
         },
         {
             "name": "场景2: 无OpenAI Key + OpenAI配置",
             "openai_key": None,
             "backend_url": "https://api.openai.com/v1",
-            "expected": "跳过OpenAI，使用FinnHub"
+            "expected": "跳过OpenAI，使用FinnHub",
         },
         {
             "name": "场景3: 有OpenAI Key + 非OpenAI配置",
             "openai_key": "sk-test123",
             "backend_url": "https://generativelanguage.googleapis.com/v1",
-            "expected": "跳过OpenAI，使用FinnHub"
-        }
+            "expected": "跳过OpenAI，使用FinnHub",
+        },
     ]
 
     for scenario in scenarios:
@@ -194,6 +201,7 @@ def test_config_scenarios():
 
     return True
 
+
 def main():
     """主测试函数"""
     print("🚀 开始测试OpenAI配置修复效果")
@@ -218,15 +226,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "OpenAI配置检测逻辑",
-        "基本面数据API选择逻辑",
-        "不同配置场景测试"
-    ]
+    test_names = ["OpenAI配置检测逻辑", "基本面数据API选择逻辑", "不同配置场景测试"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -247,6 +251,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

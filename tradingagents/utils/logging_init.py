@@ -27,7 +27,7 @@ def init_logging(config_override: dict | None = None) -> None:
     logger_manager = setup_logging(config_override)
 
     # 获取初始化日志器
-    logger = get_logger('tradingagents.init')
+    logger = get_logger("tradingagents.init")
 
     # 记录初始化信息
     logger.info("🚀 TradingAgents-CN 日志系统初始化完成")
@@ -35,7 +35,7 @@ def init_logging(config_override: dict | None = None) -> None:
     logger.info(f"📊 日志级别: {logger_manager.config.get('level', 'INFO')}")
 
     # Docker环境特殊处理
-    if logger_manager.config.get('docker', {}).get('enabled', False):
+    if logger_manager.config.get("docker", {}).get("enabled", False):
         logger.info("🐳 Docker环境检测到，使用容器优化配置")
 
     # 记录环境信息
@@ -44,7 +44,7 @@ def init_logging(config_override: dict | None = None) -> None:
     logger.debug(f"🌍 环境变量: DOCKER_CONTAINER={os.getenv('DOCKER_CONTAINER', 'false')}")
 
 
-def get_session_logger(session_id: str, module_name: str = 'session') -> 'logging.Logger':
+def get_session_logger(session_id: str, module_name: str = "session") -> "logging.Logger":
     """
     获取会话专用日志器
 
@@ -65,23 +65,23 @@ def get_session_logger(session_id: str, module_name: str = 'session') -> 'loggin
             self.session_id = session_id
 
         def debug(self, msg, *args, **kwargs):
-            kwargs.setdefault('extra', {})['session_id'] = self.session_id
+            kwargs.setdefault("extra", {})["session_id"] = self.session_id
             return self.logger.debug(msg, *args, **kwargs)
 
         def info(self, msg, *args, **kwargs):
-            kwargs.setdefault('extra', {})['session_id'] = self.session_id
+            kwargs.setdefault("extra", {})["session_id"] = self.session_id
             return self.logger.info(msg, *args, **kwargs)
 
         def warning(self, msg, *args, **kwargs):
-            kwargs.setdefault('extra', {})['session_id'] = self.session_id
+            kwargs.setdefault("extra", {})["session_id"] = self.session_id
             return self.logger.warning(msg, *args, **kwargs)
 
         def error(self, msg, *args, **kwargs):
-            kwargs.setdefault('extra', {})['session_id'] = self.session_id
+            kwargs.setdefault("extra", {})["session_id"] = self.session_id
             return self.logger.error(msg, *args, **kwargs)
 
         def critical(self, msg, *args, **kwargs):
-            kwargs.setdefault('extra', {})['session_id'] = self.session_id
+            kwargs.setdefault("extra", {})["session_id"] = self.session_id
             return self.logger.critical(msg, *args, **kwargs)
 
     return SessionAdapter(logger, session_id)
@@ -89,7 +89,7 @@ def get_session_logger(session_id: str, module_name: str = 'session') -> 'loggin
 
 def log_startup_info():
     """记录应用启动信息"""
-    logger = get_logger('tradingagents.startup')
+    logger = get_logger("tradingagents.startup")
 
     logger.info("=" * 60)
     logger.info("🎯 TradingAgents-CN 启动")
@@ -97,14 +97,15 @@ def log_startup_info():
 
     # 系统信息
     import platform
+
     logger.info(f"🖥️  系统: {platform.system()} {platform.release()}")
     logger.info(f"🐍 Python: {platform.python_version()}")
 
     # 环境信息
     env_info = {
-        'DOCKER_CONTAINER': os.getenv('DOCKER_CONTAINER', 'false'),
-        'TRADINGAGENTS_LOG_LEVEL': os.getenv('TRADINGAGENTS_LOG_LEVEL', 'INFO'),
-        'TRADINGAGENTS_LOG_DIR': os.getenv('TRADINGAGENTS_LOG_DIR', './logs'),
+        "DOCKER_CONTAINER": os.getenv("DOCKER_CONTAINER", "false"),
+        "TRADINGAGENTS_LOG_LEVEL": os.getenv("TRADINGAGENTS_LOG_LEVEL", "INFO"),
+        "TRADINGAGENTS_LOG_DIR": os.getenv("TRADINGAGENTS_LOG_DIR", "./logs"),
     }
 
     for key, value in env_info.items():
@@ -115,7 +116,7 @@ def log_startup_info():
 
 def log_shutdown_info():
     """记录应用关闭信息"""
-    logger = get_logger('tradingagents.shutdown')
+    logger = get_logger("tradingagents.shutdown")
 
     logger.info("=" * 60)
     logger.info("🛑 TradingAgents-CN 关闭")
@@ -127,22 +128,22 @@ def setup_web_logging():
     """设置Web应用专用日志"""
     init_logging()
     log_startup_info()
-    return get_logger('web')
+    return get_logger("web")
 
 
 def setup_analysis_logging(session_id: str):
     """设置分析专用日志"""
-    return get_session_logger(session_id, 'analysis')
+    return get_session_logger(session_id, "analysis")
 
 
 def setup_dataflow_logging():
     """设置数据流专用日志"""
-    return get_logger('dataflows')
+    return get_logger("dataflows")
 
 
 def setup_llm_logging():
     """设置LLM适配器专用日志"""
-    return get_logger('llm_adapters')
+    return get_logger("llm_adapters")
 
 
 if __name__ == "__main__":

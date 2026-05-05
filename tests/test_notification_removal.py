@@ -3,6 +3,7 @@
 验证通知功能移除
 检查前端代码中是否还有通知相关的代码
 """
+
 import os
 import re
 
@@ -15,13 +16,13 @@ def check_notification_code():
 
     frontend_dir = "frontend/src"
     notification_patterns = [
-        r'showDesktopNotification',
-        r'testNotification',
-        r'测试通知',
-        r'Notification\.permission',
-        r'new Notification',
-        r'requestPermission',
-        r'🧪 测试通知'
+        r"showDesktopNotification",
+        r"testNotification",
+        r"测试通知",
+        r"Notification\.permission",
+        r"new Notification",
+        r"requestPermission",
+        r"🧪 测试通知",
     ]
 
     found_issues = []
@@ -29,10 +30,10 @@ def check_notification_code():
     # 遍历前端文件
     for root, _dirs, files in os.walk(frontend_dir):
         for file in files:
-            if file.endswith(('.vue', '.ts', '.js')):
+            if file.endswith((".vue", ".ts", ".js")):
                 file_path = os.path.join(root, file)
                 try:
-                    with open(file_path, encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         content = f.read()
 
                     # 检查每个模式
@@ -40,15 +41,10 @@ def check_notification_code():
                         matches = re.finditer(pattern, content, re.IGNORECASE)
                         for match in matches:
                             # 计算行号
-                            line_num = content[:match.start()].count('\n') + 1
-                            line_content = content.split('\n')[line_num - 1].strip()
+                            line_num = content[: match.start()].count("\n") + 1
+                            line_content = content.split("\n")[line_num - 1].strip()
 
-                            found_issues.append({
-                                'file': file_path,
-                                'line': line_num,
-                                'pattern': pattern,
-                                'content': line_content
-                            })
+                            found_issues.append({"file": file_path, "line": line_num, "pattern": pattern, "content": line_content})
 
                 except Exception as e:
                     print(f"⚠️ 无法读取文件 {file_path}: {e}")
@@ -70,6 +66,7 @@ def check_notification_code():
         print("✅ 未发现通知相关代码残留")
         return True
 
+
 def check_sync_control_component():
     """专门检查 SyncControl 组件"""
     print("\n" + "=" * 60)
@@ -83,23 +80,17 @@ def check_sync_control_component():
         return False
 
     try:
-        with open(sync_control_path, encoding='utf-8') as f:
+        with open(sync_control_path, encoding="utf-8") as f:
             content = f.read()
 
         # 检查应该移除的功能
-        removed_features = [
-            '🧪 测试通知',
-            'testNotification',
-            'showDesktopNotification',
-            'Notification.permission',
-            'new Notification'
-        ]
+        removed_features = ["🧪 测试通知", "testNotification", "showDesktopNotification", "Notification.permission", "new Notification"]
 
         # 检查应该保留的功能
         kept_features = [
-            'showSyncCompletionNotification',
-            'ElMessage',
-            'emit(\'syncCompleted\'',
+            "showSyncCompletionNotification",
+            "ElMessage",
+            "emit('syncCompleted'",
         ]
 
         print("📋 检查移除的功能:")
@@ -121,7 +112,7 @@ def check_sync_control_component():
                 all_kept = False
 
         # 检查按钮数量
-        button_count = content.count('<el-button')
+        button_count = content.count("<el-button")
         print(f"\n📊 按钮数量: {button_count}")
 
         # 应该有4个按钮：开始同步、刷新状态、清空缓存、强制重新同步
@@ -136,6 +127,7 @@ def check_sync_control_component():
     except Exception as e:
         print(f"❌ 读取文件失败: {e}")
         return False
+
 
 def generate_test_instructions():
     """生成测试说明"""
@@ -168,6 +160,7 @@ def generate_test_instructions():
     print("   5. 检查同步历史是否正常更新")
     print()
     print("如果以上测试都通过，说明通知功能移除成功！")
+
 
 if __name__ == "__main__":
     print("🧹 通知功能移除验证")

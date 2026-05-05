@@ -2,6 +2,7 @@
 ChromaDB 统一配置模块
 支持 Windows 10/11 和其他操作系统的自动适配
 """
+
 import platform
 
 import chromadb
@@ -22,7 +23,7 @@ def is_windows_11() -> bool:
     version = platform.version()
     try:
         # 提取版本号，格式通常是 "10.0.26100"
-        version_parts = version.split('.')
+        version_parts = version.split(".")
         if len(version_parts) >= 3:
             build_number = int(version_parts[2])
             # Windows 11 的构建号从 22000 开始
@@ -48,7 +49,7 @@ def get_win10_chromadb_client():
         chroma_db_impl="duckdb+parquet",
         chroma_api_impl="chromadb.api.segment.SegmentAPI",
         # 使用临时目录避免权限问题
-        persist_directory=None
+        persist_directory=None,
     )
 
     try:
@@ -56,10 +57,7 @@ def get_win10_chromadb_client():
         return client
     except Exception:
         # 降级到最基本配置
-        basic_settings = Settings(
-            allow_reset=True,
-            is_persistent=False
-        )
+        basic_settings = Settings(allow_reset=True, is_persistent=False)
         return chromadb.Client(basic_settings)
 
 
@@ -77,7 +75,7 @@ def get_win11_chromadb_client():
         is_persistent=False,
         # Windows 11 可以使用默认实现，性能更好
         chroma_db_impl="duckdb+parquet",
-        chroma_api_impl="chromadb.api.segment.SegmentAPI"
+        chroma_api_impl="chromadb.api.segment.SegmentAPI",
         # 移除 persist_directory=None，让它使用默认值
     )
 
@@ -89,7 +87,7 @@ def get_win11_chromadb_client():
         minimal_settings = Settings(
             allow_reset=True,
             anonymized_telemetry=False,  # 关键：禁用遥测
-            is_persistent=False
+            is_persistent=False,
         )
         return chromadb.Client(minimal_settings)
 
@@ -113,19 +111,9 @@ def get_optimal_chromadb_client():
             return get_win10_chromadb_client()
     else:
         # 非 Windows 系统，使用标准配置
-        settings = Settings(
-            allow_reset=True,
-            anonymized_telemetry=False,
-            is_persistent=False
-        )
+        settings = Settings(allow_reset=True, anonymized_telemetry=False, is_persistent=False)
         return chromadb.Client(settings)
 
 
 # 导出配置
-__all__ = [
-    'get_optimal_chromadb_client',
-    'get_win10_chromadb_client',
-    'get_win11_chromadb_client',
-    'is_windows_11'
-]
-
+__all__ = ["get_optimal_chromadb_client", "get_win10_chromadb_client", "get_win11_chromadb_client", "is_windows_11"]

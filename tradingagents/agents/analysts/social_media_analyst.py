@@ -1,4 +1,3 @@
-
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # 导入统一日志系统和分析模块日志装饰器
@@ -24,9 +23,10 @@ def _get_company_name_for_social_media(ticker: str, market_info: dict) -> str:
         str: 公司名称
     """
     try:
-        if market_info['is_china']:
+        if market_info["is_china"]:
             # 中国A股：使用统一接口获取股票信息
             from tradingagents.dataflows.interface import get_china_stock_info_unified
+
             stock_info = get_china_stock_info_unified(ticker)
 
             logger.debug(f"📊 [社交媒体分析师] 获取股票信息返回: {stock_info[:200] if stock_info else 'None'}...")
@@ -41,9 +41,10 @@ def _get_company_name_for_social_media(ticker: str, market_info: dict) -> str:
                 logger.warning(f"⚠️ [社交媒体分析师] 无法从统一接口解析股票名称: {ticker}，尝试降级方案")
                 try:
                     from tradingagents.dataflows.data_source_manager import get_china_stock_info_unified as get_info_dict
+
                     info_dict = get_info_dict(ticker)
-                    if info_dict and info_dict.get('name'):
-                        company_name = info_dict['name']
+                    if info_dict and info_dict.get("name"):
+                        company_name = info_dict["name"]
                         logger.info(f"✅ [社交媒体分析师] 降级方案成功获取股票名称: {ticker} -> {company_name}")
                         return company_name
                 except Exception as e:
@@ -52,30 +53,31 @@ def _get_company_name_for_social_media(ticker: str, market_info: dict) -> str:
                 logger.error(f"❌ [社交媒体分析师] 所有方案都无法获取股票名称: {ticker}")
                 return f"股票代码{ticker}"
 
-        elif market_info['is_hk']:
+        elif market_info["is_hk"]:
             # 港股：使用改进的港股工具
             try:
                 from tradingagents.dataflows.providers.hk.improved_hk import get_hk_company_name_improved
+
                 company_name = get_hk_company_name_improved(ticker)
                 logger.debug(f"📊 [社交媒体分析师] 使用改进港股工具获取名称: {ticker} -> {company_name}")
                 return company_name
             except Exception as e:
                 logger.debug(f"📊 [社交媒体分析师] 改进港股工具获取名称失败: {e}")
                 # 降级方案：生成友好的默认名称
-                clean_ticker = ticker.replace('.HK', '').replace('.hk', '')
+                clean_ticker = ticker.replace(".HK", "").replace(".hk", "")
                 return f"港股{clean_ticker}"
 
-        elif market_info['is_us']:
+        elif market_info["is_us"]:
             # 美股：使用简单映射或返回代码
             us_stock_names = {
-                'AAPL': '苹果公司',
-                'TSLA': '特斯拉',
-                'NVDA': '英伟达',
-                'MSFT': '微软',
-                'GOOGL': '谷歌',
-                'AMZN': '亚马逊',
-                'META': 'Meta',
-                'NFLX': '奈飞'
+                "AAPL": "苹果公司",
+                "TSLA": "特斯拉",
+                "NVDA": "英伟达",
+                "MSFT": "微软",
+                "GOOGL": "谷歌",
+                "AMZN": "亚马逊",
+                "META": "Meta",
+                "NFLX": "奈飞",
             }
 
             company_name = us_stock_names.get(ticker.upper(), f"美股{ticker}")
@@ -103,6 +105,7 @@ def create_social_media_analyst(llm, toolkit):
 
         # 获取股票市场信息
         from tradingagents.utils.stock_utils import StockUtils
+
         market_info = StockUtils.get_market_info(ticker)
 
         # 获取公司名称
@@ -115,8 +118,7 @@ def create_social_media_analyst(llm, toolkit):
         logger.info("[社交媒体分析师] 使用统一情绪分析工具，自动识别股票类型")
         tools = [toolkit.get_stock_sentiment_unified]
 
-        system_message = (
-            """您是一位专业的中国市场社交媒体和投资情绪分析师，负责分析中国投资者对特定股票的讨论和情绪变化。
+        system_message = """您是一位专业的中国市场社交媒体和投资情绪分析师，负责分析中国投资者对特定股票的讨论和情绪变化。
 
 您的主要职责包括：
 1. 分析中国主要财经平台的投资者情绪（如雪球、东方财富股吧等）
@@ -155,7 +157,6 @@ def create_social_media_analyst(llm, toolkit):
 
 请撰写详细的中文分析报告，并在报告末尾附上Markdown表格总结关键发现。
 注意：由于中国社交媒体API限制，如果数据获取受限，请明确说明并提供替代分析建议。"""
-        )
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -178,9 +179,9 @@ def create_social_media_analyst(llm, toolkit):
         # 安全地获取工具名称，处理函数和工具对象
         tool_names = []
         for tool in tools:
-            if hasattr(tool, 'name'):
+            if hasattr(tool, "name"):
                 tool_names.append(tool.name)
-            elif hasattr(tool, '__name__'):
+            elif hasattr(tool, "__name__"):
                 tool_names.append(tool.__name__)
             else:
                 tool_names.append(str(tool))
@@ -204,7 +205,7 @@ def create_social_media_analyst(llm, toolkit):
                 ticker=ticker,
                 company_name=company_name,
                 analyst_type="社交媒体情绪分析",
-                specific_requirements="重点关注投资者情绪、社交媒体讨论热度、舆论影响等。"
+                specific_requirements="重点关注投资者情绪、社交媒体讨论热度、舆论影响等。",
             )
 
             # 处理Google模型工具调用
@@ -214,7 +215,7 @@ def create_social_media_analyst(llm, toolkit):
                 tools=tools,
                 state=state,
                 analysis_prompt_template=analysis_prompt_template,
-                analyst_name="社交媒体分析师"
+                analyst_name="社交媒体分析师",
             )
         else:
             # 非Google模型的处理逻辑
@@ -225,10 +226,6 @@ def create_social_media_analyst(llm, toolkit):
                 report = result.content
 
         # 🔧 更新工具调用计数器
-        return {
-            "messages": [result],
-            "sentiment_report": report,
-            "sentiment_tool_call_count": tool_call_count + 1
-        }
+        return {"messages": [result], "sentiment_report": report, "sentiment_tool_call_count": tool_call_count + 1}
 
     return social_media_analyst_node

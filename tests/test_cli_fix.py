@@ -15,6 +15,7 @@ from unittest.mock import MagicMock, patch
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+
 def test_selections_dictionary_keys():
     """
     测试selections字典中的键名是否正确
@@ -26,44 +27,45 @@ def test_selections_dictionary_keys():
         from cli.main import get_user_selections
 
         # 模拟用户输入
-        with patch('typer.prompt') as mock_prompt, \
-             patch('cli.main.select_market') as mock_market, \
-             patch('cli.main.select_analysts') as mock_analysts, \
-             patch('cli.main.select_research_depth') as mock_depth, \
-             patch('cli.main.select_llm_provider') as mock_llm, \
-             patch('cli.main.select_shallow_thinking_agent') as mock_shallow, \
-             patch('cli.main.select_deep_thinking_agent') as mock_deep, \
-             patch('cli.main.console.print'):
-
+        with (
+            patch("typer.prompt") as mock_prompt,
+            patch("cli.main.select_market") as mock_market,
+            patch("cli.main.select_analysts") as mock_analysts,
+            patch("cli.main.select_research_depth") as mock_depth,
+            patch("cli.main.select_llm_provider") as mock_llm,
+            patch("cli.main.select_shallow_thinking_agent") as mock_shallow,
+            patch("cli.main.select_deep_thinking_agent") as mock_deep,
+            patch("cli.main.console.print"),
+        ):
             # 设置模拟返回值
             mock_market.return_value = {
-                'name': 'A股',
-                'name_en': 'China A-Share',
-                'default': '600036',
-                'pattern': r'^\d{6}$',
-                'data_source': 'china_stock'
+                "name": "A股",
+                "name_en": "China A-Share",
+                "default": "600036",
+                "pattern": r"^\d{6}$",
+                "data_source": "china_stock",
             }
-            mock_prompt.side_effect = ['600036', '2024-12-01']  # ticker, date
-            mock_analysts.return_value = [MagicMock(value='market')]
+            mock_prompt.side_effect = ["600036", "2024-12-01"]  # ticker, date
+            mock_analysts.return_value = [MagicMock(value="market")]
             mock_depth.return_value = 3
-            mock_llm.return_value = ('dashscope', 'http://localhost:8000')
-            mock_shallow.return_value = 'qwen-turbo'
-            mock_deep.return_value = 'qwen-max'
+            mock_llm.return_value = ("dashscope", "http://localhost:8000")
+            mock_shallow.return_value = "qwen-turbo"
+            mock_deep.return_value = "qwen-max"
 
             # 调用函数
             selections = get_user_selections()
 
             # 验证必要的键存在
             required_keys = [
-                'ticker',  # 这是正确的键名
-                'market',
-                'analysis_date',
-                'analysts',
-                'research_depth',
-                'llm_provider',
-                'backend_url',
-                'shallow_thinker',
-                'deep_thinker'
+                "ticker",  # 这是正确的键名
+                "market",
+                "analysis_date",
+                "analysts",
+                "research_depth",
+                "llm_provider",
+                "backend_url",
+                "shallow_thinker",
+                "deep_thinker",
             ]
 
             for key in required_keys:
@@ -71,7 +73,7 @@ def test_selections_dictionary_keys():
                 print(f"✅ 键 '{key}' 存在")
 
             # 确保不存在错误的键名
-            assert 'stock_symbol' not in selections, "不应该存在 'stock_symbol' 键"
+            assert "stock_symbol" not in selections, "不应该存在 'stock_symbol' 键"
             print("✅ 确认不存在错误的 'stock_symbol' 键")
 
             print("✅ selections字典键名测试通过")
@@ -80,6 +82,7 @@ def test_selections_dictionary_keys():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 def test_process_signal_call():
     """
@@ -90,8 +93,8 @@ def test_process_signal_call():
 
     try:
         # 读取main.py文件内容
-        main_file = project_root / 'cli' / 'main.py'
-        with open(main_file, encoding='utf-8') as f:
+        main_file = project_root / "cli" / "main.py"
+        with open(main_file, encoding="utf-8") as f:
             content = f.read()
 
         # 检查是否使用了正确的键名
@@ -115,6 +118,7 @@ def test_process_signal_call():
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def test_code_consistency():
     """
     测试代码一致性 - 确保所有地方都使用相同的键名
@@ -123,8 +127,8 @@ def test_code_consistency():
     print("\n🔍 测试代码一致性...")
 
     try:
-        main_file = project_root / 'cli' / 'main.py'
-        with open(main_file, encoding='utf-8') as f:
+        main_file = project_root / "cli" / "main.py"
+        with open(main_file, encoding="utf-8") as f:
             content = f.read()
 
         # 统计ticker键的使用次数
@@ -141,11 +145,7 @@ def test_code_consistency():
             print("⚠️  ticker键使用次数可能不足")
 
         # 检查是否还有其他可能的键名不一致问题
-        potential_issues = [
-            "selections['symbol']",
-            "selections['stock']",
-            "selections['code']"
-        ]
+        potential_issues = ["selections['symbol']", "selections['stock']", "selections['code']"]
 
         for issue in potential_issues:
             if issue in content:
@@ -160,6 +160,7 @@ def test_code_consistency():
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def main():
     """
     运行所有测试
@@ -168,11 +169,7 @@ def main():
     print("🚀 开始CLI修复验证测试...")
     print("=" * 50)
 
-    tests = [
-        test_selections_dictionary_keys,
-        test_process_signal_call,
-        test_code_consistency
-    ]
+    tests = [test_selections_dictionary_keys, test_process_signal_call, test_code_consistency]
 
     passed = 0
     total = len(tests)
@@ -190,6 +187,7 @@ def main():
     else:
         print("❌ 部分测试失败，需要进一步检查")
         return False
+
 
 if __name__ == "__main__":
     success = main()

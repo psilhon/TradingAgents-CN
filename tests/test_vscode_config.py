@@ -20,7 +20,7 @@ def test_python_environment():
     print(f"Python路径: {sys.executable}")
 
     # 检查虚拟环境
-    venv_path = os.environ.get('VIRTUAL_ENV')
+    venv_path = os.environ.get("VIRTUAL_ENV")
     if venv_path:
         print(f"✅ 虚拟环境: {venv_path}")
     else:
@@ -30,7 +30,7 @@ def test_python_environment():
     print(f"工作目录: {os.getcwd()}")
 
     # 检查是否在项目根目录
-    if os.path.exists('tradingagents') and os.path.exists('.env'):
+    if os.path.exists("tradingagents") and os.path.exists(".env"):
         print("✅ 在项目根目录")
     else:
         print("❌ 不在项目根目录")
@@ -43,23 +43,23 @@ def test_vscode_settings():
     print("\n🔧 VSCode设置验证")
     print("=" * 50)
 
-    settings_path = Path('.vscode/settings.json')
+    settings_path = Path(".vscode/settings.json")
 
     if not settings_path.exists():
         print("❌ .vscode/settings.json 不存在")
         return False
 
     try:
-        with open(settings_path, encoding='utf-8') as f:
+        with open(settings_path, encoding="utf-8") as f:
             settings = json.load(f)
 
         print("✅ settings.json 格式正确")
 
         # 检查关键配置
         key_settings = {
-            'python.defaultInterpreterPath': './env/Scripts/python.exe',
-            'python.terminal.activateEnvironment': True,
-            'python.testing.pytestEnabled': True,
+            "python.defaultInterpreterPath": "./env/Scripts/python.exe",
+            "python.terminal.activateEnvironment": True,
+            "python.testing.pytestEnabled": True,
         }
 
         for key, expected in key_settings.items():
@@ -88,7 +88,7 @@ def test_virtual_env_path():
     print("=" * 50)
 
     # 检查虚拟环境目录
-    env_dir = Path('env')
+    env_dir = Path("env")
     if not env_dir.exists():
         print("❌ env目录不存在")
         return False
@@ -96,7 +96,7 @@ def test_virtual_env_path():
     print("✅ env目录存在")
 
     # 检查Python可执行文件
-    python_exe = env_dir / 'Scripts' / 'python.exe'
+    python_exe = env_dir / "Scripts" / "python.exe"
     if python_exe.exists():
         print(f"✅ Python可执行文件: {python_exe}")
     else:
@@ -104,7 +104,7 @@ def test_virtual_env_path():
         return False
 
     # 检查pip
-    pip_exe = env_dir / 'Scripts' / 'pip.exe'
+    pip_exe = env_dir / "Scripts" / "pip.exe"
     if pip_exe.exists():
         print(f"✅ pip可执行文件: {pip_exe}")
     else:
@@ -119,20 +119,20 @@ def test_package_imports():
     print("=" * 50)
 
     packages = [
-        ('langchain', 'LangChain'),
-        ('langchain_openai', 'LangChain OpenAI'),
-        ('pandas', 'Pandas'),
-        ('numpy', 'NumPy'),
-        ('tushare', 'Tushare'),
-        ('streamlit', 'Streamlit'),
-        ('tradingagents', 'TradingAgents')
+        ("langchain", "LangChain"),
+        ("langchain_openai", "LangChain OpenAI"),
+        ("pandas", "Pandas"),
+        ("numpy", "NumPy"),
+        ("tushare", "Tushare"),
+        ("streamlit", "Streamlit"),
+        ("tradingagents", "TradingAgents"),
     ]
 
     success_count = 0
     for package, name in packages:
         try:
             module = __import__(package)
-            version = getattr(module, '__version__', 'unknown')
+            version = getattr(module, "__version__", "unknown")
             print(f"✅ {name}: v{version}")
             success_count += 1
         except ImportError:
@@ -149,20 +149,9 @@ def test_project_structure():
     print("\n📂 项目结构验证")
     print("=" * 50)
 
-    required_dirs = [
-        'tradingagents',
-        'tests',
-        'cli',
-        'web',
-        '.vscode'
-    ]
+    required_dirs = ["tradingagents", "tests", "cli", "web", ".vscode"]
 
-    required_files = [
-        '.env',
-        'requirements.txt',
-        'README.md',
-        '.gitignore'
-    ]
+    required_files = [".env", "requirements.txt", "README.md", ".gitignore"]
 
     # 检查目录
     for dir_name in required_dirs:
@@ -187,7 +176,7 @@ def test_environment_variables():
     print("=" * 50)
 
     # 读取.env文件
-    env_file = Path('.env')
+    env_file = Path(".env")
     if not env_file.exists():
         print("❌ .env文件不存在")
         return False
@@ -195,12 +184,7 @@ def test_environment_variables():
     print("✅ .env文件存在")
 
     # 检查关键环境变量
-    key_vars = [
-        'DASHSCOPE_API_KEY',
-        'TUSHARE_TOKEN',
-        'OPENAI_API_KEY',
-        'FINNHUB_API_KEY'
-    ]
+    key_vars = ["DASHSCOPE_API_KEY", "TUSHARE_TOKEN", "OPENAI_API_KEY", "FINNHUB_API_KEY"]
 
     for var in key_vars:
         value = os.getenv(var)
@@ -254,7 +238,7 @@ def main():
         ("包导入", test_package_imports),
         ("项目结构", test_project_structure),
         ("环境变量", test_environment_variables),
-        ("基本功能", test_simple_functionality)
+        ("基本功能", test_simple_functionality),
     ]
 
     results = []

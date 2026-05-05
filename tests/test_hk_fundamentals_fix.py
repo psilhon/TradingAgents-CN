@@ -34,9 +34,11 @@ def test_stock_type_detection():
             print(f"    是否美股: {market_info['is_us']}")
 
             # 验证结果
-            if (expected_market in market_info['market_name'] and
-                market_info['currency_name'] == expected_currency and
-                market_info['currency_symbol'] == expected_symbol):
+            if (
+                expected_market in market_info["market_name"]
+                and market_info["currency_name"] == expected_currency
+                and market_info["currency_symbol"] == expected_symbol
+            ):
                 print("    ✅ 识别正确")
             else:
                 print("    ❌ 识别错误")
@@ -76,7 +78,7 @@ def test_fundamentals_analyst_tool_selection():
         print(f"    货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
 
         # 检查港股专用工具是否存在
-        if hasattr(toolkit, 'get_hk_stock_data_unified'):
+        if hasattr(toolkit, "get_hk_stock_data_unified"):
             print("    ✅ 港股专用工具存在: get_hk_stock_data_unified")
         else:
             print("    ❌ 港股专用工具不存在")
@@ -92,7 +94,7 @@ def test_fundamentals_analyst_tool_selection():
         print(f"    货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
 
         # 检查A股专用工具是否存在
-        if hasattr(toolkit, 'get_china_stock_data'):
+        if hasattr(toolkit, "get_china_stock_data"):
             print("    ✅ A股专用工具存在: get_china_stock_data")
         else:
             print("    ❌ A股专用工具不存在")
@@ -127,8 +129,7 @@ def test_trader_currency_detection():
             print(f"    检测到的货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
             print(f"    期望的货币: {expected_currency} ({expected_symbol})")
 
-            if (market_info['currency_name'] == expected_currency and
-                market_info['currency_symbol'] == expected_symbol):
+            if market_info["currency_name"] == expected_currency and market_info["currency_symbol"] == expected_symbol:
                 print("    ✅ 货币检测正确")
             else:
                 print("    ❌ 货币检测错误")

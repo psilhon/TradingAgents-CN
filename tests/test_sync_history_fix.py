@@ -5,6 +5,7 @@
 1. 每次同步创建新的历史记录
 2. 时区显示正确
 """
+
 import os
 import sys
 
@@ -15,10 +16,8 @@ import logging
 from datetime import datetime
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 async def test_multiple_sync_records():
     """测试多次同步创建多条记录"""
@@ -84,21 +83,19 @@ async def test_multiple_sync_records():
 
         # 6. 检查时间戳
         print("\n6. 🕐 检查时间戳...")
-        records = await db.sync_status.find(
-            {"job": "stock_basics_multi_source"}
-        ).sort("started_at", -1).to_list(length=5)
+        records = await db.sync_status.find({"job": "stock_basics_multi_source"}).sort("started_at", -1).to_list(length=5)
 
         print("   最近的同步记录:")
         for i, record in enumerate(records):
-            started_at = record.get('started_at', '')
-            finished_at = record.get('finished_at', '')
-            status = record.get('status', '')
+            started_at = record.get("started_at", "")
+            finished_at = record.get("finished_at", "")
+            status = record.get("status", "")
 
             # 解析时间戳
             if started_at:
                 try:
-                    start_dt = datetime.fromisoformat(started_at.replace('Z', '+00:00'))
-                    start_local = start_dt.strftime('%Y-%m-%d %H:%M:%S')
+                    start_dt = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+                    start_local = start_dt.strftime("%Y-%m-%d %H:%M:%S")
                 except Exception:
                     start_local = started_at
             else:
@@ -106,14 +103,14 @@ async def test_multiple_sync_records():
 
             if finished_at:
                 try:
-                    finish_dt = datetime.fromisoformat(finished_at.replace('Z', '+00:00'))
-                    finish_local = finish_dt.strftime('%Y-%m-%d %H:%M:%S')
+                    finish_dt = datetime.fromisoformat(finished_at.replace("Z", "+00:00"))
+                    finish_local = finish_dt.strftime("%Y-%m-%d %H:%M:%S")
                 except Exception:
                     finish_local = finished_at
             else:
                 finish_local = "未完成"
 
-            print(f"   {i+1}. 状态: {status}")
+            print(f"   {i + 1}. 状态: {status}")
             print(f"      开始: {start_local}")
             print(f"      完成: {finish_local}")
             print(f"      总数: {record.get('total', 0)}")
@@ -123,12 +120,12 @@ async def test_multiple_sync_records():
         print("7. 🌍 验证时区...")
         if records:
             latest_record = records[0]
-            started_at = latest_record.get('started_at', '')
+            started_at = latest_record.get("started_at", "")
 
             if started_at:
                 try:
                     # 解析时间戳
-                    record_dt = datetime.fromisoformat(started_at.replace('Z', '+00:00'))
+                    record_dt = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
                     current_dt = datetime.now()
 
                     # 计算时间差（应该很小，因为刚刚同步的）
@@ -147,16 +144,18 @@ async def test_multiple_sync_records():
                     print(f"   ❌ 时间解析失败: {e}")
 
         return {
-            'total_records': total_records,
-            'records_created': total_records >= 3,
-            'timezone_correct': time_diff < 300 if 'time_diff' in locals() else False
+            "total_records": total_records,
+            "records_created": total_records >= 3,
+            "timezone_correct": time_diff < 300 if "time_diff" in locals() else False,
         }
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None
+
 
 async def test_api_response():
     """测试API响应"""
@@ -172,7 +171,7 @@ async def test_api_response():
         response = await get_sync_history(page=1, page_size=5)
 
         if response.success:
-            records = response.data['records']
+            records = response.data["records"]
             print(f"✅ API调用成功，获取到 {len(records)} 条记录")
 
             if records:
@@ -189,6 +188,7 @@ async def test_api_response():
     except Exception as e:
         print(f"❌ API测试失败: {e}")
 
+
 if __name__ == "__main__":
     print("🧪 开始同步历史修复测试")
     print("=" * 60)
@@ -201,7 +201,7 @@ if __name__ == "__main__":
         print(f"   记录创建正确: {'✅' if result['records_created'] else '❌'}")
         print(f"   时区显示正确: {'✅' if result['timezone_correct'] else '❌'}")
 
-        if result['records_created'] and result['timezone_correct']:
+        if result["records_created"] and result["timezone_correct"]:
             print("\n🎉 所有测试通过！修复成功！")
         else:
             print("\n⚠️ 部分测试失败，需要进一步检查")

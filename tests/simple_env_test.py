@@ -12,7 +12,7 @@ def test_env_reading():
     print("=" * 30)
 
     # 检查.env文件
-    if os.path.exists('.env'):
+    if os.path.exists(".env"):
         print("✅ .env文件存在")
     else:
         print("❌ .env文件不存在")
@@ -54,13 +54,14 @@ def test_env_reading():
     mongodb_available = False
     try:
         import pymongo
+
         client = pymongo.MongoClient(
             host=mongodb_host,
             port=int(mongodb_port),
             username=mongodb_username,
             password=mongodb_password,
             authSource="admin",
-            serverSelectionTimeoutMS=2000
+            serverSelectionTimeoutMS=2000,
         )
         client.server_info()
         client.close()
@@ -75,13 +76,8 @@ def test_env_reading():
     redis_available = False
     try:
         import redis
-        r = redis.Redis(
-            host=redis_host,
-            port=int(redis_port),
-            password=redis_password,
-            db=int(redis_db),
-            socket_timeout=2
-        )
+
+        r = redis.Redis(host=redis_host, port=int(redis_port), password=redis_password, db=int(redis_db), socket_timeout=2)
         r.ping()
         redis_available = True
         print("✅ Redis 连接成功")
@@ -102,6 +98,7 @@ def test_env_reading():
         print("💡 这是正常的，系统可以正常工作")
 
     return True
+
 
 if __name__ == "__main__":
     test_env_reading()

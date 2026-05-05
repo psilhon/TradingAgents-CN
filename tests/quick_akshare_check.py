@@ -3,10 +3,12 @@
 快速AKShare功能检查
 """
 
+
 def check_akshare_import():
     """检查AKShare导入"""
     try:
         import akshare as ak
+
         print(f"✅ AKShare导入成功，版本: {ak.__version__}")
         return True
     except ImportError as e:
@@ -14,10 +16,12 @@ def check_akshare_import():
         print("💡 请安装AKShare: pip install akshare")
         return False
 
+
 def check_akshare_utils():
     """检查akshare_utils.py"""
     try:
         from tradingagents.dataflows.akshare_utils import get_akshare_provider
+
         provider = get_akshare_provider()
         print(f"✅ AKShare工具模块正常，连接状态: {provider.connected}")
         return True, provider
@@ -25,14 +29,16 @@ def check_akshare_utils():
         print(f"❌ AKShare工具模块异常: {e}")
         return False, None
 
+
 def check_data_source_manager():
     """检查数据源管理器"""
     try:
         from tradingagents.dataflows.data_source_manager import DataSourceManager
+
         manager = DataSourceManager()
 
         available = [s.value for s in manager.available_sources]
-        if 'akshare' in available:
+        if "akshare" in available:
             print("✅ AKShare在可用数据源中")
         else:
             print("⚠️ AKShare不在可用数据源中")
@@ -41,6 +47,7 @@ def check_data_source_manager():
     except Exception as e:
         print(f"❌ 数据源管理器检查失败: {e}")
         return False
+
 
 def test_basic_akshare():
     """测试基本AKShare功能"""
@@ -61,6 +68,7 @@ def test_basic_akshare():
     except Exception as e:
         print(f"❌ AKShare基本功能测试失败: {e}")
         return False
+
 
 def main():
     """主检查函数"""
@@ -95,6 +103,7 @@ def main():
         print("⚠️ AKShare功能存在问题")
 
     return passed == total
+
 
 if __name__ == "__main__":
     main()

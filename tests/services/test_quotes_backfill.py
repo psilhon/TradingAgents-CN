@@ -62,4 +62,3 @@ def test_offhours_backfill_when_empty(monkeypatch):
         assert len(fake_db._coll.last_ops) == 2
 
     asyncio.run(_run())
-

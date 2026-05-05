@@ -113,8 +113,7 @@ def get_analysis_date() -> str:
 
     date = questionary.text(
         "请输入分析日期 (YYYY-MM-DD) | Enter the analysis date (YYYY-MM-DD):",
-        validate=lambda x: validate_date(x.strip())
-        or "请输入有效的日期格式 YYYY-MM-DD | Please enter a valid date in YYYY-MM-DD format.",
+        validate=lambda x: validate_date(x.strip()) or "请输入有效的日期格式 YYYY-MM-DD | Please enter a valid date in YYYY-MM-DD format.",
         style=questionary.Style(
             [
                 ("text", "fg:green"),
@@ -135,19 +134,12 @@ def select_analysts(ticker: str | None = None) -> list[AnalystType]:
     available_analysts = ANALYST_ORDER.copy()
 
     if ticker and StockUtils.is_china_stock(ticker):
-        available_analysts = [
-            (display, value)
-            for display, value in ANALYST_ORDER
-            if value != AnalystType.SOCIAL
-        ]
+        available_analysts = [(display, value) for display, value in ANALYST_ORDER if value != AnalystType.SOCIAL]
         console.print(f"[yellow]💡 检测到A股代码 {ticker}，社交媒体分析师不可用（国内数据源限制）[/yellow]")
 
     choices = questionary.checkbox(
         "选择您的分析师团队 | Select Your [Analysts Team]:",
-        choices=[
-            questionary.Choice(display, value=value)
-            for display, value in available_analysts
-        ],
+        choices=[questionary.Choice(display, value=value) for display, value in available_analysts],
         instruction="\n- 按空格键选择/取消选择分析师 | Press Space to select/unselect analysts\n- 按 'a' 键全选/取消全选 | Press 'a' to select/unselect all\n- 按回车键完成选择 | Press Enter when done",  # noqa: E501
         validate=lambda x: len(x) > 0 or "您必须至少选择一个分析师 | You must select at least one analyst.",
         style=questionary.Style(
@@ -177,10 +169,7 @@ def select_research_depth() -> int:
 
     choice = questionary.select(
         "选择您的研究深度 | Select Your [Research Depth]:",
-        choices=[
-            questionary.Choice(display, value=value)
-            for display, value in depth_options
-        ],
+        choices=[questionary.Choice(display, value=value) for display, value in depth_options],
         instruction="\n- 使用方向键导航 | Use arrow keys to navigate\n- 按回车键选择 | Press Enter to select",
         style=questionary.Style(
             [
@@ -213,10 +202,7 @@ def _select_model(provider: str, mode: str) -> str:
     options = get_model_options(provider, mode)
     choice = questionary.select(
         f"选择您的{'快速' if mode == 'quick' else '深度'}思考LLM引擎 | Select Your [{mode.title()}-Thinking LLM Engine]:",
-        choices=[
-            questionary.Choice(display, value=value)
-            for display, value in options
-        ],
+        choices=[questionary.Choice(display, value=value) for display, value in options],
         instruction="\n- 使用方向键导航 | Use arrow keys to navigate\n- 按回车键选择 | Press Enter to select",
         style=questionary.Style(
             [
@@ -249,10 +235,7 @@ def select_llm_provider() -> tuple[str, str]:
     """Select the LLM provider using interactive selection."""
     choice = questionary.select(
         "选择您的LLM提供商 | Select your LLM Provider:",
-        choices=[
-            questionary.Choice(item["label"], value=(item["key"], item["base_url"]))
-            for item in PROVIDER_OPTIONS
-        ],
+        choices=[questionary.Choice(item["label"], value=(item["key"], item["base_url"])) for item in PROVIDER_OPTIONS],
         default=(PROVIDER_OPTIONS[0]["key"], PROVIDER_OPTIONS[0]["base_url"]),
         instruction="\n- 使用方向键导航 | Use arrow keys to navigate\n- 按回车键选择 | Press Enter to select\n- 🇨🇳 推荐使用阿里百炼 (默认选择)",  # noqa: E501
         style=questionary.Style(

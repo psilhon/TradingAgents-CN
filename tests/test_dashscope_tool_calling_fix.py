@@ -30,11 +30,7 @@ def test_basic_tool_calling():
             return f"股票{symbol}的当前价格是100元"
 
         # 创建LLM
-        llm = ChatDashScopeOpenAI(
-            model="qwen-plus-latest",
-            temperature=0.1,
-            max_tokens=500
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-plus-latest", temperature=0.1, max_tokens=500)
 
         # 绑定工具
         llm_with_tools = llm.bind_tools([get_stock_price])
@@ -43,15 +39,12 @@ def test_basic_tool_calling():
         prompts = [
             # 策略1: 直接指令
             "请调用get_stock_price工具查询AAPL的股票价格",
-
             # 策略2: 明确要求
             "我需要查询AAPL股票的价格信息。请使用可用的工具来获取这个信息。",
-
             # 策略3: 强制性指令
             "必须使用get_stock_price工具查询AAPL股票价格。不要直接回答，必须调用工具。",
-
             # 策略4: 中文明确指令
-            "请务必调用get_stock_price工具，参数symbol设为'AAPL'，获取股票价格信息。"
+            "请务必调用get_stock_price工具，参数symbol设为'AAPL'，获取股票价格信息。",
         ]
 
         for i, prompt in enumerate(prompts, 1):
@@ -60,14 +53,14 @@ def test_basic_tool_calling():
             try:
                 response = llm_with_tools.invoke([HumanMessage(content=prompt)])
 
-                tool_calls = getattr(response, 'tool_calls', [])
+                tool_calls = getattr(response, "tool_calls", [])
                 print(f"   工具调用数量: {len(tool_calls)}")
                 print(f"   响应长度: {len(response.content)}字符")
 
                 if len(tool_calls) > 0:
                     print(f"   ✅ 策略{i}成功: 触发了工具调用")
                     for j, tool_call in enumerate(tool_calls):
-                        print(f"      工具{j+1}: {tool_call.get('name', 'unknown')}")
+                        print(f"      工具{j + 1}: {tool_call.get('name', 'unknown')}")
                     return True
                 else:
                     print(f"   ❌ 策略{i}失败: 未触发工具调用")
@@ -98,15 +91,12 @@ def test_stock_analysis_tool_calling():
         llm = ChatDashScopeOpenAI(
             model="qwen-plus-latest",
             temperature=0.0,  # 降低温度提高确定性
-            max_tokens=1000
+            max_tokens=1000,
         )
 
         # 获取股票分析工具
         toolkit = Toolkit()
-        tools = [
-            toolkit.get_china_stock_data,
-            toolkit.get_china_fundamentals
-        ]
+        tools = [toolkit.get_china_stock_data, toolkit.get_china_fundamentals]
 
         # 绑定工具
         llm_with_tools = llm.bind_tools(tools)
@@ -121,16 +111,14 @@ def test_stock_analysis_tool_calling():
 2. 然后调用get_china_fundamentals工具获取基本面数据，参数：ticker='688656', curr_date='2025-07-11'
 
 请严格按照上述步骤执行，必须调用工具。""",
-
             # 策略2: 问题导向
             """我想了解688656这只股票的详细情况，包括：
 - 最近的价格走势和交易数据
 - 基本面分析和财务状况
 
 请使用可用的工具来获取这些信息。""",
-
             # 策略3: 强制工具调用
-            """分析688656股票。注意：你必须使用工具来获取数据，不能凭空回答。请调用相关工具获取股票数据和基本面信息。"""
+            """分析688656股票。注意：你必须使用工具来获取数据，不能凭空回答。请调用相关工具获取股票数据和基本面信息。""",
         ]
 
         for i, prompt in enumerate(stock_prompts, 1):
@@ -139,16 +127,16 @@ def test_stock_analysis_tool_calling():
             try:
                 response = llm_with_tools.invoke([HumanMessage(content=prompt)])
 
-                tool_calls = getattr(response, 'tool_calls', [])
+                tool_calls = getattr(response, "tool_calls", [])
                 print(f"   工具调用数量: {len(tool_calls)}")
                 print(f"   响应长度: {len(response.content)}字符")
 
                 if len(tool_calls) > 0:
                     print(f"   ✅ 股票分析策略{i}成功")
                     for j, tool_call in enumerate(tool_calls):
-                        tool_name = tool_call.get('name', 'unknown')
-                        tool_args = tool_call.get('args', {})
-                        print(f"      工具{j+1}: {tool_name}({tool_args})")
+                        tool_name = tool_call.get("name", "unknown")
+                        tool_args = tool_call.get("args", {})
+                        print(f"      工具{j + 1}: {tool_name}({tool_args})")
                     return True
                 else:
                     print(f"   ❌ 股票分析策略{i}失败")
@@ -194,16 +182,12 @@ def test_parameter_optimization():
             print(f"\n🔄 测试{config['description']}配置...")
 
             try:
-                llm = ChatDashScopeOpenAI(
-                    model="qwen-plus-latest",
-                    temperature=config["temperature"],
-                    max_tokens=config["max_tokens"]
-                )
+                llm = ChatDashScopeOpenAI(model="qwen-plus-latest", temperature=config["temperature"], max_tokens=config["max_tokens"])
 
                 llm_with_tools = llm.bind_tools([analyze_stock])
                 response = llm_with_tools.invoke([HumanMessage(content=prompt)])
 
-                tool_calls = getattr(response, 'tool_calls', [])
+                tool_calls = getattr(response, "tool_calls", [])
                 print(f"   工具调用数量: {len(tool_calls)}")
 
                 if len(tool_calls) > 0:
@@ -240,12 +224,7 @@ def test_model_comparison():
             return f"查询结果: {query}"
 
         # 测试不同模型
-        models = [
-            "qwen-turbo",
-            "qwen-plus",
-            "qwen-plus-latest",
-            "qwen-max-latest"
-        ]
+        models = ["qwen-turbo", "qwen-plus", "qwen-plus-latest", "qwen-max-latest"]
 
         prompt = "请调用get_info工具查询'股票市场今日表现'"
 
@@ -253,16 +232,12 @@ def test_model_comparison():
             print(f"\n🔄 测试模型: {model}...")
 
             try:
-                llm = ChatDashScopeOpenAI(
-                    model=model,
-                    temperature=0.1,
-                    max_tokens=300
-                )
+                llm = ChatDashScopeOpenAI(model=model, temperature=0.1, max_tokens=300)
 
                 llm_with_tools = llm.bind_tools([get_info])
                 response = llm_with_tools.invoke([HumanMessage(content=prompt)])
 
-                tool_calls = getattr(response, 'tool_calls', [])
+                tool_calls = getattr(response, "tool_calls", [])
                 print(f"   工具调用数量: {len(tool_calls)}")
 
                 if len(tool_calls) > 0:
@@ -298,7 +273,7 @@ def main():
         ("基本工具调用", test_basic_tool_calling),
         ("股票分析工具调用", test_stock_analysis_tool_calling),
         ("参数优化", test_parameter_optimization),
-        ("模型比较", test_model_comparison)
+        ("模型比较", test_model_comparison),
     ]
 
     results = []

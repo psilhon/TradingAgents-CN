@@ -10,6 +10,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_simple_fundamentals():
     """测试简单的基本面分析流程"""
     print("\n🔍 简单基本面分析测试")
@@ -22,6 +23,7 @@ def test_simple_fundamentals():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -35,11 +37,8 @@ def test_simple_fundamentals():
 
         # 创建LLM实例
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=1000
-        )
+
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=1000)
         print(f"✅ LLM实例创建完成: {type(llm).__name__}")
 
         print("\n🔧 步骤2: 创建工具包...")
@@ -57,12 +56,9 @@ def test_simple_fundamentals():
         print("\n🔧 步骤3: 测试统一基本面工具...")
 
         # 直接测试统一基本面工具
-        result = toolkit.get_stock_fundamentals_unified.invoke({
-            'ticker': test_ticker,
-            'start_date': '2025-06-01',
-            'end_date': '2025-07-15',
-            'curr_date': '2025-07-15'
-        })
+        result = toolkit.get_stock_fundamentals_unified.invoke(
+            {"ticker": test_ticker, "start_date": "2025-06-01", "end_date": "2025-07-15", "curr_date": "2025-07-15"}
+        )
 
         print("✅ 统一基本面工具调用完成")
         print(f"📊 返回结果长度: {len(result) if result else 0}")
@@ -102,6 +98,7 @@ def test_simple_fundamentals():
 
         # 调用LLM
         from langchain_core.messages import HumanMessage
+
         response = llm.invoke([HumanMessage(content=prompt)])
 
         print("✅ LLM调用完成")
@@ -124,6 +121,7 @@ def test_simple_fundamentals():
 
                 # 找出错误代码的位置
                 import re
+
                 positions = [m.start() for m in re.finditer("002021", response.content)]
                 print(f"   002021 出现位置: {positions}")
 
@@ -147,8 +145,10 @@ def test_simple_fundamentals():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 开始简单基本面分析测试")

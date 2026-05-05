@@ -14,11 +14,12 @@ from pydantic import BaseModel, Field, validator
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 
 class MarketType(str, Enum):
     """市场类型枚举"""
+
     CN = "CN"  # 中国A股
     HK = "HK"  # 港股
     US = "US"  # 美股
@@ -26,27 +27,31 @@ class MarketType(str, Enum):
 
 class StockStatus(str, Enum):
     """股票状态枚举"""
-    LISTED = "L"      # 上市
-    DELISTED = "D"    # 退市
-    SUSPENDED = "P"   # 暂停上市
+
+    LISTED = "L"  # 上市
+    DELISTED = "D"  # 退市
+    SUSPENDED = "P"  # 暂停上市
 
 
 class ReportType(str, Enum):
     """报告类型枚举"""
-    ANNUAL = "annual"      # 年报
-    QUARTERLY = "quarterly" # 季报
+
+    ANNUAL = "annual"  # 年报
+    QUARTERLY = "quarterly"  # 季报
 
 
 class NewsCategory(str, Enum):
     """新闻类别枚举"""
+
     COMPANY_ANNOUNCEMENT = "company_announcement"  # 公司公告
-    INDUSTRY_NEWS = "industry_news"               # 行业新闻
-    MARKET_NEWS = "market_news"                   # 市场新闻
-    RESEARCH_REPORT = "research_report"           # 研究报告
+    INDUSTRY_NEWS = "industry_news"  # 行业新闻
+    MARKET_NEWS = "market_news"  # 市场新闻
+    RESEARCH_REPORT = "research_report"  # 研究报告
 
 
 class SentimentType(str, Enum):
     """情绪类型枚举"""
+
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NEUTRAL = "neutral"
@@ -54,6 +59,7 @@ class SentimentType(str, Enum):
 
 class BaseStockModel(BaseModel):
     """股票数据基础模型"""
+
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     data_source: str = Field(..., description="数据来源")
@@ -64,12 +70,13 @@ class BaseStockModel(BaseModel):
         json_encoders = {  # noqa: RUF012
             datetime: lambda v: v.isoformat(),
             date: lambda v: v.isoformat(),
-            Decimal: lambda v: float(v)
+            Decimal: lambda v: float(v),
         }
 
 
 class StockBasicInfo(BaseStockModel):
     """股票基础信息模型"""
+
     symbol: str = Field(..., description="标准化股票代码", regex=r"^\d{6}$")
     exchange_symbol: str = Field(..., description="交易所完整代码")
     name: str = Field(..., description="股票名称")
@@ -90,15 +97,16 @@ class StockBasicInfo(BaseStockModel):
     status: StockStatus = Field(default=StockStatus.LISTED, description="上市状态")
     is_hs: bool = Field(default=False, description="是否沪深港通标的")
 
-    @validator('symbol')
+    @validator("symbol")
     def validate_symbol(cls, v):
         if not v.isdigit() or len(v) != 6:
-            raise ValueError('股票代码必须是6位数字')
+            raise ValueError("股票代码必须是6位数字")
         return v
 
 
 class StockDailyQuote(BaseStockModel):
     """股票日线行情模型"""
+
     symbol: str = Field(..., description="股票代码")
     trade_date: date = Field(..., description="交易日期")
     open: float = Field(..., description="开盘价")
@@ -124,6 +132,7 @@ class StockDailyQuote(BaseStockModel):
 
 class StockRealtimeQuote(BaseStockModel):
     """股票实时行情模型"""
+
     symbol: str = Field(..., description="股票代码")
     name: str = Field(..., description="股票名称")
     current_price: float = Field(..., description="当前价格")
@@ -145,6 +154,7 @@ class StockRealtimeQuote(BaseStockModel):
 
 class BalanceSheetData(BaseModel):
     """资产负债表数据"""
+
     total_assets: float | None = Field(None, description="资产总计")
     total_liab: float | None = Field(None, description="负债合计")
     total_hldr_eqy_exc_min_int: float | None = Field(None, description="股东权益合计")
@@ -157,6 +167,7 @@ class BalanceSheetData(BaseModel):
 
 class IncomeStatementData(BaseModel):
     """利润表数据"""
+
     total_revenue: float | None = Field(None, description="营业总收入")
     revenue: float | None = Field(None, description="营业收入")
     oper_cost: float | None = Field(None, description="营业总成本")
@@ -171,6 +182,7 @@ class IncomeStatementData(BaseModel):
 
 class CashflowStatementData(BaseModel):
     """现金流量表数据"""
+
     n_cashflow_act: float | None = Field(None, description="经营活动现金流量净额")
     n_cashflow_inv_act: float | None = Field(None, description="投资活动现金流量净额")
     n_cashflow_fin_act: float | None = Field(None, description="筹资活动现金流量净额")
@@ -180,6 +192,7 @@ class CashflowStatementData(BaseModel):
 
 class FinancialIndicators(BaseModel):
     """财务指标数据"""
+
     roe: float | None = Field(None, description="净资产收益率")
     roa: float | None = Field(None, description="总资产收益率")
     gross_margin: float | None = Field(None, description="毛利率")
@@ -196,6 +209,7 @@ class FinancialIndicators(BaseModel):
 
 class StockFinancialData(BaseStockModel):
     """股票财务数据模型"""
+
     symbol: str = Field(..., description="股票代码")
     report_period: str = Field(..., description="报告期", regex=r"^\d{8}$")
     report_type: ReportType = Field(..., description="报告类型")
@@ -209,6 +223,7 @@ class StockFinancialData(BaseStockModel):
 
 class StockNews(BaseStockModel):
     """股票新闻模型"""
+
     symbol: str | None = Field(None, description="相关股票代码")
     symbols: list[str] = Field(default_factory=list, description="相关股票列表")
     title: str = Field(..., description="新闻标题")
@@ -228,6 +243,7 @@ class StockNews(BaseStockModel):
 
 class MovingAverages(BaseModel):
     """移动平均线数据"""
+
     ma5: float | None = Field(None, description="5日均线")
     ma10: float | None = Field(None, description="10日均线")
     ma20: float | None = Field(None, description="20日均线")
@@ -236,6 +252,7 @@ class MovingAverages(BaseModel):
 
 class TechnicalIndicatorsData(BaseModel):
     """技术指标数据"""
+
     rsi: float | None = Field(None, description="RSI相对强弱指标")
     macd: float | None = Field(None, description="MACD")
     macd_signal: float | None = Field(None, description="MACD信号线")
@@ -255,6 +272,7 @@ class TechnicalIndicatorsData(BaseModel):
 
 class StockTechnicalIndicators(BaseStockModel):
     """股票技术指标模型"""
+
     symbol: str = Field(..., description="股票代码")
     trade_date: date = Field(..., description="交易日期")
     period: str = Field(default="daily", description="周期")
@@ -264,6 +282,7 @@ class StockTechnicalIndicators(BaseStockModel):
 
 class DataSourceConfig(BaseStockModel):
     """数据源配置模型"""
+
     source_name: str = Field(..., description="数据源名称")
     source_type: str = Field(..., description="数据源类型")
     priority: int = Field(..., description="优先级")
@@ -276,6 +295,7 @@ class DataSourceConfig(BaseStockModel):
 
 class DataSyncLog(BaseStockModel):
     """数据同步日志模型"""
+
     task_id: str = Field(..., description="任务ID")
     data_type: str = Field(..., description="数据类型")
     data_source: str = Field(..., description="数据源")
@@ -293,24 +313,24 @@ class DataSyncLog(BaseStockModel):
 
 # 导出所有模型
 __all__ = [
-    'BalanceSheetData',
-    'BaseStockModel',
-    'CashflowStatementData',
-    'DataSourceConfig',
-    'DataSyncLog',
-    'FinancialIndicators',
-    'IncomeStatementData',
-    'MarketType',
-    'MovingAverages',
-    'NewsCategory',
-    'ReportType',
-    'SentimentType',
-    'StockBasicInfo',
-    'StockDailyQuote',
-    'StockFinancialData',
-    'StockNews',
-    'StockRealtimeQuote',
-    'StockStatus',
-    'StockTechnicalIndicators',
-    'TechnicalIndicatorsData'
+    "BalanceSheetData",
+    "BaseStockModel",
+    "CashflowStatementData",
+    "DataSourceConfig",
+    "DataSyncLog",
+    "FinancialIndicators",
+    "IncomeStatementData",
+    "MarketType",
+    "MovingAverages",
+    "NewsCategory",
+    "ReportType",
+    "SentimentType",
+    "StockBasicInfo",
+    "StockDailyQuote",
+    "StockFinancialData",
+    "StockNews",
+    "StockRealtimeQuote",
+    "StockStatus",
+    "StockTechnicalIndicators",
+    "TechnicalIndicatorsData",
 ]

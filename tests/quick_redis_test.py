@@ -14,22 +14,16 @@ def quick_redis_test(host=None, port=None, password=None):
     """快速Redis连接和性能测试"""
 
     # 从环境变量获取配置
-    host = host or os.getenv('REDIS_HOST', 'localhost')
-    port = port or int(os.getenv('REDIS_PORT', 6379))
-    password = password or os.getenv('REDIS_PASSWORD')
+    host = host or os.getenv("REDIS_HOST", "localhost")
+    port = port or int(os.getenv("REDIS_PORT", 6379))
+    password = password or os.getenv("REDIS_PASSWORD")
 
     print(f"🔍 测试Redis连接: {host}:{port}")
 
     try:
         # 创建Redis连接
         start_time = time.time()
-        r = redis.Redis(
-            host=host,
-            port=port,
-            password=password,
-            decode_responses=True,
-            socket_connect_timeout=5
-        )
+        r = redis.Redis(host=host, port=port, password=password, decode_responses=True, socket_connect_timeout=5)
 
         # 测试连接
         r.ping()
@@ -109,12 +103,13 @@ def quick_redis_test(host=None, port=None, password=None):
         print(f"❌ 测试过程中出错: {e}")
         return False
 
+
 def main():
     """主函数"""
     if len(sys.argv) > 1:
         host = sys.argv[1]
     else:
-        host = 'localhost'
+        host = "localhost"
 
     if len(sys.argv) > 2:
         port = int(sys.argv[2])
@@ -133,6 +128,7 @@ def main():
     else:
         print("\n❌ Redis连接测试失败!")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

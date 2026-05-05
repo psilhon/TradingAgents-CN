@@ -3,6 +3,7 @@
 测试同步用户反馈功能
 模拟同步过程中的状态变化，验证用户反馈机制
 """
+
 import os
 import sys
 
@@ -13,10 +14,8 @@ import logging
 from datetime import datetime
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 async def simulate_sync_with_feedback():
     """模拟同步过程，测试用户反馈"""
@@ -63,9 +62,9 @@ async def simulate_sync_with_feedback():
             monitor_count += 1
 
             current_status = await service.get_status()
-            status = current_status.get('status', 'unknown')
-            total = current_status.get('total', 0)
-            processed = current_status.get('inserted', 0) + current_status.get('updated', 0)
+            status = current_status.get("status", "unknown")
+            total = current_status.get("total", 0)
+            processed = current_status.get("inserted", 0) + current_status.get("updated", 0)
             progress = round((processed / total * 100) if total > 0 else 0, 1)
 
             # 检查状态变化
@@ -79,7 +78,7 @@ async def simulate_sync_with_feedback():
                 previous_progress = progress
 
             # 如果同步完成，退出监控
-            if status in ['success', 'success_with_errors', 'failed']:
+            if status in ["success", "success_with_errors", "failed"]:
                 print(f"   🎯 同步完成: {status}")
                 break
 
@@ -94,14 +93,14 @@ async def simulate_sync_with_feedback():
         print("\n4. 📋 检查最终状态...")
         final_status = await service.get_status()
 
-        status = final_status.get('status', 'unknown')
-        total = final_status.get('total', 0)
-        inserted = final_status.get('inserted', 0)
-        updated = final_status.get('updated', 0)
-        errors = final_status.get('errors', 0)
-        sources = final_status.get('data_sources_used', [])
-        started_at = final_status.get('started_at', '')
-        finished_at = final_status.get('finished_at', '')
+        status = final_status.get("status", "unknown")
+        total = final_status.get("total", 0)
+        inserted = final_status.get("inserted", 0)
+        updated = final_status.get("updated", 0)
+        errors = final_status.get("errors", 0)
+        sources = final_status.get("data_sources_used", [])
+        started_at = final_status.get("started_at", "")
+        finished_at = final_status.get("finished_at", "")
 
         print(f"   📊 最终状态: {status}")
         print(f"   📈 处理统计: 总数={total}, 新增={inserted}, 更新={updated}, 错误={errors}")
@@ -112,13 +111,13 @@ async def simulate_sync_with_feedback():
         # 5. 模拟前端用户反馈
         print("\n5. 🎭 模拟前端用户反馈...")
 
-        if status == 'success':
+        if status == "success":
             feedback_message = f"🎉 同步完成！处理了 {total} 条记录，新增 {inserted} 条，更新 {updated} 条"
             feedback_type = "成功通知"
-        elif status == 'success_with_errors':
+        elif status == "success_with_errors":
             feedback_message = f"⚠️ 同步完成但有错误！处理了 {total} 条记录，新增 {inserted} 条，更新 {updated} 条，错误 {errors} 条"
             feedback_type = "警告通知"
-        elif status == 'failed':
+        elif status == "failed":
             feedback_message = f"❌ 同步失败！{final_status.get('message', '未知错误')}"
             feedback_type = "错误通知"
         else:
@@ -133,8 +132,8 @@ async def simulate_sync_with_feedback():
         # 6. 计算同步耗时
         if started_at and finished_at:
             try:
-                start_time = datetime.fromisoformat(started_at.replace('Z', '+00:00'))
-                end_time = datetime.fromisoformat(finished_at.replace('Z', '+00:00'))
+                start_time = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+                end_time = datetime.fromisoformat(finished_at.replace("Z", "+00:00"))
                 duration = (end_time - start_time).total_seconds()
                 print(f"   ⏱️ 同步耗时: {duration:.1f} 秒")
             except Exception as e:
@@ -143,21 +142,23 @@ async def simulate_sync_with_feedback():
         print("\n🎉 用户反馈测试完成")
 
         return {
-            'status': status,
-            'total': total,
-            'inserted': inserted,
-            'updated': updated,
-            'errors': errors,
-            'sources': sources,
-            'feedback_message': feedback_message,
-            'feedback_type': feedback_type
+            "status": status,
+            "total": total,
+            "inserted": inserted,
+            "updated": updated,
+            "errors": errors,
+            "sources": sources,
+            "feedback_message": feedback_message,
+            "feedback_type": feedback_type,
         }
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None
+
 
 async def test_status_polling_simulation():
     """模拟前端状态轮询"""
@@ -176,15 +177,15 @@ async def test_status_polling_simulation():
         for i in range(10):
             status = await service.get_status()
 
-            current_status = status.get('status', 'unknown')
-            total = status.get('total', 0)
-            processed = status.get('inserted', 0) + status.get('updated', 0)
+            current_status = status.get("status", "unknown")
+            total = status.get("total", 0)
+            processed = status.get("inserted", 0) + status.get("updated", 0)
             progress = round((processed / total * 100) if total > 0 else 0, 1)
 
-            print(f"   轮询 #{i+1}: 状态={current_status}, 进度={progress}% ({processed}/{total})")
+            print(f"   轮询 #{i + 1}: 状态={current_status}, 进度={progress}% ({processed}/{total})")
 
             # 如果不是运行状态，停止轮询
-            if current_status != 'running':
+            if current_status != "running":
                 print("   🛑 检测到非运行状态，停止轮询")
                 break
 
@@ -194,6 +195,7 @@ async def test_status_polling_simulation():
 
     except Exception as e:
         print(f"❌ 轮询模拟失败: {e}")
+
 
 if __name__ == "__main__":
     result = asyncio.run(simulate_sync_with_feedback())

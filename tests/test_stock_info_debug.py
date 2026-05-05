@@ -45,7 +45,7 @@ def test_tushare_api_direct():
 
         import tushare as ts
 
-        token = os.getenv('TUSHARE_TOKEN')
+        token = os.getenv("TUSHARE_TOKEN")
         if not token:
             print("❌ TUSHARE_TOKEN未设置")
             return False
@@ -57,10 +57,7 @@ def test_tushare_api_direct():
         print("🔄 测试获取000858.SZ的基本信息...")
 
         try:
-            basic_info = pro.stock_basic(
-                ts_code='000858.SZ',
-                fields='ts_code,symbol,name,area,industry,market,list_date'
-            )
+            basic_info = pro.stock_basic(ts_code="000858.SZ", fields="ts_code,symbol,name,area,industry,market,list_date")
 
             if not basic_info.empty:
                 info = basic_info.iloc[0]
@@ -75,13 +72,9 @@ def test_tushare_api_direct():
 
                 # 尝试搜索所有包含858的股票
                 print("🔄 搜索所有包含858的股票...")
-                all_stocks = pro.stock_basic(
-                    exchange='',
-                    list_status='L',
-                    fields='ts_code,symbol,name,area,industry,market,list_date'
-                )
+                all_stocks = pro.stock_basic(exchange="", list_status="L", fields="ts_code,symbol,name,area,industry,market,list_date")
 
-                matches = all_stocks[all_stocks['symbol'].str.contains('858', na=False)]
+                matches = all_stocks[all_stocks["symbol"].str.contains("858", na=False)]
                 if not matches.empty:
                     print(f"✅ 找到{len(matches)}只包含858的股票:")
                     for _idx, row in matches.iterrows():
@@ -126,7 +119,7 @@ def test_stock_list_search():
 
         # 搜索000858
         print("🔄 搜索000858...")
-        matches = stock_list[stock_list['symbol'] == '000858']
+        matches = stock_list[stock_list["symbol"] == "000858"]
 
         if not matches.empty:
             print("✅ 找到000858:")
@@ -136,7 +129,7 @@ def test_stock_list_search():
             print("❌ 在股票列表中未找到000858")
 
             # 搜索包含858的股票
-            partial_matches = stock_list[stock_list['symbol'].str.contains('858', na=False)]
+            partial_matches = stock_list[stock_list["symbol"].str.contains("858", na=False)]
             if not partial_matches.empty:
                 print(f"✅ 找到{len(partial_matches)}只包含858的股票:")
                 for _idx, row in partial_matches.head(5).iterrows():
@@ -147,6 +140,7 @@ def test_stock_list_search():
     except Exception as e:
         print(f"❌ 股票列表搜索失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -167,7 +161,7 @@ def test_alternative_stock_codes():
             ("600036", "招商银行"),
             ("000002", "万科A"),
             ("600519", "贵州茅台"),
-            ("000858", "五粮液")  # 这个可能是问题代码
+            ("000858", "五粮液"),  # 这个可能是问题代码
         ]
 
         for code, expected_name in test_codes:
@@ -175,9 +169,9 @@ def test_alternative_stock_codes():
 
             info = adapter.get_stock_info(code)
 
-            if info and info.get('name') and info['name'] != f'股票{code}':
+            if info and info.get("name") and info["name"] != f"股票{code}":
                 print(f"✅ {code}: {info['name']}")
-                if expected_name in info['name']:
+                if expected_name in info["name"]:
                     print("   ✅ 名称匹配")
                 else:
                     print(f"   ⚠️ 名称不匹配，期望: {expected_name}")
@@ -207,7 +201,7 @@ def main():
         ("股票代码标准化", test_stock_code_normalization),
         ("Tushare API直接测试", test_tushare_api_direct),
         ("股票列表搜索", test_stock_list_search),
-        ("其他股票代码测试", test_alternative_stock_codes)
+        ("其他股票代码测试", test_alternative_stock_codes),
     ]
 
     results = []

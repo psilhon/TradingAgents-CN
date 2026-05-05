@@ -8,7 +8,8 @@ import logging
 import akshare as ak
 
 # 设置日志级别
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)-8s | %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 def test_akshare_apis():
     """测试AKShare各个财务数据API"""
@@ -71,6 +72,7 @@ def test_akshare_apis():
     print("\n" + "=" * 60)
     print("✅ API测试完成")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     test_akshare_apis()

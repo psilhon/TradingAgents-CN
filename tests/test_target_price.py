@@ -10,6 +10,7 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
+
 def test_signal_processor():
     """测试信号处理器的价格提取功能"""
     print("🧪 测试信号处理器价格提取功能...")
@@ -54,6 +55,7 @@ def test_signal_processor():
         print(f"❌ 信号处理器测试失败: {e}")
         return False
 
+
 def test_smart_price_estimation():
     """测试智能价格推算功能"""
     print("\n🧪 测试智能价格推算功能...")
@@ -67,7 +69,7 @@ def test_smart_price_estimation():
         test_cases = [
             ("当前价格100美元，预期上涨20%", "buy", 120.0),
             ("现价50元，建议卖出，预计下跌10%", "sell", 45.0),
-            ("股价200港元，持有，预期涨幅5%", "hold", 210.0)
+            ("股价200港元，持有，预期涨幅5%", "hold", 210.0),
         ]
 
         for text, action, expected in test_cases:
@@ -79,6 +81,7 @@ def test_smart_price_estimation():
     except Exception as e:
         print(f"❌ 智能推算测试失败: {e}")
         return False
+
 
 def test_trader_prompt():
     """测试交易员提示词是否包含目标价要求"""
@@ -112,6 +115,7 @@ def test_trader_prompt():
     except Exception as e:
         print(f"❌ 交易员提示词检查失败: {e}")
         return False
+
 
 def main():
     """主测试函数"""
@@ -148,6 +152,7 @@ def main():
     print("   1. 运行完整的股票分析流程测试")
     print("   2. 验证实际LLM响应中的目标价生成")
     print("   3. 测试不同类型股票的分析效果")
+
 
 if __name__ == "__main__":
     main()

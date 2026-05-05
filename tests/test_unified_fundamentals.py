@@ -33,12 +33,9 @@ def test_unified_tool_directly():
             print(f"\n📊 测试 {ticker} ({expected_type}):")
 
             try:
-                result = toolkit.get_stock_fundamentals_unified.invoke({
-                    'ticker': ticker,
-                    'start_date': '2025-06-14',
-                    'end_date': '2025-07-14',
-                    'curr_date': '2025-07-14'
-                })
+                result = toolkit.get_stock_fundamentals_unified.invoke(
+                    {"ticker": ticker, "start_date": "2025-06-14", "end_date": "2025-07-14", "curr_date": "2025-07-14"}
+                )
 
                 print("  ✅ 工具调用成功")
                 print(f"  结果长度: {len(result)}")
@@ -51,7 +48,7 @@ def test_unified_tool_directly():
                     print("  ⚠️ 结果未包含预期的股票类型")
 
                 # 检查是否包含货币信息
-                if any(currency in result for currency in ['¥', 'HK$', '$']):
+                if any(currency in result for currency in ["¥", "HK$", "$"]):
                     print("  ✅ 结果包含货币信息")
                 else:
                     print("  ⚠️ 结果未包含货币信息")
@@ -66,6 +63,7 @@ def test_unified_tool_directly():
     except Exception as e:
         print(f"❌ 统一工具直接测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -94,21 +92,13 @@ def test_fundamentals_analyst_with_unified_tool():
         toolkit = Toolkit(config)
 
         # 创建LLM
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=1000
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=1000)
 
         # 创建基本面分析师
         analyst = create_fundamentals_analyst(llm, toolkit)
 
         # 测试港股
-        state = {
-            "trade_date": "2025-07-14",
-            "company_of_interest": "0700.HK",
-            "messages": []
-        }
+        state = {"trade_date": "2025-07-14", "company_of_interest": "0700.HK", "messages": []}
 
         print(f"  测试港股基本面分析: {state['company_of_interest']}")
 
@@ -118,8 +108,8 @@ def test_fundamentals_analyst_with_unified_tool():
         print("  ✅ 基本面分析师调用完成")
         print(f"  结果类型: {type(result)}")
 
-        if isinstance(result, dict) and 'fundamentals_report' in result:
-            report = result['fundamentals_report']
+        if isinstance(result, dict) and "fundamentals_report" in result:
+            report = result["fundamentals_report"]
             print(f"  报告长度: {len(report)}")
             print(f"  报告前200字符: {report[:200]}...")
 
@@ -130,7 +120,7 @@ def test_fundamentals_analyst_with_unified_tool():
                 print(f"  ⚠️ 报告长度偏短（{len(report)}字符）")
 
             # 检查是否包含港币相关内容
-            if 'HK$' in report or '港币' in report or '港元' in report:
+            if "HK$" in report or "港币" in report or "港元" in report:
                 print("  ✅ 报告包含港币计价")
             else:
                 print("  ⚠️ 报告未包含港币计价")
@@ -144,6 +134,7 @@ def test_fundamentals_analyst_with_unified_tool():
     except Exception as e:
         print(f"❌ 基本面分析师统一工具测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -171,9 +162,11 @@ def test_stock_type_detection():
             print(f"    货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
 
             # 验证结果
-            if (expected_market in market_info['market_name'] and
-                market_info['currency_name'] == expected_currency and
-                market_info['currency_symbol'] == expected_symbol):
+            if (
+                expected_market in market_info["market_name"]
+                and market_info["currency_name"] == expected_currency
+                and market_info["currency_symbol"] == expected_symbol
+            ):
                 print("    ✅ 识别正确")
             else:
                 print("    ❌ 识别错误")

@@ -20,7 +20,8 @@ def test_basic_system():
 
         try:
             import json
-            with open(config_file, encoding='utf-8') as f:
+
+            with open(config_file, encoding="utf-8") as f:
                 config = json.load(f)
             print("✅ 配置文件格式正确")
             print(f"  主要缓存后端: {config['cache']['primary_backend']}")
@@ -37,11 +38,12 @@ def test_basic_system():
     # 检查pymongo
     try:
         import pymongo
+
         print("✅ pymongo 已安装")
 
         # 尝试连接MongoDB
         try:
-            client = pymongo.MongoClient('localhost', 27017, serverSelectionTimeoutMS=2000)
+            client = pymongo.MongoClient("localhost", 27017, serverSelectionTimeoutMS=2000)
             client.server_info()
             client.close()
             print("✅ MongoDB 连接成功")
@@ -56,11 +58,12 @@ def test_basic_system():
     # 检查redis
     try:
         import redis
+
         print("✅ redis 已安装")
 
         # 尝试连接Redis
         try:
-            r = redis.Redis(host='localhost', port=6379, socket_timeout=2)
+            r = redis.Redis(host="localhost", port=6379, socket_timeout=2)
             r.ping()
             print("✅ Redis 连接成功")
             redis_available = True
@@ -87,11 +90,7 @@ def test_basic_system():
         # 测试基本功能
         test_data = "测试数据 - 系统简单测试"
         cache_key = cache.save_stock_data(
-            symbol="TEST_SIMPLE",
-            data=test_data,
-            start_date="2024-01-01",
-            end_date="2024-12-31",
-            data_source="simple_test"
+            symbol="TEST_SIMPLE", data=test_data, start_date="2024-01-01", end_date="2024-12-31", data_source="simple_test"
         )
         print(f"✅ 数据保存成功: {cache_key}")
 
@@ -106,6 +105,7 @@ def test_basic_system():
     except Exception as e:
         print(f"❌ 缓存系统测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -129,6 +129,7 @@ def test_basic_system():
     except Exception as e:
         print(f"❌ 数据库管理器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -151,6 +152,7 @@ def test_basic_system():
 
     return True
 
+
 def main():
     """主函数"""
     try:
@@ -168,8 +170,10 @@ def main():
     except Exception as e:
         print(f"❌ 系统测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = main()

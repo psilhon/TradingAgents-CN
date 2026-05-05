@@ -10,8 +10,9 @@ import time
 from datetime import datetime, timedelta
 
 # 添加项目根目录到路径
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
+
 
 def test_cache_manager():
     """测试缓存管理器基本功能"""
@@ -25,7 +26,7 @@ def test_cache_manager():
         print(f"📁 缓存目录: {cache.cache_dir}")
 
         # 测试缓存配置
-        if hasattr(cache, 'cache_config'):
+        if hasattr(cache, "cache_config"):
             print("⚙️ 缓存配置:")
             for config_name, config_data in cache.cache_config.items():
                 print(f"  - {config_name}: TTL={config_data.get('ttl_hours')}h, 描述={config_data.get('description')}")
@@ -50,8 +51,8 @@ def test_us_stock_cache():
 
         provider = get_optimized_us_data_provider()
         symbol = "AAPL"
-        start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+        end_date = datetime.now().strftime("%Y-%m-%d")
 
         print(f"📈 测试股票: {symbol} ({start_date} 到 {end_date})")
 
@@ -96,8 +97,8 @@ def test_china_stock_cache():
 
         provider = get_optimized_china_data_provider()
         symbol = "000001"
-        start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+        end_date = datetime.now().strftime("%Y-%m-%d")
 
         print(f"📈 测试股票: {symbol} ({start_date} 到 {end_date})")
 
@@ -160,9 +161,9 @@ def test_cache_ttl():
         # 测试美股缓存TTL
         us_cache_key = cache.find_cached_stock_data(
             symbol="AAPL",
-            start_date=(datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d'),
-            end_date=datetime.now().strftime('%Y-%m-%d'),
-            data_source="yfinance"
+            start_date=(datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d"),
+            end_date=datetime.now().strftime("%Y-%m-%d"),
+            data_source="yfinance",
         )
 
         if us_cache_key:
@@ -172,9 +173,9 @@ def test_cache_ttl():
         # 测试A股缓存TTL
         china_cache_key = cache.find_cached_stock_data(
             symbol="000001",
-            start_date=(datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d'),
-            end_date=datetime.now().strftime('%Y-%m-%d'),
-            data_source="tdx"
+            start_date=(datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d"),
+            end_date=datetime.now().strftime("%Y-%m-%d"),
+            data_source="tdx",
         )
 
         if china_cache_key:
@@ -210,8 +211,8 @@ def test_cache_cleanup():
         print(f"📊 清理后统计: {stats_after}")
 
         # 计算清理效果
-        files_removed = stats_before['total_files'] - stats_after['total_files']
-        size_freed = stats_before['total_size_mb'] - stats_after['total_size_mb']
+        files_removed = stats_before["total_files"] - stats_after["total_files"]
+        size_freed = stats_before["total_size_mb"] - stats_after["total_size_mb"]
 
         print(f"🗑️ 清理结果: 删除 {files_removed} 个文件，释放 {size_freed:.2f} MB 空间")
 

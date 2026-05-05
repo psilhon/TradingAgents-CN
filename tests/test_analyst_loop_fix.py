@@ -27,10 +27,7 @@ def test_fundamentals_no_report_with_tool_calls():
     from tradingagents.graph.conditional_logic import ConditionalLogic
 
     logic = ConditionalLogic()
-    state = {
-        "messages": [create_mock_message(has_tool_calls=True)],
-        "fundamentals_report": ""
-    }
+    state = {"messages": [create_mock_message(has_tool_calls=True)], "fundamentals_report": ""}
 
     result = logic.should_continue_fundamentals(state)
     assert result == "tools_fundamentals", "没有报告时应该执行工具"
@@ -44,7 +41,7 @@ def test_fundamentals_has_report_with_tool_calls():
     logic = ConditionalLogic()
     state = {
         "messages": [create_mock_message(has_tool_calls=True)],
-        "fundamentals_report": "这是一个完整的基本面分析报告" * 10  # 长度 > 100
+        "fundamentals_report": "这是一个完整的基本面分析报告" * 10,  # 长度 > 100
     }
 
     result = logic.should_continue_fundamentals(state)
@@ -70,10 +67,7 @@ def test_all_analysts():
 
     for analyst_name, report_field, check_func, expected_clear, expected_tools in analysts:
         # 有报告时应该停止
-        state = {
-            "messages": [message],
-            report_field: long_report
-        }
+        state = {"messages": [message], report_field: long_report}
         result = check_func(state)
         assert result == expected_clear, f"{analyst_name} 分析师有报告时应该停止循环"
 
@@ -106,6 +100,7 @@ def test_conditional_logic_fix():
     except Exception as e:
         print(f"\n❌ 测试错误: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -114,4 +109,3 @@ if __name__ == "__main__":
     # 运行测试
     success = test_conditional_logic_fix()
     exit(0 if success else 1)
-

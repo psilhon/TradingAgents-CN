@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_fundamentals_analyst_prompt():
     """测试基本面分析师的提示词优化效果"""
     print("\n📊 测试基本面分析师提示词优化效果")
@@ -19,6 +20,7 @@ def test_fundamentals_analyst_prompt():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -35,11 +37,7 @@ def test_fundamentals_analyst_prompt():
         from tradingagents.default_config import DEFAULT_CONFIG
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=2000)
 
         config = DEFAULT_CONFIG.copy()
         config["online_tools"] = True
@@ -48,6 +46,7 @@ def test_fundamentals_analyst_prompt():
 
         # 创建基本面分析师
         from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
+
         fundamentals_analyst = create_fundamentals_analyst(llm, toolkit)
 
         print("✅ 基本面分析师创建完成")
@@ -64,11 +63,7 @@ def test_fundamentals_analyst_prompt():
             print("-" * 60)
 
             # 创建分析状态
-            state = {
-                "company_of_interest": ticker,
-                "trade_date": "2025-07-16",
-                "messages": []
-            }
+            state = {"company_of_interest": ticker, "trade_date": "2025-07-16", "messages": []}
 
             print("🔍 [提示词验证] 检查提示词构建...")
 
@@ -96,8 +91,8 @@ def test_fundamentals_analyst_prompt():
                 # 执行基本面分析（限制输出长度以节省时间）
                 result = fundamentals_analyst(state)
 
-                if isinstance(result, dict) and 'fundamentals_report' in result:
-                    report = result['fundamentals_report']
+                if isinstance(result, dict) and "fundamentals_report" in result:
+                    report = result["fundamentals_report"]
                     print(f"✅ 基本面分析完成，报告长度: {len(report)}")
 
                     # 检查报告中的关键元素
@@ -112,7 +107,7 @@ def test_fundamentals_analyst_prompt():
                         print(f"   ❌ 报告不包含股票代码: {ticker}")
 
                     # 检查公司名称
-                    if company_name in report and not company_name.startswith('股票'):
+                    if company_name in report and not company_name.startswith("股票"):
                         print(f"   ✅ 报告包含正确的公司名称: {company_name}")
                         name_count = report.count(company_name)
                         print(f"      出现次数: {name_count}")
@@ -120,7 +115,7 @@ def test_fundamentals_analyst_prompt():
                         print("   ⚠️ 报告可能不包含具体公司名称")
 
                     # 检查货币信息
-                    currency_symbol = market_info['currency_symbol']
+                    currency_symbol = market_info["currency_symbol"]
                     if currency_symbol in report:
                         print(f"   ✅ 报告包含正确的货币符号: {currency_symbol}")
                     else:
@@ -148,6 +143,7 @@ def test_fundamentals_analyst_prompt():
             except Exception as e:
                 print(f"❌ 基本面分析执行失败: {e}")
                 import traceback
+
                 traceback.print_exc()
 
         return True
@@ -155,8 +151,10 @@ def test_fundamentals_analyst_prompt():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_market_analyst_prompt():
     """测试市场分析师的提示词优化效果"""
@@ -177,11 +175,7 @@ def test_market_analyst_prompt():
         from tradingagents.default_config import DEFAULT_CONFIG
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=1500
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=1500)
 
         config = DEFAULT_CONFIG.copy()
         config["online_tools"] = True
@@ -190,6 +184,7 @@ def test_market_analyst_prompt():
 
         # 创建市场分析师
         from tradingagents.agents.analysts.market_analyst import create_market_analyst
+
         market_analyst = create_market_analyst(llm, toolkit)
 
         print("✅ 市场分析师创建完成")
@@ -201,11 +196,7 @@ def test_market_analyst_prompt():
         print("-" * 60)
 
         # 创建分析状态
-        state = {
-            "company_of_interest": test_ticker,
-            "trade_date": "2025-07-16",
-            "messages": []
-        }
+        state = {"company_of_interest": test_ticker, "trade_date": "2025-07-16", "messages": []}
 
         print("🔍 [提示词验证] 检查提示词构建...")
 
@@ -227,8 +218,8 @@ def test_market_analyst_prompt():
             # 执行市场分析
             result = market_analyst(state)
 
-            if isinstance(result, dict) and 'market_report' in result:
-                report = result['market_report']
+            if isinstance(result, dict) and "market_report" in result:
+                report = result["market_report"]
                 print(f"✅ 市场分析完成，报告长度: {len(report)}")
 
                 # 检查报告中的关键元素
@@ -260,6 +251,7 @@ def test_market_analyst_prompt():
         except Exception as e:
             print(f"❌ 市场分析执行失败: {e}")
             import traceback
+
             traceback.print_exc()
 
         return True
@@ -267,8 +259,10 @@ def test_market_analyst_prompt():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_prompt_elements():
     """测试提示词关键元素"""
@@ -311,7 +305,7 @@ def test_prompt_elements():
                 f"公司名称：{fundamentals_name}",
                 f"股票代码：{ticker}",
                 f"所属市场：{market_info['market_name']}",
-                f"计价货币：{market_info['currency_name']}"
+                f"计价货币：{market_info['currency_name']}",
             ]
 
             print("   提示词应包含的关键元素:")
@@ -323,8 +317,10 @@ def test_prompt_elements():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -350,15 +346,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "提示词关键元素验证",
-        "基本面分析师提示词优化",
-        "市场分析师提示词优化"
-    ]
+    test_names = ["提示词关键元素验证", "基本面分析师提示词优化", "市场分析师提示词优化"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -380,6 +372,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

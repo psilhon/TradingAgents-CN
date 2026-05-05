@@ -2,6 +2,7 @@
 """
 测试Web API中的AKShare功能
 """
+
 import os
 import sys
 
@@ -12,10 +13,8 @@ import time
 from datetime import datetime, timedelta
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 def test_akshare_web_api():
     """测试AKShare在Web API中的表现"""
@@ -46,29 +45,19 @@ def test_akshare_web_api():
             duration = time.time() - start
 
             if stock_df is not None and not stock_df.empty:
-                results['stock_list'] = {
-                    'status': 'success',
-                    'count': len(stock_df),
-                    'duration': duration,
-                    'message': f'Successfully fetched {len(stock_df)} stocks'
+                results["stock_list"] = {
+                    "status": "success",
+                    "count": len(stock_df),
+                    "duration": duration,
+                    "message": f"Successfully fetched {len(stock_df)} stocks",
                 }
                 print(f"   ✅ 成功: {len(stock_df)}条记录，耗时: {duration:.1f}秒")
             else:
-                results['stock_list'] = {
-                    'status': 'failed',
-                    'count': 0,
-                    'duration': duration,
-                    'message': 'No stock data returned'
-                }
+                results["stock_list"] = {"status": "failed", "count": 0, "duration": duration, "message": "No stock data returned"}
                 print(f"   ❌ 失败: 无数据返回，耗时: {duration:.1f}秒")
         except Exception as e:
             duration = time.time() - start
-            results['stock_list'] = {
-                'status': 'error',
-                'count': 0,
-                'duration': duration,
-                'message': f'Error: {e!s}'
-            }
+            results["stock_list"] = {"status": "error", "count": 0, "duration": duration, "message": f"Error: {e!s}"}
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
 
         # 2. 交易日期测试
@@ -79,29 +68,19 @@ def test_akshare_web_api():
             duration = time.time() - start
 
             if latest_date:
-                results['trade_date'] = {
-                    'status': 'success',
-                    'date': latest_date,
-                    'duration': duration,
-                    'message': f'Found latest trade date: {latest_date}'
+                results["trade_date"] = {
+                    "status": "success",
+                    "date": latest_date,
+                    "duration": duration,
+                    "message": f"Found latest trade date: {latest_date}",
                 }
                 print(f"   ✅ 成功: {latest_date}，耗时: {duration:.1f}秒")
             else:
-                results['trade_date'] = {
-                    'status': 'failed',
-                    'date': None,
-                    'duration': duration,
-                    'message': 'No trade date found'
-                }
+                results["trade_date"] = {"status": "failed", "date": None, "duration": duration, "message": "No trade date found"}
                 print(f"   ❌ 失败: 无交易日期，耗时: {duration:.1f}秒")
         except Exception as e:
             duration = time.time() - start
-            results['trade_date'] = {
-                'status': 'error',
-                'date': None,
-                'duration': duration,
-                'message': f'Error: {e!s}'
-            }
+            results["trade_date"] = {"status": "error", "date": None, "duration": duration, "message": f"Error: {e!s}"}
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
 
         # 3. 财务数据测试
@@ -113,29 +92,24 @@ def test_akshare_web_api():
             duration = time.time() - start
 
             if basic_df is not None and not basic_df.empty:
-                results['daily_basic'] = {
-                    'status': 'success',
-                    'count': len(basic_df),
-                    'duration': duration,
-                    'message': f'Successfully fetched basic data for {trade_date}, {len(basic_df)} records'
+                results["daily_basic"] = {
+                    "status": "success",
+                    "count": len(basic_df),
+                    "duration": duration,
+                    "message": f"Successfully fetched basic data for {trade_date}, {len(basic_df)} records",
                 }
                 print(f"   ✅ 成功: {len(basic_df)}条记录，耗时: {duration:.1f}秒")
             else:
-                results['daily_basic'] = {
-                    'status': 'failed',
-                    'count': 0,
-                    'duration': duration,
-                    'message': 'No daily basic data available or not supported'
+                results["daily_basic"] = {
+                    "status": "failed",
+                    "count": 0,
+                    "duration": duration,
+                    "message": "No daily basic data available or not supported",
                 }
                 print(f"   ❌ 失败: 无财务数据，耗时: {duration:.1f}秒")
         except Exception as e:
             duration = time.time() - start
-            results['daily_basic'] = {
-                'status': 'error',
-                'count': 0,
-                'duration': duration,
-                'message': f'Error: {e!s}'
-            }
+            results["daily_basic"] = {"status": "error", "count": 0, "duration": duration, "message": f"Error: {e!s}"}
             print(f"   ❌ 错误: {e}，耗时: {duration:.1f}秒")
 
         total_duration = time.time() - total_start
@@ -145,25 +119,25 @@ def test_akshare_web_api():
         print(f"   总耗时: {total_duration:.1f}秒")
 
         web_result = {
-            'name': 'akshare',
-            'priority': 2,
-            'description': '开源金融数据库，提供基础的股票信息',
-            'available': True,
-            'tests': {
-                'stock_list': results.get('stock_list', {}),
-                'trade_date': results.get('trade_date', {}),
-                'daily_basic': results.get('daily_basic', {})
+            "name": "akshare",
+            "priority": 2,
+            "description": "开源金融数据库，提供基础的股票信息",
+            "available": True,
+            "tests": {
+                "stock_list": results.get("stock_list", {}),
+                "trade_date": results.get("trade_date", {}),
+                "daily_basic": results.get("daily_basic", {}),
             },
-            'total_duration': total_duration
+            "total_duration": total_duration,
         }
 
         print("\n🔍 详细结果:")
-        for test_name, test_result in web_result['tests'].items():
-            status = test_result.get('status', 'unknown')
-            duration = test_result.get('duration', 0)
-            message = test_result.get('message', 'No message')
+        for test_name, test_result in web_result["tests"].items():
+            status = test_result.get("status", "unknown")
+            duration = test_result.get("duration", 0)
+            message = test_result.get("message", "No message")
 
-            status_icon = "✅" if status == 'success' else "❌"
+            status_icon = "✅" if status == "success" else "❌"
             print(f"   {status_icon} {test_name}: {message} ({duration:.1f}s)")
 
         # Web超时评估
@@ -180,8 +154,10 @@ def test_akshare_web_api():
     except Exception as e:
         print(f"❌ Web API测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None
+
 
 if __name__ == "__main__":
     result = test_akshare_web_api()

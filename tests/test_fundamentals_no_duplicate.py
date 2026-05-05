@@ -1,12 +1,14 @@
 """
 测试基本面分析师是否还会重复调用工具
 """
+
 import os
 import sys
 from datetime import datetime
 
 # 添加项目根目录到路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 
 def test_fundamentals_analyst():
     """测试基本面分析师"""
@@ -37,18 +39,20 @@ def test_fundamentals_analyst():
     print("-" * 80)
 
     try:
-        result = graph.invoke({
-            "company_of_interest": test_ticker,
-            "trade_date": test_date,
-            "messages": [],
-            "fundamentals_report": "",
-            "technical_report": "",
-            "news_report": "",
-            "bull_report": "",
-            "bear_report": "",
-            "manager_report": "",
-            "final_report": ""
-        })
+        result = graph.invoke(
+            {
+                "company_of_interest": test_ticker,
+                "trade_date": test_date,
+                "messages": [],
+                "fundamentals_report": "",
+                "technical_report": "",
+                "news_report": "",
+                "bull_report": "",
+                "bear_report": "",
+                "manager_report": "",
+                "final_report": "",
+            }
+        )
 
         print("-" * 80)
         print("\n✅ 基本面分析完成！")
@@ -75,8 +79,9 @@ def test_fundamentals_analyst():
     except Exception as e:
         print(f"\n❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_fundamentals_analyst()
-

@@ -39,15 +39,11 @@ async def test_timezone_fix():
             username="admin",
             action_type=ActionType.SYSTEM_SETTINGS,
             action="时区测试",
-            details={
-                "test_type": "timezone_fix",
-                "local_time": now_local.isoformat(),
-                "utc_time": now_utc.isoformat()
-            },
+            details={"test_type": "timezone_fix", "local_time": now_local.isoformat(), "utc_time": now_utc.isoformat()},
             success=True,
             duration_ms=100,
             ip_address="127.0.0.1",
-            user_agent="Timezone Test"
+            user_agent="Timezone Test",
         )
         print(f"✅ 创建日志成功，ID: {log_id}")
 
@@ -64,7 +60,7 @@ async def test_timezone_fix():
             print(f"  action: {doc['action']}")
 
             # 比较时间
-            stored_time = doc['timestamp']
+            stored_time = doc["timestamp"]
             print("\n⏰ 时间比较:")
             print(f"  存储时间: {stored_time}")
             print(f"  本地时间: {now_local}")
@@ -97,7 +93,7 @@ async def test_timezone_fix():
             # 如果是字符串，尝试解析
             if isinstance(log.timestamp, str):
                 try:
-                    parsed_time = datetime.datetime.fromisoformat(log.timestamp.replace('Z', ''))
+                    parsed_time = datetime.datetime.fromisoformat(log.timestamp.replace("Z", ""))
                     print(f"📋 解析后的时间: {parsed_time}")
                 except Exception:
                     print("❌ 时间字符串解析失败")
@@ -107,7 +103,9 @@ async def test_timezone_fix():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(test_timezone_fix())

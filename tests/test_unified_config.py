@@ -15,6 +15,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_config_unification():
     """测试配置统一是否正常工作"""
     print("🔬 测试配置统一")
@@ -48,12 +49,7 @@ def test_config_unification():
 
         # 测试成本计算
         print("\n💰 测试成本计算:")
-        deepseek_cost = config_manager.calculate_cost(
-            provider="deepseek",
-            model_name="deepseek-chat",
-            input_tokens=1000,
-            output_tokens=500
-        )
+        deepseek_cost = config_manager.calculate_cost(provider="deepseek", model_name="deepseek-chat", input_tokens=1000, output_tokens=500)
         print(f"   DeepSeek成本: ¥{deepseek_cost:.6f}")
 
         if deepseek_cost > 0:
@@ -66,8 +62,10 @@ def test_config_unification():
     except Exception as e:
         print(f"❌ 配置统一测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_web_config_access():
     """测试Web界面配置访问"""
@@ -105,8 +103,10 @@ def test_web_config_access():
     except Exception as e:
         print(f"❌ Web配置访问测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_config_consistency():
     """测试配置一致性"""
@@ -150,8 +150,10 @@ def test_config_consistency():
     except Exception as e:
         print(f"❌ 配置一致性测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -190,6 +192,7 @@ def main():
 
     print("\n🎯 测试完成！")
     return overall_success
+
 
 if __name__ == "__main__":
     success = main()

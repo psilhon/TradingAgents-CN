@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_hk_data_source_priority():
     """测试港股数据源优先级"""
     print("\n🇭🇰 测试港股数据源优先级")
@@ -19,6 +20,7 @@ def test_hk_data_source_priority():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -48,8 +50,8 @@ def test_hk_data_source_priority():
                 print(f"   交易所: {result.get('exchange', 'N/A')}")
 
                 # 检查是否成功获取了具体的公司名称
-                name = result.get('name', '')
-                if not name.startswith('港股'):
+                name = result.get("name", "")
+                if not name.startswith("港股"):
                     print("   ✅ 成功获取具体公司名称")
                 else:
                     print("   ⚠️ 使用默认格式")
@@ -62,8 +64,10 @@ def test_hk_data_source_priority():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_hk_data_priority():
     """测试港股数据获取优先级"""
@@ -105,8 +109,10 @@ def test_hk_data_priority():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_improved_hk_provider_priority():
     """测试改进港股提供器的优先级"""
@@ -119,7 +125,7 @@ def test_improved_hk_provider_priority():
         provider = get_improved_hk_provider()
 
         # 清理缓存以测试真实的API调用优先级
-        if hasattr(provider, 'cache'):
+        if hasattr(provider, "cache"):
             provider.cache.clear()
 
         test_symbols = [
@@ -137,13 +143,13 @@ def test_improved_hk_provider_priority():
 
                 # 检查缓存信息
                 cache_key = f"name_{symbol}"
-                if hasattr(provider, 'cache') and cache_key in provider.cache:
+                if hasattr(provider, "cache") and cache_key in provider.cache:
                     cache_info = provider.cache[cache_key]
                     print(f"   缓存来源: {cache_info.get('source', 'unknown')}")
                     print(f"   缓存时间: {cache_info.get('timestamp', 'unknown')}")
 
                 # 检查是否成功获取了具体的公司名称
-                if not company_name.startswith('港股'):
+                if not company_name.startswith("港股"):
                     print("   ✅ 成功获取具体公司名称")
                 else:
                     print("   ⚠️ 使用默认格式")
@@ -156,8 +162,10 @@ def test_improved_hk_provider_priority():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_data_source_availability():
     """测试数据源可用性"""
@@ -168,6 +176,7 @@ def test_data_source_availability():
         # 检查AKShare可用性
         try:
             from tradingagents.dataflows.akshare_utils import get_hk_stock_info_akshare  # noqa: F401
+
             print("✅ AKShare港股工具可用")
             akshare_available = True
         except ImportError as e:
@@ -177,6 +186,7 @@ def test_data_source_availability():
         # 检查Yahoo Finance可用性
         try:
             from tradingagents.dataflows.hk_stock_utils import get_hk_stock_info  # noqa: F401
+
             print("✅ Yahoo Finance港股工具可用")
             yf_available = True
         except ImportError as e:
@@ -186,6 +196,7 @@ def test_data_source_availability():
         # 检查统一接口
         try:
             from tradingagents.dataflows.interface import AKSHARE_HK_AVAILABLE, HK_STOCK_AVAILABLE, get_hk_stock_info_unified  # noqa: F401
+
             print("✅ 统一港股接口可用")
             print(f"   AKShare可用标志: {AKSHARE_HK_AVAILABLE}")
             print(f"   Yahoo Finance可用标志: {HK_STOCK_AVAILABLE}")
@@ -202,8 +213,10 @@ def test_data_source_availability():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -232,16 +245,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "数据源可用性检查",
-        "港股信息获取优先级",
-        "港股数据获取优先级",
-        "改进港股提供器优先级"
-    ]
+    test_names = ["数据源可用性检查", "港股信息获取优先级", "港股数据获取优先级", "改进港股提供器优先级"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -261,6 +269,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

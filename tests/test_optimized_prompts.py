@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_company_name_extraction():
     """测试公司名称提取功能"""
     print("\n🔍 测试公司名称提取功能")
@@ -52,8 +53,10 @@ def test_company_name_extraction():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_market_analyst_prompt():
     """测试市场分析师的优化提示词"""
@@ -63,6 +66,7 @@ def test_market_analyst_prompt():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -79,11 +83,7 @@ def test_market_analyst_prompt():
         from tradingagents.default_config import DEFAULT_CONFIG
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=500
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=500)
 
         config = DEFAULT_CONFIG.copy()
         config["online_tools"] = True
@@ -92,6 +92,7 @@ def test_market_analyst_prompt():
 
         # 创建市场分析师
         from tradingagents.agents.analysts.market_analyst import create_market_analyst
+
         create_market_analyst(llm, toolkit)
 
         print("✅ 市场分析师创建完成")
@@ -119,7 +120,7 @@ def test_market_analyst_prompt():
             f"公司名称：{company_name}",
             f"股票代码：{test_ticker}",
             f"所属市场：{market_info['market_name']}",
-            f"计价货币：{market_info['currency_name']}"
+            f"计价货币：{market_info['currency_name']}",
         ]
 
         print("\n🔍 验证提示词应包含的关键元素:")
@@ -132,8 +133,10 @@ def test_market_analyst_prompt():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_fundamentals_analyst_prompt():
     """测试基本面分析师的优化提示词"""
@@ -159,7 +162,7 @@ def test_fundamentals_analyst_prompt():
             f"{market_info['market_name']}",
             f"ticker='{test_ticker}'",
             f"公司名称：{company_name}",
-            f"股票代码：{test_ticker}"
+            f"股票代码：{test_ticker}",
         ]
 
         print("\n🔍 验证基本面分析师提示词应包含的关键元素:")
@@ -172,8 +175,10 @@ def test_fundamentals_analyst_prompt():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -199,15 +204,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "公司名称提取功能",
-        "市场分析师提示词优化",
-        "基本面分析师提示词优化"
-    ]
+    test_names = ["公司名称提取功能", "市场分析师提示词优化", "基本面分析师提示词优化"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -223,6 +224,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

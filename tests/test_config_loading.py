@@ -15,6 +15,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_pricing_config_loading():
     """测试定价配置加载"""
     print("🔧 测试定价配置加载")
@@ -32,11 +33,12 @@ def test_pricing_config_loading():
 
         # 直接读取文件内容
         if config_manager.pricing_file.exists():
-            with open(config_manager.pricing_file, encoding='utf-8') as f:
+            with open(config_manager.pricing_file, encoding="utf-8") as f:
                 content = f.read()
             print(f"📄 文件内容长度: {len(content)}")
 
             import json
+
             data = json.loads(content)
             print(f"📊 JSON中的配置数量: {len(data)}")
 
@@ -66,8 +68,10 @@ def test_pricing_config_loading():
     except Exception as e:
         print(f"❌ 配置加载测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cost_calculation():
     """测试成本计算"""
@@ -81,29 +85,16 @@ def test_cost_calculation():
 
         # 测试DeepSeek成本计算
         print("🤖 测试DeepSeek成本计算:")
-        deepseek_cost = config_manager.calculate_cost(
-            provider="deepseek",
-            model_name="deepseek-chat",
-            input_tokens=1000,
-            output_tokens=500
-        )
+        deepseek_cost = config_manager.calculate_cost(provider="deepseek", model_name="deepseek-chat", input_tokens=1000, output_tokens=500)
         print(f"   DeepSeek成本: ¥{deepseek_cost:.6f}")
 
         # 测试百炼成本计算
         print("🌟 测试百炼成本计算:")
-        dashscope_cost1 = config_manager.calculate_cost(
-            provider="dashscope",
-            model_name="qwen-plus",
-            input_tokens=1000,
-            output_tokens=500
-        )
+        dashscope_cost1 = config_manager.calculate_cost(provider="dashscope", model_name="qwen-plus", input_tokens=1000, output_tokens=500)
         print(f"   qwen-plus成本: ¥{dashscope_cost1:.6f}")
 
         dashscope_cost2 = config_manager.calculate_cost(
-            provider="dashscope",
-            model_name="qwen-plus-latest",
-            input_tokens=1000,
-            output_tokens=500
+            provider="dashscope", model_name="qwen-plus-latest", input_tokens=1000, output_tokens=500
         )
         print(f"   qwen-plus-latest成本: ¥{dashscope_cost2:.6f}")
 
@@ -112,8 +103,10 @@ def test_cost_calculation():
     except Exception as e:
         print(f"❌ 成本计算测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -146,6 +139,7 @@ def main():
 
     print("\n🎯 测试完成！")
     return overall_success
+
 
 if __name__ == "__main__":
     success = main()

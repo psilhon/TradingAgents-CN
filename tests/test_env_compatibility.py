@@ -11,6 +11,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+
 def test_env_loading():
     """测试.env文件加载"""
     print("🧪 测试.env文件加载")
@@ -25,7 +26,7 @@ def test_env_loading():
 
         # 测试API密钥加载
         print("\n📋 API密钥状态:")
-        for provider, configured in env_status['api_keys'].items():
+        for provider, configured in env_status["api_keys"].items():
             status = "✅ 已配置" if configured else "❌ 未配置"
             print(f"  {provider}: {status}")
 
@@ -33,8 +34,10 @@ def test_env_loading():
     except Exception as e:
         print(f"❌ .env文件加载失败: {e}")
         import traceback
+
         print(f"错误详情: {traceback.format_exc()}")
         return False
+
 
 def test_model_config_merge():
     """测试模型配置合并"""
@@ -52,7 +55,7 @@ def test_model_config_merge():
         env_status = config_manager.get_env_config_status()
 
         for model in models:
-            env_has_key = env_status['api_keys'].get(model.provider.lower(), False)
+            env_has_key = env_status["api_keys"].get(model.provider.lower(), False)
             model_has_key = bool(model.api_key)
 
             print(f"\n🤖 {model.provider} - {model.model_name}:")
@@ -67,8 +70,10 @@ def test_model_config_merge():
     except Exception as e:
         print(f"❌ 模型配置合并失败: {e}")
         import traceback
+
         print(f"错误详情: {traceback.format_exc()}")
         return False
+
 
 def test_settings_merge():
     """测试系统设置合并"""
@@ -82,13 +87,7 @@ def test_settings_merge():
         settings = config_manager.load_settings()
 
         # 检查.env中的设置是否正确合并
-        env_settings = [
-            "finnhub_api_key",
-            "reddit_client_id",
-            "reddit_client_secret",
-            "results_dir",
-            "log_level"
-        ]
+        env_settings = ["finnhub_api_key", "reddit_client_id", "reddit_client_secret", "results_dir", "log_level"]
 
         print("⚙️ 系统设置状态:")
         for key in env_settings:
@@ -103,8 +102,10 @@ def test_settings_merge():
     except Exception as e:
         print(f"❌ 系统设置合并失败: {e}")
         import traceback
+
         print(f"错误详情: {traceback.format_exc()}")
         return False
+
 
 def test_backward_compatibility():
     """测试向后兼容性"""
@@ -132,8 +133,10 @@ def test_backward_compatibility():
     except Exception as e:
         print(f"❌ 向后兼容性测试失败: {e}")
         import traceback
+
         print(f"错误详情: {traceback.format_exc()}")
         return False
+
 
 def main():
     """主测试函数"""
@@ -174,6 +177,7 @@ def main():
     else:
         print("❌ 部分测试失败，请检查兼容性实现")
         return False
+
 
 if __name__ == "__main__":
     success = main()

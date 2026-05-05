@@ -4,6 +4,7 @@
 验证LLM只能调用统一工具
 """
 
+
 def test_available_tools():
     """测试可用工具列表"""
     print("🔧 测试可用工具列表...")
@@ -21,25 +22,20 @@ def test_available_tools():
         all_tools = []
         for attr_name in dir(toolkit):
             attr = getattr(toolkit, attr_name)
-            if hasattr(attr, 'name') and hasattr(attr, 'description'):
+            if hasattr(attr, "name") and hasattr(attr, "description"):
                 all_tools.append(attr.name)
 
         print(f"  总工具数量: {len(all_tools)}")
 
         # 检查旧工具是否已移除
-        removed_tools = [
-            'get_china_stock_data',
-            'get_china_fundamentals',
-            'get_fundamentals_openai',
-            'get_hk_stock_data_unified'
-        ]
+        removed_tools = ["get_china_stock_data", "get_china_fundamentals", "get_fundamentals_openai", "get_hk_stock_data_unified"]
 
         # 检查统一工具是否存在
         unified_tools = [
-            'get_stock_fundamentals_unified',
-            'get_stock_market_data_unified',
-            'get_stock_news_unified',
-            'get_stock_sentiment_unified'
+            "get_stock_fundamentals_unified",
+            "get_stock_market_data_unified",
+            "get_stock_news_unified",
+            "get_stock_sentiment_unified",
         ]
 
         print("\n  旧工具移除检查:")
@@ -68,6 +64,7 @@ def test_available_tools():
     except Exception as e:
         print(f"❌ 工具移除测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -90,11 +87,7 @@ def test_fundamentals_analyst_tool_selection():
         # 模拟基本面分析师的工具选择逻辑
         from tradingagents.utils.stock_utils import StockUtils
 
-        test_cases = [
-            ("0700.HK", "港股"),
-            ("000001", "A股"),
-            ("AAPL", "美股")
-        ]
+        test_cases = [("0700.HK", "港股"), ("000001", "A股"), ("AAPL", "美股")]
 
         for ticker, market_type in test_cases:
             print(f"\n  测试 {ticker} ({market_type}):")
@@ -111,7 +104,7 @@ def test_fundamentals_analyst_tool_selection():
                 print(f"    选择的工具: {tool_names}")
 
                 # 验证只选择了统一工具
-                if len(tools) == 1 and tools[0].name == 'get_stock_fundamentals_unified':
+                if len(tools) == 1 and tools[0].name == "get_stock_fundamentals_unified":
                     print("    ✅ 正确选择统一基本面工具")
                 else:
                     print("    ❌ 工具选择错误")
@@ -125,6 +118,7 @@ def test_fundamentals_analyst_tool_selection():
     except Exception as e:
         print(f"❌ 基本面分析师工具选择测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -145,11 +139,7 @@ def test_market_analyst_tool_selection():
         # 创建工具包
         toolkit = Toolkit(config)
 
-        test_cases = [
-            ("0700.HK", "港股"),
-            ("000001", "A股"),
-            ("AAPL", "美股")
-        ]
+        test_cases = [("0700.HK", "港股"), ("000001", "A股"), ("AAPL", "美股")]
 
         for ticker, market_type in test_cases:
             print(f"\n  测试 {ticker} ({market_type}):")
@@ -166,7 +156,7 @@ def test_market_analyst_tool_selection():
                 print(f"    选择的工具: {tool_names}")
 
                 # 验证只选择了统一工具
-                if len(tools) == 1 and tools[0].name == 'get_stock_market_data_unified':
+                if len(tools) == 1 and tools[0].name == "get_stock_market_data_unified":
                     print("    ✅ 正确选择统一市场数据工具")
                 else:
                     print("    ❌ 工具选择错误")
@@ -180,6 +170,7 @@ def test_market_analyst_tool_selection():
     except Exception as e:
         print(f"❌ 市场分析师工具选择测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -225,5 +216,6 @@ def main():
 
 if __name__ == "__main__":
     import sys
+
     success = main()
     sys.exit(0 if success else 1)

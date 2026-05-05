@@ -8,8 +8,10 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+
 class MockLLM:
     """模拟LLM"""
+
     def __init__(self):
         self.bound_tools = []
         self.__class__.__name__ = "MockLLM"
@@ -21,20 +23,27 @@ class MockLLM:
 
     def invoke(self, message):
         """模拟调用"""
+
         class MockResult:
             def __init__(self):
                 self.content = "模拟分析结果"
                 self.tool_calls = []
+
         return MockResult()
+
 
 class MockToolkit:
     """模拟工具包"""
+
     def get_realtime_stock_news(self, params):
         return "模拟A股新闻"
+
     def get_google_news(self, params):
         return "模拟Google新闻"
+
     def get_global_news_openai(self, params):
         return "模拟OpenAI新闻"
+
 
 def test_news_analyst_integration():
     """测试新闻分析师的统一工具集成"""
@@ -60,6 +69,7 @@ def test_news_analyst_integration():
         # 检查统一新闻工具是否能正常导入
         try:
             from tradingagents.tools.unified_news_tool import create_unified_news_tool
+
             test_tool = create_unified_news_tool(mock_toolkit)
             print("  ✅ 统一新闻工具导入成功")
             print(f"  📝 工具名称: {getattr(test_tool, 'name', '未设置')}")
@@ -86,7 +96,7 @@ def test_news_analyst_integration():
                 ("强制工具调用", "您的第一个动作必须是调用 get_stock_news_unified 工具"),
                 ("DashScope预处理", "DashScope预处理：强制获取新闻数据"),
                 ("预处理工具调用", "pre_fetched_news = unified_news_tool(stock_code=ticker"),
-                ("LLM工具绑定", "llm.bind_tools(tools)")
+                ("LLM工具绑定", "llm.bind_tools(tools)"),
             ]
 
             for check_name, check_pattern in integration_checks:
@@ -110,7 +120,7 @@ def test_news_analyst_integration():
             workflow_checks = [
                 ("新闻分析师导入", "from tradingagents.agents.analysts.news_analyst import create_news_analyst"),
                 ("新闻分析师节点创建", 'analyst_nodes["news"] = create_news_analyst'),
-                ("工作流程节点添加", "workflow.add_node")
+                ("工作流程节点添加", "workflow.add_node"),
             ]
 
             for check_name, check_pattern in workflow_checks:
@@ -162,7 +172,9 @@ def test_news_analyst_integration():
     except Exception as e:
         print(f"❌ 验证过程中出现错误: {e!s}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_news_analyst_integration()

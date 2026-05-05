@@ -8,8 +8,7 @@ def normalize_content(response):
     content = getattr(response, "content", None)
     if isinstance(content, list):
         texts = [
-            item.get("text", "") if isinstance(item, dict) and item.get("type") == "text"
-            else item if isinstance(item, str) else ""
+            item.get("text", "") if isinstance(item, dict) and item.get("type") == "text" else item if isinstance(item, str) else ""
             for item in content
         ]
         response.content = "\n".join(text for text in texts if text)
@@ -35,10 +34,7 @@ class BaseLLMClient(ABC):
             return
 
         warnings.warn(
-            (
-                f"Model '{self.model}' is not in the known model list for "
-                f"provider '{self.get_provider_name()}'. Continuing anyway."
-            ),
+            (f"Model '{self.model}' is not in the known model list for provider '{self.get_provider_name()}'. Continuing anyway."),
             RuntimeWarning,
             stacklevel=2,
         )

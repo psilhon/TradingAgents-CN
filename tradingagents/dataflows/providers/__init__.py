@@ -2,6 +2,7 @@
 统一数据源提供器包
 按市场分类组织数据提供器
 """
+
 from .base_provider import BaseStockDataProvider
 
 # 导入中国市场提供器（新路径）
@@ -79,28 +80,28 @@ except ImportError:
 #     TDXProvider = None
 
 __all__ = [
-    'AKSHARE_AVAILABLE',
-    'BAOSTOCK_AVAILABLE',
-    'FINNHUB_AVAILABLE',
-    'HK_PROVIDER_AVAILABLE',
-    'OPTIMIZED_US_AVAILABLE',
-    'TUSHARE_AVAILABLE',
-    'YFINANCE_AVAILABLE',
-    'AKShareProvider',
-    'BaoStockProvider',
+    "AKSHARE_AVAILABLE",
+    "BAOSTOCK_AVAILABLE",
+    "FINNHUB_AVAILABLE",
+    "HK_PROVIDER_AVAILABLE",
+    "OPTIMIZED_US_AVAILABLE",
+    "TUSHARE_AVAILABLE",
+    "YFINANCE_AVAILABLE",
+    "AKShareProvider",
+    "BaoStockProvider",
     # 基类
-    'BaseStockDataProvider',
-    'FinnhubProvider',
+    "BaseStockDataProvider",
+    "FinnhubProvider",
     # 港股
-    'ImprovedHKStockProvider',
-    'OptimizedUSDataProvider',
+    "ImprovedHKStockProvider",
+    "OptimizedUSDataProvider",
     # 中国市场
-    'TushareProvider',
+    "TushareProvider",
     # 美股
-    'YFinanceUtils',
+    "YFinanceUtils",
     # 其他（预留）
-    'YahooProvider',
-    'get_data_in_range',
-    'get_improved_hk_provider',
+    "YahooProvider",
+    "get_data_in_range",
+    "get_improved_hk_provider",
     # 'TDXProvider'  # 已移除
 ]

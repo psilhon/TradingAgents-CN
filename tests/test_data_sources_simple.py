@@ -13,6 +13,7 @@ from datetime import datetime
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
+
 def test_china_data_source():
     """测试中国股票数据源"""
     print("🇨🇳 测试中国股票数据源")
@@ -45,6 +46,7 @@ def test_china_data_source():
     except Exception as e:
         print(f"❌ 中国股票数据源测试失败: {e}")
         return False
+
 
 def test_us_data_source():
     """测试美股数据源"""
@@ -80,6 +82,7 @@ def test_us_data_source():
         print(f"❌ 美股数据源测试失败: {e}")
         return False
 
+
 def test_cache_system():
     """测试缓存系统"""
     print("\n🗄️ 测试缓存系统")
@@ -97,11 +100,7 @@ def test_cache_system():
 
         # 保存测试数据
         cache_key = cache.save_stock_data(
-            symbol="TEST001",
-            data=test_data,
-            start_date="2025-07-01",
-            end_date="2025-07-12",
-            data_source="test"
+            symbol="TEST001", data=test_data, start_date="2025-07-01", end_date="2025-07-12", data_source="test"
         )
 
         # 加载测试数据
@@ -119,16 +118,17 @@ def test_cache_system():
         print(f"❌ 缓存系统测试失败: {e}")
         return False
 
+
 def test_api_keys():
     """测试API密钥配置"""
     print("\n🔑 测试API密钥配置")
     print("-" * 40)
 
     api_keys = {
-        'TUSHARE_TOKEN': os.getenv('TUSHARE_TOKEN'),
-        'FINNHUB_API_KEY': os.getenv('FINNHUB_API_KEY'),
-        'DASHSCOPE_API_KEY': os.getenv('DASHSCOPE_API_KEY'),
-        'DEEPSEEK_API_KEY': os.getenv('DEEPSEEK_API_KEY'),
+        "TUSHARE_TOKEN": os.getenv("TUSHARE_TOKEN"),
+        "FINNHUB_API_KEY": os.getenv("FINNHUB_API_KEY"),
+        "DASHSCOPE_API_KEY": os.getenv("DASHSCOPE_API_KEY"),
+        "DEEPSEEK_API_KEY": os.getenv("DEEPSEEK_API_KEY"),
     }
 
     configured_count = 0
@@ -141,9 +141,10 @@ def test_api_keys():
         else:
             print(f"❌ {key_name}: 未配置")
 
-    print(f"\n📊 API密钥配置率: {configured_count}/{total_count} ({configured_count/total_count*100:.1f}%)")
+    print(f"\n📊 API密钥配置率: {configured_count}/{total_count} ({configured_count / total_count * 100:.1f}%)")
 
     return configured_count >= 2  # 至少需要2个API密钥
+
 
 def main():
     """主测试函数"""
@@ -155,19 +156,19 @@ def main():
 
     # 1. 测试API密钥配置
     api_result = test_api_keys()
-    results.append(('API密钥配置', api_result))
+    results.append(("API密钥配置", api_result))
 
     # 2. 测试缓存系统
     cache_result = test_cache_system()
-    results.append(('缓存系统', cache_result))
+    results.append(("缓存系统", cache_result))
 
     # 3. 测试中国股票数据源
     china_result = test_china_data_source()
-    results.append(('中国股票数据源', china_result))
+    results.append(("中国股票数据源", china_result))
 
     # 4. 测试美股数据源
     us_result = test_us_data_source()
-    results.append(('美股数据源', us_result))
+    results.append(("美股数据源", us_result))
 
     # 统计结果
     passed = sum(1 for _, result in results if result)
@@ -206,11 +207,12 @@ def main():
 
     return success_rate >= 75
 
+
 if __name__ == "__main__":
     try:
         success = main()
 
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         if success:
             print("🎯 测试完成！可以运行完整分析流程。")
             print("   下一步: python -m cli.main")
@@ -221,4 +223,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ 测试程序异常: {e}")
         import traceback
+
         traceback.print_exc()

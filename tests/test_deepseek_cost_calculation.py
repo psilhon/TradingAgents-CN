@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_deepseek_pricing_config():
     """测试DeepSeek定价配置"""
     print("🔧 测试DeepSeek定价配置")
@@ -49,8 +50,10 @@ def test_deepseek_pricing_config():
     except Exception as e:
         print(f"❌ 定价配置测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_deepseek_cost_calculation():
     """测试DeepSeek成本计算"""
@@ -76,10 +79,7 @@ def test_deepseek_cost_calculation():
             output_tokens = case["output_tokens"]
 
             cost = config_manager.calculate_cost(
-                provider="deepseek",
-                model_name="deepseek-chat",
-                input_tokens=input_tokens,
-                output_tokens=output_tokens
+                provider="deepseek", model_name="deepseek-chat", input_tokens=input_tokens, output_tokens=output_tokens
             )
 
             print(f"测试用例 {i}:")
@@ -102,8 +102,10 @@ def test_deepseek_cost_calculation():
     except Exception as e:
         print(f"❌ 成本计算测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_token_tracker():
     """测试Token跟踪器"""
@@ -124,7 +126,7 @@ def test_token_tracker():
             input_tokens=1000,
             output_tokens=500,
             session_id="test_session",
-            analysis_type="test_analysis"
+            analysis_type="test_analysis",
         )
 
         if usage_record:
@@ -149,8 +151,10 @@ def test_token_tracker():
     except Exception as e:
         print(f"❌ Token跟踪器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_deepseek_adapter_integration():
     """测试DeepSeek适配器集成"""
@@ -166,11 +170,7 @@ def test_deepseek_adapter_integration():
         from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 创建DeepSeek实例
-        deepseek_llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=100
-        )
+        deepseek_llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=100)
 
         # 测试简单调用
         print("📤 发送测试请求...")
@@ -187,8 +187,10 @@ def test_deepseek_adapter_integration():
     except Exception as e:
         print(f"❌ DeepSeek适配器集成测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -231,6 +233,7 @@ def main():
 
     print("\n🎯 测试完成！")
     return overall_success
+
 
 if __name__ == "__main__":
     success = main()

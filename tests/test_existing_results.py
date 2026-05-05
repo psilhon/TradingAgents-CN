@@ -25,40 +25,36 @@ def get_existing_task_ids():
         mongodb_auth_source = os.getenv("MONGODB_AUTH_SOURCE", "admin")
 
         # 构建连接参数
-        connect_kwargs = {
-            "host": mongodb_host,
-            "port": mongodb_port,
-            "serverSelectionTimeoutMS": 5000,
-            "connectTimeoutMS": 5000
-        }
+        connect_kwargs = {"host": mongodb_host, "port": mongodb_port, "serverSelectionTimeoutMS": 5000, "connectTimeoutMS": 5000}
 
         # 如果有用户名和密码，添加认证信息
         if mongodb_username and mongodb_password:
-            connect_kwargs.update({
-                "username": mongodb_username,
-                "password": mongodb_password,
-                "authSource": mongodb_auth_source
-            })
+            connect_kwargs.update({"username": mongodb_username, "password": mongodb_password, "authSource": mongodb_auth_source})
 
         # 连接MongoDB
         client = MongoClient(**connect_kwargs)
         db = client[mongodb_database]
 
         # 从analysis_reports集合获取最近的任务
-        reports_collection = db['analysis_reports']
-        recent_reports = reports_collection.find(
-            {"source": "api", "task_id": {"$exists": True}},
-            {"task_id": 1, "analysis_id": 1, "stock_symbol": 1, "created_at": 1}
-        ).sort("created_at", -1).limit(5)
+        reports_collection = db["analysis_reports"]
+        recent_reports = (
+            reports_collection.find(
+                {"source": "api", "task_id": {"$exists": True}}, {"task_id": 1, "analysis_id": 1, "stock_symbol": 1, "created_at": 1}
+            )
+            .sort("created_at", -1)
+            .limit(5)
+        )
 
         task_ids = []
         for report in recent_reports:
-            task_ids.append({
-                "task_id": report.get("task_id"),
-                "analysis_id": report.get("analysis_id"),
-                "stock_symbol": report.get("stock_symbol"),
-                "created_at": report.get("created_at")
-            })
+            task_ids.append(
+                {
+                    "task_id": report.get("task_id"),
+                    "analysis_id": report.get("analysis_id"),
+                    "stock_symbol": report.get("stock_symbol"),
+                    "created_at": report.get("created_at"),
+                }
+            )
 
         client.close()
         return task_ids
@@ -66,6 +62,7 @@ def get_existing_task_ids():
     except Exception as e:
         print(f"❌ 获取任务ID失败: {e}")
         return []
+
 
 def test_existing_result(task_id, stock_symbol):
     """测试已有的分析结果"""
@@ -78,15 +75,9 @@ def test_existing_result(task_id, stock_symbol):
     try:
         # 1. 登录获取token
         print("1. 登录获取token...")
-        login_data = {
-            "username": "admin",
-            "password": "admin123"
-        }
+        login_data = {"username": "admin", "password": "admin123"}
 
-        login_response = requests.post(
-            f"{base_url}/api/auth/login",
-            json=login_data
-        )
+        login_response = requests.post(f"{base_url}/api/auth/login", json=login_data)
 
         if login_response.status_code == 200:
             login_result = login_response.json()
@@ -96,17 +87,11 @@ def test_existing_result(task_id, stock_symbol):
             print(f"❌ 登录失败: {login_response.status_code}")
             return False
 
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}"
-        }
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
 
         # 2. 检查任务状态
         print("\n2. 检查任务状态...")
-        status_response = requests.get(
-            f"{base_url}/api/analysis/tasks/{task_id}/status",
-            headers=headers
-        )
+        status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", headers=headers)
 
         if status_response.status_code == 200:
             status_data = status_response.json()
@@ -122,10 +107,7 @@ def test_existing_result(task_id, stock_symbol):
 
         # 3. 获取分析结果
         print("\n3. 获取分析结果...")
-        result_response = requests.get(
-            f"{base_url}/api/analysis/tasks/{task_id}/result",
-            headers=headers
-        )
+        result_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/result", headers=headers)
 
         if result_response.status_code == 200:
             result_data = result_response.json()
@@ -137,7 +119,7 @@ def test_existing_result(task_id, stock_symbol):
             print(f"   research_depth: {data.get('research_depth')}")
 
             # 检查reports字段的数据类型
-            reports = data.get('reports', {})
+            reports = data.get("reports", {})
             if reports:
                 print(f"✅ API返回包含 {len(reports)} 个报告:")
                 for report_type, content in reports.items():
@@ -146,7 +128,7 @@ def test_existing_result(task_id, stock_symbol):
                         print(f"   ✅ {report_type}: {content_type} ({len(content)} 字符)")
                         # 检查内容是否包含有效的文本
                         if len(content.strip()) > 10:
-                            preview = content[:100].replace('\n', ' ').replace('\r', ' ')
+                            preview = content[:100].replace("\n", " ").replace("\r", " ")
                             print(f"      预览: {preview}...")
                         else:
                             print(f"      ⚠️ 内容过短: '{content}'")
@@ -155,7 +137,7 @@ def test_existing_result(task_id, stock_symbol):
                         print(f"      值: {content}")
 
                 # 验证前端期望的字段
-                expected_fields = ['market_report', 'fundamentals_report', 'investment_plan', 'final_trade_decision']
+                expected_fields = ["market_report", "fundamentals_report", "investment_plan", "final_trade_decision"]
                 print("\n🎯 检查前端期望的字段:")
                 for field in expected_fields:
                     if field in reports:
@@ -188,6 +170,7 @@ def test_existing_result(task_id, stock_symbol):
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def main():
     """主函数"""
     print("🔍 测试已有的分析结果")
@@ -207,12 +190,13 @@ def main():
 
     # 测试最新的任务
     latest_task = task_ids[0]
-    success = test_existing_result(latest_task['task_id'], latest_task['stock_symbol'])
+    success = test_existing_result(latest_task["task_id"], latest_task["stock_symbol"])
 
     if success:
         print(f"\n🎉 测试成功! 任务 {latest_task['task_id']} 的API返回格式正确")
     else:
         print(f"\n💥 测试失败! 任务 {latest_task['task_id']} 的API返回格式有问题")
+
 
 if __name__ == "__main__":
     main()

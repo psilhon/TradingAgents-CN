@@ -2,6 +2,7 @@
 测试辩论流程模拟
 验证投资辩论和风险讨论的轮次控制是否正确
 """
+
 import pytest
 
 from tradingagents.graph.conditional_logic import ConditionalLogic
@@ -15,12 +16,7 @@ class TestInvestmentDebateFlow:
         logic = ConditionalLogic(max_debate_rounds=2, max_risk_discuss_rounds=2)
 
         # 模拟投资辩论状态
-        state = {
-            "investment_debate_state": {
-                "count": 0,
-                "current_response": "Bull Researcher"
-            }
-        }
+        state = {"investment_debate_state": {"count": 0, "current_response": "Bull Researcher"}}
 
         # 第1轮
         # Bull -> Bear
@@ -48,12 +44,7 @@ class TestInvestmentDebateFlow:
         """测试5级全面分析的投资辩论（3轮）"""
         logic = ConditionalLogic(max_debate_rounds=3, max_risk_discuss_rounds=3)
 
-        state = {
-            "investment_debate_state": {
-                "count": 0,
-                "current_response": "Bull Researcher"
-            }
-        }
+        state = {"investment_debate_state": {"count": 0, "current_response": "Bull Researcher"}}
 
         # 第1轮：Bull -> Bear -> Bull
         for i in range(2):
@@ -82,12 +73,7 @@ class TestRiskDebateFlow:
         logic = ConditionalLogic(max_debate_rounds=2, max_risk_discuss_rounds=2)
 
         # 模拟风险辩论状态
-        state = {
-            "risk_debate_state": {
-                "count": 0,
-                "latest_speaker": "Risky Analyst"
-            }
-        }
+        state = {"risk_debate_state": {"count": 0, "latest_speaker": "Risky Analyst"}}
 
         # 第1轮：Risky -> Safe -> Neutral
         # Risky -> Safe
@@ -125,12 +111,7 @@ class TestRiskDebateFlow:
         """测试5级全面分析的风险讨论（3轮）"""
         logic = ConditionalLogic(max_debate_rounds=3, max_risk_discuss_rounds=3)
 
-        state = {
-            "risk_debate_state": {
-                "count": 0,
-                "latest_speaker": "Risky Analyst"
-            }
-        }
+        state = {"risk_debate_state": {"count": 0, "latest_speaker": "Risky Analyst"}}
 
         speakers = ["Risky Analyst", "Safe Analyst", "Neutral Analyst"]
         expected_next = ["Safe Analyst", "Neutral Analyst", "Risky Analyst"]
@@ -144,8 +125,9 @@ class TestRiskDebateFlow:
 
                 if current_count < 9:  # 3 * 3 = 9
                     next_speaker = logic.should_continue_risk_analysis(state)
-                    assert next_speaker == expected_next[speaker_idx], \
-                        f"轮次{round_num+1}，发言者{speaker_idx+1}，期望下一个是{expected_next[speaker_idx]}，实际是{next_speaker}"
+                    assert next_speaker == expected_next[speaker_idx], (
+                        f"轮次{round_num + 1}，发言者{speaker_idx + 1}，期望下一个是{expected_next[speaker_idx]}，实际是{next_speaker}"
+                    )
 
         # count = 9 >= 3 * 3 = 9，结束
         state["risk_debate_state"]["count"] = 9
@@ -155,22 +137,20 @@ class TestRiskDebateFlow:
 class TestDebateRoundsCalculation:
     """测试辩论轮次计算"""
 
-    @pytest.mark.parametrize("max_debate_rounds,expected_total_count", [
-        (1, 2),   # 1轮 = 2次发言（Bull + Bear）
-        (2, 4),   # 2轮 = 4次发言
-        (3, 6),   # 3轮 = 6次发言
-        (5, 10),  # 5轮 = 10次发言
-    ])
+    @pytest.mark.parametrize(
+        "max_debate_rounds,expected_total_count",
+        [
+            (1, 2),  # 1轮 = 2次发言（Bull + Bear）
+            (2, 4),  # 2轮 = 4次发言
+            (3, 6),  # 3轮 = 6次发言
+            (5, 10),  # 5轮 = 10次发言
+        ],
+    )
     def test_investment_debate_total_count(self, max_debate_rounds, expected_total_count):
         """测试投资辩论的总发言次数"""
         logic = ConditionalLogic(max_debate_rounds=max_debate_rounds)
 
-        state = {
-            "investment_debate_state": {
-                "count": expected_total_count - 1,
-                "current_response": "Bull Researcher"
-            }
-        }
+        state = {"investment_debate_state": {"count": expected_total_count - 1, "current_response": "Bull Researcher"}}
 
         # 未达到阈值，继续辩论
         assert logic.should_continue_debate(state) in ["Bear Researcher", "Bull Researcher"]
@@ -179,22 +159,20 @@ class TestDebateRoundsCalculation:
         state["investment_debate_state"]["count"] = expected_total_count
         assert logic.should_continue_debate(state) == "Research Manager"
 
-    @pytest.mark.parametrize("max_risk_discuss_rounds,expected_total_count", [
-        (1, 3),   # 1轮 = 3次发言（Risky + Safe + Neutral）
-        (2, 6),   # 2轮 = 6次发言
-        (3, 9),   # 3轮 = 9次发言
-        (5, 15),  # 5轮 = 15次发言
-    ])
+    @pytest.mark.parametrize(
+        "max_risk_discuss_rounds,expected_total_count",
+        [
+            (1, 3),  # 1轮 = 3次发言（Risky + Safe + Neutral）
+            (2, 6),  # 2轮 = 6次发言
+            (3, 9),  # 3轮 = 9次发言
+            (5, 15),  # 5轮 = 15次发言
+        ],
+    )
     def test_risk_debate_total_count(self, max_risk_discuss_rounds, expected_total_count):
         """测试风险讨论的总发言次数"""
         logic = ConditionalLogic(max_risk_discuss_rounds=max_risk_discuss_rounds)
 
-        state = {
-            "risk_debate_state": {
-                "count": expected_total_count - 1,
-                "latest_speaker": "Risky Analyst"
-            }
-        }
+        state = {"risk_debate_state": {"count": expected_total_count - 1, "latest_speaker": "Risky Analyst"}}
 
         # 未达到阈值，继续讨论
         assert logic.should_continue_risk_analysis(state) in ["Safe Analyst", "Neutral Analyst", "Risky Analyst"]
@@ -254,4 +232,3 @@ class TestDebateFlowSummary:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
-

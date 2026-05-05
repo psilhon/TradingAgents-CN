@@ -10,6 +10,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_signal_processing_logging():
     """测试信号处理模块的日志记录"""
     print("\n📊 测试信号处理模块日志记录")
@@ -18,6 +19,7 @@ def test_signal_processing_logging():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -75,22 +77,23 @@ def test_signal_processing_logging():
                     print(f"   结果键: {list(result.keys())}")
 
                     # 检查是否包含股票代码
-                    if 'stock_symbol' in result:
+                    if "stock_symbol" in result:
                         print(f"   提取的股票代码: {result['stock_symbol']}")
 
                     # 检查投资建议
-                    if 'investment_decision' in result:
-                        decision = result['investment_decision']
+                    if "investment_decision" in result:
+                        decision = result["investment_decision"]
                         print(f"   投资决策: {decision}")
 
                     # 检查目标价格
-                    if 'target_price' in result:
-                        price = result['target_price']
+                    if "target_price" in result:
+                        price = result["target_price"]
                         print(f"   目标价格: {price}")
 
             except Exception as e:
                 print(f"❌ 信号处理失败: {e}")
                 import traceback
+
                 traceback.print_exc()
 
         return True
@@ -98,8 +101,10 @@ def test_signal_processing_logging():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_logging_extraction():
     """测试日志装饰器的股票代码提取"""
@@ -118,10 +123,7 @@ def test_logging_extraction():
             print(f"   full_signal 长度: {len(full_signal) if full_signal else 0}")
             print(f"   stock_symbol: {stock_symbol}")
 
-            return {
-                'stock_symbol': stock_symbol,
-                'processed': True
-            }
+            return {"stock_symbol": stock_symbol, "processed": True}
 
         # 创建模拟的self对象
         class MockProcessor:
@@ -163,8 +165,10 @@ def test_logging_extraction():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -187,14 +191,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "日志装饰器股票代码提取",
-        "信号处理模块日志记录"
-    ]
+    test_names = ["日志装饰器股票代码提取", "信号处理模块日志记录"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -214,6 +215,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

@@ -33,31 +33,23 @@ def test_hk_fundamentals_with_interception():
         toolkit = Toolkit(config)
 
         # 创建LLM
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=1000
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=1000)
 
         # 创建基本面分析师
         analyst = create_fundamentals_analyst(llm, toolkit)
 
         # 模拟状态
-        state = {
-            "trade_date": "2025-07-14",
-            "company_of_interest": "0700.HK",
-            "messages": []
-        }
+        state = {"trade_date": "2025-07-14", "company_of_interest": "0700.HK", "messages": []}
 
         print(f"\n📊 测试港股基本面分析: {state['company_of_interest']}")
 
         # 验证股票类型识别
-        market_info = StockUtils.get_market_info(state['company_of_interest'])
+        market_info = StockUtils.get_market_info(state["company_of_interest"])
         print(f"  市场类型: {market_info['market_name']}")
         print(f"  货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
         print(f"  是否港股: {market_info['is_hk']}")
 
-        if not market_info['is_hk']:
+        if not market_info["is_hk"]:
             print("❌ 股票类型识别错误")
             return False
 
@@ -69,8 +61,8 @@ def test_hk_fundamentals_with_interception():
         print("✅ 基本面分析师调用完成")
         print(f"  结果类型: {type(result)}")
 
-        if isinstance(result, dict) and 'fundamentals_report' in result:
-            report = result['fundamentals_report']
+        if isinstance(result, dict) and "fundamentals_report" in result:
+            report = result["fundamentals_report"]
             print(f"  报告长度: {len(report)}")
             print(f"  报告前200字符: {report[:200]}...")
 
@@ -81,13 +73,13 @@ def test_hk_fundamentals_with_interception():
                 print(f"  ⚠️ 报告长度偏短（{len(report)}字符）")
 
             # 检查是否包含港币相关内容
-            if 'HK$' in report or '港币' in report or '港元' in report:
+            if "HK$" in report or "港币" in report or "港元" in report:
                 print("  ✅ 报告包含港币计价")
             else:
                 print("  ⚠️ 报告未包含港币计价")
 
             # 检查是否包含投资建议
-            if any(word in report for word in ['买入', '持有', '卖出', '建议']):
+            if any(word in report for word in ["买入", "持有", "卖出", "建议"]):
                 print("  ✅ 报告包含投资建议")
             else:
                 print("  ⚠️ 报告未包含投资建议")
@@ -100,6 +92,7 @@ def test_hk_fundamentals_with_interception():
     except Exception as e:
         print(f"❌ 港股基本面分析测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -127,9 +120,9 @@ def test_tool_selection_logic():
 
         for ticker, expected_market, expected_tool in test_cases:
             market_info = StockUtils.get_market_info(ticker)
-            is_china = market_info['is_china']
-            is_hk = market_info['is_hk']
-            market_info['is_us']
+            is_china = market_info["is_china"]
+            is_hk = market_info["is_hk"]
+            market_info["is_us"]
 
             print(f"\n📊 {ticker} ({expected_market}):")
             print(f"  识别结果: {market_info['market_name']}")
