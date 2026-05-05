@@ -48,6 +48,17 @@
 
 - **学习中心模块**（OpenSpec change `remove-learning-center`）：删除前端"学习中心"模块——本 fork 是个人二次开发实战平台，不需要保留上游静态学习内容站点。删除范围：(1) `router/index.ts` 的 `/learning` 路由 + 3 个 child route + `/paper/:name.md` 兼容重定向；(2) `views/Learning/` 整个目录（3 个 .vue 文件）；(3) `SidebarMenu.vue` 的"学习中心"菜单项 + 未用 `Reading` icon import；(4) `Dashboard/index.vue` 的 AI 学习中心推荐卡片（template + `goToLearning` 函数 + 相关 SCSS + 未用 `Reading` icon import）。无后端 / 数据库改动。访问 `/learning/*` 现走 404 fallback。建立 base spec `frontend-navigation`。
 
+- **稳定版 v1 大清理**（OpenSpec change `stable-v1-cleanup`）：fork 决策转为**独立分叉**（不再 sync upstream），激进清理 7 类与本 fork 用例无关的上游遗留：
+  - **Windows 平台支持**（91 文件 / 15527 行）：~80 个 .ps1/.bat/.cmd 脚本 + `scripts/portable/` + `scripts/windows-installer/` + 6 个 Windows-only docs
+  - **streamlit 旧 web/**（25 文件 + pyproject deps）：删 `web/` 整目录 + pyproject 移除 `streamlit` / `chainlit` deps + uv pip uninstall + 改 ruff/pyright exclude
+  - **学习中心残留 docs**（12 文件 / 3821 行）：`docs/learning/` + `docs/paper/` (1.8M) + 含 learning 的 blog post（被 task 8 覆盖删）
+  - **未用 docker-compose 变体**（3 文件 / 505 行）：`docker-compose.hub.nginx.yml` + `.arm.yml` + `nginx/` 整目录
+  - **install/ db config 快照**（2 文件 / 33176 行）：1MB 上游 db export
+  - **examples + 旧版本测试**（47 文件 / 8588 行）：`examples/` 30 demo + `tests/0.1.14/` 旧快照 + 清 pyproject pytest config
+  - **上游 release / blog**（47 文件 / 21395 行）：`docs/releases/` + `docs/blog/`
+  - **CLAUDE.md / docs/USAGE.md "Fork 上游同步"段重写**：从"定期合"改为"独立分叉，cherry-pick"
+  - 总计 ~228 文件 / ~83000 行删除。Backend 重启验证无回归（/api/health 200）。建立 base spec `repository-scope`。
+
 ### Known Issues — 上游遗留（已记录到 `CLAUDE.md` 已知坑段）
 
 - `uv.lock` 锁的仍是旧版 `tradingagents 0.1.0`（25 个直接依赖），与当前 `1.0.0-preview`（70+ 依赖）不同步
