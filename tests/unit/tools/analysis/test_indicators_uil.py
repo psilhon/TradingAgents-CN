@@ -1,10 +1,13 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from tradingagents.tools.analysis.indicators import (
     IndicatorSpec,
     compute_many,
 )
+
+pytestmark = pytest.mark.unit
 
 
 def make_df(n=60, seed=42):
