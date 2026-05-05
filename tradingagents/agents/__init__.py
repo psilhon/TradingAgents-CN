@@ -5,7 +5,7 @@ from tradingagents.utils.logging_init import get_logger
 
 logger = get_logger("default")
 
-_EXPORTS: Dict[str, Tuple[str, str]] = {
+_EXPORTS: dict[str, tuple[str, str]] = {
     "FinancialSituationMemory": ("tradingagents.agents.utils.memory", "FinancialSituationMemory"),
     "Toolkit": ("tradingagents.agents.utils.agent_utils", "Toolkit"),
     "create_msg_delete": ("tradingagents.agents.utils.agent_utils", "create_msg_delete"),

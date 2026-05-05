@@ -108,7 +108,7 @@ class StockDataCache:
         else:
             return 'us'
 
-    def _check_provider_availability(self) -> List[str]:
+    def _check_provider_availability(self) -> list[str]:
         """检查可用的LLM提供商"""
         available_providers = []
 
@@ -209,7 +209,7 @@ class StockDataCache:
         """获取元数据文件路径"""
         return self.metadata_dir / f"{cache_key}_meta.json"
 
-    def _save_metadata(self, cache_key: str, metadata: Dict[str, Any]):
+    def _save_metadata(self, cache_key: str, metadata: dict[str, Any]):
         """保存元数据"""
         metadata_path = self._get_metadata_path(cache_key)
         metadata_path.parent.mkdir(parents=True, exist_ok=True)  # 确保目录存在
@@ -218,7 +218,7 @@ class StockDataCache:
         with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, ensure_ascii=False, indent=2)
 
-    def _load_metadata(self, cache_key: str) -> Optional[Dict[str, Any]]:
+    def _load_metadata(self, cache_key: str) -> Optional[dict[str, Any]]:
         """加载元数据"""
         metadata_path = self._get_metadata_path(cache_key)
         if not metadata_path.exists():
@@ -578,7 +578,7 @@ class StockDataCache:
 
         logger.info(f"🧹 已清理 {cleared_count} 个过期缓存文件")
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """获取缓存统计信息"""
         stats = {
             'total_files': 0,
@@ -657,7 +657,7 @@ class StockDataCache:
         stats['total_size_mb'] = round(total_size_bytes / (1024 * 1024), 2)  # MB
         return stats
 
-    def get_content_length_config_status(self) -> Dict[str, Any]:
+    def get_content_length_config_status(self) -> dict[str, Any]:
         """获取内容长度配置状态"""
         available_providers = self._check_provider_availability()
         long_text_providers = self.content_length_config['long_text_providers']

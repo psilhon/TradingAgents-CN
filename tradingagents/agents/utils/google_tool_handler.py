@@ -27,11 +27,11 @@ class GoogleToolCallHandler:
     def handle_google_tool_calls(
         result: AIMessage,
         llm: Any,
-        tools: List[Any],
-        state: Dict[str, Any],
+        tools: list[Any],
+        state: dict[str, Any],
         analysis_prompt_template: str,
         analyst_name: str = "分析师"
-    ) -> Tuple[str, List[Any]]:
+    ) -> tuple[str, list[Any]]:
         """
         统一处理Google模型的工具调用
         
@@ -496,7 +496,7 @@ class GoogleToolCallHandler:
         return result.content
 
     @staticmethod
-    def generate_final_analysis_report(llm, messages: List, analyst_name: str) -> str:
+    def generate_final_analysis_report(llm, messages: list, analyst_name: str) -> str:
         """
         生成最终分析报告 - 增强版，支持重试和模型切换
         
@@ -628,7 +628,7 @@ class GoogleToolCallHandler:
         return fallback_report
 
     @staticmethod
-    def _optimize_message_sequence(messages: List, analysis_prompt: str) -> List:
+    def _optimize_message_sequence(messages: list, analysis_prompt: str) -> list:
         """
         优化消息序列，确保在合理长度内
         
@@ -681,7 +681,7 @@ class GoogleToolCallHandler:
         return optimized_messages
 
     @staticmethod
-    def _generate_fallback_report(messages: List, analyst_name: str) -> str:
+    def _generate_fallback_report(messages: list, analyst_name: str) -> str:
         """
         生成降级报告
         

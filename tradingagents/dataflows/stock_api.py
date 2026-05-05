@@ -14,7 +14,7 @@ from .stock_data_service import get_stock_data_service
 
 logger = get_logger('agents')
 
-def get_stock_info(stock_code: str) -> Optional[Dict[str, Any]]:
+def get_stock_info(stock_code: str) -> Optional[dict[str, Any]]:
     """
     获取单个股票的基础信息
     
@@ -32,7 +32,7 @@ def get_stock_info(stock_code: str) -> Optional[Dict[str, Any]]:
     service = get_stock_data_service()
     return service.get_stock_basic_info(stock_code)
 
-def get_all_stocks() -> List[Dict[str, Any]]:
+def get_all_stocks() -> list[dict[str, Any]]:
     """
     获取所有股票列表
     
@@ -73,7 +73,7 @@ def get_stock_data(stock_code: str, start_date: str, end_date: str) -> str:
     service = get_stock_data_service()
     return service.get_stock_data_with_fallback(stock_code, start_date, end_date)
 
-def search_stocks_by_name(name: str) -> List[Dict[str, Any]]:
+def search_stocks_by_name(name: str) -> list[dict[str, Any]]:
     """
     根据股票名称搜索股票（需要MongoDB支持）
     
@@ -97,7 +97,7 @@ def search_stocks_by_name(name: str) -> List[Dict[str, Any]]:
     except Exception as e:
         return [{'error': f'名称搜索功能不可用: {str(e)}'}]
 
-def check_data_sources() -> Dict[str, Any]:
+def check_data_sources() -> dict[str, Any]:
     """
     检查数据源状态
     

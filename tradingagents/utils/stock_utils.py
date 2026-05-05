@@ -94,7 +94,7 @@ class StockUtils:
         return StockUtils.identify_stock_market(ticker) == StockMarket.US
 
     @staticmethod
-    def get_currency_info(ticker: str) -> Tuple[str, str]:
+    def get_currency_info(ticker: str) -> tuple[str, str]:
         """
         根据股票代码获取货币信息
         
@@ -164,7 +164,7 @@ class StockUtils:
         return ticker
 
     @staticmethod
-    def get_market_info(ticker: str) -> Dict:
+    def get_market_info(ticker: str) -> dict:
         """
         获取股票市场的详细信息
         
@@ -214,6 +214,6 @@ def is_us_stock(ticker: str) -> bool:
     return StockUtils.is_us_stock(ticker)
 
 
-def get_stock_market_info(ticker: str) -> Dict:
+def get_stock_market_info(ticker: str) -> dict:
     """获取股票市场信息"""
     return StockUtils.get_market_info(ticker)

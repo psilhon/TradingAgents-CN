@@ -471,7 +471,7 @@ class DatabaseCacheManager:
 
         return cache_key
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """获取缓存统计信息"""
         # 标准统计格式（与 file_cache 保持一致）
         stats = {

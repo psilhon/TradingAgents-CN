@@ -147,7 +147,7 @@ class MongoDBStorage:
             logger.error(f"   堆栈: {traceback.format_exc()}")
             return False
 
-    def load_usage_records(self, limit: int = 10000, days: int = None) -> List[UsageRecord]:
+    def load_usage_records(self, limit: int = 10000, days: int = None) -> list[UsageRecord]:
         """从MongoDB加载使用记录"""
         if not self._connected:
             return []
@@ -183,7 +183,7 @@ class MongoDBStorage:
             logger.error(f"从MongoDB加载记录失败: {e}")
             return []
 
-    def get_usage_statistics(self, days: int = 30) -> Dict[str, Any]:
+    def get_usage_statistics(self, days: int = 30) -> dict[str, Any]:
         """从MongoDB获取使用统计"""
         if not self._connected:
             return {}
@@ -234,7 +234,7 @@ class MongoDBStorage:
             logger.error(f"获取MongoDB统计失败: {e}")
             return {}
 
-    def get_provider_statistics(self, days: int = 30) -> Dict[str, Dict[str, Any]]:
+    def get_provider_statistics(self, days: int = 30) -> dict[str, dict[str, Any]]:
         """按供应商获取统计信息"""
         if not self._connected:
             return {}

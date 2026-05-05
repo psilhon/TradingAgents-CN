@@ -91,7 +91,7 @@ class DataSourceManager:
         from tradingagents.config.runtime_settings import use_app_cache_enabled
         return use_app_cache_enabled()
 
-    def _get_data_source_priority_order(self, symbol: Optional[str] = None) -> List[ChinaDataSource]:
+    def _get_data_source_priority_order(self, symbol: Optional[str] = None) -> list[ChinaDataSource]:
         """
         从数据库获取数据源优先级顺序（用于降级）
 
@@ -329,7 +329,7 @@ class DataSourceManager:
         # 重定向到统一接口
         return self._get_tushare_fundamentals(symbol)
 
-    def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> List[Dict[str, Any]]:
+    def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]]:
         """
         获取新闻数据的统一接口，支持多数据源和自动降级
         优先级：MongoDB → Tushare → AKShare
@@ -402,7 +402,7 @@ class DataSourceManager:
                         }, exc_info=True)
             return self._try_fallback_news(symbol, hours_back, limit)
 
-    def _check_available_sources(self) -> List[ChinaDataSource]:
+    def _check_available_sources(self) -> list[ChinaDataSource]:
         """
         检查可用的数据源
 
@@ -1425,7 +1425,7 @@ class DataSourceManager:
         logger.error(f"❌ [所有数据源失败] 无法获取{period}数据: {symbol}")
         return f"❌ 所有数据源都无法获取{symbol}的{period}数据", None
 
-    def get_stock_info(self, symbol: str) -> Dict:
+    def get_stock_info(self, symbol: str) -> dict:
         """
         获取股票基本信息，支持多数据源和自动降级
         优先级：MongoDB → Tushare → AKShare → BaoStock
@@ -1535,7 +1535,7 @@ class DataSourceManager:
             logger.error(f"❌ [数据来源: {self.current_source.value}异常] 获取股票信息失败: {e}", exc_info=True)
             return self._try_fallback_stock_info(symbol)
 
-    def get_stock_basic_info(self, stock_code: str = None) -> Optional[Dict[str, Any]]:
+    def get_stock_basic_info(self, stock_code: str = None) -> Optional[dict[str, Any]]:
         """
         获取股票基础信息（兼容 stock_data_service 接口）
 
@@ -1596,7 +1596,7 @@ class DataSourceManager:
             logger.error(f"❌ 获取股票数据失败: {e}")
             return f"❌ 获取股票数据失败: {str(e)}\n\n💡 建议：\n1. 检查网络连接\n2. 确认股票代码格式正确\n3. 检查数据源配置"
 
-    def _try_fallback_stock_info(self, symbol: str) -> Dict:
+    def _try_fallback_stock_info(self, symbol: str) -> dict:
         """尝试使用备用数据源获取股票基本信息"""
         logger.error(f"🔄 {self.current_source.value}失败，尝试备用数据源获取股票信息...")
 
@@ -1649,7 +1649,7 @@ class DataSourceManager:
         logger.error(f"❌ 所有数据源都无法获取{symbol}的股票信息")
         return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'unknown'}
 
-    def _get_akshare_stock_info(self, symbol: str) -> Dict:
+    def _get_akshare_stock_info(self, symbol: str) -> dict:
         """使用AKShare获取股票基本信息
 
         🔥 重要：AKShare 需要区分股票和指数
@@ -1708,7 +1708,7 @@ class DataSourceManager:
             logger.error(f"❌ [股票信息] AKShare获取失败: {symbol}, 错误: {e}")
             return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'akshare', 'error': str(e)}
 
-    def _get_baostock_stock_info(self, symbol: str) -> Dict:
+    def _get_baostock_stock_info(self, symbol: str) -> dict:
         """使用BaoStock获取股票基本信息"""
         try:
             import baostock as bs
@@ -1757,7 +1757,7 @@ class DataSourceManager:
             logger.error(f"❌ [股票信息] BaoStock获取失败: {e}")
             return {'symbol': symbol, 'name': f'股票{symbol}', 'source': 'baostock', 'error': str(e)}
 
-    def _parse_stock_info_string(self, info_str: str, symbol: str) -> Dict:
+    def _parse_stock_info_string(self, info_str: str, symbol: str) -> dict:
         """解析股票信息字符串为字典"""
         try:
             info = {'symbol': symbol, 'source': self.current_source.value}
@@ -1855,7 +1855,7 @@ class DataSourceManager:
             logger.error(f"❌ [数据来源: AKShare异常] 生成基本面分析失败: {e}")
             return f"❌ 生成{symbol}基本面分析失败: {e}"
 
-    def _get_valuation_indicators(self, symbol: str) -> Dict:
+    def _get_valuation_indicators(self, symbol: str) -> dict:
         """从stock_basic_info集合获取估值指标"""
         try:
             db_manager = get_database_manager()
@@ -1883,7 +1883,7 @@ class DataSourceManager:
             logger.error(f"获取{symbol}估值指标失败: {e}")
             return {}
 
-    def _format_financial_data(self, symbol: str, financial_data: List[Dict]) -> str:
+    def _format_financial_data(self, symbol: str, financial_data: list[dict]) -> str:
         """格式化财务数据为报告"""
         try:
             if not financial_data or len(financial_data) == 0:
@@ -2054,7 +2054,7 @@ class DataSourceManager:
         logger.warning(f"⚠️ [数据来源: 生成分析] 所有数据源失败，生成基本分析: {symbol}")
         return self._generate_fundamentals_analysis(symbol)
 
-    def _get_mongodb_news(self, symbol: str, hours_back: int, limit: int) -> List[Dict[str, Any]]:
+    def _get_mongodb_news(self, symbol: str, hours_back: int, limit: int) -> list[dict[str, Any]]:
         """从MongoDB获取新闻数据"""
         try:
             from tradingagents.dataflows.cache.mongodb_cache_adapter import get_mongodb_cache_adapter
@@ -2074,7 +2074,7 @@ class DataSourceManager:
             logger.error(f"❌ [数据来源: MongoDB] 获取新闻失败: {e}")
             return self._try_fallback_news(symbol, hours_back, limit)
 
-    def _get_tushare_news(self, symbol: str, hours_back: int, limit: int) -> List[Dict[str, Any]]:
+    def _get_tushare_news(self, symbol: str, hours_back: int, limit: int) -> list[dict[str, Any]]:
         """从Tushare获取新闻数据"""
         try:
             # Tushare新闻功能暂时不可用，返回空列表
@@ -2085,7 +2085,7 @@ class DataSourceManager:
             logger.error(f"❌ [数据来源: Tushare] 获取新闻失败: {e}")
             return []
 
-    def _get_akshare_news(self, symbol: str, hours_back: int, limit: int) -> List[Dict[str, Any]]:
+    def _get_akshare_news(self, symbol: str, hours_back: int, limit: int) -> list[dict[str, Any]]:
         """从AKShare获取新闻数据"""
         try:
             # AKShare新闻功能暂时不可用，返回空列表
@@ -2096,7 +2096,7 @@ class DataSourceManager:
             logger.error(f"❌ [数据来源: AKShare] 获取新闻失败: {e}")
             return []
 
-    def _try_fallback_news(self, symbol: str, hours_back: int, limit: int) -> List[Dict[str, Any]]:
+    def _try_fallback_news(self, symbol: str, hours_back: int, limit: int) -> list[dict[str, Any]]:
         """新闻数据降级处理"""
         logger.error(f"🔄 {self.current_source.value}失败，尝试备用数据源获取新闻...")
 
@@ -2178,7 +2178,7 @@ def get_china_stock_data_unified(symbol: str, start_date: str, end_date: str) ->
     return result
 
 
-def get_china_stock_info_unified(symbol: str) -> Dict:
+def get_china_stock_info_unified(symbol: str) -> dict:
     """
     统一的中国股票信息获取接口
 
@@ -2250,7 +2250,7 @@ class USDataSourceManager:
         from tradingagents.config.runtime_settings import use_app_cache_enabled
         return use_app_cache_enabled()
 
-    def _get_data_source_priority_order(self, symbol: Optional[str] = None) -> List[USDataSource]:
+    def _get_data_source_priority_order(self, symbol: Optional[str] = None) -> list[USDataSource]:
         """
         从数据库获取美股数据源优先级顺序（用于降级）
 
@@ -2327,7 +2327,7 @@ class USDataSourceManager:
 
         return source_mapping.get(env_source, USDataSource.YFINANCE)
 
-    def _check_available_sources(self) -> List[USDataSource]:
+    def _check_available_sources(self) -> list[USDataSource]:
         """
         检查可用的数据源
 
@@ -2389,7 +2389,7 @@ class USDataSourceManager:
 
         return available
 
-    def _get_enabled_sources_from_db(self) -> List[str]:
+    def _get_enabled_sources_from_db(self) -> list[str]:
         """从数据库读取启用的数据源列表"""
         try:
             from app.core.database import get_mongo_db_sync

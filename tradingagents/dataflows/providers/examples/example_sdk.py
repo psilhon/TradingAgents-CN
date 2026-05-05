@@ -99,7 +99,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         self.connected = False
         self.logger.info("ExampleSDK连接已断开")
 
-    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[Dict[str, Any], List[Dict[str, Any]]]]:
+    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[dict[str, Any], list[dict[str, Any]]]]:
         """获取股票基础信息"""
         if not self.connected:
             await self.connect()
@@ -130,7 +130,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取股票基础信息失败 symbol={symbol}")
             return None
 
-    async def get_stock_list(self, market: str = None) -> Optional[List[Dict[str, Any]]]:
+    async def get_stock_list(self, market: str = None) -> Optional[list[dict[str, Any]]]:
         """获取股票列表"""
         if not self.connected:
             await self.connect()
@@ -153,7 +153,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取股票列表失败 market={market}")
             return None
 
-    async def get_stock_quotes(self, symbol: str) -> Optional[Dict[str, Any]]:
+    async def get_stock_quotes(self, symbol: str) -> Optional[dict[str, Any]]:
         """获取实时行情"""
         if not self.connected:
             await self.connect()
@@ -205,7 +205,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取历史数据失败 symbol={symbol}")
             return None
 
-    async def get_financial_data(self, symbol: str, report_type: str = "annual") -> Optional[Dict[str, Any]]:
+    async def get_financial_data(self, symbol: str, report_type: str = "annual") -> Optional[dict[str, Any]]:
         """获取财务数据"""
         if not self.connected:
             await self.connect()
@@ -226,7 +226,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取财务数据失败 symbol={symbol}")
             return None
 
-    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> Optional[List[Dict[str, Any]]]:
+    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> Optional[list[dict[str, Any]]]:
         """获取股票新闻"""
         if not self.connected:
             await self.connect()
@@ -253,7 +253,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
 
     # ==================== 数据转换方法 ====================
 
-    def standardize_basic_info(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def standardize_basic_info(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """标准化股票基础信息 - 重写以适配ExampleSDK格式"""
         # 字段映射 (根据实际SDK的字段名称调整)
         mapped_data = {
@@ -271,7 +271,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         # 调用父类的标准化方法
         return super().standardize_basic_info(mapped_data)
 
-    def standardize_quotes(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def standardize_quotes(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """标准化实时行情数据 - 重写以适配ExampleSDK格式"""
         # 字段映射
         mapped_data = {
@@ -291,7 +291,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         # 调用父类的标准化方法
         return super().standardize_quotes(mapped_data)
 
-    def _convert_to_dataframe(self, history_data: List[Dict[str, Any]]) -> pd.DataFrame:
+    def _convert_to_dataframe(self, history_data: list[dict[str, Any]]) -> pd.DataFrame:
         """将历史数据转换为DataFrame"""
         if not history_data:
             return pd.DataFrame()
@@ -319,7 +319,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
 
         return df
 
-    def _standardize_financial_data(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _standardize_financial_data(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """标准化财务数据"""
         return {
             "symbol": raw_data.get("ticker", raw_data.get("symbol")),
@@ -334,7 +334,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             "updated_at": datetime.utcnow()
         }
 
-    def _standardize_news(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _standardize_news(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """标准化新闻数据"""
         return {
             "title": raw_data.get("headline", raw_data.get("title")),

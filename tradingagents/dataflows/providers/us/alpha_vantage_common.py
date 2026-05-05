@@ -162,10 +162,10 @@ def format_datetime_for_api(date_str: str) -> str:
 
 def _make_api_request(
     function: str,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     max_retries: int = 3,
     retry_delay: int = 2
-) -> Dict[str, Any] | str:
+) -> dict[str, Any] | str:
     """
     发起 Alpha Vantage API 请求
     
@@ -269,7 +269,7 @@ def _make_api_request(
     raise AlphaVantageAPIError(f"Failed to get data from Alpha Vantage after {max_retries} attempts")
 
 
-def format_response_as_string(data: Dict[str, Any], title: str = "Alpha Vantage Data") -> str:
+def format_response_as_string(data: dict[str, Any], title: str = "Alpha Vantage Data") -> str:
     """
     将 API 响应格式化为字符串
     

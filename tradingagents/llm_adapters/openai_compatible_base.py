@@ -156,8 +156,8 @@ class OpenAICompatibleBase(ChatOpenAI):
 
     def _generate(
         self,
-        messages: List[BaseMessage],
-        stop: Optional[List[str]] = None,
+        messages: list[BaseMessage],
+        stop: Optional[list[str]] = None,
         run_manager: Optional[CallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> ChatResult:
@@ -176,7 +176,7 @@ class OpenAICompatibleBase(ChatOpenAI):
 
         return result
 
-    def _track_token_usage(self, result: ChatResult, kwargs: Dict, start_time: float):
+    def _track_token_usage(self, result: ChatResult, kwargs: dict, start_time: float):
         """记录token使用量并输出日志"""
         if not TOKEN_TRACKING_ENABLED:
             return
@@ -310,7 +310,7 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
         # 保守估算：2字符/token
         return max(1, len(text) // 2)
 
-    def _truncate_messages(self, messages: List[BaseMessage], max_tokens: int = 4500) -> List[BaseMessage]:
+    def _truncate_messages(self, messages: list[BaseMessage], max_tokens: int = 4500) -> list[BaseMessage]:
         """截断消息以适应千帆模型的token限制"""
         # 为千帆模型预留一些token空间，使用4500而不是5120
         truncated_messages = []
@@ -344,8 +344,8 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
 
     def _generate(
         self,
-        messages: List[BaseMessage],
-        stop: Optional[List[str]] = None,
+        messages: list[BaseMessage],
+        stop: Optional[list[str]] = None,
         run_manager: Optional[CallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> ChatResult:

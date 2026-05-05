@@ -20,7 +20,7 @@ class ChineseFinanceDataAggregator:
         self.session = requests.Session()
         self.session.headers.update(self.headers)
 
-    def get_stock_sentiment_summary(self, ticker: str, days: int = 7) -> Dict:
+    def get_stock_sentiment_summary(self, ticker: str, days: int = 7) -> dict:
         """
         获取股票情绪分析汇总
         整合多个可获取的中国财经数据源
@@ -59,7 +59,7 @@ class ChineseFinanceDataAggregator:
                 'timestamp': datetime.now().isoformat()
             }
 
-    def _get_finance_news_sentiment(self, ticker: str, days: int) -> Dict:
+    def _get_finance_news_sentiment(self, ticker: str, days: int) -> dict:
         """获取财经新闻情绪分析"""
         try:
             # 搜索相关新闻标题和内容
@@ -104,7 +104,7 @@ class ChineseFinanceDataAggregator:
         except Exception as e:
             return {'error': str(e), 'sentiment_score': 0, 'confidence': 0}
 
-    def _get_stock_forum_sentiment(self, ticker: str, days: int) -> Dict:
+    def _get_stock_forum_sentiment(self, ticker: str, days: int) -> dict:
         """获取股票论坛讨论情绪 (模拟数据，实际需要爬虫)"""
         # 由于东方财富股吧等平台的反爬虫机制，这里返回模拟数据
         # 实际实现需要更复杂的爬虫技术
@@ -117,7 +117,7 @@ class ChineseFinanceDataAggregator:
             'confidence': 0
         }
 
-    def _get_media_coverage_sentiment(self, ticker: str, days: int) -> Dict:
+    def _get_media_coverage_sentiment(self, ticker: str, days: int) -> dict:
         """获取媒体报道情绪"""
         try:
             # 可以集成RSS源或公开的财经API
@@ -143,7 +143,7 @@ class ChineseFinanceDataAggregator:
         except Exception as e:
             return {'error': str(e), 'sentiment_score': 0, 'confidence': 0}
 
-    def _search_finance_news(self, search_term: str, days: int) -> List[Dict]:
+    def _search_finance_news(self, search_term: str, days: int) -> list[dict]:
         """搜索财经新闻 (示例实现)"""
         # 这里可以集成多个新闻源的API或RSS
         # 例如：财联社、新浪财经、东方财富等
@@ -159,7 +159,7 @@ class ChineseFinanceDataAggregator:
             }
         ]
 
-    def _get_media_coverage(self, ticker: str, days: int) -> List[Dict]:
+    def _get_media_coverage(self, ticker: str, days: int) -> list[dict]:
         """获取媒体报道 (示例实现)"""
         # 可以集成Google News API或其他新闻聚合服务
         return []
@@ -194,7 +194,7 @@ class ChineseFinanceDataAggregator:
         }
         return name_mapping.get(ticker.upper())
 
-    def _calculate_overall_sentiment(self, news_sentiment: Dict, forum_sentiment: Dict, media_sentiment: Dict) -> Dict:
+    def _calculate_overall_sentiment(self, news_sentiment: dict, forum_sentiment: dict, media_sentiment: dict) -> dict:
         """计算综合情绪分析"""
         # 根据各数据源的置信度加权计算
         news_weight = news_sentiment.get('confidence', 0)
@@ -230,7 +230,7 @@ class ChineseFinanceDataAggregator:
             'level': level
         }
 
-    def _generate_sentiment_summary(self, overall_sentiment: Dict) -> str:
+    def _generate_sentiment_summary(self, overall_sentiment: dict) -> str:
         """生成情绪分析摘要"""
         level = overall_sentiment.get('level', 'neutral')
         score = overall_sentiment.get('sentiment_score', 0)

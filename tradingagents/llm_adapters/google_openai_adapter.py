@@ -157,7 +157,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
             return model[7:]  # 移除 "models/" 前缀
         return model or "unknown"
 
-    def _generate(self, messages: List[BaseMessage], stop: Optional[List[str]] = None, **kwargs) -> LLMResult:
+    def _generate(self, messages: list[BaseMessage], stop: Optional[list[str]] = None, **kwargs) -> LLMResult:
         """重写生成方法，优化工具调用处理和内容格式"""
 
         try:
@@ -259,7 +259,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
 
         return enhanced_content
 
-    def _track_token_usage(self, result: LLMResult, kwargs: Dict[str, Any]):
+    def _track_token_usage(self, result: LLMResult, kwargs: dict[str, Any]):
         """追踪 token 使用量"""
 
         try:
@@ -349,7 +349,7 @@ GOOGLE_OPENAI_MODELS = {
 }
 
 
-def get_available_google_models() -> Dict[str, Dict[str, Any]]:
+def get_available_google_models() -> dict[str, dict[str, Any]]:
     """获取可用的 Google AI 模型列表"""
     return GOOGLE_OPENAI_MODELS
 
