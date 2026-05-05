@@ -36,6 +36,15 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"  # 生成 secret
 # 7) 重建本地端口映射（不在 git 里）
 # 端口段位 54300-54309，详见 CLAUDE.md
 # 内容参考 docker-compose.override.yml 的 git history（如已 commit），或手抄 CLAUDE.md「端口分配」段
+
+# 8) 启 docker db + 创建初始 admin 用户
+docker compose up -d mongodb redis
+sleep 30   # 等 mongo healthy
+
+# 上游 scripts/create_default_admin.py hardcode 27017，临时 patch 到 54302
+sed -i.orig 's/localhost:27017/localhost:54302/g' scripts/create_default_admin.py
+.venv/bin/python scripts/create_default_admin.py     # 创建 admin/admin123
+mv scripts/create_default_admin.py.orig scripts/create_default_admin.py   # 还原
 ```
 
 ## 2. 日常开发命令
@@ -50,7 +59,7 @@ just fix        # 自动修复 ruff lint/format
 
 # 服务（端口 54300-54309，见 CLAUDE.md）
 docker compose up -d mongodb redis     # 仅起 db，本地跑 backend
-.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 54301 --reload
+.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 54301 --reload
 cd frontend && npm run dev -- --port 54300   # vite dev 强制走端口段位 54300（与 docker frontend 互斥）
 
 # CLI demo

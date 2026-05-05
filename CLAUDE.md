@@ -18,7 +18,7 @@ docker compose up -d mongodb redis
 docker compose down
 
 # 后端（本地 venv 跑，连 docker 起的 db；端口 54301 见「端口分配」段）
-.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 54301 --reload
+.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 54301 --reload
 
 # 前端（独立终端；vite dev 强制 :54300，与 docker frontend 互斥）
 cd frontend && npm install && npm run dev -- --port 54300
@@ -100,6 +100,11 @@ just setup       # 装 pre-commit hook（首次 setup）
 
 **前端两种运行模式都走 54300**：vite dev (`npm run dev -- --port 54300`) 与 docker frontend 容器（host 端 54300）共用 54300，**互斥** —— 同一时刻只能跑一个（开发用 vite dev 热重载，部署/集测用 docker）。**不修改 `frontend/vite.config.ts`**（专有授权代码），通过命令行 `--port` 参数强制覆盖默认 5173。
 
+**🔒 所有对外服务强制绑定 `127.0.0.1`（loopback only）**：本项目为个人使用，不对外暴露。所有 host 配置 / 端口映射 / 服务监听地址必须只接受 loopback 连接，禁止绑 `0.0.0.0`（含同局域网访问）。落地：
+- uvicorn / vite dev 命令必须 `--host 127.0.0.1`
+- docker-compose 端口映射必须 `127.0.0.1:543xx:xxx`（不是默认 `543xx:xxx`，后者绑 `0.0.0.0`）
+- `.env` 的 `API_HOST` / `HOST` 必须 `127.0.0.1`
+
 ## AI 上下文入口
 
 新会话 prime 优先级：
@@ -142,6 +147,7 @@ just setup       # 装 pre-commit hook（首次 setup）
 - 🔴 **`uv pip install -e .` 会误删 tracked 文件 `VERSION` / `requirements.txt` / `requirements-lock.txt`**——本会话已实测复现。原因不明（无 `setup.py` / `MANIFEST.in`，文件也不在 `.gitignore`），疑似 setuptools editable build 或 uv 0.11 editable 实现的副作用。**装完立即跑 `git status`**；若有删除，立即 `git checkout HEAD -- VERSION requirements.txt requirements-lock.txt` 恢复。
 - 🟡 **`.chainlit/` 在 import chainlit 时自动生成**且未在 `.gitignore` 中，会污染 `git status`。可加到 `.gitignore` 或在 git 操作前手动忽略。
 - 🟡 **`app/services/config_service.py` 491/500 行 hardcode `port=27017/6379` 作为 fallback 默认值**（专有授权代码不改）。`.env` 必须显式配 `MONGODB_PORT=54302` + `REDIS_PORT=54303`，否则 backend fallback 连 27017/6379 失败（docker 端口已被 override 改成 54302/54303，无监听）。
+- 🟡 **上游 `scripts/*.py` 多处 hardcode `localhost:27017` / `localhost:8000` 等**（违反 fork 端口段位约定）。典型如 `scripts/create_default_admin.py` 直接 hardcode `MONGO_URI` 不读 `.env`。**临时 workaround**：跑脚本前 `sed -i.orig 's/localhost:27017/localhost:54302/g' <script>`，跑完 `mv <script>.orig <script>` 还原。**长期**：用 OpenSpec change 给所有 scripts 改成读 `.env`。
 - 重装依赖时如果跑 `uv sync`（不带 `--frozen`），会因 `qianfan` extra 在 3.13 无可用 wheel 而失败——必须 `--frozen` 跳过解析
 - `uv pip install` 必须带 `--python .venv/bin/python`，否则 uv 会试图装到系统 homebrew Python，PEP 668 拒绝
 - Docker Desktop 必须先手动启动（GUI 操作，Claude 不能代替）

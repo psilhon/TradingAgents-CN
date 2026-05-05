@@ -40,10 +40,14 @@ export default defineConfig({
     }
   },
   server: {
-    host: '0.0.0.0',
-    port: 3000,
+    // fork-local: 端口段位 54300-54309 + 强制 loopback only（个人使用，不对外）
+    // 见根目录 CLAUDE.md「端口分配」+「项目特殊约定」段
+    host: '127.0.0.1',
+    port: 54300,
+    strictPort: true,
     hmr: {
-      overlay: false
+      overlay: false,
+      host: '127.0.0.1'
     },
     // 允许从项目根目录之外（例如 /docs）导入原始文件
     fs: {
@@ -51,7 +55,8 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        // 后端在 fork-local :54301（端口段位约定，非上游默认 8000）
+        target: 'http://127.0.0.1:54301',
         changeOrigin: true,
         secure: false,
         ws: true  // 🔥 启用 WebSocket 代理支持
