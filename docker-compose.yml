@@ -1,7 +1,8 @@
-version: '3.8'
-
-# TradingAgents-CN v1.0.0-preview Docker Compose配置
+# TradingAgents-CN v1.1.0 Docker Compose 配置
 # 支持前后端分离部署
+#
+# 🔒 所有端口映射强制绑 127.0.0.1（loopback only）—— 个人使用，不对外暴露
+# 端口段位 54300-54309（项目级永恒约定，见 CLAUDE.md / openspec/specs/loopback-binding-policy）
 
 services:
   # FastAPI 后端服务
@@ -9,10 +10,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    image: tradingagents-backend:v1.0.0-preview
+    image: tradingagents-backend:v1.1.0
     container_name: tradingagents-backend
     ports:
-      - "8000:8000"
+      - "127.0.0.1:54301:8000"
     volumes:
       # 日志目录映射
       - ./logs:/app/logs
@@ -40,7 +41,7 @@ services:
       API_HOST: "0.0.0.0"
       API_PORT: "8000"
       # CORS配置
-      CORS_ORIGINS: "http://localhost:3000,http://localhost:8080,http://localhost:5173"
+      CORS_ORIGINS: "http://localhost:54300"
     depends_on:
       mongodb:
         condition: service_healthy
@@ -66,14 +67,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    image: tradingagents-frontend:v1.0.0-preview
+    image: tradingagents-frontend:v1.1.0
     container_name: tradingagents-frontend
     ports:
-      - "3000:80"
+      - "127.0.0.1:54300:80"
     environment:
       TZ: "Asia/Shanghai"
-      # 后端API地址
-      VITE_API_BASE_URL: "http://localhost:8000"
+      # 后端API地址（host 端访问 backend 走端口段位 54301）
+      VITE_API_BASE_URL: "http://localhost:54301"
     depends_on:
       backend:
         condition: service_healthy
@@ -98,7 +99,7 @@ services:
     container_name: tradingagents-mongodb
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "127.0.0.1:54302:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: tradingagents123
@@ -127,7 +128,7 @@ services:
     container_name: tradingagents-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "127.0.0.1:54303:6379"
     environment:
       TZ: "Asia/Shanghai"
     command: redis-server --appendonly yes --requirepass tradingagents123
@@ -153,7 +154,7 @@ services:
     container_name: tradingagents-redis-commander
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "127.0.0.1:54304:8081"
     environment:
       - REDIS_HOSTS=local:redis:6379:0:tradingagents123
     networks:
@@ -176,7 +177,7 @@ services:
     container_name: tradingagents-mongo-express
     restart: unless-stopped
     ports:
-      - "8082:8081"
+      - "127.0.0.1:54305:8081"
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: admin
       ME_CONFIG_MONGODB_ADMINPASSWORD: tradingagents123
