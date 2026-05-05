@@ -78,7 +78,7 @@ def test_akshare_stock_info():
     try:
         stock_info = ak.stock_individual_info_em(symbol=symbol)
         if not stock_info.empty:
-            print(f"✅ 股票信息获取成功")
+            print("✅ 股票信息获取成功")
             print("📋 基本信息:")
             for _, row in stock_info.head(10).iterrows():  # 显示前10项
                 print(f"   {row['item']}: {row['value']}")

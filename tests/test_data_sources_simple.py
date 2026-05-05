@@ -23,12 +23,12 @@ def test_china_data_source():
         from tradingagents.dataflows.data_source_manager import DataSourceManager
 
         manager = DataSourceManager()
-        print(f"✅ 数据源管理器初始化成功")
+        print("✅ 数据源管理器初始化成功")
         print(f"   当前数据源: {manager.current_source.value}")
         print(f"   可用数据源: {[s.value for s in manager.available_sources]}")
 
         # 测试获取数据
-        print(f"\n📊 测试获取平安银行(000001)数据...")
+        print("\n📊 测试获取平安银行(000001)数据...")
         start_time = time.time()
         result = manager.get_stock_data("000001", "2025-07-01", "2025-07-12")
         end_time = time.time()
@@ -55,7 +55,7 @@ def test_us_data_source():
         # 测试优化版本
         from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
 
-        print(f"📊 测试获取苹果(AAPL)数据...")
+        print("📊 测试获取苹果(AAPL)数据...")
         start_time = time.time()
         result = get_us_stock_data_cached("AAPL", "2025-07-01", "2025-07-12", force_refresh=True)
         end_time = time.time()
@@ -66,9 +66,9 @@ def test_us_data_source():
 
             # 检查数据源
             if "FINNHUB" in result.upper() or "finnhub" in result:
-                print(f"   🎯 使用了FinnHub数据源")
+                print("   🎯 使用了FinnHub数据源")
             elif "Yahoo Finance" in result or "yfinance" in result:
-                print(f"   ⚠️ 使用了Yahoo Finance备用数据源")
+                print("   ⚠️ 使用了Yahoo Finance备用数据源")
 
             print(f"   数据预览: {result[:100]}...")
             return True
@@ -89,7 +89,7 @@ def test_cache_system():
         from tradingagents.dataflows.cache_manager import get_cache
 
         cache = get_cache()
-        print(f"✅ 缓存管理器初始化成功")
+        print("✅ 缓存管理器初始化成功")
         print(f"   缓存类型: {type(cache).__name__}")
 
         # 测试缓存操作
@@ -108,11 +108,11 @@ def test_cache_system():
         loaded_data = cache.load_stock_data(cache_key)
 
         if loaded_data == test_data:
-            print(f"✅ 缓存读写测试成功")
+            print("✅ 缓存读写测试成功")
             print(f"   缓存键: {cache_key}")
             return True
         else:
-            print(f"❌ 缓存数据不匹配")
+            print("❌ 缓存数据不匹配")
             return False
 
     except Exception as e:
@@ -174,27 +174,27 @@ def main():
     total = len(results)
     success_rate = (passed / total * 100) if total > 0 else 0
 
-    print(f"\n📊 测试结果汇总")
+    print("\n📊 测试结果汇总")
     print("=" * 50)
 
     for test_name, result in results:
         status = "✅ 通过" if result else "❌ 失败"
         print(f"{test_name}: {status}")
 
-    print(f"\n📈 总体结果:")
+    print("\n📈 总体结果:")
     print(f"   通过: {passed}/{total}")
     print(f"   成功率: {success_rate:.1f}%")
 
     if success_rate >= 75:
-        print(f"\n🎉 数据源系统运行良好！")
-        print(f"✅ 主要功能正常")
-        print(f"✅ 可以开始使用系统")
+        print("\n🎉 数据源系统运行良好！")
+        print("✅ 主要功能正常")
+        print("✅ 可以开始使用系统")
     else:
-        print(f"\n⚠️ 数据源系统需要优化")
-        print(f"❌ 请检查失败的组件")
-        print(f"❌ 参考错误信息进行修复")
+        print("\n⚠️ 数据源系统需要优化")
+        print("❌ 请检查失败的组件")
+        print("❌ 参考错误信息进行修复")
 
-    print(f"\n💡 建议:")
+    print("\n💡 建议:")
     if not api_result:
         print("- 配置更多API密钥以提高数据源可用性")
     if not cache_result:

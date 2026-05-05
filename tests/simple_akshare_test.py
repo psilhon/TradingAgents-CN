@@ -138,13 +138,13 @@ if __name__ == "__main__":
     success = main()
 
     if success:
-        print(f"\n🎯 分支管理建议:")
+        print("\n🎯 分支管理建议:")
         print("✅ AKShare功能基本正常")
         print("✅ 可以删除以下重复分支:")
         print("   - feature/akshare-integration")
         print("   - feature/akshare-integration-clean")
         print("✅ 保留 feature/tushare-integration（包含完整功能）")
     else:
-        print(f"\n⚠️ 建议:")
+        print("\n⚠️ 建议:")
         print("1. 先修复AKShare集成问题")
         print("2. 再考虑分支清理")

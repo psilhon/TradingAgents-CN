@@ -88,7 +88,7 @@ def check_mongodb_before_after():
             return False
 
         # 3. 等待任务完成
-        print(f"\n3. 等待任务完成...")
+        print("\n3. 等待任务完成...")
         for i in range(60):  # 最多等待5分钟
             status_response = requests.get(
                 f"{base_url}/api/analysis/tasks/{task_id}/status",
@@ -103,16 +103,16 @@ def check_mongodb_before_after():
                     print("✅ 分析任务完成!")
                     break
                 elif status == "failed":
-                    print(f"❌ 分析任务失败")
+                    print("❌ 分析任务失败")
                     return False
 
             time.sleep(5)
         else:
-            print(f"⏰ 任务执行超时")
+            print("⏰ 任务执行超时")
             return False
 
         # 4. 检查MongoDB保存结果
-        print(f"\n4. 检查MongoDB保存结果...")
+        print("\n4. 检查MongoDB保存结果...")
 
         # 检查保存后的记录数
         after_count = collection.count_documents({})
@@ -124,7 +124,7 @@ def check_mongodb_before_after():
             # 获取最新的记录
             latest_record = collection.find().sort("created_at", -1).limit(1)
             for record in latest_record:
-                print(f"\n📋 最新记录详情:")
+                print("\n📋 最新记录详情:")
                 print(f"   analysis_id: {record.get('analysis_id')}")
                 print(f"   stock_symbol: {record.get('stock_symbol')}")
                 print(f"   analysis_date: {record.get('analysis_date')}")
@@ -141,11 +141,11 @@ def check_mongodb_before_after():
                         else:
                             print(f"   - {report_type}: {type(content)}")
                 else:
-                    print(f"❌ 未找到reports字段或为空")
+                    print("❌ 未找到reports字段或为空")
 
                 return True
         else:
-            print(f"❌ MongoDB记录数未增加")
+            print("❌ MongoDB记录数未增加")
             return False
 
     except Exception as e:

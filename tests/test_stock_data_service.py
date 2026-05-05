@@ -96,7 +96,7 @@ class TestStockDataService(unittest.TestCase):
         elif isinstance(result, dict) and 'error' in result:
             print(f"  ⚠️ 获取失败: {result['error']}")
         else:
-            print(f"  ⚠️ 未获取到数据")
+            print("  ⚠️ 未获取到数据")
 
         print("  ✅ 所有股票信息测试完成")
 
@@ -158,7 +158,7 @@ class TestStockAPI(unittest.TestCase):
         self.assertIsInstance(status, dict)
         self.assertIn('service_available', status)
 
-        print(f"  📊 服务状态:")
+        print("  📊 服务状态:")
         for key, value in status.items():
             print(f"    {key}: {value}")
 
@@ -200,7 +200,7 @@ class TestStockAPI(unittest.TestCase):
             self.assertIsInstance(results, list)
 
             if not results or (len(results) == 1 and 'error' in results[0]):
-                print(f"    ⚠️ 未找到匹配结果")
+                print("    ⚠️ 未找到匹配结果")
             else:
                 print(f"    ✅ 找到 {len(results)} 个匹配结果")
                 # 检查第一个结果
@@ -221,7 +221,7 @@ class TestStockAPI(unittest.TestCase):
         if 'error' in summary:
             print(f"  ⚠️ 获取失败: {summary['error']}")
         else:
-            print(f"  ✅ 获取成功:")
+            print("  ✅ 获取成功:")
             print(f"    📊 总股票数: {summary.get('total_count', 0):,}")
             print(f"    🏢 沪市股票: {summary.get('shanghai_count', 0):,}")
             print(f"    🏢 深市股票: {summary.get('shenzhen_count', 0):,}")
@@ -250,7 +250,7 @@ class TestStockAPI(unittest.TestCase):
 
         # 检查结果是否包含预期内容
         if "❌" in result:
-            print(f"    ⚠️ 获取失败（预期情况）")
+            print("    ⚠️ 获取失败（预期情况）")
         else:
             print(f"    ✅ 获取成功（数据长度: {len(result)} 字符）")
 
@@ -308,7 +308,7 @@ class TestFallbackMechanism(unittest.TestCase):
             if isinstance(result, dict):
                 # 应该包含错误信息或降级数据
                 if 'error' in result:
-                    print(f"    ✅ 正确识别无效代码")
+                    print("    ✅ 正确识别无效代码")
                 else:
                     print(f"    ⚠️ 返回了数据: {result.get('name')}")
 

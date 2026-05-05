@@ -9,7 +9,7 @@ from langchain_core.messages import AIMessage
 
 def create_fundamentals_analyst(llm, toolkit):
     def fundamentals_analyst_node(state):
-        print(f"📊 [DEBUG] ===== 基本面分析师节点开始 =====")
+        print("📊 [DEBUG] ===== 基本面分析师节点开始 =====")
 
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
@@ -41,7 +41,7 @@ def create_fundamentals_analyst(llm, toolkit):
         # 选择工具
         if toolkit.config["online_tools"]:
             # 使用统一的基本面分析工具，工具内部会自动识别股票类型
-            print(f"📊 [基本面分析师] 使用统一基本面分析工具，自动识别股票类型")
+            print("📊 [基本面分析师] 使用统一基本面分析工具，自动识别股票类型")
             tools = [toolkit.get_stock_fundamentals_unified]
             print(f"📊 [DEBUG] 选择的工具: {[tool.name for tool in tools]}")
             print(f"📊 [DEBUG] 🔧 统一工具将自动处理: {market_info['market_name']}")
@@ -111,7 +111,7 @@ def create_fundamentals_analyst(llm, toolkit):
 
         # 检测阿里百炼模型并创建新实例
         if hasattr(llm, '__class__') and 'DashScope' in llm.__class__.__name__:
-            print(f"📊 [DEBUG] 检测到阿里百炼模型，创建新实例以避免工具缓存")
+            print("📊 [DEBUG] 检测到阿里百炼模型，创建新实例以避免工具缓存")
             from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
             # 获取原始 LLM 的 base_url 和 api_key
@@ -129,11 +129,11 @@ def create_fundamentals_analyst(llm, toolkit):
             if original_base_url:
                 print(f"📊 [DEBUG] 新实例使用原始 base_url: {original_base_url}")
             if original_api_key:
-                print(f"📊 [DEBUG] 新实例使用原始 API Key（来自数据库配置）")
+                print("📊 [DEBUG] 新实例使用原始 API Key（来自数据库配置）")
 
         print(f"📊 [DEBUG] 创建LLM链，工具数量: {len(tools)}")
         print(f"📊 [DEBUG] 绑定的工具列表: {[tool.name for tool in tools]}")
-        print(f"📊 [DEBUG] 创建工具链，让模型自主决定是否调用工具")
+        print("📊 [DEBUG] 创建工具链，让模型自主决定是否调用工具")
 
         try:
             chain = prompt | llm.bind_tools(tools)
@@ -142,9 +142,9 @@ def create_fundamentals_analyst(llm, toolkit):
             print(f"📊 [DEBUG] ❌ 工具绑定失败: {e}")
             raise e
 
-        print(f"📊 [DEBUG] 调用LLM链...")
+        print("📊 [DEBUG] 调用LLM链...")
         result = chain.invoke(state["messages"])
-        print(f"📊 [DEBUG] LLM调用完成")
+        print("📊 [DEBUG] LLM调用完成")
 
         print(f"📊 [DEBUG] 结果类型: {type(result)}")
         print(f"📊 [DEBUG] 工具调用数量: {len(result.tool_calls) if hasattr(result, 'tool_calls') else 0}")
@@ -172,11 +172,11 @@ def create_fundamentals_analyst(llm, toolkit):
 
         else:
             # 没有工具调用，使用阿里百炼强制工具调用修复
-            print(f"📊 [DEBUG] 检测到模型未调用工具，启用强制工具调用模式")
+            print("📊 [DEBUG] 检测到模型未调用工具，启用强制工具调用模式")
 
             # 强制调用统一基本面分析工具
             try:
-                print(f"📊 [DEBUG] 强制调用 get_stock_fundamentals_unified...")
+                print("📊 [DEBUG] 强制调用 get_stock_fundamentals_unified...")
                 unified_tool = next((tool for tool in tools if tool.name == 'get_stock_fundamentals_unified'), None)
                 if unified_tool:
                     combined_data = unified_tool.invoke({
@@ -188,7 +188,7 @@ def create_fundamentals_analyst(llm, toolkit):
                     print(f"📊 [DEBUG] 统一工具数据获取成功，长度: {len(combined_data)}字符")
                 else:
                     combined_data = "统一基本面分析工具不可用"
-                    print(f"📊 [DEBUG] 统一工具未找到")
+                    print("📊 [DEBUG] 统一工具未找到")
             except Exception as e:
                 combined_data = f"统一基本面分析工具调用失败: {e}"
                 print(f"📊 [DEBUG] 统一工具调用异常: {e}")

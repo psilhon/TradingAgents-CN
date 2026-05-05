@@ -53,12 +53,12 @@ def test_deepseek_market_analyst():
         # 执行分析
         result = market_analyst(state)
 
-        print(f"📊 分析结果:")
+        print("📊 分析结果:")
         print(f"   消息数量: {len(result.get('messages', []))}")
 
         market_report = result.get('market_report', '')
         print(f"   市场报告长度: {len(market_report)}")
-        print(f"   市场报告前500字符:")
+        print("   市场报告前500字符:")
         print("-" * 50)
         print(market_report[:500])
         print("-" * 50)
@@ -68,7 +68,7 @@ def test_deepseek_market_analyst():
         has_analysis = len(market_report) > 500
         not_placeholder = "正在调用工具" not in market_report
 
-        print(f"📊 报告质量检查:")
+        print("📊 报告质量检查:")
         print(f"   包含实际数据: {'✅' if has_data else '❌'}")
         print(f"   分析内容充实: {'✅' if has_analysis else '❌'}")
         print(f"   非占位符内容: {'✅' if not_placeholder else '❌'}")
@@ -127,12 +127,12 @@ def test_dashscope_market_analyst():
         # 执行分析
         result = market_analyst(state)
 
-        print(f"📊 分析结果:")
+        print("📊 分析结果:")
         print(f"   消息数量: {len(result.get('messages', []))}")
 
         market_report = result.get('market_report', '')
         print(f"   市场报告长度: {len(market_report)}")
-        print(f"   市场报告前500字符:")
+        print("   市场报告前500字符:")
         print("-" * 50)
         print(market_report[:500])
         print("-" * 50)
@@ -142,7 +142,7 @@ def test_dashscope_market_analyst():
         has_analysis = len(market_report) > 500
         not_placeholder = "正在调用工具" not in market_report
 
-        print(f"📊 报告质量检查:")
+        print("📊 报告质量检查:")
         print(f"   包含实际数据: {'✅' if has_data else '❌'}")
         print(f"   分析内容充实: {'✅' if has_analysis else '❌'}")
         print(f"   非占位符内容: {'✅' if not_placeholder else '❌'}")

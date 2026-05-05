@@ -41,20 +41,20 @@ def test_signal_processor():
         3. 市场情绪积极
         """
 
-        print(f"\n📊 测试信号内容:")
+        print("\n📊 测试信号内容:")
         print(test_signal)
 
         # 处理信号
-        print(f"\n🔄 开始处理信号...")
+        print("\n🔄 开始处理信号...")
         result = processor.process_signal(test_signal, "000001")
 
-        print(f"\n✅ 处理结果:")
+        print("\n✅ 处理结果:")
         print(f"类型: {type(result)}")
         print(f"内容: {result}")
 
         # 检查结果结构
         if isinstance(result, dict):
-            print(f"\n📋 结果详情:")
+            print("\n📋 结果详情:")
             for key, value in result.items():
                 print(f"  {key}: {value}")
 
@@ -81,22 +81,22 @@ def test_trading_graph():
         config['quick_think_llm'] = 'qwen-plus-latest'
         config['deep_think_llm'] = 'qwen-plus-latest'
 
-        print(f"📊 配置信息:")
+        print("📊 配置信息:")
         print(f"  LLM提供商: {config['llm_provider']}")
         print(f"  快速模型: {config['quick_think_llm']}")
         print(f"  深度模型: {config['deep_think_llm']}")
 
         # 创建交易图
-        print(f"\n🔄 创建交易图...")
+        print("\n🔄 创建交易图...")
         graph = TradingAgentsGraph(analysts=['market'], config=config, debug=False)
         print("✅ 交易图创建成功")
 
         # 测试信号处理器
-        print(f"\n🔄 测试信号处理器...")
+        print("\n🔄 测试信号处理器...")
         test_signal = "推荐：买入\n目标价位：¥50.00\n置信度：80%\n风险评分：30%"
         result = graph.process_signal(test_signal, "000001")
 
-        print(f"✅ 信号处理结果:")
+        print("✅ 信号处理结果:")
         print(f"类型: {type(result)}")
         print(f"内容: {result}")
 

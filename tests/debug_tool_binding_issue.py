@@ -36,7 +36,7 @@ def test_tool_isolation():
             max_tokens=200
         )
 
-        print(f"\n📋 工具包中的所有工具:")
+        print("\n📋 工具包中的所有工具:")
         all_tools = []
         for attr_name in dir(toolkit):
             if not attr_name.startswith('_') and callable(getattr(toolkit, attr_name)):
@@ -45,7 +45,7 @@ def test_tool_isolation():
                     all_tools.append(attr.name)
                     print(f"  - {attr.name}")
 
-        print(f"\n🔧 测试1: 只绑定港股工具")
+        print("\n🔧 测试1: 只绑定港股工具")
         hk_tools = [toolkit.get_hk_stock_data_unified]
         llm_hk = llm.bind_tools(hk_tools)
 
@@ -69,15 +69,15 @@ def test_tool_isolation():
                     print(f"  ❌ 调用了未绑定的工具: {unexpected_tools}")
                     return False
                 else:
-                    print(f"  ✅ 只调用了绑定的工具")
+                    print("  ✅ 只调用了绑定的工具")
             else:
-                print(f"  ℹ️ 没有工具调用")
+                print("  ℹ️ 没有工具调用")
 
         except Exception as e:
             print(f"  ❌ 调用失败: {e}")
             return False
 
-        print(f"\n🔧 测试2: 创建新的LLM实例")
+        print("\n🔧 测试2: 创建新的LLM实例")
         llm2 = ChatDashScopeOpenAI(
             model="qwen-turbo",
             temperature=0.1,
@@ -106,15 +106,15 @@ def test_tool_isolation():
                     print(f"  ❌ 调用了未绑定的工具: {unexpected_tools2}")
                     return False
                 else:
-                    print(f"  ✅ 只调用了绑定的工具")
+                    print("  ✅ 只调用了绑定的工具")
             else:
-                print(f"  ℹ️ 没有工具调用")
+                print("  ℹ️ 没有工具调用")
 
         except Exception as e:
             print(f"  ❌ 调用失败: {e}")
             return False
 
-        print(f"\n✅ 工具隔离测试完成")
+        print("\n✅ 工具隔离测试完成")
         return True
 
     except Exception as e:
@@ -139,7 +139,7 @@ def test_llm_instance_reuse():
         toolkit = Toolkit(config)
 
         # 检查是否存在全局LLM实例
-        print(f"  检查LLM实例创建...")
+        print("  检查LLM实例创建...")
 
         llm1 = ChatDashScopeOpenAI(model="qwen-turbo")
         llm2 = ChatDashScopeOpenAI(model="qwen-turbo")

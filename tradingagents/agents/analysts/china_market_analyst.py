@@ -173,7 +173,7 @@ def create_china_market_analyst(llm, toolkit):
 
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(llm):
-            logger.info(f"📊 [中国市场分析师] 检测到Google模型，使用统一工具调用处理器")
+            logger.info("📊 [中国市场分析师] 检测到Google模型，使用统一工具调用处理器")
 
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(

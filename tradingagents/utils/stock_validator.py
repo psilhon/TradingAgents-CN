@@ -716,7 +716,7 @@ class StockDataPreparer:
                 running_loop = asyncio.get_running_loop()
                 # 有正在运行的循环，说明在异步上下文中，不能使用 run_until_complete
                 # 创建新的事件循环在新线程中运行
-                logger.info(f"🔍 [数据同步] 检测到正在运行的事件循环，创建新事件循环")
+                logger.info("🔍 [数据同步] 检测到正在运行的事件循环，创建新事件循环")
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 try:
@@ -781,7 +781,7 @@ class StockDataPreparer:
 
                     # BaoStock 不支持单个股票同步，跳过
                     if data_source == "baostock":
-                        logger.warning(f"⚠️ [数据同步] BaoStock不支持单个股票同步，跳过")
+                        logger.warning("⚠️ [数据同步] BaoStock不支持单个股票同步，跳过")
                         last_error = f"{data_source}: 不支持单个股票同步"
                         continue
 
@@ -802,7 +802,7 @@ class StockDataPreparer:
                     realtime_synced = False
 
                     # 2.1 同步历史数据
-                    logger.info(f"📊 [数据同步] 同步历史数据...")
+                    logger.info("📊 [数据同步] 同步历史数据...")
                     hist_result = await service.sync_historical_data(
                         symbols=[stock_code],
                         start_date=start_date,
@@ -819,7 +819,7 @@ class StockDataPreparer:
                         logger.warning(f"⚠️ [数据同步] 历史数据同步失败: {error_msg}")
 
                     # 2.2 同步财务数据
-                    logger.info(f"📊 [数据同步] 同步财务数据...")
+                    logger.info("📊 [数据同步] 同步财务数据...")
                     try:
                         fin_result = await service.sync_financial_data(
                             symbols=[stock_code],
@@ -828,14 +828,14 @@ class StockDataPreparer:
 
                         if fin_result.get("success_count", 0) > 0:
                             financial_synced = True
-                            logger.info(f"✅ [数据同步] 财务数据同步成功")
+                            logger.info("✅ [数据同步] 财务数据同步成功")
                         else:
-                            logger.warning(f"⚠️ [数据同步] 财务数据同步失败")
+                            logger.warning("⚠️ [数据同步] 财务数据同步失败")
                     except Exception as e:
                         logger.warning(f"⚠️ [数据同步] 财务数据同步异常: {e}")
 
                     # 2.3 同步实时行情
-                    logger.info(f"📊 [数据同步] 同步实时行情...")
+                    logger.info("📊 [数据同步] 同步实时行情...")
                     try:
                         # 对于单个股票，AKShare更适合获取实时行情
                         if data_source == "tushare":
@@ -852,9 +852,9 @@ class StockDataPreparer:
 
                         if rt_result.get("success_count", 0) > 0:
                             realtime_synced = True
-                            logger.info(f"✅ [数据同步] 实时行情同步成功")
+                            logger.info("✅ [数据同步] 实时行情同步成功")
                         else:
-                            logger.warning(f"⚠️ [数据同步] 实时行情同步失败")
+                            logger.warning("⚠️ [数据同步] 实时行情同步失败")
                     except Exception as e:
                         logger.warning(f"⚠️ [数据同步] 实时行情同步异常: {e}")
 
@@ -933,7 +933,7 @@ class StockDataPreparer:
                 logger.info(f"✅ [数据源优先级] 从数据库获取: {priority_order}")
                 return priority_order
             else:
-                logger.warning(f"⚠️ [数据源优先级] MongoDB未启用，使用默认顺序")
+                logger.warning("⚠️ [数据源优先级] MongoDB未启用，使用默认顺序")
                 return ['tushare', 'akshare', 'baostock']
 
         except Exception as e:
@@ -1008,7 +1008,7 @@ class StockDataPreparer:
                         is_valid=False,
                         stock_code=formatted_code,
                         market_type="港股",
-                        error_message=f"港股数据获取受到网络限制影响",
+                        error_message="港股数据获取受到网络限制影响",
                         suggestion=self._get_hk_network_limitation_suggestion()
                     )
                 else:
@@ -1073,7 +1073,7 @@ class StockDataPreparer:
                         market_type="港股",
                         stock_name=stock_name,
                         has_basic_info=has_basic_info,
-                        error_message=f"港股历史数据获取受到网络限制影响",
+                        error_message="港股历史数据获取受到网络限制影响",
                         suggestion=self._get_hk_network_limitation_suggestion()
                     )
                 else:

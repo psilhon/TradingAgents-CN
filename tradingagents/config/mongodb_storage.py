@@ -82,7 +82,7 @@ class MongoDBStorage:
 
         except (ConnectionFailure, ServerSelectionTimeoutError) as e:
             logger.error(f"❌ MongoDB连接失败: {e}")
-            logger.info(f"将使用本地JSON文件存储")
+            logger.info("将使用本地JSON文件存储")
             self._connected = False
         except Exception as e:
             logger.error(f"❌ MongoDB初始化失败: {e}")
@@ -114,7 +114,7 @@ class MongoDBStorage:
     def save_usage_record(self, record: UsageRecord) -> bool:
         """保存单个使用记录到MongoDB"""
         if not self._connected:
-            logger.warning(f"⚠️ [MongoDB存储] 未连接，无法保存记录")
+            logger.warning("⚠️ [MongoDB存储] 未连接，无法保存记录")
             return False
 
         try:
@@ -135,7 +135,7 @@ class MongoDBStorage:
                 logger.info(f"✅ [MongoDB存储] 记录已保存: ID={result.inserted_id}, {record.provider}/{record.model_name}, ¥{record.cost:.4f}")
                 return True
             else:
-                logger.error(f"❌ [MongoDB存储] 插入失败：未返回插入ID")
+                logger.error("❌ [MongoDB存储] 插入失败：未返回插入ID")
                 return False
 
         except Exception as e:
@@ -305,4 +305,4 @@ class MongoDBStorage:
         if self.client:
             self.client.close()
             self._connected = False
-            logger.info(f"MongoDB连接已关闭")
+            logger.info("MongoDB连接已关闭")

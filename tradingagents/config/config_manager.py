@@ -178,7 +178,7 @@ class ConfigManager:
                 logger.error("❌ [ConfigManager] MONGODB_CONNECTION_STRING 未设置，无法初始化 MongoDB 存储")
                 return
 
-            logger.info(f"🔄 [ConfigManager] 正在创建 MongoDBStorage 实例...")
+            logger.info("🔄 [ConfigManager] 正在创建 MongoDBStorage 实例...")
             self.mongodb_storage = MongoDBStorage(
                 connection_string=connection_string,
                 database_name=database_name
@@ -413,14 +413,14 @@ class ConfigManager:
                 logger.info(f"✅ [Token记录] MongoDB 保存成功: {provider}/{model_name}")
                 return record
             else:
-                logger.error(f"⚠️ [Token记录] MongoDB保存失败，回退到JSON文件存储")
+                logger.error("⚠️ [Token记录] MongoDB保存失败，回退到JSON文件存储")
         else:
             # 🔍 详细日志：为什么没有使用MongoDB
             if self.mongodb_storage is None:
-                logger.warning(f"⚠️ [Token记录] MongoDB存储未初始化 (mongodb_storage=None)")
+                logger.warning("⚠️ [Token记录] MongoDB存储未初始化 (mongodb_storage=None)")
                 logger.warning(f"   💡 请检查环境变量: USE_MONGODB_STORAGE={os.getenv('USE_MONGODB_STORAGE', '未设置')}")
             elif not self.mongodb_storage.is_connected():
-                logger.warning(f"⚠️ [Token记录] MongoDB未连接 (is_connected=False)")
+                logger.warning("⚠️ [Token记录] MongoDB未连接 (is_connected=False)")
 
             logger.info(f"📄 [Token记录] 使用 JSON 文件存储: {self.usage_file}")
 
@@ -456,7 +456,7 @@ class ConfigManager:
 
         # 只在找不到配置时输出调试信息
         logger.warning(f"⚠️ [calculate_cost] 未找到匹配的定价配置: {provider}/{model_name}")
-        logger.debug(f"⚠️ [calculate_cost] 可用的配置:")
+        logger.debug("⚠️ [calculate_cost] 可用的配置:")
         for pricing in pricing_configs:
             logger.debug(f"⚠️ [calculate_cost]   - {pricing.provider}/{pricing.model_name}")
 

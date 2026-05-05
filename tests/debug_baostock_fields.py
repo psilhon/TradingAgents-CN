@@ -62,21 +62,21 @@ def debug_baostock_fields():
                 df = pd.DataFrame(data_list, columns=rs.fields)
                 print(f"DataFrame形状: {df.shape}")
                 print(f"列名: {list(df.columns)}")
-                print(f"前5行数据:")
+                print("前5行数据:")
                 print(df.head())
 
                 # 分析A股股票
-                print(f"\n🔍 分析A股股票:")
+                print("\n🔍 分析A股股票:")
                 a_stock_pattern = r'^(sh|sz)\.[0-9]{6}$'
                 a_stocks = df[df['code'].str.contains(a_stock_pattern, na=False)]
                 print(f"匹配A股模式的股票数量: {len(a_stocks)}")
 
                 if len(a_stocks) > 0:
-                    print(f"A股样本:")
+                    print("A股样本:")
                     print(a_stocks.head())
 
                     # 检查字段映射
-                    print(f"\n📋 字段映射分析:")
+                    print("\n📋 字段映射分析:")
                     print(f"code -> symbol: {a_stocks['code'].head(3).tolist()}")
                     if 'code_name' in a_stocks.columns:
                         print(f"code_name -> name: {a_stocks['code_name'].head(3).tolist()}")

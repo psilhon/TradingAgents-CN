@@ -15,8 +15,8 @@ logger = get_logger('default')
 
 def cleanup_directories():
     """清理不必要的目录"""
-    logger.info(f"🧹 清理不必要的目录和文件")
-    logger.info(f"=")
+    logger.info("🧹 清理不必要的目录和文件")
+    logger.info("=")
 
     # 项目根目录
     project_root = Path(".")
@@ -65,8 +65,8 @@ def cleanup_directories():
 
 def update_gitignore():
     """更新.gitignore文件"""
-    logger.info(f"\n📝 更新.gitignore文件")
-    logger.info(f"=")
+    logger.info("\n📝 更新.gitignore文件")
+    logger.info("=")
 
     gitignore_path = Path(".gitignore")
 
@@ -121,27 +121,27 @@ def update_gitignore():
 
             logger.info(f"✅ 添加了 {len(new_rules)} 条新的忽略规则")
         else:
-            logger.info(f"✅ .gitignore已经是最新的")
+            logger.info("✅ .gitignore已经是最新的")
 
     except Exception as e:
         logger.error(f"❌ 更新.gitignore失败: {e}")
 
 def analyze_upstream_contribution():
     """分析upstream_contribution目录"""
-    logger.debug(f"\n🔍 分析upstream_contribution目录")
-    logger.info(f"=")
+    logger.debug("\n🔍 分析upstream_contribution目录")
+    logger.info("=")
 
     upstream_dir = Path("upstream_contribution")
 
     if not upstream_dir.exists():
-        logger.info(f"✅ upstream_contribution目录不存在")
+        logger.info("✅ upstream_contribution目录不存在")
         return
 
     # 统计内容
     batch_dirs = list(upstream_dir.glob("batch*"))
     json_files = list(upstream_dir.glob("*.json"))
 
-    logger.info(f"📊 发现内容:")
+    logger.info("📊 发现内容:")
     logger.info(f"   - Batch目录: {len(batch_dirs)}个")
     logger.info(f"   - JSON文件: {len(json_files)}个")
 
@@ -149,19 +149,19 @@ def analyze_upstream_contribution():
         logger.info(f"   - {batch_dir.name}: {len(list(batch_dir.rglob('*')))}个文件")
 
     # 询问是否删除
-    logger.info(f"\n💡 upstream_contribution目录用途:")
-    logger.info(f"   - 准备向上游项目(TauricResearch/TradingAgents)贡献代码")
-    logger.info(f"   - 包含移除中文内容的版本")
-    logger.info(f"   - 如果不计划向上游贡献，可以删除")
+    logger.info("\n💡 upstream_contribution目录用途:")
+    logger.info("   - 准备向上游项目(TauricResearch/TradingAgents)贡献代码")
+    logger.info("   - 包含移除中文内容的版本")
+    logger.info("   - 如果不计划向上游贡献，可以删除")
 
     return len(batch_dirs) + len(json_files)
 
 def main():
     """主函数"""
-    logger.info(f"🧹 TradingAgents 目录清理工具")
-    logger.info(f"=")
-    logger.info(f"💡 目标: 清理自动生成的文件和不必要的目录")
-    logger.info(f"=")
+    logger.info("🧹 TradingAgents 目录清理工具")
+    logger.info("=")
+    logger.info("💡 目标: 清理自动生成的文件和不必要的目录")
+    logger.info("=")
 
     # 清理目录和文件
     cleaned_count = cleanup_directories()
@@ -173,21 +173,21 @@ def main():
     upstream_count = analyze_upstream_contribution()
 
     # 总结
-    logger.info(f"\n📊 清理总结")
-    logger.info(f"=")
+    logger.info("\n📊 清理总结")
+    logger.info("=")
     logger.info(f"✅ 清理了 {cleaned_count} 个文件/目录")
-    logger.info(f"📝 更新了 .gitignore 文件")
+    logger.info("📝 更新了 .gitignore 文件")
 
     if upstream_count > 0:
         logger.warning(f"⚠️ upstream_contribution目录包含 {upstream_count} 个项目")
-        logger.info(f"   如果不需要向上游贡献，可以手动删除:")
-        logger.info(f"   rm -rf upstream_contribution/")
+        logger.info("   如果不需要向上游贡献，可以手动删除:")
+        logger.info("   rm -rf upstream_contribution/")
 
-    logger.info(f"\n🎉 清理完成！项目目录更加整洁")
-    logger.info(f"\n💡 建议:")
-    logger.info(f"   1. 检查git状态: git status")
-    logger.info(f"   2. 提交清理更改: git add . && git commit -m '清理不必要的目录和文件'")
-    logger.info(f"   3. 如果不需要upstream_contribution，可以手动删除")
+    logger.info("\n🎉 清理完成！项目目录更加整洁")
+    logger.info("\n💡 建议:")
+    logger.info("   1. 检查git状态: git status")
+    logger.info("   2. 提交清理更改: git add . && git commit -m '清理不必要的目录和文件'")
+    logger.info("   3. 如果不需要upstream_contribution，可以手动删除")
 
 if __name__ == "__main__":
     main()

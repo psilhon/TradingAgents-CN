@@ -53,7 +53,7 @@ def test_tool_call_mechanism():
         # 3. 创建Toolkit
         logger.info("3. 创建Toolkit...")
         toolkit = Toolkit()
-        logger.info(f"   Toolkit创建成功")
+        logger.info("   Toolkit创建成功")
 
         # 4. 获取工具
         logger.info("4. 获取工具...")
@@ -64,7 +64,7 @@ def test_tool_call_mechanism():
         # 5. 绑定工具到LLM
         logger.info("5. 绑定工具到LLM...")
         llm_with_tools = llm.bind_tools([realtime_news_tool])
-        logger.info(f"   工具绑定完成")
+        logger.info("   工具绑定完成")
 
         # 6. 测试工具调用
         logger.info("6. 测试工具调用...")

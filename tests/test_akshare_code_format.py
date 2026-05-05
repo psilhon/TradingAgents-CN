@@ -46,7 +46,7 @@ def test_akshare_interfaces():
 
             if code_col:
                 print(f"\n🔍 代码列名: '{code_col}'")
-                print(f"\n📊 前10个股票代码样本:")
+                print("\n📊 前10个股票代码样本:")
 
                 for i, code in enumerate(df_sina[code_col].head(10), 1):
                     code_str = str(code)
@@ -68,7 +68,7 @@ def test_akshare_interfaces():
                     for code in abnormal_codes[:5]:
                         print(f"      - {code}")
                 else:
-                    print(f"\n   ✅ 所有代码都是标准的6位数字格式")
+                    print("\n   ✅ 所有代码都是标准的6位数字格式")
             else:
                 print("❌ 未找到代码列")
 
@@ -101,7 +101,7 @@ def test_akshare_interfaces():
 
             if code_col:
                 print(f"\n🔍 代码列名: '{code_col}'")
-                print(f"\n📊 前10个股票代码样本:")
+                print("\n📊 前10个股票代码样本:")
 
                 for i, code in enumerate(df_em[code_col].head(10), 1):
                     code_str = str(code)
@@ -123,7 +123,7 @@ def test_akshare_interfaces():
                     for code in abnormal_codes[:5]:
                         print(f"      - {code}")
                 else:
-                    print(f"\n   ✅ 所有代码都是标准的6位数字格式")
+                    print("\n   ✅ 所有代码都是标准的6位数字格式")
             else:
                 print("❌ 未找到代码列")
 

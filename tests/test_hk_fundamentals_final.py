@@ -33,7 +33,7 @@ def test_hk_fundamentals_complete():
                 return self
 
             def invoke(self, messages):
-                print(f"🔧 [MockLLM] 收到调用请求")
+                print("🔧 [MockLLM] 收到调用请求")
                 class MockResult:
                     def __init__(self):
                         self.tool_calls = []  # 模拟没有工具调用，触发强制调用
@@ -61,15 +61,15 @@ def test_hk_fundamentals_complete():
         print(f"  是否港股: {market_info['is_hk']}")
 
         if not market_info['is_hk']:
-            print(f"❌ 股票类型识别错误")
+            print("❌ 股票类型识别错误")
             return False
 
-        print(f"\n🔄 调用基本面分析师...")
+        print("\n🔄 调用基本面分析师...")
 
         # 调用分析师
         result = analyst(state)
 
-        print(f"✅ 基本面分析师调用完成")
+        print("✅ 基本面分析师调用完成")
         print(f"  结果类型: {type(result)}")
         print(f"  包含的键: {list(result.keys()) if isinstance(result, dict) else 'N/A'}")
 
@@ -128,9 +128,9 @@ def test_tool_selection_verification():
             print(f"  期望的工具: {expected_tools}")
 
             if selected_tools == expected_tools:
-                print(f"  ✅ 工具选择正确")
+                print("  ✅ 工具选择正确")
             else:
-                print(f"  ❌ 工具选择错误")
+                print("  ❌ 工具选择错误")
                 return False
 
         print("✅ 工具选择逻辑验证通过")

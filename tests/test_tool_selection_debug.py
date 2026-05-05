@@ -24,7 +24,7 @@ def test_llm_tool_binding():
         toolkit = Toolkit(config)
 
         # 检查工具包中的所有工具
-        print(f"\n📋 工具包中的所有工具:")
+        print("\n📋 工具包中的所有工具:")
         all_tools = []
         for attr_name in dir(toolkit):
             if not attr_name.startswith('_') and callable(getattr(toolkit, attr_name)):
@@ -35,13 +35,13 @@ def test_llm_tool_binding():
 
         # 检查港股相关工具
         hk_related_tools = [tool for tool in all_tools if 'hk' in tool[0].lower() or 'hk' in tool[1].lower()]
-        print(f"\n🇭🇰 港股相关工具:")
+        print("\n🇭🇰 港股相关工具:")
         for attr_name, tool_name in hk_related_tools:
             print(f"  {attr_name}: {tool_name}")
 
         # 检查基本面相关工具
         fundamentals_tools = [tool for tool in all_tools if 'fundamental' in tool[0].lower() or 'fundamental' in tool[1].lower()]
-        print(f"\n📊 基本面相关工具:")
+        print("\n📊 基本面相关工具:")
         for attr_name, tool_name in fundamentals_tools:
             print(f"  {attr_name}: {tool_name}")
 
@@ -83,9 +83,9 @@ def test_tool_descriptions():
                 # 检查描述中是否提到港股
                 desc = getattr(tool, 'description', '')
                 if '港股' in desc or 'HK' in desc or 'Hong Kong' in desc:
-                    print(f"  ✅ 描述中包含港股相关内容")
+                    print("  ✅ 描述中包含港股相关内容")
                 else:
-                    print(f"  ⚠️ 描述中不包含港股相关内容")
+                    print("  ⚠️ 描述中不包含港股相关内容")
 
         return True
 

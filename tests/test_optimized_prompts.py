@@ -43,9 +43,9 @@ def test_company_name_extraction():
 
             # 验证结果
             if company_name != f"股票{ticker}":
-                print(f"   ✅ 成功获取公司名称")
+                print("   ✅ 成功获取公司名称")
             else:
-                print(f"   ⚠️ 使用默认名称")
+                print("   ⚠️ 使用默认名称")
 
         return True
 
@@ -72,7 +72,7 @@ def test_market_analyst_prompt():
             print("⚠️ 未找到DASHSCOPE_API_KEY，跳过LLM测试")
             return True
 
-        print(f"\n🔧 创建市场分析师...")
+        print("\n🔧 创建市场分析师...")
 
         # 创建LLM和工具包
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
@@ -94,7 +94,7 @@ def test_market_analyst_prompt():
         from tradingagents.agents.analysts.market_analyst import create_market_analyst
         market_analyst = create_market_analyst(llm, toolkit)
 
-        print(f"✅ 市场分析师创建完成")
+        print("✅ 市场分析师创建完成")
 
         # 测试分析状态
         test_ticker = "002027"
@@ -105,7 +105,7 @@ def test_market_analyst_prompt():
         }
 
         print(f"\n🔧 测试股票: {test_ticker}")
-        print(f"🔍 [提示词验证] 检查提示词是否正确包含公司名称和股票代码...")
+        print("🔍 [提示词验证] 检查提示词是否正确包含公司名称和股票代码...")
 
         # 这里我们不实际执行分析师（避免API调用），只验证提示词构建
         from tradingagents.utils.stock_utils import StockUtils
@@ -127,11 +127,11 @@ def test_market_analyst_prompt():
             f"计价货币：{market_info['currency_name']}"
         ]
 
-        print(f"\n🔍 验证提示词应包含的关键元素:")
+        print("\n🔍 验证提示词应包含的关键元素:")
         for element in expected_elements:
             print(f"   ✅ {element}")
 
-        print(f"\n✅ 提示词优化验证完成")
+        print("\n✅ 提示词优化验证完成")
         return True
 
     except Exception as e:
@@ -167,11 +167,11 @@ def test_fundamentals_analyst_prompt():
             f"股票代码：{test_ticker}"
         ]
 
-        print(f"\n🔍 验证基本面分析师提示词应包含的关键元素:")
+        print("\n🔍 验证基本面分析师提示词应包含的关键元素:")
         for element in expected_elements:
             print(f"   ✅ {element}")
 
-        print(f"\n✅ 基本面分析师提示词优化验证完成")
+        print("\n✅ 基本面分析师提示词优化验证完成")
         return True
 
     except Exception as e:

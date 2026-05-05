@@ -42,7 +42,7 @@ def test_000002_valuation():
     for i, line in enumerate(lines):
         if "估值指标" in line:
             found_valuation = True
-            print(f"找到估值指标部分:")
+            print("找到估值指标部分:")
             # 打印估值指标及其后面的几行
             for j in range(i, min(len(lines), i+8)):
                 if lines[j].strip() and not lines[j].startswith("###"):

@@ -20,7 +20,7 @@ def test_basic_news_filter():
 
         # 创建过滤器
         filter = create_news_filter('600036')
-        print(f"✅ 成功创建招商银行(600036)新闻过滤器")
+        print("✅ 成功创建招商银行(600036)新闻过滤器")
 
         # 模拟新闻数据
         test_news = pd.DataFrame([
@@ -63,7 +63,7 @@ def test_basic_news_filter():
 
         # 获取过滤统计
         stats = filter.get_filter_statistics(test_news, filtered_news)
-        print(f"\n📊 过滤统计:")
+        print("\n📊 过滤统计:")
         print(f"  - 过滤率: {stats['filter_rate']:.1f}%")
         print(f"  - 平均评分: {stats['avg_score']:.1f}")
         print(f"  - 最高评分: {stats['max_score']:.1f}")
@@ -88,7 +88,7 @@ def test_enhanced_news_filter():
             use_semantic=False,  # 暂时不使用语义模型
             use_local_model=False  # 暂时不使用本地模型
         )
-        print(f"✅ 成功创建增强新闻过滤器")
+        print("✅ 成功创建增强新闻过滤器")
 
         # 使用相同的测试数据
         test_news = pd.DataFrame([
@@ -169,7 +169,7 @@ def test_real_news_filtering():
         filtered_real_news = filter.filter_news(real_news, min_score=30)
         filter_time = time.time() - start_time
 
-        print(f"\n🔍 过滤结果:")
+        print("\n🔍 过滤结果:")
         print(f"  - 原始新闻: {len(real_news)}条")
         print(f"  - 过滤后新闻: {len(filtered_real_news)}条")
         print(f"  - 过滤率: {(len(real_news) - len(filtered_real_news)) / len(real_news) * 100:.1f}%")

@@ -25,7 +25,7 @@ def test_full_fundamentals_flow():
         logger = get_logger("default")
         logger.setLevel("INFO")
 
-        print(f"\n🔧 步骤1: 初始化LLM和工具包...")
+        print("\n🔧 步骤1: 初始化LLM和工具包...")
 
         # 导入必要的模块
         from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
@@ -38,15 +38,15 @@ def test_full_fundamentals_flow():
 
         # 创建工具包
         toolkit = Toolkit()
-        print(f"✅ 工具包初始化完成")
+        print("✅ 工具包初始化完成")
 
-        print(f"\n🔧 步骤2: 创建基本面分析师...")
+        print("\n🔧 步骤2: 创建基本面分析师...")
 
         # 创建基本面分析师
         fundamentals_analyst = create_fundamentals_analyst(llm, toolkit)
-        print(f"✅ 基本面分析师创建完成")
+        print("✅ 基本面分析师创建完成")
 
-        print(f"\n🔧 步骤3: 准备分析状态...")
+        print("\n🔧 步骤3: 准备分析状态...")
 
         # 创建分析状态
         state = {
@@ -55,17 +55,17 @@ def test_full_fundamentals_flow():
             "messages": []
         }
 
-        print(f"✅ 分析状态准备完成")
+        print("✅ 分析状态准备完成")
         print(f"   - 股票代码: {state['company_of_interest']}")
         print(f"   - 交易日期: {state['trade_date']}")
         print(f"   - 消息数量: {len(state['messages'])}")
 
-        print(f"\n🔧 步骤4: 执行基本面分析...")
+        print("\n🔧 步骤4: 执行基本面分析...")
 
         # 执行基本面分析
         result = fundamentals_analyst(state)
 
-        print(f"\n✅ 基本面分析执行完成")
+        print("\n✅ 基本面分析执行完成")
         print(f"📊 返回结果类型: {type(result)}")
 
         # 检查返回结果
@@ -76,7 +76,7 @@ def test_full_fundamentals_flow():
 
                 # 检查报告中的股票代码
                 if report:
-                    print(f"\n🔍 最终检查报告中的股票代码...")
+                    print("\n🔍 最终检查报告中的股票代码...")
                     if "002027" in report:
                         print("✅ 报告中包含正确的股票代码 002027")
                         count_002027 = report.count("002027")
@@ -104,7 +104,7 @@ def test_full_fundamentals_flow():
                         print("✅ 报告中不包含错误的股票代码 002021")
 
                     # 显示报告的前1000字符
-                    print(f"\n📄 报告前1000字符:")
+                    print("\n📄 报告前1000字符:")
                     print("-" * 80)
                     print(report[:1000])
                     print("-" * 80)

@@ -180,7 +180,7 @@ async def test_different_stocks_no_blocking():
     for code in codes:
         assert call_count.get(code, 0) == 1, f"股票{code}应该只调用1次API，实际调用了{call_count.get(code, 0)}次"
 
-    print(f"✅ 测试通过：3个不同股票各5个并发请求，每个股票只触发了1次API调用")
+    print("✅ 测试通过：3个不同股票各5个并发请求，每个股票只触发了1次API调用")
 
 
 if __name__ == '__main__':

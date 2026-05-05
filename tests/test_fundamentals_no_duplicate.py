@@ -57,7 +57,7 @@ def test_fundamentals_analyst():
         if result.get("fundamentals_report"):
             report = result["fundamentals_report"]
             print(f"\n📊 基本面报告长度: {len(report)} 字符")
-            print(f"\n📊 报告预览(前500字符):")
+            print("\n📊 报告预览(前500字符):")
             print(report[:500])
             print("...")
         else:

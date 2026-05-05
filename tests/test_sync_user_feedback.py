@@ -139,7 +139,7 @@ async def simulate_sync_with_feedback():
             except Exception as e:
                 print(f"   ⏱️ 无法计算耗时: {e}")
 
-        print(f"\n🎉 用户反馈测试完成")
+        print("\n🎉 用户反馈测试完成")
 
         return {
             'status': status,
@@ -184,7 +184,7 @@ async def test_status_polling_simulation():
 
             # 如果不是运行状态，停止轮询
             if current_status != 'running':
-                print(f"   🛑 检测到非运行状态，停止轮询")
+                print("   🛑 检测到非运行状态，停止轮询")
                 break
 
             await asyncio.sleep(1)  # 模拟轮询间隔
@@ -197,7 +197,7 @@ async def test_status_polling_simulation():
 if __name__ == "__main__":
     result = asyncio.run(simulate_sync_with_feedback())
     if result:
-        print(f"\n📊 测试结果摘要:")
+        print("\n📊 测试结果摘要:")
         print(f"   状态: {result['status']}")
         print(f"   处理: {result['total']} 条记录")
         print(f"   反馈: {result['feedback_message']}")

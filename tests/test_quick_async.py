@@ -121,7 +121,7 @@ def test_api_non_blocking():
         success = False
 
     # 4. 总结
-    print(f"\n📈 测试总结:")
+    print("\n📈 测试总结:")
     print(f"  - 任务提交时间: {submit_time:.2f}秒")
     print(f"  - 健康检查时间: {health_time:.2f}秒")
     print(f"  - 状态查询时间: {status_time:.2f}秒")

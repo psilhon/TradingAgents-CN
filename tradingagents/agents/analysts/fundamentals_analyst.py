@@ -100,7 +100,7 @@ def _get_company_name_for_fundamentals(ticker: str, market_info: dict) -> str:
 def create_fundamentals_analyst(llm, toolkit):
     @log_analyst_module("fundamentals")
     def fundamentals_analyst_node(state):
-        logger.debug(f"📊 [DEBUG] ===== 基本面分析师节点开始 =====")
+        logger.debug("📊 [DEBUG] ===== 基本面分析师节点开始 =====")
 
         # 🔧 工具调用计数器 - 防止无限循环
         # 检查消息历史中是否有 ToolMessage，如果有则说明工具已执行过
@@ -163,7 +163,7 @@ def create_fundamentals_analyst(llm, toolkit):
         # 统一使用 get_stock_fundamentals_unified 工具
         # 该工具内部会自动识别股票类型（A股/港股/美股）并调用相应的数据源
         # 对于A股，它会自动获取价格数据和基本面数据，无需LLM调用多个工具
-        logger.info(f"📊 [基本面分析师] 使用统一基本面分析工具，自动识别股票类型")
+        logger.info("📊 [基本面分析师] 使用统一基本面分析工具，自动识别股票类型")
         tools = [toolkit.get_stock_fundamentals_unified]
 
         # 安全地获取工具名称用于调试
@@ -270,7 +270,7 @@ def create_fundamentals_analyst(llm, toolkit):
         )
 
         if is_qwen_like:
-            logger.debug(f"📊 [DEBUG] 检测到阿里百炼模型，创建新实例以避免工具缓存")
+            logger.debug("📊 [DEBUG] 检测到阿里百炼模型，创建新实例以避免工具缓存")
             fresh_llm = create_llm_client(
                 provider="qwen",
                 model=model_name,
@@ -283,7 +283,7 @@ def create_fundamentals_analyst(llm, toolkit):
             if original_base_url:
                 logger.debug(f"📊 [DEBUG] 新实例使用原始 base_url: {original_base_url}")
             if original_api_key:
-                logger.debug(f"📊 [DEBUG] 新实例使用原始 API Key（来自数据库配置）")
+                logger.debug("📊 [DEBUG] 新实例使用原始 API Key（来自数据库配置）")
         else:
             fresh_llm = llm
 
@@ -298,7 +298,7 @@ def create_fundamentals_analyst(llm, toolkit):
             else:
                 debug_tool_names.append(str(tool))
         logger.debug(f"📊 [DEBUG] 绑定的工具列表: {debug_tool_names}")
-        logger.debug(f"📊 [DEBUG] 创建工具链，让模型自主决定是否调用工具")
+        logger.debug("📊 [DEBUG] 创建工具链，让模型自主决定是否调用工具")
 
         # 添加详细日志
         logger.info(f"📊 [基本面分析师] LLM类型: {fresh_llm.__class__.__name__}")
@@ -312,7 +312,7 @@ def create_fundamentals_analyst(llm, toolkit):
             logger.error(f"📊 [基本面分析师] ❌ 工具绑定失败: {e}")
             raise e
 
-        logger.info(f"📊 [基本面分析师] 开始调用LLM...")
+        logger.info("📊 [基本面分析师] 开始调用LLM...")
 
         # 添加详细的股票代码追踪日志
         logger.info(f"🔍 [股票代码追踪] LLM调用前，ticker参数: '{ticker}'")
@@ -375,20 +375,20 @@ def create_fundamentals_analyst(llm, toolkit):
 
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
         result = chain.invoke({"messages": state["messages"]})
-        logger.info(f"📊 [基本面分析师] LLM调用完成")
+        logger.info("📊 [基本面分析师] LLM调用完成")
 
         # 🔍 [调试日志] 打印AIMessage的详细内容
-        logger.info(f"🤖 [基本面分析师] AIMessage详细内容:")
+        logger.info("🤖 [基本面分析师] AIMessage详细内容:")
         logger.info(f"🤖 [基本面分析师] - 消息类型: {type(result).__name__}")
         logger.info(f"🤖 [基本面分析师] - 内容长度: {len(result.content) if hasattr(result, 'content') else 0}")
         if hasattr(result, 'content') and result.content:
             # 🔥 调试模式：打印完整内容，不截断
-            logger.info(f"🤖 [基本面分析师] - 完整内容:")
+            logger.info("🤖 [基本面分析师] - 完整内容:")
             logger.info(f"{result.content}")
 
         # 🔍 [调试日志] 打印tool_calls的详细信息
         # 详细记录 LLM 返回结果
-        logger.info(f"📊 [基本面分析师] ===== LLM返回结果分析 =====")
+        logger.info("📊 [基本面分析师] ===== LLM返回结果分析 =====")
         logger.info(f"📊 [基本面分析师] - 结果类型: {type(result).__name__}")
         logger.info(f"📊 [基本面分析师] - 是否有tool_calls属性: {hasattr(result, 'tool_calls')}")
 
@@ -406,15 +406,15 @@ def create_fundamentals_analyst(llm, toolkit):
                     if 'args' in tc:
                         logger.info(f"🔧 [基本面分析师] - 参数: {tc['args']}")
             else:
-                logger.info(f"🔧 [基本面分析师] tool_calls为空列表")
+                logger.info("🔧 [基本面分析师] tool_calls为空列表")
         else:
-            logger.info(f"🔧 [基本面分析师] 无tool_calls属性")
+            logger.info("🔧 [基本面分析师] 无tool_calls属性")
 
-        logger.info(f"📊 [基本面分析师] ===== LLM返回结果分析结束 =====")
+        logger.info("📊 [基本面分析师] ===== LLM返回结果分析结束 =====")
 
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(fresh_llm):
-            logger.info(f"📊 [基本面分析师] 检测到Google模型，使用统一工具调用处理器")
+            logger.info("📊 [基本面分析师] 检测到Google模型，使用统一工具调用处理器")
 
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(
@@ -451,7 +451,7 @@ def create_fundamentals_analyst(llm, toolkit):
 
                 if has_tool_result:
                     # 已经有工具结果了，LLM 不应该再调用工具，强制生成报告
-                    logger.warning(f"⚠️ [强制生成报告] 工具已返回数据，但LLM仍尝试调用工具，强制基于现有数据生成报告")
+                    logger.warning("⚠️ [强制生成报告] 工具已返回数据，但LLM仍尝试调用工具，强制基于现有数据生成报告")
 
                     # 创建专门的强制报告提示词（不提及工具）
                     force_system_prompt = (
@@ -480,7 +480,7 @@ def create_fundamentals_analyst(llm, toolkit):
                     # 不绑定工具，强制LLM生成文本
                     force_chain = force_prompt | fresh_llm
 
-                    logger.info(f"🔧 [强制生成报告] 使用专门的提示词重新调用LLM...")
+                    logger.info("🔧 [强制生成报告] 使用专门的提示词重新调用LLM...")
                     force_result = force_chain.invoke({"messages": messages})
 
                     report = str(force_result.content) if hasattr(force_result, 'content') else "基本面分析完成"
@@ -503,7 +503,7 @@ def create_fundamentals_analyst(llm, toolkit):
                     }
                 else:
                     # 第一次调用工具，正常流程
-                    logger.info(f"✅ [正常流程] ===== LLM第一次调用工具 =====")
+                    logger.info("✅ [正常流程] ===== LLM第一次调用工具 =====")
                     tool_calls_info = []
                     for tc in result.tool_calls:
                         tool_calls_info.append(tc['name'])
@@ -511,7 +511,7 @@ def create_fundamentals_analyst(llm, toolkit):
 
                     logger.info(f"📊 [正常流程] LLM请求调用工具: {tool_calls_info}")
                     logger.info(f"📊 [正常流程] 工具调用数量: {len(tool_calls_info)}")
-                    logger.info(f"📊 [正常流程] 返回状态，等待工具执行")
+                    logger.info("📊 [正常流程] 返回状态，等待工具执行")
                     # ⚠️ 注意：不要在这里增加计数器！
                     # 计数器应该在工具执行完成后（下一次进入分析师节点时）才增加
                     return {
@@ -519,8 +519,8 @@ def create_fundamentals_analyst(llm, toolkit):
                     }
             else:
                 # 没有工具调用，检查是否需要强制调用工具
-                logger.info(f"📊 [基本面分析师] ===== 强制工具调用检查开始 =====")
-                logger.debug(f"📊 [DEBUG] 检测到模型未调用工具，检查是否需要强制调用")
+                logger.info("📊 [基本面分析师] ===== 强制工具调用检查开始 =====")
+                logger.debug("📊 [DEBUG] 检测到模型未调用工具，检查是否需要强制调用")
 
                 # 方案1：检查消息历史中是否已经有工具返回的数据
                 messages = state.get("messages", [])
@@ -550,28 +550,28 @@ def create_fundamentals_analyst(llm, toolkit):
                     else:
                         logger.info(f"⚠️ [内容检查] LLM返回内容较短 (长度: {content_length}字符 < 500字符阈值)")
                 else:
-                    logger.info(f"⚠️ [内容检查] LLM未返回内容或内容为空")
+                    logger.info("⚠️ [内容检查] LLM未返回内容或内容为空")
 
                 # 方案3：统计工具调用次数
                 tool_call_count = sum(1 for msg in messages if isinstance(msg, ToolMessage))
                 logger.info(f"🔍 [统计] 历史工具调用次数: {tool_call_count}")
 
                 logger.info(f"🔍 [重复调用检查] 汇总 - 工具结果数: {tool_call_count}, 已有工具结果: {has_tool_result}, 已有分析内容: {has_analysis_content}")
-                logger.info(f"📊 [基本面分析师] ===== 强制工具调用检查结束 =====")
+                logger.info("📊 [基本面分析师] ===== 强制工具调用检查结束 =====")
 
                 # 如果已经有工具结果或已有分析内容，跳过强制调用
                 if has_tool_result or has_analysis_content:
-                    logger.info(f"🚫 [决策] ===== 跳过强制工具调用 =====")
+                    logger.info("🚫 [决策] ===== 跳过强制工具调用 =====")
                     if has_tool_result:
                         logger.info(f"⚠️ [决策原因] 检测到已有 {tool_call_count} 次工具调用结果，避免重复调用")
                     if has_analysis_content:
-                        logger.info(f"⚠️ [决策原因] LLM已返回有效分析内容，无需强制工具调用")
+                        logger.info("⚠️ [决策原因] LLM已返回有效分析内容，无需强制工具调用")
 
                     # 直接使用 LLM 返回的内容作为报告
                     report = str(result.content) if hasattr(result, 'content') else "基本面分析完成"
                     logger.info(f"📊 [返回结果] 使用LLM返回的分析内容，报告长度: {len(report)}字符")
                     logger.info(f"📊 [返回结果] 报告预览(前200字符): {report[:200]}...")
-                    logger.info(f"✅ [决策] 基本面分析完成，跳过重复调用成功")
+                    logger.info("✅ [决策] 基本面分析完成，跳过重复调用成功")
 
                     # 🔧 保持工具调用计数器不变（已在开始时根据ToolMessage更新）
                     return {
@@ -581,13 +581,13 @@ def create_fundamentals_analyst(llm, toolkit):
                     }
 
                 # 如果没有工具结果且没有分析内容，才进行强制调用
-                logger.info(f"🔧 [决策] ===== 执行强制工具调用 =====")
-                logger.info(f"🔧 [决策原因] 未检测到工具结果或分析内容，需要获取基本面数据")
-                logger.info(f"🔧 [决策] 启用强制工具调用模式")
+                logger.info("🔧 [决策] ===== 执行强制工具调用 =====")
+                logger.info("🔧 [决策原因] 未检测到工具结果或分析内容，需要获取基本面数据")
+                logger.info("🔧 [决策] 启用强制工具调用模式")
 
                 # 强制调用统一基本面分析工具
                 try:
-                    logger.debug(f"📊 [DEBUG] 强制调用 get_stock_fundamentals_unified...")
+                    logger.debug("📊 [DEBUG] 强制调用 get_stock_fundamentals_unified...")
                     # 安全地查找统一基本面分析工具
                     unified_tool = None
                     for tool in tools:
@@ -601,7 +601,7 @@ def create_fundamentals_analyst(llm, toolkit):
                             unified_tool = tool
                             break
                     if unified_tool:
-                        logger.info(f"🔍 [工具调用] 找到统一工具，准备强制调用")
+                        logger.info("🔍 [工具调用] 找到统一工具，准备强制调用")
                         logger.info(f"🔍 [工具调用] 传入参数 - ticker: '{ticker}', start_date: {start_date}, end_date: {current_date}")
 
                         combined_data = unified_tool.invoke({
@@ -611,7 +611,7 @@ def create_fundamentals_analyst(llm, toolkit):
                             'curr_date': current_date
                         })
 
-                        logger.info(f"✅ [工具调用] 统一工具调用成功")
+                        logger.info("✅ [工具调用] 统一工具调用成功")
                         logger.info(f"📊 [工具调用] 返回数据长度: {len(combined_data)}字符")
                         logger.debug(f"📊 [DEBUG] 统一工具数据获取成功，长度: {len(combined_data)}字符")
                         # 将统一工具返回的数据写入日志，便于排查与分析
@@ -633,7 +633,7 @@ def create_fundamentals_analyst(llm, toolkit):
                             logger.warning(f"⚠️ [基本面分析师] 记录统一工具数据时出错: {_log_err}")
                     else:
                         combined_data = "统一基本面分析工具不可用"
-                        logger.debug(f"📊 [DEBUG] 统一工具未找到")
+                        logger.debug("📊 [DEBUG] 统一工具未找到")
                 except Exception as e:
                     combined_data = f"统一基本面分析工具调用失败: {e}"
                     logger.debug(f"📊 [DEBUG] 统一工具调用异常: {e}")

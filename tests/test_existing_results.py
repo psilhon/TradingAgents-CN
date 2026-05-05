@@ -101,7 +101,7 @@ def test_existing_result(task_id, stock_symbol):
         }
 
         # 2. 检查任务状态
-        print(f"\n2. 检查任务状态...")
+        print("\n2. 检查任务状态...")
         status_response = requests.get(
             f"{base_url}/api/analysis/tasks/{task_id}/status",
             headers=headers
@@ -113,14 +113,14 @@ def test_existing_result(task_id, stock_symbol):
             print(f"   任务状态: {status}")
 
             if status != "completed":
-                print(f"   ⚠️ 任务未完成，跳过")
+                print("   ⚠️ 任务未完成，跳过")
                 return False
         else:
             print(f"   ❌ 获取状态失败: {status_response.status_code}")
             return False
 
         # 3. 获取分析结果
-        print(f"\n3. 获取分析结果...")
+        print("\n3. 获取分析结果...")
         result_response = requests.get(
             f"{base_url}/api/analysis/tasks/{task_id}/result",
             headers=headers
@@ -130,7 +130,7 @@ def test_existing_result(task_id, stock_symbol):
             result_data = result_response.json()
             data = result_data["data"]
 
-            print(f"✅ 成功获取分析结果")
+            print("✅ 成功获取分析结果")
             print(f"   stock_symbol: {data.get('stock_symbol')}")
             print(f"   analysts: {data.get('analysts', [])}")
             print(f"   research_depth: {data.get('research_depth')}")
@@ -155,7 +155,7 @@ def test_existing_result(task_id, stock_symbol):
 
                 # 验证前端期望的字段
                 expected_fields = ['market_report', 'fundamentals_report', 'investment_plan', 'final_trade_decision']
-                print(f"\n🎯 检查前端期望的字段:")
+                print("\n🎯 检查前端期望的字段:")
                 for field in expected_fields:
                     if field in reports:
                         content = reports[field]
@@ -168,10 +168,10 @@ def test_existing_result(task_id, stock_symbol):
 
                 return True
             else:
-                print(f"❌ API返回未包含reports字段")
+                print("❌ API返回未包含reports字段")
 
                 # 显示完整的数据结构用于调试
-                print(f"\n🔍 完整数据结构:")
+                print("\n🔍 完整数据结构:")
                 for key, value in data.items():
                     print(f"   {key}: {type(value).__name__}")
                     if isinstance(value, dict) and len(value) > 0:

@@ -29,7 +29,7 @@ def test_stock_code_tracking():
         logger = get_logger("default")
         logger.setLevel("INFO")
 
-        print(f"\n🔧 开始调用统一基本面分析工具...")
+        print("\n🔧 开始调用统一基本面分析工具...")
 
         # 调用统一基本面分析工具
         result = AgentUtils.get_stock_fundamentals_unified(
@@ -39,12 +39,12 @@ def test_stock_code_tracking():
             curr_date='2025-07-15'
         )
 
-        print(f"\n✅ 统一基本面分析工具调用完成")
+        print("\n✅ 统一基本面分析工具调用完成")
         print(f"📊 返回结果长度: {len(result) if result else 0}")
 
         # 检查结果中是否包含正确的股票代码
         if result:
-            print(f"\n🔍 检查结果中的股票代码...")
+            print("\n🔍 检查结果中的股票代码...")
             if "002027" in result:
                 print("✅ 结果中包含正确的股票代码 002027")
             else:
@@ -56,7 +56,7 @@ def test_stock_code_tracking():
                 print("✅ 结果中不包含错误的股票代码 002021")
 
             # 显示结果的前500字符
-            print(f"\n📄 结果前500字符:")
+            print("\n📄 结果前500字符:")
             print("-" * 60)
             print(result[:500])
             print("-" * 60)
@@ -78,13 +78,13 @@ def test_individual_components():
 
     try:
         # 1. 测试股票市场识别
-        print(f"\n1️⃣ 测试股票市场识别...")
+        print("\n1️⃣ 测试股票市场识别...")
         from tradingagents.utils.stock_utils import StockUtils
         market_info = StockUtils.get_market_info(test_ticker)
         print(f"   市场信息: {market_info}")
 
         # 2. 测试Tushare代码标准化
-        print(f"\n2️⃣ 测试Tushare代码标准化...")
+        print("\n2️⃣ 测试Tushare代码标准化...")
         from tradingagents.dataflows.tushare_utils import get_tushare_provider
         provider = get_tushare_provider()
         if provider:
@@ -92,7 +92,7 @@ def test_individual_components():
             print(f"   标准化结果: {test_ticker} -> {normalized}")
 
         # 3. 测试数据源管理器
-        print(f"\n3️⃣ 测试数据源管理器...")
+        print("\n3️⃣ 测试数据源管理器...")
         from tradingagents.dataflows.data_source_manager import get_china_stock_data_unified
         data_result = get_china_stock_data_unified(test_ticker, "2025-07-01", "2025-07-15")
         print(f"   数据获取结果长度: {len(data_result) if data_result else 0}")

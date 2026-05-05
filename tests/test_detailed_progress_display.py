@@ -223,11 +223,11 @@ def test_analysis_stages():
             else:
                 print("   ✅ 清晰的最终决策过程")
 
-        print(f"\n📋 总结:")
+        print("\n📋 总结:")
         print(f"   - 总共 {len(stages)} 个主要阶段")
-        print(f"   - 每个阶段都有明确的进度指示")
-        print(f"   - 用户不会感到系统'卡顿'")
-        print(f"   - 专业的投资分析流程")
+        print("   - 每个阶段都有明确的进度指示")
+        print("   - 用户不会感到系统'卡顿'")
+        print("   - 专业的投资分析流程")
 
         return True
 

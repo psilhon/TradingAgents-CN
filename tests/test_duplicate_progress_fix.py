@@ -39,7 +39,7 @@ def test_duplicate_prevention():
             else:
                 print("   🔇 跳过重复提示（已完成）")
 
-        print(f"\n📊 模拟重复的基本面分析完成事件:")
+        print("\n📊 模拟重复的基本面分析完成事件:")
         print("-" * 40)
 
         # 模拟多次基本面分析完成
@@ -53,8 +53,8 @@ def test_duplicate_prevention():
             else:
                 print("   🔇 跳过重复提示（已完成）")
 
-        print(f"\n✅ 重复提示防止机制测试完成")
-        print(f"📋 结果: 每个分析师只显示一次完成提示")
+        print("\n✅ 重复提示防止机制测试完成")
+        print("📋 结果: 每个分析师只显示一次完成提示")
 
         return True
 
@@ -108,8 +108,8 @@ def test_stream_chunk_simulation():
                 else:
                     print("   🔇 跳过重复的基本面分析完成提示")
 
-        print(f"\n✅ 流式处理重复防止测试完成")
-        print(f"📋 结果: 即使多个chunk包含相同报告，也只显示一次完成提示")
+        print("\n✅ 流式处理重复防止测试完成")
+        print("📋 结果: 即使多个chunk包含相同报告，也只显示一次完成提示")
 
         return True
 
@@ -149,7 +149,7 @@ def test_analyst_completion_order():
             else:
                 print("   🔇 已完成，跳过")
 
-        print(f"\n📊 模拟重复完成事件:")
+        print("\n📊 模拟重复完成事件:")
         print("-" * 40)
 
         # 模拟某些分析师重复完成
@@ -163,7 +163,7 @@ def test_analyst_completion_order():
             else:
                 print("   🔇 已完成，跳过重复提示")
 
-        print(f"\n✅ 分析师完成顺序测试完成")
+        print("\n✅ 分析师完成顺序测试完成")
         print(f"📋 已完成的分析师: {completed_analysts}")
 
         return True
@@ -228,8 +228,8 @@ def test_real_scenario_simulation():
                 else:
                     print("   🔇 跳过重复提示")
 
-        print(f"\n✅ 真实场景模拟完成")
-        print(f"📋 结果: 每个分析师只显示一次完成提示，避免了重复")
+        print("\n✅ 真实场景模拟完成")
+        print("📋 结果: 每个分析师只显示一次完成提示，避免了重复")
 
         return True
 

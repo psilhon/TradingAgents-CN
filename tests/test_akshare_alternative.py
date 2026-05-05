@@ -34,7 +34,7 @@ def test_akshare_individual_info():
 
                 if data is not None and not data.empty:
                     print(f"✅ 成功获取{symbol}的信息: {len(data)}条记录")
-                    print(f"   数据结构:")
+                    print("   数据结构:")
                     for i, row in data.iterrows():
                         item = row.get('item', 'N/A')
                         value = row.get('value', 'N/A')
@@ -85,10 +85,10 @@ def test_akshare_financial_apis():
                     print(f"   ✅ 成功: {len(data)}条记录")
                     print(f"   列名: {list(data.columns)}")
                     if len(data) > 0:
-                        print(f"   样本数据:")
+                        print("   样本数据:")
                         print(data.head(2))
                 else:
-                    print(f"   ❌ 无数据")
+                    print("   ❌ 无数据")
 
             except Exception as e:
                 print(f"   ❌ 失败: {e}")
@@ -127,10 +127,10 @@ def test_akshare_market_data():
                     print(f"   ✅ 成功: {len(data)}条记录")
                     print(f"   列名: {list(data.columns)}")
                     if len(data) > 0:
-                        print(f"   前3条数据:")
+                        print("   前3条数据:")
                         print(data.head(3))
                 else:
-                    print(f"   ❌ 无数据")
+                    print("   ❌ 无数据")
 
             except Exception as e:
                 print(f"   ❌ 失败: {e}")

@@ -94,7 +94,7 @@ def test_trading_time_logic():
     print("收盘后缓冲期测试总结")
     print("=" * 80)
     print(f"\n配置的同步间隔: {settings.QUOTES_INGEST_INTERVAL_SECONDS} 秒 ({settings.QUOTES_INGEST_INTERVAL_SECONDS / 60} 分钟)")
-    print(f"缓冲期时长: 30 分钟 (15:00-15:30)")
+    print("缓冲期时长: 30 分钟 (15:00-15:30)")
     print(f"理论同步次数: {30 * 60 // settings.QUOTES_INGEST_INTERVAL_SECONDS} 次")
 
     print("\n缓冲期内的同步机会：")

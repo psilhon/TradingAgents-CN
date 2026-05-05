@@ -95,13 +95,13 @@ def check_file_versions(file_path: Path, target_version: str):
 
 def main():
     """主检查函数"""
-    logger.debug(f"🔍 版本号一致性检查")
-    logger.info(f"=")
+    logger.debug("🔍 版本号一致性检查")
+    logger.info("=")
 
     # 获取目标版本号
     target_version = get_target_version()
     if not target_version:
-        logger.error(f"❌ 无法读取VERSION文件")
+        logger.error("❌ 无法读取VERSION文件")
         return
 
     logger.info(f"🎯 目标版本: {target_version}")
@@ -125,7 +125,7 @@ def main():
         issues = check_file_versions(path, target_version)
 
         if not issues:
-            logger.info(f"   ✅ 版本号一致")
+            logger.info("   ✅ 版本号一致")
         else:
             for issue in issues:
                 if 'error' in issue:
@@ -136,22 +136,22 @@ def main():
                 total_issues += len(issues)
 
     # 总结
-    logger.info(f"\n📊 检查总结")
-    logger.info(f"=")
+    logger.info("\n📊 检查总结")
+    logger.info("=")
 
     if total_issues == 0:
-        logger.info(f"🎉 所有版本号都是一致的！")
+        logger.info("🎉 所有版本号都是一致的！")
         logger.info(f"✅ 当前版本: {target_version}")
     else:
         logger.warning(f"⚠️ 发现 {total_issues} 个版本号不一致问题")
-        logger.info(f"请手动修复上述问题")
+        logger.info("请手动修复上述问题")
 
     # 版本号规范提醒
-    logger.info(f"\n💡 版本号规范:")
-    logger.info(f"   - 主版本文件: VERSION")
+    logger.info("\n💡 版本号规范:")
+    logger.info("   - 主版本文件: VERSION")
     logger.info(f"   - 当前版本: {target_version}")
-    logger.info(f"   - 格式要求: v0.1.x")
-    logger.info(f"   - 历史版本: 可以保留在CHANGELOG中")
+    logger.info("   - 格式要求: v0.1.x")
+    logger.info("   - 历史版本: 可以保留在CHANGELOG中")
 
 if __name__ == "__main__":
     main()

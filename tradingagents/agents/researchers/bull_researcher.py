@@ -9,7 +9,7 @@ logger = get_logger("default")
 
 def create_bull_researcher(llm, memory):
     def bull_node(state) -> dict:
-        logger.debug(f"🐂 [DEBUG] ===== 看涨研究员节点开始 =====")
+        logger.debug("🐂 [DEBUG] ===== 看涨研究员节点开始 =====")
 
         investment_debate_state = state["investment_debate_state"]
         history = investment_debate_state.get("history", "")
@@ -75,7 +75,7 @@ def create_bull_researcher(llm, memory):
         currency = market_info['currency_name']
         currency_symbol = market_info['currency_symbol']
 
-        logger.debug(f"🐂 [DEBUG] 接收到的报告:")
+        logger.debug("🐂 [DEBUG] 接收到的报告:")
         logger.debug(f"🐂 [DEBUG] - 市场报告长度: {len(market_research_report)}")
         logger.debug(f"🐂 [DEBUG] - 情绪报告长度: {len(sentiment_report)}")
         logger.debug(f"🐂 [DEBUG] - 新闻报告长度: {len(news_report)}")
@@ -90,7 +90,7 @@ def create_bull_researcher(llm, memory):
         if memory is not None:
             past_memories = memory.get_memories(curr_situation, n_matches=2)
         else:
-            logger.warning(f"⚠️ [DEBUG] memory为None，跳过历史记忆检索")
+            logger.warning("⚠️ [DEBUG] memory为None，跳过历史记忆检索")
             past_memories = []
 
         past_memory_str = ""

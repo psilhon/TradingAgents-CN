@@ -24,7 +24,7 @@ def create_safe_debator(llm):
         trader_decision = state["trader_investment_plan"]
 
         # 📊 记录输入数据长度
-        logger.info(f"📊 [Safe Analyst] 输入数据长度统计:")
+        logger.info("📊 [Safe Analyst] 输入数据长度统计:")
         logger.info(f"  - market_report: {len(market_research_report):,} 字符")
         logger.info(f"  - sentiment_report: {len(sentiment_report):,} 字符")
         logger.info(f"  - news_report: {len(news_report):,} 字符")
@@ -51,7 +51,7 @@ def create_safe_debator(llm):
 
 通过质疑他们的乐观态度并强调他们可能忽视的潜在下行风险来参与讨论。解决他们的每个反驳点，展示为什么保守立场最终是公司资产最安全的道路。专注于辩论和批评他们的论点，证明低风险策略相对于他们方法的优势。请用中文以对话方式输出，就像您在说话一样，不使用任何特殊格式。"""
 
-        logger.info(f"⏱️ [Safe Analyst] 开始调用LLM...")
+        logger.info("⏱️ [Safe Analyst] 开始调用LLM...")
         llm_start_time = time.time()
 
         response = llm.invoke(prompt)

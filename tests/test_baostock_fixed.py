@@ -66,7 +66,7 @@ def test_baostock_query_all_stock_with_date():
                     print(f"   📊 A股股票数量: {len(a_stocks)}")
 
                     if len(a_stocks) > 0:
-                        print(f"   A股样本:")
+                        print("   A股样本:")
                         for i, row in enumerate(a_stocks[:3]):
                             print(f"     {row[0]} - {row[2]}")
                         break  # 找到有效数据就退出
@@ -106,7 +106,7 @@ def test_baostock_adapter_fixed():
         if df is not None and not df.empty:
             print(f"✅ 股票列表获取成功: {len(df)}条记录")
             print(f"   列名: {list(df.columns)}")
-            print(f"   前5条记录:")
+            print("   前5条记录:")
             for i, row in df.head().iterrows():
                 print(f"     {row.get('symbol', 'N/A')} - {row.get('name', 'N/A')} - {row.get('ts_code', 'N/A')}")
         else:
@@ -125,7 +125,7 @@ def test_baostock_adapter_fixed():
             print(f"   列名: {list(basic_df.columns)}")
 
             # 显示前几条记录
-            print(f"   前5条记录:")
+            print("   前5条记录:")
             for i, row in basic_df.head().iterrows():
                 print(f"     {row.get('ts_code', 'N/A')} - {row.get('name', 'N/A')}")
                 print(f"       PE: {row.get('pe', 'N/A')}, PB: {row.get('pb', 'N/A')}")
@@ -136,7 +136,7 @@ def test_baostock_adapter_fixed():
             pb_count = basic_df['pb'].notna().sum() if 'pb' in basic_df.columns else 0
             close_count = basic_df['close'].notna().sum() if 'close' in basic_df.columns else 0
 
-            print(f"\n   📈 数据统计:")
+            print("\n   📈 数据统计:")
             print(f"     有PE数据的股票: {pe_count}只")
             print(f"     有PB数据的股票: {pb_count}只")
             print(f"     有收盘价数据的股票: {close_count}只")
@@ -181,11 +181,11 @@ def test_data_source_manager_baostock():
                 print(f"✅ 股票列表获取成功: {len(stock_df)}条记录，来源: {source}")
 
                 if source == 'baostock':
-                    print(f"🎯 使用了BaoStock数据源!")
+                    print("🎯 使用了BaoStock数据源!")
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
             else:
-                print(f"❌ 股票列表获取失败")
+                print("❌ 股票列表获取失败")
 
             # 测试daily_basic获取
             print("\n📊 测试daily_basic获取...")
@@ -197,7 +197,7 @@ def test_data_source_manager_baostock():
                 print(f"✅ daily_basic获取成功: {len(basic_df)}条记录，来源: {source}")
 
                 if source == 'baostock':
-                    print(f"🎯 使用了BaoStock数据源!")
+                    print("🎯 使用了BaoStock数据源!")
                     # 检查BaoStock特有的估值指标
                     if 'ps' in basic_df.columns:
                         ps_count = basic_df['ps'].notna().sum()
@@ -208,9 +208,9 @@ def test_data_source_manager_baostock():
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
             else:
-                print(f"❌ daily_basic获取失败")
+                print("❌ daily_basic获取失败")
         else:
-            print(f"❌ 未找到BaoStock适配器")
+            print("❌ 未找到BaoStock适配器")
 
     except Exception as e:
         print(f"❌ 数据源管理器测试失败: {e}")

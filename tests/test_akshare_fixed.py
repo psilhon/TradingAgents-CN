@@ -39,7 +39,7 @@ def test_akshare_adapter_fixed():
         if df is not None and not df.empty:
             print(f"✅ 股票列表获取成功: {len(df)}条记录")
             print(f"   列名: {list(df.columns)}")
-            print(f"   前5条记录:")
+            print("   前5条记录:")
             for i, row in df.head().iterrows():
                 print(f"     {row.get('symbol', 'N/A')} - {row.get('name', 'N/A')} - {row.get('ts_code', 'N/A')}")
         else:
@@ -58,7 +58,7 @@ def test_akshare_adapter_fixed():
             print(f"   列名: {list(basic_df.columns)}")
 
             # 显示前几条记录
-            print(f"   前10条记录:")
+            print("   前10条记录:")
             for i, row in basic_df.head(10).iterrows():
                 ts_code = row.get('ts_code', 'N/A')
                 name = row.get('name', 'N/A')
@@ -77,7 +77,7 @@ def test_akshare_adapter_fixed():
             close_nonzero = (basic_df['close'] > 0).sum() if 'close' in basic_df.columns else 0
             mv_nonzero = (basic_df['total_mv'] > 0).sum() if 'total_mv' in basic_df.columns else 0
 
-            print(f"\n   📈 数据统计:")
+            print("\n   📈 数据统计:")
             print(f"     有收盘价数据的股票: {close_count}只 (非零: {close_nonzero}只)")
             print(f"     有总市值数据的股票: {mv_count}只 (非零: {mv_nonzero}只)")
             print(f"     有换手率数据的股票: {turnover_count}只")
@@ -124,7 +124,7 @@ def test_data_source_manager_akshare():
                 print(f"✅ Fallback获取成功: {len(df)}条记录，来源: {source}")
 
                 if source == 'akshare':
-                    print(f"🎯 使用了AKShare数据源!")
+                    print("🎯 使用了AKShare数据源!")
                     # 检查AKShare特有的数据
                     if 'total_mv' in df.columns:
                         mv_count = df['total_mv'].notna().sum()
@@ -135,9 +135,9 @@ def test_data_source_manager_akshare():
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
             else:
-                print(f"❌ Fallback获取失败")
+                print("❌ Fallback获取失败")
         else:
-            print(f"❌ 未找到AKShare适配器")
+            print("❌ 未找到AKShare适配器")
 
     except Exception as e:
         print(f"❌ 数据源管理器测试失败: {e}")

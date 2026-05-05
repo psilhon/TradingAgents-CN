@@ -28,7 +28,7 @@ def test_fundamentals_analyst_prompt():
             print("⚠️ 未找到DASHSCOPE_API_KEY，跳过LLM测试")
             return True
 
-        print(f"🔧 创建基本面分析师...")
+        print("🔧 创建基本面分析师...")
 
         # 创建LLM和工具包
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
@@ -50,7 +50,7 @@ def test_fundamentals_analyst_prompt():
         from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
         fundamentals_analyst = create_fundamentals_analyst(llm, toolkit)
 
-        print(f"✅ 基本面分析师创建完成")
+        print("✅ 基本面分析师创建完成")
 
         # 测试不同类型的股票
         test_cases = [
@@ -70,7 +70,7 @@ def test_fundamentals_analyst_prompt():
                 "messages": []
             }
 
-            print(f"🔍 [提示词验证] 检查提示词构建...")
+            print("🔍 [提示词验证] 检查提示词构建...")
 
             # 获取公司名称（验证提示词构建逻辑）
             from tradingagents.agents.analysts.fundamentals_analyst import _get_company_name_for_fundamentals
@@ -90,7 +90,7 @@ def test_fundamentals_analyst_prompt():
             else:
                 print(f"   ⚠️ 公司名称与预期不符: 期望 {expected_name}, 实际 {company_name}")
 
-            print(f"\n🤖 执行基本面分析...")
+            print("\n🤖 执行基本面分析...")
 
             try:
                 # 执行基本面分析（限制输出长度以节省时间）
@@ -101,7 +101,7 @@ def test_fundamentals_analyst_prompt():
                     print(f"✅ 基本面分析完成，报告长度: {len(report)}")
 
                     # 检查报告中的关键元素
-                    print(f"\n🔍 检查报告内容...")
+                    print("\n🔍 检查报告内容...")
 
                     # 检查股票代码
                     if ticker in report:
@@ -117,7 +117,7 @@ def test_fundamentals_analyst_prompt():
                         name_count = report.count(company_name)
                         print(f"      出现次数: {name_count}")
                     else:
-                        print(f"   ⚠️ 报告可能不包含具体公司名称")
+                        print("   ⚠️ 报告可能不包含具体公司名称")
 
                     # 检查货币信息
                     currency_symbol = market_info['currency_symbol']
@@ -135,7 +135,7 @@ def test_fundamentals_analyst_prompt():
                             print(f"   ✅ 报告不包含错误的股票代码: {error_code}")
 
                     # 显示报告摘要
-                    print(f"\n📄 报告摘要 (前500字符):")
+                    print("\n📄 报告摘要 (前500字符):")
                     print("-" * 40)
                     print(report[:500])
                     if len(report) > 500:
@@ -170,7 +170,7 @@ def test_market_analyst_prompt():
             print("⚠️ 未找到DASHSCOPE_API_KEY，跳过LLM测试")
             return True
 
-        print(f"🔧 创建市场分析师...")
+        print("🔧 创建市场分析师...")
 
         # 创建LLM和工具包
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
@@ -192,7 +192,7 @@ def test_market_analyst_prompt():
         from tradingagents.agents.analysts.market_analyst import create_market_analyst
         market_analyst = create_market_analyst(llm, toolkit)
 
-        print(f"✅ 市场分析师创建完成")
+        print("✅ 市场分析师创建完成")
 
         # 测试股票
         test_ticker = "002027"
@@ -207,7 +207,7 @@ def test_market_analyst_prompt():
             "messages": []
         }
 
-        print(f"🔍 [提示词验证] 检查提示词构建...")
+        print("🔍 [提示词验证] 检查提示词构建...")
 
         # 获取公司名称（验证提示词构建逻辑）
         from tradingagents.agents.analysts.market_analyst import _get_company_name
@@ -221,7 +221,7 @@ def test_market_analyst_prompt():
         print(f"   ✅ 市场类型: {market_info['market_name']}")
         print(f"   ✅ 货币信息: {market_info['currency_name']} ({market_info['currency_symbol']})")
 
-        print(f"\n🤖 执行市场分析...")
+        print("\n🤖 执行市场分析...")
 
         try:
             # 执行市场分析
@@ -232,7 +232,7 @@ def test_market_analyst_prompt():
                 print(f"✅ 市场分析完成，报告长度: {len(report)}")
 
                 # 检查报告中的关键元素
-                print(f"\n🔍 检查报告内容...")
+                print("\n🔍 检查报告内容...")
 
                 # 检查股票代码
                 if test_ticker in report:
@@ -244,10 +244,10 @@ def test_market_analyst_prompt():
                 if company_name in report and company_name != f"股票{test_ticker}":
                     print(f"   ✅ 报告包含正确的公司名称: {company_name}")
                 else:
-                    print(f"   ⚠️ 报告可能不包含具体公司名称")
+                    print("   ⚠️ 报告可能不包含具体公司名称")
 
                 # 显示报告摘要
-                print(f"\n📄 报告摘要 (前500字符):")
+                print("\n📄 报告摘要 (前500字符):")
                 print("-" * 40)
                 print(report[:500])
                 if len(report) > 500:
@@ -302,9 +302,9 @@ def test_prompt_elements():
 
             # 验证一致性
             if fundamentals_name == market_name:
-                print(f"   ✅ 两个分析师获取的公司名称一致")
+                print("   ✅ 两个分析师获取的公司名称一致")
             else:
-                print(f"   ⚠️ 两个分析师获取的公司名称不一致")
+                print("   ⚠️ 两个分析师获取的公司名称不一致")
 
             # 验证提示词应包含的关键元素
             expected_elements = [
@@ -314,7 +314,7 @@ def test_prompt_elements():
                 f"计价货币：{market_info['currency_name']}"
             ]
 
-            print(f"   提示词应包含的关键元素:")
+            print("   提示词应包含的关键元素:")
             for element in expected_elements:
                 print(f"      ✅ {element}")
 

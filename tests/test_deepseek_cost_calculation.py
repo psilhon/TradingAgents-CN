@@ -93,7 +93,7 @@ def test_deepseek_cost_calculation():
             print()
 
             if cost == 0.0:
-                print(f"❌ 成本计算返回0，说明配置有问题")
+                print("❌ 成本计算返回0，说明配置有问题")
                 return False
 
         return True
@@ -127,7 +127,7 @@ def test_token_tracker():
         )
 
         if usage_record:
-            print(f"✅ Token跟踪成功")
+            print("✅ Token跟踪成功")
             print(f"   提供商: {usage_record.provider}")
             print(f"   模型: {usage_record.model_name}")
             print(f"   输入tokens: {usage_record.input_tokens}")
@@ -136,13 +136,13 @@ def test_token_tracker():
             print(f"   会话ID: {usage_record.session_id}")
 
             if usage_record.cost > 0:
-                print(f"✅ 成本计算正确")
+                print("✅ 成本计算正确")
                 return True
             else:
-                print(f"❌ 成本计算仍为0")
+                print("❌ 成本计算仍为0")
                 return False
         else:
-            print(f"❌ Token跟踪失败")
+            print("❌ Token跟踪失败")
             return False
 
     except Exception as e:
@@ -180,7 +180,7 @@ def test_deepseek_adapter_integration():
         print(f"📊 响应内容: {result.content[:100]}...")
 
         # 检查是否有成本信息输出
-        print(f"✅ DeepSeek适配器集成测试完成")
+        print("✅ DeepSeek适配器集成测试完成")
         return True
 
     except Exception as e:

@@ -72,7 +72,7 @@ class RedisPerformanceTester:
             max_latency = max(latencies)
             median_latency = statistics.median(latencies)
 
-            print(f"\n📊 连接延迟统计:")
+            print("\n📊 连接延迟统计:")
             print(f"  平均延迟: {avg_latency:.2f} ms")
             print(f"  最小延迟: {min_latency:.2f} ms")
             print(f"  最大延迟: {max_latency:.2f} ms")
@@ -218,7 +218,7 @@ class RedisPerformanceTester:
         total_operations = total_successful + total_failed
         overall_throughput = total_successful / total_duration if total_duration > 0 else 0
 
-        print(f"\n📊 并发测试统计:")
+        print("\n📊 并发测试统计:")
         print(f"  总线程数: {num_threads}")
         print(f"  总操作数: {total_operations}")
         print(f"  成功操作: {total_successful}")
@@ -240,7 +240,7 @@ class RedisPerformanceTester:
 
     def test_memory_usage(self):
         """测试Redis内存使用情况"""
-        print(f"\n💾 Redis内存使用情况:")
+        print("\n💾 Redis内存使用情况:")
 
         try:
             info = self.redis_client.info('memory')

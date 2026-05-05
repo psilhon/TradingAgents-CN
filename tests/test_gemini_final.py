@@ -157,7 +157,7 @@ def main():
     results['TradingAgents集成'] = test_gemini_tradingagents()
 
     # 总结结果
-    print(f"\n📊 最终测试结果总结:")
+    print("\n📊 最终测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

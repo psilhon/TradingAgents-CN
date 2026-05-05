@@ -42,7 +42,7 @@ class SignalProcessor:
         # 清理和验证信号内容
         full_signal = full_signal.strip()
         if len(full_signal) == 0:
-            logger.error(f"❌ [SignalProcessor] 信号内容为空")
+            logger.error("❌ [SignalProcessor] 信号内容为空")
             return {
                 'action': '持有',
                 'target_price': None,
@@ -96,13 +96,13 @@ class SignalProcessor:
 
         # 验证messages内容
         if not messages or len(messages) == 0:
-            logger.error(f"❌ [SignalProcessor] messages为空")
+            logger.error("❌ [SignalProcessor] messages为空")
             return self._get_default_decision()
 
         # 验证human消息内容
         human_content = messages[1][1] if len(messages) > 1 else ""
         if not human_content or len(human_content.strip()) == 0:
-            logger.error(f"❌ [SignalProcessor] human消息内容为空")
+            logger.error("❌ [SignalProcessor] human消息内容为空")
             return self._get_default_decision()
 
         logger.debug(f"🔍 [SignalProcessor] 准备调用LLM，消息数量: {len(messages)}, 信号长度: {len(full_signal)}")
@@ -178,7 +178,7 @@ class SignalProcessor:
                             logger.debug(f"🔍 [SignalProcessor] 智能推算目标价格: {target_price}")
                         else:
                             target_price = None
-                            logger.warning(f"🔍 [SignalProcessor] 未能提取到目标价格，设置为None")
+                            logger.warning("🔍 [SignalProcessor] 未能提取到目标价格，设置为None")
                 else:
                     # 确保价格是数值类型
                     try:
@@ -191,7 +191,7 @@ class SignalProcessor:
                         logger.debug(f"🔍 [SignalProcessor] 处理后的目标价格: {target_price}")
                     except (ValueError, TypeError):
                         target_price = None
-                        logger.warning(f"🔍 [SignalProcessor] 价格转换失败，设置为None")
+                        logger.warning("🔍 [SignalProcessor] 价格转换失败，设置为None")
 
                 result = {
                     'action': action,

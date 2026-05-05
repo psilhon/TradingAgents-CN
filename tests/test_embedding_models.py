@@ -67,7 +67,7 @@ def test_embedding_selection():
         print(f"⚠️ 嵌入模型: {memory3.embedding}")
         print(f"   LLM提供商: {memory3.llm_provider}")
         print(f"   客户端: {type(memory3.client)}")
-        print(f"   问题: Google AI没有专门的嵌入配置，默认使用OpenAI")
+        print("   问题: Google AI没有专门的嵌入配置，默认使用OpenAI")
     except Exception as e:
         print(f"❌ Google AI配置失败: {e}")
 
@@ -105,7 +105,7 @@ def test_embedding_functionality():
         try:
             memory = FinancialSituationMemory("test_embedding", config)
             embedding = memory.get_embedding("苹果公司股票分析")
-            print(f"✅ 阿里百炼嵌入成功")
+            print("✅ 阿里百炼嵌入成功")
             print(f"   嵌入维度: {len(embedding)}")
             print(f"   嵌入预览: {embedding[:5]}...")
         except Exception as e:
@@ -125,7 +125,7 @@ def test_embedding_functionality():
         try:
             memory = FinancialSituationMemory("test_google_embedding", config)
             embedding = memory.get_embedding("Apple stock analysis")
-            print(f"✅ Google AI嵌入成功（意外）")
+            print("✅ Google AI嵌入成功（意外）")
             print(f"   嵌入维度: {len(embedding)}")
         except Exception as e:
             print(f"❌ Google AI嵌入失败（预期）: {e}")
@@ -170,7 +170,7 @@ def main():
     test_embedding_functionality()
     show_solutions()
 
-    print(f"\n📊 总结:")
+    print("\n📊 总结:")
     print("=" * 50)
     print("1. nomic-embed-text 是本地Ollama使用的嵌入模型")
     print("2. Google AI没有专门的嵌入配置，默认尝试使用OpenAI")

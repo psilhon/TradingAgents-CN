@@ -49,7 +49,7 @@ def test_data_consistency_checker():
             print(f"✅ 成功获取数据: {len(data)}条记录，来源: {source}")
 
             if consistency_report:
-                print(f"\n📊 一致性检查报告:")
+                print("\n📊 一致性检查报告:")
                 print(f"   数据一致性: {'✅ 一致' if consistency_report['is_consistent'] else '❌ 不一致'}")
                 print(f"   置信度分数: {consistency_report['confidence_score']:.2f}")
                 print(f"   推荐行动: {consistency_report['recommended_action']}")
@@ -59,7 +59,7 @@ def test_data_consistency_checker():
 
                 # 显示具体差异
                 if consistency_report['differences']:
-                    print(f"\n📈 指标差异详情:")
+                    print("\n📈 指标差异详情:")
                     for metric, diff_info in consistency_report['differences'].items():
                         if isinstance(diff_info, dict) and 'difference_pct' in diff_info:
                             print(f"   {metric}:")
@@ -75,7 +75,7 @@ def test_data_consistency_checker():
             print("❌ 未能获取数据")
 
         # 3. 测试单独的一致性检查器
-        print(f"\n3. 测试独立的一致性检查器...")
+        print("\n3. 测试独立的一致性检查器...")
 
         if manager.consistency_checker and len(available_adapters) >= 2:
             # 分别获取两个数据源的数据
@@ -91,7 +91,7 @@ def test_data_consistency_checker():
                     primary_adapter.name, secondary_adapter.name
                 )
 
-                print(f"✅ 独立一致性检查完成:")
+                print("✅ 独立一致性检查完成:")
                 print(f"   一致性: {consistency_result.is_consistent}")
                 print(f"   置信度: {consistency_result.confidence_score:.2f}")
                 print(f"   推荐行动: {consistency_result.recommended_action}")
@@ -105,7 +105,7 @@ def test_data_consistency_checker():
             else:
                 print("⚠️ 无法获取足够的数据进行独立检查")
 
-        print(f"\n✅ 数据一致性检查测试完成")
+        print("\n✅ 数据一致性检查测试完成")
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
@@ -151,12 +151,12 @@ def test_mock_data_consistency():
             primary_data, secondary_data, "Tushare", "AKShare"
         )
 
-        print(f"\n📈 一致性检查结果:")
+        print("\n📈 一致性检查结果:")
         print(f"   数据一致性: {result.is_consistent}")
         print(f"   置信度分数: {result.confidence_score:.3f}")
         print(f"   推荐行动: {result.recommended_action}")
 
-        print(f"\n📊 详细差异:")
+        print("\n📊 详细差异:")
         for metric, diff in result.differences.items():
             if isinstance(diff, dict):
                 print(f"   {metric}:")
@@ -171,11 +171,11 @@ def test_mock_data_consistency():
             primary_data, secondary_data, result
         )
 
-        print(f"\n🔧 冲突解决:")
+        print("\n🔧 冲突解决:")
         print(f"   策略: {strategy}")
         print(f"   最终数据条数: {len(final_data)}")
 
-        print(f"\n✅ 模拟数据测试完成")
+        print("\n✅ 模拟数据测试完成")
 
     except Exception as e:
         print(f"❌ 模拟数据测试失败: {e}")

@@ -21,7 +21,7 @@ def test_cache_manager_fundamentals():
         from tradingagents.dataflows.cache_manager import get_cache
 
         cache = get_cache()
-        print(f"✅ 缓存管理器初始化成功")
+        print("✅ 缓存管理器初始化成功")
         print(f"📁 缓存目录: {cache.cache_dir}")
 
         # 测试保存基本面数据
@@ -49,29 +49,29 @@ def test_cache_manager_fundamentals():
 """
 
         # 测试保存到缓存
-        print(f"\n💾 测试保存基本面数据到缓存...")
+        print("\n💾 测试保存基本面数据到缓存...")
         cache_key = cache.save_fundamentals_data(test_symbol, test_data, data_source="test")
         print(f"✅ 数据已保存，缓存键: {cache_key}")
 
         # 测试从缓存加载
-        print(f"\n📖 测试从缓存加载基本面数据...")
+        print("\n📖 测试从缓存加载基本面数据...")
         loaded_data = cache.load_fundamentals_data(cache_key)
         if loaded_data:
             print(f"✅ 数据加载成功，长度: {len(loaded_data)}")
             print(f"📄 数据预览: {loaded_data[:200]}...")
         else:
-            print(f"❌ 数据加载失败")
+            print("❌ 数据加载失败")
 
         # 测试查找缓存
-        print(f"\n🔍 测试查找基本面缓存数据...")
+        print("\n🔍 测试查找基本面缓存数据...")
         found_key = cache.find_cached_fundamentals_data(test_symbol, data_source="test")
         if found_key:
             print(f"✅ 找到缓存数据，缓存键: {found_key}")
         else:
-            print(f"❌ 未找到缓存数据")
+            print("❌ 未找到缓存数据")
 
         # 测试缓存统计
-        print(f"\n📊 测试缓存统计...")
+        print("\n📊 测试缓存统计...")
         stats = cache.get_cache_stats()
         print(f"缓存统计: {stats}")
 
@@ -85,7 +85,7 @@ def test_cache_manager_fundamentals():
 
 def test_fundamentals_with_cache():
     """测试基本面数据获取函数的缓存功能"""
-    print(f"\n🧪 测试基本面数据获取函数的缓存功能...")
+    print("\n🧪 测试基本面数据获取函数的缓存功能...")
 
     try:
         from tradingagents.dataflows.interface import get_fundamentals_openai, get_fundamentals_finnhub
@@ -111,13 +111,13 @@ def test_fundamentals_with_cache():
         if second_time < first_time:
             print(f"✅ 缓存生效！第二次获取速度提升了 {((first_time - second_time) / first_time * 100):.1f}%")
         else:
-            print(f"⚠️ 缓存可能未生效，或者数据来源有变化")
+            print("⚠️ 缓存可能未生效，或者数据来源有变化")
 
         # 验证数据一致性
         if result1 == result2:
-            print(f"✅ 两次获取的数据完全一致")
+            print("✅ 两次获取的数据完全一致")
         else:
-            print(f"⚠️ 两次获取的数据不一致，可能是缓存问题")
+            print("⚠️ 两次获取的数据不一致，可能是缓存问题")
 
         return True
 
@@ -129,7 +129,7 @@ def test_fundamentals_with_cache():
 
 def test_cache_ttl():
     """测试缓存TTL（生存时间）功能"""
-    print(f"\n🧪 测试缓存TTL功能...")
+    print("\n🧪 测试缓存TTL功能...")
 
     try:
         from tradingagents.dataflows.cache_manager import get_cache
@@ -137,7 +137,7 @@ def test_cache_ttl():
         cache = get_cache()
 
         # 检查缓存配置
-        print(f"📋 缓存配置:")
+        print("📋 缓存配置:")
         for cache_type, config in cache.cache_config.items():
             if 'fundamentals' in cache_type:
                 print(f"  - {cache_type}: TTL={config['ttl_hours']}小时, 描述={config['description']}")
@@ -151,14 +151,14 @@ def test_cache_ttl():
         if us_key:
             print(f"找到美股缓存: {us_key}")
         else:
-            print(f"未找到美股缓存")
+            print("未找到美股缓存")
 
         print(f"\n🇨🇳 测试A股基本面缓存 ({china_symbol})...")
         china_key = cache.find_cached_fundamentals_data(china_symbol, data_source="test")
         if china_key:
             print(f"找到A股缓存: {china_key}")
         else:
-            print(f"未找到A股缓存")
+            print("未找到A股缓存")
 
         return True
 

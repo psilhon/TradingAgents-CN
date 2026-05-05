@@ -20,10 +20,10 @@ def test_api(api_name, api_func, *args, **kwargs):
         result = api_func(*args, **kwargs)
 
         if isinstance(result, pd.DataFrame):
-            print(f"   ✅ 成功! 返回 DataFrame")
+            print("   ✅ 成功! 返回 DataFrame")
             print(f"   📈 数据行数: {len(result)}")
             print(f"   📋 列名: {list(result.columns)}")
-            print(f"\n   前3行数据:")
+            print("\n   前3行数据:")
             print(result.head(3).to_string())
             return True, result
         else:
@@ -86,7 +86,7 @@ def main():
                 print(f"\n   🎯 找到 {test_symbol}:")
                 print(matched.to_string())
     except AttributeError:
-        print(f"   ⚠️ 接口 stock_hk_spot 不存在")
+        print("   ⚠️ 接口 stock_hk_spot 不存在")
 
     # ========================================
     # 2. 历史行情接口
@@ -101,7 +101,7 @@ def main():
         adjust="qfq"  # 前复权
     )
     if success and df is not None:
-        print(f"\n   📅 最近5个交易日:")
+        print("\n   📅 最近5个交易日:")
         print(df.tail(5).to_string())
 
     # ========================================
@@ -117,7 +117,7 @@ def main():
             symbol=test_symbol
         )
     except AttributeError:
-        print(f"   ⚠️ 接口 stock_individual_basic_info_hk_xq 不存在")
+        print("   ⚠️ 接口 stock_individual_basic_info_hk_xq 不存在")
     except Exception as e:
         print(f"   ❌ 调用失败: {e}")
 
@@ -133,16 +133,16 @@ def main():
             ak.stock_hk_list
         )
     except AttributeError:
-        print(f"   ⚠️ 接口 stock_hk_list 不存在")
+        print("   ⚠️ 接口 stock_hk_list 不存在")
 
     # 4.2 从实时行情获取股票列表
-    print(f"\n📊 从 stock_hk_spot_em 获取股票列表:")
+    print("\n📊 从 stock_hk_spot_em 获取股票列表:")
     try:
         df = ak.stock_hk_spot_em()
         if df is not None and not df.empty:
             print(f"   ✅ 共 {len(df)} 只港股")
             print(f"   📋 列名: {list(df.columns)}")
-            print(f"\n   前10只股票:")
+            print("\n   前10只股票:")
             print(df.head(10)[['代码', '名称', '最新价', '涨跌幅']].to_string())
     except Exception as e:
         print(f"   ❌ 失败: {e}")
@@ -159,7 +159,7 @@ def main():
             ak.stock_hk_ggt_components_em
         )
     except AttributeError:
-        print(f"   ⚠️ 接口 stock_hk_ggt_components_em 不存在")
+        print("   ⚠️ 接口 stock_hk_ggt_components_em 不存在")
 
     # 5.2 港股通资金流向
     try:
@@ -168,7 +168,7 @@ def main():
             ak.stock_hk_ggt_hist_em
         )
     except AttributeError:
-        print(f"   ⚠️ 接口 stock_hk_ggt_hist_em 不存在")
+        print("   ⚠️ 接口 stock_hk_ggt_hist_em 不存在")
 
     # ========================================
     # 总结

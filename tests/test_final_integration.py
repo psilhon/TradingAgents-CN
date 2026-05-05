@@ -67,23 +67,23 @@ def test_final_integration():
                 print(f"  ✅ 成功获取新闻 ({len(result)} 字符)")
                 # 检查是否包含预期内容
                 if case["code"] in result:
-                    print(f"  ✅ 包含股票代码")
+                    print("  ✅ 包含股票代码")
                 if "新闻数据来源" in result:
-                    print(f"  ✅ 包含数据来源信息")
+                    print("  ✅ 包含数据来源信息")
             else:
-                print(f"  ❌ 获取失败")
+                print("  ❌ 获取失败")
 
-        print(f"\n✅ 统一新闻工具测试完成")
+        print("\n✅ 统一新闻工具测试完成")
 
         # 2. 测试新闻分析师的工具加载
-        print(f"\n📰 第二步：测试新闻分析师工具加载...")
+        print("\n📰 第二步：测试新闻分析师工具加载...")
         from tradingagents.agents.analysts.news_analyst import create_news_analyst
 
         # 检查新闻分析师是否正确导入了统一新闻工具
-        print(f"  ✅ 新闻分析师模块导入成功")
+        print("  ✅ 新闻分析师模块导入成功")
 
         # 3. 验证工具集成
-        print(f"\n🔧 第三步：验证工具集成...")
+        print("\n🔧 第三步：验证工具集成...")
 
         # 检查新闻分析师文件中的统一新闻工具导入
         with open("tradingagents/agents/analysts/news_analyst.py", "r", encoding="utf-8") as f:
@@ -104,7 +104,7 @@ def test_final_integration():
                 print(f"  ❌ {check_name}: 未找到")
 
         # 4. 总结
-        print(f"\n🎉 集成验证总结")
+        print("\n🎉 集成验证总结")
         print("=" * 60)
         print("✅ 统一新闻工具创建成功")
         print("✅ 支持A股、港股、美股自动识别")
@@ -112,14 +112,14 @@ def test_final_integration():
         print("✅ 系统提示词已更新")
         print("✅ 补救机制已优化")
 
-        print(f"\n🚀 主要改进效果：")
+        print("\n🚀 主要改进效果：")
         print("1. 大模型只需调用一个工具 get_stock_news_unified")
         print("2. 自动识别股票类型并选择最佳新闻源")
         print("3. 简化了工具调用逻辑，提高成功率")
         print("4. 统一了新闻格式，便于分析")
         print("5. 减少了补救机制的复杂度")
 
-        print(f"\n✨ 集成测试完成！统一新闻工具已成功集成到新闻分析师中。")
+        print("\n✨ 集成测试完成！统一新闻工具已成功集成到新闻分析师中。")
 
     except Exception as e:
         print(f"❌ 测试过程中出现错误: {e}")

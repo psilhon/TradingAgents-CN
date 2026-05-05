@@ -146,15 +146,15 @@ class MongoDBCacheAdapter:
                         logger.info(f"✅ [数据源优先级] {symbol} ({market_category}): {result}")
                         return result
                     else:
-                        logger.warning(f"⚠️ [数据源优先级] 没有可用的数据源配置，使用默认顺序")
+                        logger.warning("⚠️ [数据源优先级] 没有可用的数据源配置，使用默认顺序")
                 else:
-                    logger.warning(f"⚠️ [数据源优先级] 数据库中没有找到数据源配置")
+                    logger.warning("⚠️ [数据源优先级] 数据库中没有找到数据源配置")
 
         except Exception as e:
             logger.error(f"❌ 获取数据源优先级失败: {e}", exc_info=True)
 
         # 默认顺序：Tushare > AKShare > BaoStock
-        logger.info(f"📊 [数据源优先级] 使用默认顺序: ['tushare', 'akshare', 'baostock']")
+        logger.info("📊 [数据源优先级] 使用默认顺序: ['tushare', 'akshare', 'baostock']")
         return ['tushare', 'akshare', 'baostock']
 
     def get_historical_data(self, symbol: str, start_date: str = None, end_date: str = None,
@@ -283,7 +283,7 @@ class MongoDBCacheAdapter:
                 logger.debug(f"✅ [数据来源: MongoDB-新闻数据] 从MongoDB获取新闻数据: {len(data)}条")
                 return data
             else:
-                logger.debug(f"📊 [数据来源: MongoDB-新闻数据] MongoDB中未找到新闻数据")
+                logger.debug("📊 [数据来源: MongoDB-新闻数据] MongoDB中未找到新闻数据")
                 return None
 
         except Exception as e:
@@ -317,7 +317,7 @@ class MongoDBCacheAdapter:
                 logger.debug(f"✅ 从MongoDB获取社媒数据: {len(data)}条")
                 return data
             else:
-                logger.debug(f"📊 MongoDB中未找到社媒数据")
+                logger.debug("📊 MongoDB中未找到社媒数据")
                 return None
 
         except Exception as e:

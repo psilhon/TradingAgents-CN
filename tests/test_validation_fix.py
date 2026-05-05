@@ -85,8 +85,8 @@ def test_specific_case():
             market_type="港股"
         )
 
-        print(f"  股票代码: 0700.HK")
-        print(f"  市场类型: 港股")
+        print("  股票代码: 0700.HK")
+        print("  市场类型: 港股")
         print(f"  验证结果: {'通过' if is_valid else '失败'}")
 
         if not is_valid:

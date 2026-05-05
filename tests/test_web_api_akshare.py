@@ -140,7 +140,7 @@ def test_akshare_web_api():
         total_duration = time.time() - total_start
 
         # 输出Web API格式的结果
-        print(f"\n📊 Web API测试结果:")
+        print("\n📊 Web API测试结果:")
         print(f"   总耗时: {total_duration:.1f}秒")
 
         web_result = {
@@ -156,7 +156,7 @@ def test_akshare_web_api():
             'total_duration': total_duration
         }
 
-        print(f"\n🔍 详细结果:")
+        print("\n🔍 详细结果:")
         for test_name, test_result in web_result['tests'].items():
             status = test_result.get('status', 'unknown')
             duration = test_result.get('duration', 0)
@@ -166,7 +166,7 @@ def test_akshare_web_api():
             print(f"   {status_icon} {test_name}: {message} ({duration:.1f}s)")
 
         # Web超时评估
-        print(f"\n🌐 Web兼容性评估:")
+        print("\n🌐 Web兼容性评估:")
         if total_duration < 30:
             print(f"   🎯 优秀: 总耗时 {total_duration:.1f}秒 < 30秒")
         elif total_duration < 60:
@@ -187,4 +187,4 @@ if __name__ == "__main__":
     if result:
         print(f"\n✅ 测试完成，AKShare Web API兼容性: {'良好' if result['total_duration'] < 60 else '需要优化'}")
     else:
-        print(f"\n❌ 测试失败")
+        print("\n❌ 测试失败")

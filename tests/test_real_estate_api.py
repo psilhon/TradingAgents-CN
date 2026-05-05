@@ -58,7 +58,7 @@ def test_real_estate_screening():
             # 如果没找到，尝试一些可能的名称
             test_industries = ['房地产开发', '建筑装饰', '建筑材料', '家居用品']
 
-        print(f"\n3. 测试房地产相关行业筛选...")
+        print("\n3. 测试房地产相关行业筛选...")
         for industry_name in test_industries:
             print(f"\n🔍 测试行业: {industry_name}")
 
@@ -85,12 +85,12 @@ def test_real_estate_screening():
 
                 print(f"  ✅ 找到 {total} 只股票")
                 if items:
-                    print(f"  📊 前3只股票:")
+                    print("  📊 前3只股票:")
                     for i, stock in enumerate(items[:3]):
                         market_cap = stock.get('total_mv', 0)
                         print(f"    {i+1}. {stock.get('code', 'N/A')} - {stock.get('name', 'N/A')} - {market_cap:.2f}亿元")
                 else:
-                    print(f"  ⚠️ 该行业没有100亿以上市值的股票")
+                    print("  ⚠️ 该行业没有100亿以上市值的股票")
             else:
                 print(f"  ❌ 筛选失败: {response.status_code}")
                 print(f"     响应: {response.text}")

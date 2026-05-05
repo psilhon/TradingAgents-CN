@@ -74,7 +74,7 @@ def quick_test():
             return False
 
         # 3. 等待任务完成
-        print(f"\n3. 等待任务完成...")
+        print("\n3. 等待任务完成...")
         for i in range(60):  # 最多等待5分钟
             status_response = requests.get(
                 f"{base_url}/api/analysis/tasks/{task_id}/status",
@@ -98,7 +98,7 @@ def quick_test():
 
             time.sleep(5)
 
-        print(f"⏰ 任务执行超时")
+        print("⏰ 任务执行超时")
         return False
 
     except Exception as e:

@@ -22,12 +22,12 @@ for query in queries:
     print(f"\n查询条件: {query}")
     result = db.market_quotes.find_one(query, {"_id": 0})
     if result:
-        print(f"  ✅ 找到数据")
+        print("  ✅ 找到数据")
         print(f"  - volume: {result.get('volume')}")
         print(f"  - amount: {result.get('amount')}")
         print(f"  - volume_ratio: {result.get('volume_ratio')}")
     else:
-        print(f"  ❌ 未找到数据")
+        print("  ❌ 未找到数据")
 
 client.close()
 

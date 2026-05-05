@@ -67,7 +67,7 @@ async def test_screening_fields():
                 status = "✅" if field in first_result else "❌"
                 print(f"  {status} {field}: {value}")
 
-            print(f"\n📄 完整结果示例:")
+            print("\n📄 完整结果示例:")
             print(f"  股票代码: {first_result.get('code')}")
             print(f"  股票名称: {first_result.get('name')}")
             print(f"  所属行业: {first_result.get('industry')}")

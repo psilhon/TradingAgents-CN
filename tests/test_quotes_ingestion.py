@@ -67,14 +67,14 @@ async def test_market_quotes_status():
     is_empty = await service._collection_empty()
     count = await db.market_quotes.estimated_document_count()
 
-    print(f"📊 market_quotes 集合状态:")
+    print("📊 market_quotes 集合状态:")
     print(f"   - 是否为空: {is_empty}")
     print(f"   - 文档数量: {count}")
 
     if count > 0:
         # 获取一些样本数据
         sample_docs = await db.market_quotes.find().limit(5).to_list(length=5)
-        print(f"\n📋 样本数据 (前5条):")
+        print("\n📋 样本数据 (前5条):")
         for i, doc in enumerate(sample_docs, 1):
             code = doc.get('code') or doc.get('symbol')
             close = doc.get('close')
@@ -83,7 +83,7 @@ async def test_market_quotes_status():
             print(f"   {i}. 代码: {code}, 收盘价: {close}, 交易日: {trade_date}, 更新时间: {updated_at}")
 
         # 检查是否有带前缀的代码
-        print(f"\n🔍 检查是否有异常代码（长度不是6位）:")
+        print("\n🔍 检查是否有异常代码（长度不是6位）:")
         pipeline = [
             {
                 "$project": {
@@ -106,7 +106,7 @@ async def test_market_quotes_status():
             for doc in abnormal_docs:
                 print(f"      - 代码: {doc.get('code')}, 长度: {doc.get('code_length')}")
         else:
-            print(f"   ✅ 所有代码都是标准的6位格式")
+            print("   ✅ 所有代码都是标准的6位格式")
 
     await close_db()
     return True
@@ -124,11 +124,11 @@ async def test_historical_data_import():
 
     # 检查 stock_daily_quotes 集合状态
     daily_count = await db.stock_daily_quotes.estimated_document_count()
-    print(f"📊 stock_daily_quotes 集合状态:")
+    print("📊 stock_daily_quotes 集合状态:")
     print(f"   - 文档数量: {daily_count}")
 
     if daily_count == 0:
-        print(f"   ⚠️ 历史数据集合为空，无法测试导入功能")
+        print("   ⚠️ 历史数据集合为空，无法测试导入功能")
         await close_db()
         return False
 
@@ -148,39 +148,39 @@ async def test_historical_data_import():
         })
         print(f"   - 该日数据量: {date_count}")
     else:
-        print(f"   ⚠️ 无法获取最新交易日")
+        print("   ⚠️ 无法获取最新交易日")
         await close_db()
         return False
 
     # 检查 market_quotes 当前状态
     market_count_before = await db.market_quotes.estimated_document_count()
-    print(f"\n📊 market_quotes 导入前状态:")
+    print("\n📊 market_quotes 导入前状态:")
     print(f"   - 文档数量: {market_count_before}")
 
     # 询问用户是否要清空 market_quotes 进行测试
-    print(f"\n⚠️  是否要清空 market_quotes 集合来测试导入功能？")
-    print(f"   输入 'yes' 清空并测试，输入其他跳过测试")
+    print("\n⚠️  是否要清空 market_quotes 集合来测试导入功能？")
+    print("   输入 'yes' 清空并测试，输入其他跳过测试")
 
     # 由于是自动化测试，我们不清空，只是模拟检查
-    print(f"   [自动跳过清空操作，仅检查导入逻辑]")
+    print("   [自动跳过清空操作，仅检查导入逻辑]")
 
     # 测试 backfill_from_historical_data 方法
-    print(f"\n🔄 测试历史数据导入逻辑...")
+    print("\n🔄 测试历史数据导入逻辑...")
 
     try:
         # 如果集合不为空，方法会自动跳过
         await service.backfill_from_historical_data()
 
         market_count_after = await db.market_quotes.estimated_document_count()
-        print(f"\n📊 market_quotes 导入后状态:")
+        print("\n📊 market_quotes 导入后状态:")
         print(f"   - 文档数量: {market_count_after}")
 
         if market_count_after > market_count_before:
             print(f"   ✅ 成功导入 {market_count_after - market_count_before} 条数据")
         elif market_count_before > 0:
-            print(f"   ℹ️  集合不为空，跳过导入（符合预期）")
+            print("   ℹ️  集合不为空，跳过导入（符合预期）")
         else:
-            print(f"   ⚠️ 集合为空但未导入数据，可能历史数据不足")
+            print("   ⚠️ 集合为空但未导入数据，可能历史数据不足")
 
     except Exception as e:
         print(f"   ❌ 导入失败: {e}")
@@ -218,7 +218,7 @@ async def test_akshare_realtime_quotes():
         print(f"   ✅ 获取到 {len(quotes_map)} 只股票的实时行情")
 
         # 检查代码格式
-        print(f"\n🔍 检查代码格式（前10个）:")
+        print("\n🔍 检查代码格式（前10个）:")
         abnormal_codes = []
 
         for i, (code, data) in enumerate(list(quotes_map.items())[:10], 1):
@@ -235,7 +235,7 @@ async def test_akshare_realtime_quotes():
             print(f"\n   ⚠️ 发现 {len(abnormal_codes)} 个异常代码")
             return False
         else:
-            print(f"\n   ✅ 所有代码都是标准的6位数字格式")
+            print("\n   ✅ 所有代码都是标准的6位数字格式")
             return True
 
     except Exception as e:

@@ -87,7 +87,7 @@ def test_data_dir_configuration():
     # 4. 测试配置管理器集成
     print("\n4. 测试配置管理器集成 | Testing Configuration Manager Integration")
     settings = config_manager.load_settings()
-    print(f"配置管理器设置 | Configuration manager settings:")
+    print("配置管理器设置 | Configuration manager settings:")
     for key, value in settings.items():
         if 'dir' in key.lower():
             print(f"  {key}: {value}")

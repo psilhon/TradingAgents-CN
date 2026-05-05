@@ -39,21 +39,21 @@ def test_unified_tool_directly():
                     'curr_date': '2025-07-14'
                 })
 
-                print(f"  ✅ 工具调用成功")
+                print("  ✅ 工具调用成功")
                 print(f"  结果长度: {len(result)}")
                 print(f"  结果前200字符: {result[:200]}...")
 
                 # 检查结果是否包含预期内容
                 if expected_type in result:
-                    print(f"  ✅ 结果包含正确的股票类型")
+                    print("  ✅ 结果包含正确的股票类型")
                 else:
-                    print(f"  ⚠️ 结果未包含预期的股票类型")
+                    print("  ⚠️ 结果未包含预期的股票类型")
 
                 # 检查是否包含货币信息
                 if any(currency in result for currency in ['¥', 'HK$', '$']):
-                    print(f"  ✅ 结果包含货币信息")
+                    print("  ✅ 结果包含货币信息")
                 else:
-                    print(f"  ⚠️ 结果未包含货币信息")
+                    print("  ⚠️ 结果未包含货币信息")
 
             except Exception as e:
                 print(f"  ❌ 工具调用失败: {e}")
@@ -114,7 +114,7 @@ def test_fundamentals_analyst_with_unified_tool():
         # 调用分析师
         result = analyst(state)
 
-        print(f"  ✅ 基本面分析师调用完成")
+        print("  ✅ 基本面分析师调用完成")
         print(f"  结果类型: {type(result)}")
 
         if isinstance(result, dict) and 'fundamentals_report' in result:
@@ -124,17 +124,17 @@ def test_fundamentals_analyst_with_unified_tool():
 
             # 检查报告质量
             if len(report) > 200:
-                print(f"  ✅ 报告长度合格（>200字符）")
+                print("  ✅ 报告长度合格（>200字符）")
             else:
                 print(f"  ⚠️ 报告长度偏短（{len(report)}字符）")
 
             # 检查是否包含港币相关内容
             if 'HK$' in report or '港币' in report or '港元' in report:
-                print(f"  ✅ 报告包含港币计价")
+                print("  ✅ 报告包含港币计价")
             else:
-                print(f"  ⚠️ 报告未包含港币计价")
+                print("  ⚠️ 报告未包含港币计价")
         else:
-            print(f"  ❌ 未找到基本面报告")
+            print("  ❌ 未找到基本面报告")
             return False
 
         print("✅ 基本面分析师统一工具测试通过")
@@ -173,9 +173,9 @@ def test_stock_type_detection():
             if (expected_market in market_info['market_name'] and 
                 market_info['currency_name'] == expected_currency and
                 market_info['currency_symbol'] == expected_symbol):
-                print(f"    ✅ 识别正确")
+                print("    ✅ 识别正确")
             else:
-                print(f"    ❌ 识别错误")
+                print("    ❌ 识别错误")
                 return False
 
         print("✅ 股票类型检测测试通过")

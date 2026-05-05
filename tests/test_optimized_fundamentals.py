@@ -61,7 +61,7 @@ def test_optimized_fundamentals():
                     'description': description
                 }
 
-                print(f"✅ 成功获取数据")
+                print("✅ 成功获取数据")
                 print(f"📏 数据长度: {data_length:,} 字符")
                 print(f"📝 数据预览:\n{result[:200]}...")
 
@@ -70,7 +70,7 @@ def test_optimized_fundamentals():
                 has_fundamentals = "财务" in result or "基本面" in result or "投资建议" in result
                 has_company = "公司" in result or "企业" in result
 
-                print(f"🔍 数据质量检查:")
+                print("🔍 数据质量检查:")
                 print(f"   - 包含价格信息: {'✅' if has_price else '❌'}")
                 print(f"   - 包含基本面信息: {'✅' if has_fundamentals else '❌'}")
                 print(f"   - 包含公司信息: {'✅' if has_company else '❌'}")
@@ -82,7 +82,7 @@ def test_optimized_fundamentals():
                     'preview': "无数据返回",
                     'description': description
                 }
-                print(f"❌ 未获取到数据")
+                print("❌ 未获取到数据")
 
         except Exception as e:
             results[depth_name] = {
@@ -109,20 +109,20 @@ def test_optimized_fundamentals():
         min_length = min(data_lengths)
         max_length = max(data_lengths)
 
-        print(f"📏 数据长度统计:")
+        print("📏 数据长度统计:")
         print(f"   - 平均长度: {avg_length:,.0f} 字符")
         print(f"   - 最小长度: {min_length:,} 字符")
         print(f"   - 最大长度: {max_length:,} 字符")
         print(f"   - 数据扩展倍数: {max_length/min_length:.1f}x")
 
         # 对比优化前后的数据量变化
-        print(f"\n💡 优化效果:")
-        print(f"   - 新策略只获取最近2天价格数据 + 基本面财务数据")
-        print(f"   - 相比之前7-30天的历史数据，大幅减少了数据传输量")
-        print(f"   - 保持了基本面分析所需的核心信息完整性")
+        print("\n💡 优化效果:")
+        print("   - 新策略只获取最近2天价格数据 + 基本面财务数据")
+        print("   - 相比之前7-30天的历史数据，大幅减少了数据传输量")
+        print("   - 保持了基本面分析所需的核心信息完整性")
 
     # 详细结果
-    print(f"\n📋 各深度详细结果:")
+    print("\n📋 各深度详细结果:")
     for depth_name, result in results.items():
         status = "✅ 成功" if result['success'] else "❌ 失败"
         print(f"   {result['description']:20} | {status} | {result['data_length']:6,} 字符")

@@ -47,7 +47,7 @@ def main():
     token = login()
     if not token:
         return
-    print(f"✅ 登录成功")
+    print("✅ 登录成功")
 
     # 2. 获取 300750 行情
     print("\n2️⃣ 获取 300750 行情...")
@@ -55,8 +55,8 @@ def main():
     if not result:
         return
 
-    print(f"✅ 获取成功")
-    print(f"\n📊 行情数据:")
+    print("✅ 获取成功")
+    print("\n📊 行情数据:")
     data = result.get("data", {})
 
     # 打印关键字段
@@ -107,11 +107,11 @@ def main():
         print(f"  实际振幅: {amplitude}%")
 
         if abs(expected_amplitude - amplitude) < 0.01:
-            print(f"  ✅ 振幅计算正确！")
+            print("  ✅ 振幅计算正确！")
         else:
-            print(f"  ❌ 振幅计算错误！")
+            print("  ❌ 振幅计算错误！")
     else:
-        print(f"  ⚠️ 数据不完整，无法验证")
+        print("  ⚠️ 数据不完整，无法验证")
 
 if __name__ == "__main__":
     main()

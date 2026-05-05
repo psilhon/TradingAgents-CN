@@ -19,7 +19,7 @@ async def test_amount_fix():
     # 测试股票：300750 宁德时代
     test_code = "300750"
 
-    print(f"\n1️⃣ 测试 Tushare Provider 标准化")
+    print("\n1️⃣ 测试 Tushare Provider 标准化")
     print(f"   股票代码: {test_code}")
 
     provider = get_tushare_provider()
@@ -32,7 +32,7 @@ async def test_amount_fix():
     end_date = datetime.now()
     start_date = end_date - timedelta(days=5)
 
-    print(f"\n2️⃣ 获取历史数据")
+    print("\n2️⃣ 获取历史数据")
     print(f"   日期范围: {start_date.strftime('%Y-%m-%d')} ~ {end_date.strftime('%Y-%m-%d')}")
 
     df = await provider.get_historical_data(
@@ -50,7 +50,7 @@ async def test_amount_fix():
 
     # 显示最新一条数据
     latest = df.iloc[-1]
-    print(f"\n3️⃣ 最新数据（已标准化）")
+    print("\n3️⃣ 最新数据（已标准化）")
     print(f"   日期: {latest.name}")
     print(f"   收盘价: {latest.get('close')}")
     print(f"   成交量: {latest.get('volume')}")
@@ -59,7 +59,7 @@ async def test_amount_fix():
     print(f"   成交额(万元): {latest.get('amount') / 1e4:.2f}")
 
     # 检查数据库中的数据
-    print(f"\n4️⃣ 检查数据库 stock_daily_quotes 集合")
+    print("\n4️⃣ 检查数据库 stock_daily_quotes 集合")
     db = get_mongo_db()
     coll = db["stock_daily_quotes"]
 
@@ -69,30 +69,30 @@ async def test_amount_fix():
     )
 
     if doc:
-        print(f"   ✅ 找到数据库记录")
+        print("   ✅ 找到数据库记录")
         print(f"   交易日期: {doc.get('trade_date')}")
         print(f"   收盘价: {doc.get('close')}")
         print(f"   成交额(元): {doc.get('amount'):,.0f}")
         print(f"   成交额(亿元): {doc.get('amount') / 1e8:.2f}")
         print(f"   成交额(万元): {doc.get('amount') / 1e4:.2f}")
     else:
-        print(f"   ⚠️ 数据库中未找到记录")
+        print("   ⚠️ 数据库中未找到记录")
 
     # 检查 market_quotes 集合
-    print(f"\n5️⃣ 检查数据库 market_quotes 集合")
+    print("\n5️⃣ 检查数据库 market_quotes 集合")
     quotes_coll = db["market_quotes"]
 
     quote_doc = quotes_coll.find_one({"code": test_code})
 
     if quote_doc:
-        print(f"   ✅ 找到行情记录")
+        print("   ✅ 找到行情记录")
         print(f"   交易日期: {quote_doc.get('trade_date')}")
         print(f"   收盘价: {quote_doc.get('close')}")
         print(f"   成交额(元): {quote_doc.get('amount'):,.0f}")
         print(f"   成交额(亿元): {quote_doc.get('amount') / 1e8:.2f}")
         print(f"   成交额(万元): {quote_doc.get('amount') / 1e4:.2f}")
     else:
-        print(f"   ⚠️ market_quotes 中未找到记录")
+        print("   ⚠️ market_quotes 中未找到记录")
 
     print("\n" + "=" * 80)
     print("✅ 测试完成")

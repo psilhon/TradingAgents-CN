@@ -67,7 +67,7 @@ def debug_baostock_query_all_stock():
 
                 # 检查A股股票
                 if 'code' in df.columns:
-                    print(f"\n🔍 分析股票代码格式:")
+                    print("\n🔍 分析股票代码格式:")
                     code_samples = df['code'].head(20).tolist()
                     print(f"   前20个代码: {code_samples}")
 
@@ -77,18 +77,18 @@ def debug_baostock_query_all_stock():
                     print(f"   匹配A股模式的股票数量: {len(a_stocks)}")
 
                     if len(a_stocks) > 0:
-                        print(f"   A股样本:")
+                        print("   A股样本:")
                         for i, row in a_stocks.head(5).iterrows():
                             print(f"     {row['code']} - {row.get('code_name', 'N/A')}")
                     else:
-                        print(f"   ❌ 没有找到匹配A股模式的股票!")
-                        print(f"   所有代码格式样本:")
+                        print("   ❌ 没有找到匹配A股模式的股票!")
+                        print("   所有代码格式样本:")
                         unique_patterns = df['code'].str.extract(r'^([a-z]+)\.').iloc[:, 0].value_counts()
                         print(f"     {unique_patterns}")
                 else:
-                    print(f"   ❌ 没有找到'code'列")
+                    print("   ❌ 没有找到'code'列")
             else:
-                print(f"   ❌ 没有获取到任何数据")
+                print("   ❌ 没有获取到任何数据")
 
         finally:
             bs.logout()
@@ -136,7 +136,7 @@ def debug_baostock_stock_basic():
                     if data_list:
                         print(f"   ✅ 获取成功: {data_list[0]}")
                     else:
-                        print(f"   ⚠️ 无数据返回")
+                        print("   ⚠️ 无数据返回")
                 else:
                     print(f"   ❌ 查询失败: {rs.error_msg}")
 
@@ -173,7 +173,7 @@ def test_baostock_adapter_stock_list():
         if df is not None and not df.empty:
             print(f"✅ 股票列表获取成功: {len(df)}条记录")
             print(f"   列名: {list(df.columns)}")
-            print(f"   前5条记录:")
+            print("   前5条记录:")
             for i, row in df.head().iterrows():
                 print(f"     {row.get('symbol', 'N/A')} - {row.get('name', 'N/A')} - {row.get('ts_code', 'N/A')}")
         else:

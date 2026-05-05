@@ -20,7 +20,7 @@ async def test_login_api():
 
                 if response.status == 200:
                     result = await response.json()
-                    print(f"登录成功!")
+                    print("登录成功!")
                     print(f"完整响应: {json.dumps(result, indent=2, ensure_ascii=False)}")
                     print(f"访问令牌: {result.get('access_token', 'N/A')[:50]}...")
                     print(f"刷新令牌: {result.get('refresh_token', 'N/A')[:50]}...")

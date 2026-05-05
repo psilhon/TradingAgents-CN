@@ -122,7 +122,7 @@ class NewsRelevanceFilter:
         if (self.company_name not in title and self.stock_code not in title and 
             any(keyword in title_lower for keyword in self.exclude_keywords)):
             score -= 30
-            logger.debug(f"[过滤器] 标题无公司信息但含排除词: -30分")
+            logger.debug("[过滤器] 标题无公司信息但含排除词: -30分")
 
         # 确保评分在0-100范围内
         final_score = max(0, min(100, score))
@@ -174,7 +174,7 @@ class NewsRelevanceFilter:
             logger.info(f"[过滤器] 过滤完成，保留 {len(filtered_df)}条 新闻")
         else:
             filtered_df = pd.DataFrame()
-            logger.warning(f"[过滤器] 所有新闻都被过滤，无符合条件的新闻")
+            logger.warning("[过滤器] 所有新闻都被过滤，无符合条件的新闻")
 
         return filtered_df
 

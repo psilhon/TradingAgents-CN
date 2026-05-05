@@ -81,7 +81,7 @@ def save_test_content():
     with open('test_content.md', 'w', encoding='utf-8') as f:
         f.write(content)
 
-    print(f"✅ 测试内容已保存到 test_content.md")
+    print("✅ 测试内容已保存到 test_content.md")
     print(f"📊 内容长度: {len(content)} 字符")
     return content
 
@@ -139,7 +139,7 @@ def test_word_conversion(md_content):
                     print(f"💾 文件已保存为: {success_file}")
                     return True
                 else:
-                    print(f"❌ 转换失败: 文件未生成或为空")
+                    print("❌ 转换失败: 文件未生成或为空")
 
             except Exception as e:
                 print(f"❌ 转换失败: {e}")
@@ -181,7 +181,7 @@ def test_pdf_conversion(md_content):
                     extra_args.append(f'--pdf-engine={engine}')
                     print(f"🔧 使用引擎: {engine}")
                 else:
-                    print(f"🔧 使用默认引擎")
+                    print("🔧 使用默认引擎")
 
                 pypandoc.convert_text(
                     md_content,
@@ -202,7 +202,7 @@ def test_pdf_conversion(md_content):
                     print(f"💾 文件已保存为: {success_file}")
                     return True
                 else:
-                    print(f"❌ 转换失败: 文件未生成或为空")
+                    print("❌ 转换失败: 文件未生成或为空")
 
             except Exception as e:
                 print(f"❌ 转换失败: {e}")

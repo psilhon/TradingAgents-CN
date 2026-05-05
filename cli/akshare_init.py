@@ -99,7 +99,7 @@ async def run_full_initialization(
     if sync_items:
         print(f"📋 同步项目: {', '.join(sync_items)}")
     elif multi_period:
-        print(f"📊 多周期模式: 日线、周线、月线")
+        print("📊 多周期模式: 日线、周线、月线")
 
     try:
         service = await get_akshare_init_service()
@@ -149,7 +149,7 @@ async def run_basic_sync_only():
         service = await get_akshare_sync_service()
         result = await service.sync_stock_basic_info(force_update=True)
 
-        print(f"✅ 基础信息同步完成:")
+        print("✅ 基础信息同步完成:")
         print(f"  📊 处理总数: {result.get('total_processed', 0):,}")
         print(f"  ✅ 成功数量: {result.get('success_count', 0):,}")
         print(f"  ❌ 错误数量: {result.get('error_count', 0):,}")

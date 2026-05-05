@@ -168,31 +168,31 @@ class Toolkit:
             str: 包含实时行情、历史数据、技术指标的完整股票分析报告
         """
         try:
-            logger.debug(f"📊 [DEBUG] ===== agent_utils.get_china_stock_data 开始调用 =====")
+            logger.debug("📊 [DEBUG] ===== agent_utils.get_china_stock_data 开始调用 =====")
             logger.debug(f"📊 [DEBUG] 参数: stock_code={stock_code}, start_date={start_date}, end_date={end_date}")
 
             from tradingagents.dataflows.interface import get_china_stock_data_unified
-            logger.debug(f"📊 [DEBUG] 成功导入统一数据源接口")
+            logger.debug("📊 [DEBUG] 成功导入统一数据源接口")
 
-            logger.debug(f"📊 [DEBUG] 正在调用统一数据源接口...")
+            logger.debug("📊 [DEBUG] 正在调用统一数据源接口...")
             result = get_china_stock_data_unified(stock_code, start_date, end_date)
 
-            logger.debug(f"📊 [DEBUG] 统一数据源接口调用完成")
+            logger.debug("📊 [DEBUG] 统一数据源接口调用完成")
             logger.debug(f"📊 [DEBUG] 返回结果类型: {type(result)}")
             logger.debug(f"📊 [DEBUG] 返回结果长度: {len(result) if result else 0}")
             logger.debug(f"📊 [DEBUG] 返回结果前200字符: {str(result)[:200]}...")
-            logger.debug(f"📊 [DEBUG] ===== agent_utils.get_china_stock_data 调用结束 =====")
+            logger.debug("📊 [DEBUG] ===== agent_utils.get_china_stock_data 调用结束 =====")
 
             return result
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            logger.error(f"❌ [DEBUG] ===== agent_utils.get_china_stock_data 异常 =====")
+            logger.error("❌ [DEBUG] ===== agent_utils.get_china_stock_data 异常 =====")
             logger.error(f"❌ [DEBUG] 错误类型: {type(e).__name__}")
             logger.error(f"❌ [DEBUG] 错误信息: {str(e)}")
-            logger.error(f"❌ [DEBUG] 详细堆栈:")
+            logger.error("❌ [DEBUG] 详细堆栈:")
             print(error_details)
-            logger.error(f"❌ [DEBUG] ===== 异常处理结束 =====")
+            logger.error("❌ [DEBUG] ===== 异常处理结束 =====")
             return f"中国股票数据获取失败: {str(e)}。请检查网络连接或稍后重试。"
 
     @staticmethod
@@ -639,7 +639,7 @@ class Toolkit:
             # 生成真正的基本面分析报告
             fundamentals_report = analyzer._generate_fundamentals_report(ticker, stock_data)
 
-            logger.debug(f"📊 [DEBUG] 中国基本面分析报告生成完成")
+            logger.debug("📊 [DEBUG] 中国基本面分析报告生成完成")
             logger.debug(f"📊 [DEBUG] get_china_fundamentals 结果长度: {len(fundamentals_report)}")
 
             return fundamentals_report
@@ -647,7 +647,7 @@ class Toolkit:
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            logger.error(f"❌ [DEBUG] get_china_fundamentals 失败:")
+            logger.error("❌ [DEBUG] get_china_fundamentals 失败:")
             logger.error(f"❌ [DEBUG] 错误: {str(e)}")
             logger.error(f"❌ [DEBUG] 堆栈: {error_details}")
             return f"中国股票基本面分析失败: {str(e)}"
@@ -684,7 +684,7 @@ class Toolkit:
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            logger.error(f"❌ [DEBUG] get_hk_stock_data_unified 失败:")
+            logger.error("❌ [DEBUG] get_hk_stock_data_unified 失败:")
             logger.error(f"❌ [DEBUG] 错误: {str(e)}")
             logger.error(f"❌ [DEBUG] 堆栈: {error_details}")
             return f"港股数据获取失败: {str(e)}"
@@ -763,27 +763,27 @@ class Toolkit:
         if research_depth == "快速":
             # 快速分析：获取基础数据，减少数据源调用
             data_depth = "basic"
-            logger.info(f"🔧 [分析级别] 快速分析模式：获取基础数据")
+            logger.info("🔧 [分析级别] 快速分析模式：获取基础数据")
         elif research_depth == "基础":
             # 基础分析：获取标准数据
             data_depth = "standard"
-            logger.info(f"🔧 [分析级别] 基础分析模式：获取标准数据")
+            logger.info("🔧 [分析级别] 基础分析模式：获取标准数据")
         elif research_depth == "标准":
             # 标准分析：获取标准数据（不是full！）
             data_depth = "standard"
-            logger.info(f"🔧 [分析级别] 标准分析模式：获取标准数据")
+            logger.info("🔧 [分析级别] 标准分析模式：获取标准数据")
         elif research_depth == "深度":
             # 深度分析：获取完整数据
             data_depth = "full"
-            logger.info(f"🔧 [分析级别] 深度分析模式：获取完整数据")
+            logger.info("🔧 [分析级别] 深度分析模式：获取完整数据")
         elif research_depth == "全面":
             # 全面分析：获取最全面的数据，包含所有可用数据源
             data_depth = "comprehensive"
-            logger.info(f"🔧 [分析级别] 全面分析模式：获取最全面数据")
+            logger.info("🔧 [分析级别] 全面分析模式：获取最全面数据")
         else:
             # 默认使用标准分析
             data_depth = "standard"
-            logger.info(f"🔧 [分析级别] 未知级别，使用标准分析模式")
+            logger.info("🔧 [分析级别] 未知级别，使用标准分析模式")
 
         # 添加详细的股票代码追踪日志
         logger.info(f"🔍 [股票代码追踪] 统一基本面工具接收到的原始股票代码: '{ticker}' (类型: {type(ticker)})")
@@ -820,19 +820,19 @@ class Toolkit:
             # 🔧 修正映射关系：analysis_modules 应该与 data_depth 保持一致
             if data_depth == "basic":  # 快速分析：基础模块
                 analysis_modules = "basic"
-                logger.info(f"📊 [基本面策略] 快速分析模式：获取基础财务指标")
+                logger.info("📊 [基本面策略] 快速分析模式：获取基础财务指标")
             elif data_depth == "standard":  # 基础/标准分析：标准模块
                 analysis_modules = "standard"
-                logger.info(f"📊 [基本面策略] 标准分析模式：获取标准财务分析")
+                logger.info("📊 [基本面策略] 标准分析模式：获取标准财务分析")
             elif data_depth == "full":  # 深度分析：完整模块
                 analysis_modules = "full"
-                logger.info(f"📊 [基本面策略] 深度分析模式：获取完整基本面分析")
+                logger.info("📊 [基本面策略] 深度分析模式：获取完整基本面分析")
             elif data_depth == "comprehensive":  # 全面分析：综合模块
                 analysis_modules = "comprehensive"
-                logger.info(f"📊 [基本面策略] 全面分析模式：获取综合基本面分析")
+                logger.info("📊 [基本面策略] 全面分析模式：获取综合基本面分析")
             else:
                 analysis_modules = "standard"  # 默认标准分析
-                logger.info(f"📊 [基本面策略] 默认模式：获取标准基本面分析")
+                logger.info("📊 [基本面策略] 默认模式：获取标准基本面分析")
 
             # 基本面分析策略：
             # 1. 获取10天数据（保证能拿到数据，处理周末/节假日）
@@ -854,7 +854,7 @@ class Toolkit:
                 # 中国A股：基本面分析优化策略 - 只获取必要的当前价格和基本面数据
                 logger.info(f"🇨🇳 [统一基本面工具] 处理A股数据，数据深度: {data_depth}...")
                 logger.info(f"🔍 [股票代码追踪] 进入A股处理分支，ticker: '{ticker}'")
-                logger.info(f"💡 [优化策略] 基本面分析只获取当前价格和财务数据，不获取历史日线数据")
+                logger.info("💡 [优化策略] 基本面分析只获取当前价格和财务数据，不获取历史日线数据")
 
                 # 优化策略：基本面分析不需要大量历史日线数据
                 # 只获取当前股价信息（最近1-2天即可）和基本面财务数据
@@ -904,7 +904,7 @@ class Toolkit:
 
                 # 🔥 统一策略：所有级别都获取完整数据
                 # 原因：提示词是统一的，如果数据不完整会导致LLM基于不存在的数据进行分析（幻觉）
-                logger.info(f"🔍 [港股基本面] 统一策略：获取完整数据（忽略 data_depth 参数）")
+                logger.info("🔍 [港股基本面] 统一策略：获取完整数据（忽略 data_depth 参数）")
 
                 # 主要数据源：AKShare
                 try:
@@ -919,9 +919,9 @@ class Toolkit:
                     if hk_data and len(hk_data) > 100 and "❌" not in hk_data:
                         result_data.append(f"## 港股数据\n{hk_data}")
                         hk_data_success = True
-                        logger.info(f"✅ [统一基本面工具] 港股主要数据源成功")
+                        logger.info("✅ [统一基本面工具] 港股主要数据源成功")
                     else:
-                        logger.warning(f"⚠️ [统一基本面工具] 港股主要数据源质量不佳")
+                        logger.warning("⚠️ [统一基本面工具] 港股主要数据源质量不佳")
 
                 except Exception as e:
                     logger.error(f"❌ [基本面工具调试] 港股数据获取失败: {e}")
@@ -948,7 +948,7 @@ class Toolkit:
 - 考虑汇率因素对投资的影响
 """
                         result_data.append(basic_info)
-                        logger.info(f"✅ [统一基本面工具] 港股备用信息成功")
+                        logger.info("✅ [统一基本面工具] 港股备用信息成功")
 
                     except Exception as e2:
                         # 最终备用方案
@@ -971,17 +971,17 @@ class Toolkit:
 
             else:
                 # 美股：使用OpenAI/Finnhub数据源
-                logger.info(f"🇺🇸 [统一基本面工具] 处理美股数据...")
+                logger.info("🇺🇸 [统一基本面工具] 处理美股数据...")
 
                 # 🔥 统一策略：所有级别都获取完整数据
                 # 原因：提示词是统一的，如果数据不完整会导致LLM基于不存在的数据进行分析（幻觉）
-                logger.info(f"🔍 [美股基本面] 统一策略：获取完整数据（忽略 data_depth 参数）")
+                logger.info("🔍 [美股基本面] 统一策略：获取完整数据（忽略 data_depth 参数）")
 
                 try:
                     from tradingagents.dataflows.interface import get_fundamentals_openai
                     us_data = get_fundamentals_openai(ticker, curr_date)
                     result_data.append(f"## 美股基本面数据\n{us_data}")
-                    logger.info(f"✅ [统一基本面工具] 美股数据获取成功")
+                    logger.info("✅ [统一基本面工具] 美股数据获取成功")
                 except Exception as e:
                     result_data.append(f"## 美股基本面数据\n获取失败: {e}")
                     logger.error(f"❌ [统一基本面工具] 美股数据获取失败: {e}")
@@ -1001,7 +1001,7 @@ class Toolkit:
 """
 
             # 添加详细的数据获取日志
-            logger.info(f"📊 [统一基本面工具] ===== 数据获取完成摘要 =====")
+            logger.info("📊 [统一基本面工具] ===== 数据获取完成摘要 =====")
             logger.info(f"📊 [统一基本面工具] 股票代码: {ticker}")
             logger.info(f"📊 [统一基本面工具] 股票类型: {market_info['market_name']}")
             logger.info(f"📊 [统一基本面工具] 数据深度级别: {data_depth}")
@@ -1023,13 +1023,13 @@ class Toolkit:
 
             # 根据数据深度级别记录具体的获取策略
             if data_depth in ["basic", "standard"]:
-                logger.info(f"📊 [统一基本面工具] 基础/标准级别策略: 仅获取核心价格数据和基础信息")
+                logger.info("📊 [统一基本面工具] 基础/标准级别策略: 仅获取核心价格数据和基础信息")
             elif data_depth in ["full", "detailed", "comprehensive"]:
-                logger.info(f"📊 [统一基本面工具] 完整/详细/全面级别策略: 获取价格数据 + 基本面数据")
+                logger.info("📊 [统一基本面工具] 完整/详细/全面级别策略: 获取价格数据 + 基本面数据")
             else:
-                logger.info(f"📊 [统一基本面工具] 默认策略: 获取完整数据")
+                logger.info("📊 [统一基本面工具] 默认策略: 获取完整数据")
 
-            logger.info(f"📊 [统一基本面工具] ===== 数据获取摘要结束 =====")
+            logger.info("📊 [统一基本面工具] ===== 数据获取摘要结束 =====")
 
             return combined_result
 
@@ -1086,7 +1086,7 @@ class Toolkit:
 
             if is_china:
                 # 中国A股：使用中国股票数据源
-                logger.info(f"🇨🇳 [统一市场工具] 处理A股市场数据...")
+                logger.info("🇨🇳 [统一市场工具] 处理A股市场数据...")
 
                 try:
                     from tradingagents.dataflows.interface import get_china_stock_data_unified
@@ -1103,7 +1103,7 @@ class Toolkit:
 
             elif is_hk:
                 # 港股：使用AKShare数据源
-                logger.info(f"🇭🇰 [统一市场工具] 处理港股市场数据...")
+                logger.info("🇭🇰 [统一市场工具] 处理港股市场数据...")
 
                 try:
                     from tradingagents.dataflows.interface import get_hk_stock_data_unified
@@ -1120,7 +1120,7 @@ class Toolkit:
 
             else:
                 # 美股：优先使用FINNHUB API数据源
-                logger.info(f"🇺🇸 [统一市场工具] 处理美股市场数据...")
+                logger.info("🇺🇸 [统一市场工具] 处理美股市场数据...")
 
                 try:
                     from tradingagents.dataflows.providers.us.optimized import get_us_stock_data_cached
@@ -1191,7 +1191,7 @@ class Toolkit:
 
             if is_china or is_hk:
                 # 中国A股和港股：使用AKShare东方财富新闻和Google新闻（中文搜索）
-                logger.info(f"🇨🇳🇭🇰 [统一新闻工具] 处理中文新闻...")
+                logger.info("🇨🇳🇭🇰 [统一新闻工具] 处理中文新闻...")
 
                 # 1. 尝试获取AKShare东方财富新闻
                 try:
@@ -1247,14 +1247,14 @@ class Toolkit:
                     from tradingagents.dataflows.interface import get_google_news
                     news_data = get_google_news(search_query, curr_date)
                     result_data.append(f"## Google新闻\n{news_data}")
-                    logger.info(f"🇨🇳🇭🇰 [统一新闻工具] 成功获取Google新闻")
+                    logger.info("🇨🇳🇭🇰 [统一新闻工具] 成功获取Google新闻")
                 except Exception as google_e:
                     logger.error(f"❌ [统一新闻工具] Google新闻获取失败: {google_e}")
                     result_data.append(f"## Google新闻\n获取失败: {google_e}")
 
             else:
                 # 美股：使用Finnhub新闻
-                logger.info(f"🇺🇸 [统一新闻工具] 处理美股新闻...")
+                logger.info("🇺🇸 [统一新闻工具] 处理美股新闻...")
 
                 try:
                     from tradingagents.dataflows.interface import get_finnhub_news
@@ -1319,7 +1319,7 @@ class Toolkit:
 
             if is_china or is_hk:
                 # 中国A股和港股：使用社交媒体情绪分析
-                logger.info(f"🇨🇳🇭🇰 [统一情绪工具] 处理中文市场情绪...")
+                logger.info("🇨🇳🇭🇰 [统一情绪工具] 处理中文市场情绪...")
 
                 try:
                     # 可以集成微博、雪球、东方财富等中文社交媒体情绪
@@ -1348,7 +1348,7 @@ class Toolkit:
 
             else:
                 # 美股：使用Reddit情绪分析
-                logger.info(f"🇺🇸 [统一情绪工具] 处理美股情绪...")
+                logger.info("🇺🇸 [统一情绪工具] 处理美股情绪...")
 
                 try:
                     from tradingagents.dataflows.interface import get_reddit_sentiment

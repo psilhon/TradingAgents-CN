@@ -86,7 +86,7 @@ def test_comparison_data():
         }
 
         df = safe_dataframe(comparison_data)
-        print(f"✅ 对比数据DataFrame创建成功")
+        print("✅ 对比数据DataFrame创建成功")
 
         # 验证所有数据都是字符串
         all_string = all(df[col].dtype == 'object' for col in df.columns)

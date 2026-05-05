@@ -154,12 +154,12 @@ def compare_performance():
     print("=" * 80)
 
     if new_result['success']:
-        print(f"\n🚀 优化后策略性能:")
+        print("\n🚀 优化后策略性能:")
         print(f"   - 数据长度: {new_result['data_length']:,} 字符")
         print(f"   - 处理时间: {new_result['processing_time']:.2f}秒")
         print(f"   - 请求天数: {new_result['days_requested']}天")
 
-        print(f"\n📊 与优化前各级别对比:")
+        print("\n📊 与优化前各级别对比:")
 
         successful_old = {k: v for k, v in old_results.items() if v['success']}
 
@@ -170,7 +170,7 @@ def compare_performance():
             max_old_length = max(old_data_lengths)
             min_old_length = min(old_data_lengths)
 
-            print(f"\n📏 数据传输量对比:")
+            print("\n📏 数据传输量对比:")
             print(f"   - 优化前平均: {avg_old_length:,.0f} 字符")
             print(f"   - 优化前范围: {min_old_length:,} - {max_old_length:,} 字符")
             print(f"   - 优化后: {new_result['data_length']:,} 字符")
@@ -180,13 +180,13 @@ def compare_performance():
             old_times = [v['processing_time'] for v in successful_old.values()]
             avg_old_time = sum(old_times) / len(old_times)
 
-            print(f"\n⏱️ 处理时间对比:")
+            print("\n⏱️ 处理时间对比:")
             print(f"   - 优化前平均: {avg_old_time:.2f}秒")
             print(f"   - 优化后: {new_result['processing_time']:.2f}秒")
             print(f"   - 时间节省: {(avg_old_time - new_result['processing_time'])/avg_old_time*100:.1f}%")
 
             # 详细对比表
-            print(f"\n📋 详细对比表:")
+            print("\n📋 详细对比表:")
             print(f"{'策略':<25} | {'天数':<4} | {'数据量(字符)':<12} | {'时间(秒)':<8} | {'状态'}")
             print("-" * 70)
 
@@ -202,17 +202,17 @@ def compare_performance():
             print(f"{'优化后策略':<25} | {new_result['days_requested']:<4} | {data_len:<12} | {proc_time:<8} | ✅")
 
             # 优化效果总结
-            print(f"\n💡 优化效果总结:")
+            print("\n💡 优化效果总结:")
             print(f"   ✅ 数据传输量平均减少 {(avg_old_length - new_result['data_length'])/avg_old_length*100:.1f}%")
             print(f"   ✅ 处理时间平均节省 {(avg_old_time - new_result['processing_time'])/avg_old_time*100:.1f}%")
-            print(f"   ✅ 保持基本面分析所需的核心信息完整性")
-            print(f"   ✅ 提高了数据获取的针对性和效率")
-            print(f"   ✅ 减少了不必要的历史价格数据传输")
+            print("   ✅ 保持基本面分析所需的核心信息完整性")
+            print("   ✅ 提高了数据获取的针对性和效率")
+            print("   ✅ 减少了不必要的历史价格数据传输")
 
     else:
         print(f"❌ 优化后策略测试失败: {new_result.get('error', '未知错误')}")
 
-    print(f"\n🎉 性能对比测试完成！")
+    print("\n🎉 性能对比测试完成！")
 
 if __name__ == "__main__":
     compare_performance()

@@ -42,7 +42,7 @@ def check_all_api_keys():
             print(f"❌ {name}: 未配置")
             missing_apis.append(name)
 
-    print(f"\n📊 配置状态:")
+    print("\n📊 配置状态:")
     print(f"  已配置: {len(configured_apis)}/{len(api_keys)}")
     print(f"  缺失: {len(missing_apis)}")
 
@@ -99,7 +99,7 @@ def test_reddit_api():
 
             # 测试获取一个简单的subreddit信息
             subreddit = reddit.subreddit('investing')
-            print(f"✅ Reddit API连接成功")
+            print("✅ Reddit API连接成功")
             print(f"  测试subreddit: {subreddit.display_name}")
             print(f"  订阅者数量: {subreddit.subscribers:,}")
 
@@ -194,7 +194,7 @@ def main():
     results['社交媒体分析师'] = test_social_media_analyst()
 
     # 总结结果
-    print(f"\n📊 测试结果总结:")
+    print("\n📊 测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

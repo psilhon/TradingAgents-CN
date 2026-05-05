@@ -92,7 +92,7 @@ async def test_sync_history_api():
             # 显示第一条记录的详细信息
             if response.data['records']:
                 first_record = response.data['records'][0]
-                print(f"   📋 第一条记录:")
+                print("   📋 第一条记录:")
                 print(f"      状态: {first_record.get('status')}")
                 print(f"      总数: {first_record.get('total')}")
                 print(f"      开始时间: {first_record.get('started_at')}")
@@ -136,7 +136,7 @@ async def test_sync_history_api():
             print(f"   🕐 最新记录时间: {latest.get('started_at')}")
             print(f"   📊 最新记录状态: {latest.get('status')}")
 
-        print(f"\n🎉 同步历史API测试完成")
+        print("\n🎉 同步历史API测试完成")
 
         return {
             'total_records': final_response.data['total'],
@@ -183,7 +183,7 @@ async def test_frontend_integration():
 if __name__ == "__main__":
     result = asyncio.run(test_sync_history_api())
     if result:
-        print(f"\n📊 测试结果摘要:")
+        print("\n📊 测试结果摘要:")
         print(f"   历史记录总数: {result['total_records']}")
         print(f"   最新状态: {result['latest_status']}")
         print(f"   API正常: {result['api_working']}")

@@ -112,7 +112,7 @@ def create_social_media_analyst(llm, toolkit):
 
         # 统一使用 get_stock_sentiment_unified 工具
         # 该工具内部会自动识别股票类型并调用相应的情绪数据源
-        logger.info(f"[社交媒体分析师] 使用统一情绪分析工具，自动识别股票类型")
+        logger.info("[社交媒体分析师] 使用统一情绪分析工具，自动识别股票类型")
         tools = [toolkit.get_stock_sentiment_unified]
 
         system_message = (
@@ -197,7 +197,7 @@ def create_social_media_analyst(llm, toolkit):
 
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(llm):
-            logger.info(f"📊 [社交媒体分析师] 检测到Google模型，使用统一工具调用处理器")
+            logger.info("📊 [社交媒体分析师] 检测到Google模型，使用统一工具调用处理器")
 
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(

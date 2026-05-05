@@ -29,7 +29,7 @@ def test_300750_fundamentals():
 
     try:
         result = toolkit.get_stock_fundamentals_unified(ticker)
-        print(f"✅ 成功获取基本面数据")
+        print("✅ 成功获取基本面数据")
 
         # 检查是否包含估值指标
         if "PE" in result or "市盈率" in result:
@@ -43,8 +43,8 @@ def test_300750_fundamentals():
             print("❌ 未发现PB估值指标")
 
         # 打印完整的分析结果
-        print(f"\n" + "="*80)
-        print(f"📋 完整分析结果:")
+        print("\n" + "="*80)
+        print("📋 完整分析结果:")
         print("="*80)
         print(result)
         print("="*80)

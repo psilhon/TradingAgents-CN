@@ -25,7 +25,7 @@ def test_fundamentals_generation():
         logger = get_logger("default")
         logger.setLevel("INFO")
 
-        print(f"\n🔧 步骤1: 获取股票数据...")
+        print("\n🔧 步骤1: 获取股票数据...")
 
         # 获取股票数据
         from tradingagents.dataflows.interface import get_china_stock_data_tushare
@@ -34,7 +34,7 @@ def test_fundamentals_generation():
         print(f"✅ 股票数据获取完成，长度: {len(stock_data) if stock_data else 0}")
         print(f"📄 股票数据前200字符: {stock_data[:200] if stock_data else 'None'}")
 
-        print(f"\n🔧 步骤2: 生成基本面报告...")
+        print("\n🔧 步骤2: 生成基本面报告...")
 
         # 生成基本面报告
         from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
@@ -42,12 +42,12 @@ def test_fundamentals_generation():
 
         fundamentals_report = analyzer._generate_fundamentals_report(test_ticker, stock_data)
 
-        print(f"\n✅ 基本面报告生成完成")
+        print("\n✅ 基本面报告生成完成")
         print(f"📊 报告长度: {len(fundamentals_report) if fundamentals_report else 0}")
 
         # 检查报告中的股票代码
         if fundamentals_report:
-            print(f"\n🔍 检查报告中的股票代码...")
+            print("\n🔍 检查报告中的股票代码...")
             if "002027" in fundamentals_report:
                 print("✅ 报告中包含正确的股票代码 002027")
                 # 统计出现次数
@@ -77,7 +77,7 @@ def test_fundamentals_generation():
                 print("✅ 报告中不包含错误的股票代码 002021")
 
             # 显示报告的前1000字符
-            print(f"\n📄 报告前1000字符:")
+            print("\n📄 报告前1000字符:")
             print("-" * 80)
             print(fundamentals_report[:1000])
             print("-" * 80)
@@ -101,11 +101,11 @@ def test_industry_info():
         from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
         analyzer = OptimizedChinaDataProvider()
 
-        print(f"🔧 测试 _get_industry_info...")
+        print("🔧 测试 _get_industry_info...")
         industry_info = analyzer._get_industry_info(test_ticker)
         print(f"📊 行业信息: {industry_info}")
 
-        print(f"\n🔧 测试 _estimate_financial_metrics...")
+        print("\n🔧 测试 _estimate_financial_metrics...")
         financial_metrics = analyzer._estimate_financial_metrics(test_ticker, "¥7.67")
         print(f"📊 财务指标: {financial_metrics}")
 

@@ -268,17 +268,17 @@ status = check_service_status  # 别名
 
 if __name__ == '__main__':
     # 简单的命令行测试
-    logger.debug(f"🔍 股票数据API测试")
-    logger.info(f"=" * 50)
+    logger.debug("🔍 股票数据API测试")
+    logger.info("=" * 50)
 
     # 检查服务状态
-    logger.info(f"\n📊 服务状态检查:")
+    logger.info("\n📊 服务状态检查:")
     status_info = check_service_status()
     for key, value in status_info.items():
         logger.info(f"  {key}: {value}")
 
     # 测试获取单个股票信息
-    logger.info(f"\n🏢 获取平安银行信息:")
+    logger.info("\n🏢 获取平安银行信息:")
     stock_info = get_stock_info('000001')
     if 'error' not in stock_info:
         logger.info(f"  代码: {stock_info.get('code')}")
@@ -290,14 +290,14 @@ if __name__ == '__main__':
         logger.error(f"  错误: {stock_info.get('error')}")
 
     # 测试搜索功能
-    logger.debug(f"\n🔍 搜索'平安'相关股票:")
+    logger.debug("\n🔍 搜索'平安'相关股票:")
     search_results = search_stocks('平安')
     for i, stock in enumerate(search_results[:3]):  # 只显示前3个结果
         if 'error' not in stock:
             logger.info(f"  {i+1}. {stock.get('code')}")
 
     # 测试市场概览
-    logger.info(f"\n📈 市场概览:")
+    logger.info("\n📈 市场概览:")
     summary = get_market_summary()
     if 'error' not in summary:
         logger.info(f"  总股票数: {summary.get('total_count')}")

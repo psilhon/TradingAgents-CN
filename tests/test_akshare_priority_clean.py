@@ -103,7 +103,7 @@ def test_manual_env_setting():
     try:
         # 手动设置环境变量
         os.environ['DEFAULT_CHINA_DATA_SOURCE'] = 'akshare'
-        print(f"📊 手动设置环境变量: DEFAULT_CHINA_DATA_SOURCE=akshare")
+        print("📊 手动设置环境变量: DEFAULT_CHINA_DATA_SOURCE=akshare")
 
         # 清理模块缓存
         modules_to_clean = [

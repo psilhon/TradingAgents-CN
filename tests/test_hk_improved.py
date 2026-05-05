@@ -33,9 +33,9 @@ def test_stock_recognition():
 
             # 验证结果
             if expected_market in market_info['market_name'] and market_info['currency_symbol'] == expected_currency:
-                print(f"    ✅ 识别正确")
+                print("    ✅ 识别正确")
             else:
-                print(f"    ❌ 识别错误")
+                print("    ❌ 识别错误")
                 return False
 
         print("✅ 股票识别功能测试通过")

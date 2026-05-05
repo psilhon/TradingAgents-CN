@@ -63,7 +63,7 @@ def test_akshare_financial_data():
                         roe = main_indicators.get('净资产收益率', main_indicators.get('ROE', 'N/A'))
                         print(f"   📈 PE: {pe}, PB: {pb}, ROE: {roe}")
                     else:
-                        print(f"   ⚠️ 主要财务指标为空")
+                        print("   ⚠️ 主要财务指标为空")
                 else:
                     print(f"❌ {symbol}: AKShare财务数据获取失败")
             except Exception as e:
@@ -148,7 +148,7 @@ def test_data_source_priority():
 
         if real_metrics:
             data_source = real_metrics.get('data_source', '未知')
-            print(f"✅ 财务数据获取成功")
+            print("✅ 财务数据获取成功")
             print(f"📊 数据来源: {data_source}")
             print(f"📈 PE: {real_metrics.get('pe', 'N/A')}")
             print(f"📈 PB: {real_metrics.get('pb', 'N/A')}")

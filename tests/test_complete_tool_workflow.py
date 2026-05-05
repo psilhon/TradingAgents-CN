@@ -72,13 +72,13 @@ def test_deepseek_complete_workflow():
         chain = deepseek_llm.bind_tools(tools)
         result1 = chain.invoke([HumanMessage(content=prompt)])
 
-        print(f"📊 第一次响应:")
+        print("📊 第一次响应:")
         print(f"   工具调用数量: {len(result1.tool_calls) if hasattr(result1, 'tool_calls') else 0}")
         print(f"   响应内容长度: {len(result1.content)}")
         print(f"   响应内容: {result1.content[:200]}...")
 
         if hasattr(result1, 'tool_calls') and result1.tool_calls:
-            print(f"\n🔧 执行工具调用...")
+            print("\n🔧 执行工具调用...")
 
             # 模拟工具执行
             tool_messages = []
@@ -100,7 +100,7 @@ def test_deepseek_complete_workflow():
                 tool_messages.append(tool_message)
 
             # 第二步：发送工具结果，要求生成分析
-            print(f"\n📤 发送工具结果，要求生成分析...")
+            print("\n📤 发送工具结果，要求生成分析...")
             messages = [
                 HumanMessage(content=prompt),
                 result1,
@@ -110,9 +110,9 @@ def test_deepseek_complete_workflow():
 
             result2 = deepseek_llm.invoke(messages)
 
-            print(f"📊 第二次响应:")
+            print("📊 第二次响应:")
             print(f"   响应内容长度: {len(result2.content)}")
-            print(f"   响应内容前500字符:")
+            print("   响应内容前500字符:")
             print("-" * 50)
             print(result2.content[:500])
             print("-" * 50)
@@ -226,9 +226,9 @@ Question: {input}
             "input": "请对中国A股股票000002进行详细的技术分析"
         })
 
-        print(f"📊 ReAct Agent结果:")
+        print("📊 ReAct Agent结果:")
         print(f"   输出长度: {len(result['output'])}")
-        print(f"   输出内容前500字符:")
+        print("   输出内容前500字符:")
         print("-" * 50)
         print(result['output'][:500])
         print("-" * 50)
@@ -264,13 +264,13 @@ def main():
         has_data = any(keyword in deepseek_result.content for keyword in ["¥6.56", "RSI", "MACD", "万科A"])
         print(f"✅ DeepSeek: {'成功生成基于数据的分析' if has_data else '调用工具但分析不完整'}")
     else:
-        print(f"❌ DeepSeek: 测试失败")
+        print("❌ DeepSeek: 测试失败")
 
     if dashscope_result:
         has_data = any(keyword in dashscope_result['output'] for keyword in ["¥6.56", "RSI", "MACD", "万科A"])
         print(f"✅ 百炼ReAct: {'成功生成基于数据的分析' if has_data else '执行但分析不完整'}")
     else:
-        print(f"❌ 百炼ReAct: 测试失败")
+        print("❌ 百炼ReAct: 测试失败")
 
     print("\n🎯 测试完成！")
 

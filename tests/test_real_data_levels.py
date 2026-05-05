@@ -127,7 +127,7 @@ def test_stock_with_all_levels(ticker, stock_name):
                 'curr_date': curr_date
             })
 
-            print(f"✅ 数据获取成功!")
+            print("✅ 数据获取成功!")
 
             # 分析数据内容
             analysis = analyze_data_content(result, level_name)
@@ -165,7 +165,7 @@ def test_stock_with_all_levels(ticker, stock_name):
         # 计算增长率
         lengths = [successful_results[k]['analysis']['length'] for k in sorted(successful_results.keys())]
         if len(lengths) > 1:
-            print(f"\n📈 数据增长趋势:")
+            print("\n📈 数据增长趋势:")
             for i in range(1, len(lengths)):
                 growth = ((lengths[i] - lengths[i-1]) / lengths[i-1]) * 100 if lengths[i-1] > 0 else 0
                 level_names = [successful_results[k]['level_name'] for k in sorted(successful_results.keys())]
@@ -227,7 +227,7 @@ def main():
                 expansion_ratio = max_length / min_length
                 print(f"   📈 数据扩展倍数: {expansion_ratio:.1f}x")
 
-    print(f"\n🎉 测试完成!")
+    print("\n🎉 测试完成!")
     print("💡 通过以上测试可以看到:")
     print("   • 不同级别确实获取到了不同深度的数据")
     print("   • 高级别包含更多数据模块和内容")

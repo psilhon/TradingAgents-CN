@@ -251,7 +251,7 @@ def main():
     results['完整集成'] = test_risk_assessment_integration()
 
     # 总结结果
-    print(f"\n📊 测试结果总结:")
+    print("\n📊 测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

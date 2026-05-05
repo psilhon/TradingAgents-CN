@@ -44,9 +44,9 @@ def demo_database_config_fixes():
     # 检查database_config.py
     config_path = os.path.join(project_root, 'tradingagents', 'config', 'database_config.py')
     if os.path.exists(config_path):
-        print(f"  ✅ 找到统一配置管理: database_config.py")
+        print("  ✅ 找到统一配置管理: database_config.py")
     else:
-        print(f"  ⚠️ 统一配置管理文件不存在")
+        print("  ⚠️ 统一配置管理文件不存在")
 
 def demo_fallback_mechanism():
     """

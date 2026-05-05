@@ -153,7 +153,7 @@ def main():
         return
 
     print("🔑 API密钥状态:")
-    print(f"   阿里百炼: ✅ 已配置")
+    print("   阿里百炼: ✅ 已配置")
     print(f"   Google: {'✅ 已配置' if google_key else '❌ 未配置'}")
     print(f"   Reddit: {'✅ 已配置' if reddit_id else '❌ 未配置'}")
 
@@ -167,7 +167,7 @@ def main():
     results['社交媒体分析师+Reddit'] = test_social_analyst_with_reddit()
 
     # 总结结果
-    print(f"\n📊 测试结果总结:")
+    print("\n📊 测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

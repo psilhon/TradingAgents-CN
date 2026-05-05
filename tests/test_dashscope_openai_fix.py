@@ -170,7 +170,7 @@ def test_technical_analysis_with_new_adapter():
             # 但为了测试，我们只验证工具调用是否正常
             return True
         else:
-            print(f"❌ 没有工具调用")
+            print("❌ 没有工具调用")
             print(f"📋 直接响应: {response.content[:200]}...")
 
             # 检查响应长度

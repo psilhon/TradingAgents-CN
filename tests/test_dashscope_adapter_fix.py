@@ -57,7 +57,7 @@ def test_enhanced_tool_binding():
             HumanMessage(content="请调用get_test_stock_data工具获取AAPL的股票数据")
         ])
 
-        print(f"✅ LLM 调用成功")
+        print("✅ LLM 调用成功")
         print(f"   响应类型: {type(response)}")
         print(f"   响应内容长度: {len(response.content) if hasattr(response, 'content') else 0}")
 
@@ -254,7 +254,7 @@ def test_comprehensive_tool_calling():
 
         response = llm_with_tools.invoke(messages)
 
-        print(f"✅ 复杂对话调用成功")
+        print("✅ 复杂对话调用成功")
         print(f"   响应内容长度: {len(response.content) if hasattr(response, 'content') else 0}")
 
         # 详细分析响应
@@ -328,7 +328,7 @@ def main():
         print("   ✅ 详细的错误处理和日志记录")
         print("   ✅ 提高了工具调用成功率")
     else:
-        print(f"\n⚠️ 部分测试失败，需要进一步调试")
+        print("\n⚠️ 部分测试失败，需要进一步调试")
         print("请检查失败的测试项目并查看详细日志")
 
 if __name__ == "__main__":

@@ -36,22 +36,22 @@ def test_akshare_spot_data():
 
             # 检查需要的列是否存在
             required_cols = ['代码', '名称', '市盈率-动态', '市净率', '总市值']
-            print(f"\n🔍 检查需要的列:")
+            print("\n🔍 检查需要的列:")
             for col in required_cols:
                 exists = col in spot_data.columns
                 print(f"   {col}: {'✅ 存在' if exists else '❌ 不存在'}")
 
             # 显示实际的列名（可能有变化）
-            print(f"\n📋 实际列名（前20个）:")
+            print("\n📋 实际列名（前20个）:")
             for i, col in enumerate(spot_data.columns[:20]):
                 print(f"   {i+1:2d}. {col}")
 
             # 显示前几条数据
-            print(f"\n📊 前5条数据:")
+            print("\n📊 前5条数据:")
             print(spot_data.head())
 
             # 查找可能的PE、PB相关列
-            print(f"\n🔍 查找PE、PB相关列:")
+            print("\n🔍 查找PE、PB相关列:")
             pe_cols = [col for col in spot_data.columns if '市盈率' in col or 'PE' in col or 'pe' in col]
             pb_cols = [col for col in spot_data.columns if '市净率' in col or 'PB' in col or 'pb' in col]
             mv_cols = [col for col in spot_data.columns if '市值' in col or '总市值' in col]
@@ -96,7 +96,7 @@ def test_akshare_adapter():
             print(f"   列名: {list(df.columns)}")
 
             # 显示前几条记录
-            print(f"   前5条记录:")
+            print("   前5条记录:")
             for i, row in df.head().iterrows():
                 ts_code = row.get('ts_code', 'N/A')
                 name = row.get('name', 'N/A')
@@ -111,7 +111,7 @@ def test_akshare_adapter():
             pb_count = df['pb'].notna().sum() if 'pb' in df.columns else 0
             mv_count = df['total_mv'].notna().sum() if 'total_mv' in df.columns else 0
 
-            print(f"\n   📈 数据统计:")
+            print("\n   📈 数据统计:")
             print(f"     有PE数据的股票: {pe_count}只")
             print(f"     有PB数据的股票: {pb_count}只")
             print(f"     有总市值数据的股票: {mv_count}只")
@@ -149,14 +149,14 @@ def test_akshare_alternative_apis():
                     # 测试单个股票
                     data = ak.stock_individual_info_em(symbol="000001")
                 else:
-                    print(f"   ⏭️ 跳过复杂API测试")
+                    print("   ⏭️ 跳过复杂API测试")
                     continue
 
                 if data is not None and not data.empty:
                     print(f"   ✅ 成功: {len(data)}条记录")
                     print(f"   列名: {list(data.columns)[:10]}...")  # 只显示前10个列名
                 else:
-                    print(f"   ❌ 无数据")
+                    print("   ❌ 无数据")
 
             except Exception as e:
                 print(f"   ❌ 失败: {e}")

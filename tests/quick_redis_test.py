@@ -87,7 +87,7 @@ def quick_redis_test(host=None, port=None, password=None):
             r.delete(f"throughput_test_{i}")
 
         # 连接信息
-        print(f"\n📋 Redis服务器信息:")
+        print("\n📋 Redis服务器信息:")
         info = r.info()
         print(f"  Redis版本: {info.get('redis_version', 'N/A')}")
         print(f"  运行模式: {info.get('redis_mode', 'N/A')}")

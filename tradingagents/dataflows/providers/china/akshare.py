@@ -1299,7 +1299,7 @@ class AKShareProvider(BaseStockDataProvider):
                 if is_docker:
                     try:
                         from curl_cffi import requests as curl_requests
-                        self.logger.debug(f"🐳 检测到 Docker 环境，使用 curl_cffi 直接调用 API")
+                        self.logger.debug("🐳 检测到 Docker 环境，使用 curl_cffi 直接调用 API")
                         news_df = await asyncio.to_thread(
                             self._get_stock_news_direct,
                             symbol=symbol_6,
@@ -1311,7 +1311,7 @@ class AKShareProvider(BaseStockDataProvider):
                             self.logger.warning(f"⚠️ {symbol} Docker 环境直接调用 API 失败，回退到 AKShare")
                             news_df = None  # 回退到 AKShare
                     except ImportError:
-                        self.logger.warning(f"⚠️ curl_cffi 未安装，回退到 AKShare")
+                        self.logger.warning("⚠️ curl_cffi 未安装，回退到 AKShare")
                         news_df = None
                     except Exception as e:
                         self.logger.warning(f"⚠️ {symbol} Docker 环境直接调用 API 异常: {e}，回退到 AKShare")
@@ -1338,8 +1338,8 @@ class AKShareProvider(BaseStockDataProvider):
                             # 东方财富网接口变更或反爬虫拦截，返回的字段结构改变
                             if str(e) == "'cmsArticleWebOld'":
                                 self.logger.error(f"❌ {symbol} AKShare新闻接口返回数据结构异常: 缺少 'cmsArticleWebOld' 字段")
-                                self.logger.error(f"   这通常是因为：1) 反爬虫拦截 2) 接口变更 3) 网络问题")
-                                self.logger.error(f"   建议：检查 AKShare 版本是否为最新 (当前要求 >=1.17.86)")
+                                self.logger.error("   这通常是因为：1) 反爬虫拦截 2) 接口变更 3) 网络问题")
+                                self.logger.error("   建议：检查 AKShare 版本是否为最新 (当前要求 >=1.17.86)")
                                 # 返回空列表，避免程序崩溃
                                 return []
                             else:

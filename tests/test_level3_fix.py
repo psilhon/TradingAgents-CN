@@ -30,7 +30,7 @@ def test_level3_analysis():
         test_ticker = "000001"  # 平安银行
         research_depth = "标准"  # 级别3：标准分析（使用字符串）
 
-        print(f"📊 开始测试级别3分析...")
+        print("📊 开始测试级别3分析...")
         print(f"股票代码: {test_ticker}")
         print(f"分析级别: {research_depth}")
 
@@ -47,7 +47,7 @@ def test_level3_analysis():
         timeout = 300
 
         print(f"⏰ 设置超时时间: {timeout}秒")
-        print(f"🚀 开始分析...")
+        print("🚀 开始分析...")
 
         # 执行分析 - 使用同步方法
         result = service._run_analysis_sync(
@@ -59,13 +59,13 @@ def test_level3_analysis():
         end_time = time.time()
         elapsed = end_time - start_time
 
-        print(f"✅ 分析完成！")
+        print("✅ 分析完成！")
         print(f"⏱️ 耗时: {elapsed:.1f}秒")
 
         # 检查结果
         if result and 'decision' in result:
             decision = result['decision']
-            print(f"📈 分析结果:")
+            print("📈 分析结果:")
             print(f"  动作: {decision.get('action', 'N/A')}")
             print(f"  置信度: {decision.get('confidence', 0):.1%}")
             print(f"  风险评分: {decision.get('risk_score', 0):.1%}")
