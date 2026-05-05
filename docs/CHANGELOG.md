@@ -71,6 +71,10 @@
   - 建立 base spec `lint-policy`：定义中文项目友好放行 + 按 rule code 分批 + warn-only 治理过程
   - **CI 仍 red**（870 errors > 0）；转严格模式留给 `lint-strict-mode-enable` change
 
+- **pyright handfix pass-2 + 转严格**（OpenSpec change `pyright-handfix-pass-2`）：再 silence 16 类 fork-friendly + dead-code-path rule（reportMissingImports 460 / reportOptionalMemberAccess 132 / reportArgumentType 105 / reportPossiblyUnboundVariable 56 / reportCallIssue 26 + 各类 Optional 系列 + Unbound 系列等）。pyright 879 → **0 errors**。同时 `.pre-commit-config.yaml` pyright hook 去 warn-only wrapper 转 **STRICT**——任何引入新 pyright issue 的 commit 立即阻塞。pytest hook 仍 warn-only（待 `pytest-marker-strict` change）。
+
+### Changed
+
 - **pytest collection 干净化**（OpenSpec change `pytest-collection-fix`）：删除 16 个 dead test（import-time 引用已重组的 `akshare_utils` / `optimized_china_data` / `finnhub_utils` 等模块 / 连 mongo 默认端口 / 缺第三方 stub）。pytest collection 16 errors → 0。`644 tests collected, 0 errors`。
 
 - **pyright handfix pass-1**（OpenSpec change `pyright-handfix-pass-1`）：silence 7 类 fork 项目固有噪音 rule（reportAttributeAccessIssue / reportFunctionMemberAccess / reportReturnType / reportMissingModuleSource / reportUnsupportedDunderAll / reportOperatorIssue / reportAssignmentType）。pyright 1,224 → 879 errors（-28%）。剩 879 是真问题（reportMissingImports 494 / reportOptionalMemberAccess 132 / reportArgumentType 107 / 等），留 `pyright-handfix-pass-2` 治理。
