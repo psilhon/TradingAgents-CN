@@ -42,14 +42,14 @@ def test_api_non_blocking():
     start_time = time.time()
 
     try:
-        analysis_response = requests.post(f"{base_url}/api/analysis/single", 
+        analysis_response = requests.post(f"{base_url}/api/analysis/single",
                                         json={
                                             "stock_code": "000001",
                                             "parameters": {
                                                 "research_depth": 1,  # 快速分析
                                                 "selected_analysts": ["market"]
                                             }
-                                        }, 
+                                        },
                                         headers=headers,
                                         timeout=10)  # 10秒超时
 
@@ -102,7 +102,7 @@ def test_api_non_blocking():
     # 任务状态查询
     try:
         status_start = time.time()
-        status_response = requests.get(f"{base_url}/api/analysis/task/{task_id}", 
+        status_response = requests.get(f"{base_url}/api/analysis/task/{task_id}",
                                      headers=headers, timeout=5)
         status_time = time.time() - status_start
         print(f"📋 任务状态查询: {status_response.status_code} - {status_time:.2f}秒")

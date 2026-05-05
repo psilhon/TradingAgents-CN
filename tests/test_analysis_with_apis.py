@@ -110,7 +110,7 @@ def test_social_analyst_with_reddit():
 
         test_state = {
             "messages": [HumanMessage(content="分析AAPL的社交媒体情绪")],
-            "company_of_interest": "AAPL", 
+            "company_of_interest": "AAPL",
             "trade_date": "2025-06-27"
         }
 

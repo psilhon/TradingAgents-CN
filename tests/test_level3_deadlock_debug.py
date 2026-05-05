@@ -34,7 +34,7 @@ def test_level3_deadlock():
 
     levels = [
         ("快速", 1, "1级"),
-        ("基础", 2, "2级"), 
+        ("基础", 2, "2级"),
         ("标准", 3, "3级")
     ]
 
@@ -99,7 +99,7 @@ def test_level3_deadlock():
             }
         },
         {
-            "name": "场景2: 空报告 + 无tool_calls", 
+            "name": "场景2: 空报告 + 无tool_calls",
             "state": {
                 "messages": [AIMessage(content="分析完成")],
                 "fundamentals_report": ""

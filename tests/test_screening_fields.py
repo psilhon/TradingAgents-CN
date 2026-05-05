@@ -57,7 +57,7 @@ async def test_screening_fields():
 
             # 检查前端期望的字段
             expected_fields = [
-                "code", "name", "industry", 
+                "code", "name", "industry",
                 "market_cap", "pe_ratio", "pb_ratio",
                 "price", "change_percent"
             ]

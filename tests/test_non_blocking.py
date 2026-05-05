@@ -50,8 +50,8 @@ async def test_non_blocking_analysis():
         print("📊 提交分析任务...")
         start_time = time.time()
 
-        async with session.post(f"{base_url}/api/analysis/single", 
-                               json=analysis_data, 
+        async with session.post(f"{base_url}/api/analysis/single",
+                               json=analysis_data,
                                headers=headers) as resp:
             submit_time = time.time() - start_time
             print(f"⏱️ 任务提交耗时: {submit_time:.2f}秒")
@@ -83,7 +83,7 @@ async def test_non_blocking_analysis():
 
         # 测试任务状态查询
         test_start = time.time()
-        async with session.get(f"{base_url}/api/analysis/tasks/{task_id}/status", 
+        async with session.get(f"{base_url}/api/analysis/tasks/{task_id}/status",
                               headers=headers) as resp:
             status_time = time.time() - test_start
             print(f"📋 任务状态响应时间: {status_time:.2f}秒 - 状态: {resp.status}")
@@ -96,7 +96,7 @@ async def test_non_blocking_analysis():
         print("\n⏳ 等待5秒后再次检查任务状态...")
         await asyncio.sleep(5)
 
-        async with session.get(f"{base_url}/api/analysis/tasks/{task_id}/status", 
+        async with session.get(f"{base_url}/api/analysis/tasks/{task_id}/status",
                               headers=headers) as resp:
             if resp.status == 200:
                 status_result = await resp.json()

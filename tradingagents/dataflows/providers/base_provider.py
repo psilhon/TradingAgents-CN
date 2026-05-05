@@ -77,9 +77,9 @@ class BaseStockDataProvider(ABC):
 
     @abstractmethod
     async def get_historical_data(
-        self, 
-        symbol: str, 
-        start_date: Union[str, date], 
+        self,
+        symbol: str,
+        start_date: Union[str, date],
         end_date: Union[str, date] = None
     ) -> pd.DataFrame | None:
         """

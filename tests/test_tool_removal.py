@@ -29,7 +29,7 @@ def test_available_tools():
         # 检查旧工具是否已移除
         removed_tools = [
             'get_china_stock_data',
-            'get_china_fundamentals', 
+            'get_china_fundamentals',
             'get_fundamentals_openai',
             'get_hk_stock_data_unified'
         ]

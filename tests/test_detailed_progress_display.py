@@ -190,7 +190,7 @@ def test_analysis_stages():
                 "description": "获取和分析基础数据"
             },
             {
-                "name": "研究团队阶段", 
+                "name": "研究团队阶段",
                 "analysts": ["🐂 Bull研究员", "🐻 Bear研究员", "⚖️ Neutral研究员", "👨‍💼 研究经理"],
                 "description": "多角度深度研究和辩论"
             },

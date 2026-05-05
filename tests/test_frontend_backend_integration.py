@@ -61,8 +61,8 @@ def test_frontend_backend_integration():
 
     try:
         submit_start = time.time()
-        submit_response = requests.post(f"{base_url}/api/analysis/single", 
-                                      json=analysis_request, 
+        submit_response = requests.post(f"{base_url}/api/analysis/single",
+                                      json=analysis_request,
                                       headers=headers,
                                       timeout=10)
 
@@ -102,8 +102,8 @@ def test_frontend_backend_integration():
     print("\n🔍 查询任务状态...")
 
     try:
-        status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", 
-                                     headers=headers, 
+        status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status",
+                                     headers=headers,
                                      timeout=10)
 
         if status_response.status_code != 200:
@@ -140,8 +140,8 @@ def test_frontend_backend_integration():
     print("\n📋 测试任务列表...")
 
     try:
-        tasks_response = requests.get(f"{base_url}/api/analysis/tasks", 
-                                    headers=headers, 
+        tasks_response = requests.get(f"{base_url}/api/analysis/tasks",
+                                    headers=headers,
                                     timeout=10)
 
         if tasks_response.status_code != 200:

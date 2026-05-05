@@ -74,7 +74,7 @@ async def test_industry_screening():
     # 3. 测试加入行业条件的筛选（修复后应该工作）
     print("\n3. 测试加入银行行业条件的筛选...")
     industry_payload = {
-        "market": "CN", 
+        "market": "CN",
         "conditions": {
             "logic": "AND",
             "children": [
@@ -129,7 +129,7 @@ def test_frontend_payload():
     frontend_payload = {
         "market": "CN",
         "conditions": {
-            "logic": "AND", 
+            "logic": "AND",
             "children": [
                 {"field": "market_cap", "op": "between", "value": [500 * 10000, 9007199254740991]},  # 大盘股
                 {"field": "industry", "op": "in", "value": ["银行"]}  # 银行行业

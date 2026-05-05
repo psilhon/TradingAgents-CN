@@ -24,7 +24,7 @@ def test_cli_logging_setup():
         print("📊 测试前的日志处理器:")
         logger_manager = get_logger_manager()
         handlers_before = len(logger_manager.root_logger.handlers)
-        console_handlers_before = sum(1 for h in logger_manager.root_logger.handlers 
+        console_handlers_before = sum(1 for h in logger_manager.root_logger.handlers
                                     if hasattr(h, 'stream') and h.stream.name == '<stderr>')
         print(f"   总处理器数量: {handlers_before}")
         print(f"   控制台处理器数量: {console_handlers_before}")
@@ -34,7 +34,7 @@ def test_cli_logging_setup():
 
         print("\n📊 测试后的日志处理器:")
         handlers_after = len(logger_manager.root_logger.handlers)
-        console_handlers_after = sum(1 for h in logger_manager.root_logger.handlers 
+        console_handlers_after = sum(1 for h in logger_manager.root_logger.handlers
                                    if hasattr(h, 'stream') and h.stream.name == '<stderr>')
         print(f"   总处理器数量: {handlers_after}")
         print(f"   控制台处理器数量: {console_handlers_after}")

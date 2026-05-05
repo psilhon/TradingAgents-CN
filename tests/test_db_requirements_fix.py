@@ -108,7 +108,7 @@ def test_package_installation_simulation():
     # 模拟检查每个包的可用性
     packages_to_check = [
         "pymongo",
-        "motor", 
+        "motor",
         "redis",
         "hiredis",
         "pandas",

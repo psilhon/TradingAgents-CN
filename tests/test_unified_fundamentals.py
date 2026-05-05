@@ -171,7 +171,7 @@ def test_stock_type_detection():
             print(f"    货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
 
             # 验证结果
-            if (expected_market in market_info['market_name'] and 
+            if (expected_market in market_info['market_name'] and
                 market_info['currency_name'] == expected_currency and
                 market_info['currency_symbol'] == expected_symbol):
                 print("    ✅ 识别正确")

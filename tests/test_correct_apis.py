@@ -31,7 +31,7 @@ def test_google_news_tool():
         try:
             news = get_google_news(
                 query="Apple AAPL stock",
-                curr_date="2025-06-27", 
+                curr_date="2025-06-27",
                 look_back_days=7
             )
 

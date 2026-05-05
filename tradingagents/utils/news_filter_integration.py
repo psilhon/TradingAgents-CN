@@ -20,7 +20,7 @@ def integrate_news_filtering(original_get_stock_news_em):
     Returns:
         包装后的函数，具有新闻过滤功能
     """
-    def filtered_get_stock_news_em(symbol: str, enable_filter: bool = True, min_score: float = 30, 
+    def filtered_get_stock_news_em(symbol: str, enable_filter: bool = True, min_score: float = 30,
                                   use_semantic: bool = False, use_local_model: bool = False) -> pd.DataFrame:
         """
         增强版get_stock_news_em，集成新闻过滤功能
@@ -63,8 +63,8 @@ def integrate_news_filtering(original_get_stock_news_em):
 
                 # 创建过滤器
                 news_filter = create_enhanced_news_filter(
-                    symbol, 
-                    use_semantic=use_semantic, 
+                    symbol,
+                    use_semantic=use_semantic,
                     use_local_model=use_local_model
                 )
 
@@ -117,7 +117,7 @@ def create_filtered_realtime_news_function():
     """
     创建增强版的实时新闻获取函数
     """
-    def get_filtered_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6, 
+    def get_filtered_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6,
                                        enable_filter: bool = True, min_score: float = 30) -> str:
         """
         增强版实时新闻获取函数，集成新闻过滤

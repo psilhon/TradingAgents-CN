@@ -41,7 +41,7 @@ def test_error_logging_toml_config():
             print(f"    级别: {logging.getLevelName(handler.level)}")
 
     # 验证错误日志处理器存在
-    error_handlers = [h for h in webapi_logger.handlers 
+    error_handlers = [h for h in webapi_logger.handlers
                      if hasattr(h, 'baseFilename') and 'error.log' in h.baseFilename]
 
     if error_handlers:
@@ -129,7 +129,7 @@ def test_webapi_and_worker_loggers():
 
     for logger_name in loggers_to_check:
         logger = logging.getLogger(logger_name)
-        error_handlers = [h for h in logger.handlers 
+        error_handlers = [h for h in logger.handlers
                          if hasattr(h, 'baseFilename') and 'error.log' in h.baseFilename]
 
         if error_handlers:

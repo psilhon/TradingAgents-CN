@@ -409,7 +409,7 @@ class TradingAgentsLogger:
             exc_info=True
         )
 
-    def log_token_usage(self, logger: logging.Logger, provider: str, model: str, 
+    def log_token_usage(self, logger: logging.Logger, provider: str, model: str,
                        input_tokens: int, output_tokens: int, cost: float, session_id: str):
         """记录Token使用"""
         logger.info(
