@@ -16,7 +16,7 @@ sys.path.insert(0, str(project_root))
 from tradingagents.utils.logging_manager import get_logger, setup_logging
 
 
-def init_logging(config_override: Optional[dict] = None) -> None:
+def init_logging(config_override: dict | None = None) -> None:
     """
     初始化项目日志系统
     

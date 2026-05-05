@@ -90,7 +90,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"文件缓存保存失败: {e}")
             return False
 
-    def _load_from_file(self, cache_key: str) -> Optional[dict]:
+    def _load_from_file(self, cache_key: str) -> dict | None:
         """从文件缓存加载"""
         try:
             cache_file = self.cache_dir / f"{cache_key}.pkl"
@@ -131,7 +131,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"Redis缓存保存失败: {e}")
             return False
 
-    def _load_from_redis(self, cache_key: str) -> Optional[dict]:
+    def _load_from_redis(self, cache_key: str) -> dict | None:
         """从Redis缓存加载"""
         redis_client = self.db_manager.get_redis_client()
         if not redis_client:
@@ -192,7 +192,7 @@ class AdaptiveCacheSystem:
             self.logger.error(f"MongoDB缓存保存失败: {e}")
             return False
 
-    def _load_from_mongodb(self, cache_key: str) -> Optional[dict]:
+    def _load_from_mongodb(self, cache_key: str) -> dict | None:
         """从MongoDB缓存加载"""
         mongodb_client = self.db_manager.get_mongodb_client()
         if not mongodb_client:
@@ -271,7 +271,7 @@ class AdaptiveCacheSystem:
 
         return cache_key
 
-    def load_data(self, cache_key: str) -> Optional[Any]:
+    def load_data(self, cache_key: str) -> Any | None:
         """从缓存加载数据"""
         cache_data = None
 
@@ -304,7 +304,7 @@ class AdaptiveCacheSystem:
         return cache_data['data']
 
     def find_cached_data(self, symbol: str, start_date: str = "", end_date: str = "", 
-                        data_source: str = "default", data_type: str = "stock_data") -> Optional[str]:
+                        data_source: str = "default", data_type: str = "stock_data") -> str | None:
         """查找缓存的数据"""
         cache_key = self._get_cache_key(symbol, start_date, end_date, data_source, data_type)
 

@@ -218,7 +218,7 @@ class StockDataCache:
         with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, ensure_ascii=False, indent=2)
 
-    def _load_metadata(self, cache_key: str) -> Optional[dict[str, Any]]:
+    def _load_metadata(self, cache_key: str) -> dict[str, Any] | None:
         """加载元数据"""
         metadata_path = self._get_metadata_path(cache_key)
         if not metadata_path.exists():
@@ -332,7 +332,7 @@ class StockDataCache:
         logger.info(f"💾 {desc}已缓存: {symbol} ({data_source}) -> {cache_key}")
         return cache_key
 
-    def load_stock_data(self, cache_key: str) -> Optional[Union[pd.DataFrame, str]]:
+    def load_stock_data(self, cache_key: str) -> Union[pd.DataFrame, str] | None:
         """从缓存加载股票数据"""
         metadata = self._load_metadata(cache_key)
         if not metadata:
@@ -354,7 +354,7 @@ class StockDataCache:
 
     def find_cached_stock_data(self, symbol: str, start_date: str = None,
                               end_date: str = None, data_source: str = None,
-                              max_age_hours: int = None) -> Optional[str]:
+                              max_age_hours: int = None) -> str | None:
         """
         查找匹配的缓存数据 - 支持智能市场分类查找
 
@@ -492,7 +492,7 @@ class StockDataCache:
         logger.info(f"💼 {desc}已缓存: {symbol} ({data_source}) -> {cache_key}")
         return cache_key
 
-    def load_fundamentals_data(self, cache_key: str) -> Optional[str]:
+    def load_fundamentals_data(self, cache_key: str) -> str | None:
         """从缓存加载基本面数据"""
         metadata = self._load_metadata(cache_key)
         if not metadata:
@@ -510,7 +510,7 @@ class StockDataCache:
             return None
 
     def find_cached_fundamentals_data(self, symbol: str, data_source: str = None,
-                                    max_age_hours: int = None) -> Optional[str]:
+                                    max_age_hours: int = None) -> str | None:
         """
         查找匹配的基本面缓存数据
         

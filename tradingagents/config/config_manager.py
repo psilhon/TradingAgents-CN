@@ -550,7 +550,7 @@ class ConfigManager:
         models = self.load_models()
         return [model for model in models if model.enabled and model.api_key]
 
-    def get_model_by_name(self, provider: str, model_name: str) -> Optional[ModelConfig]:
+    def get_model_by_name(self, provider: str, model_name: str) -> ModelConfig | None:
         """根据名称获取模型配置"""
         models = self.load_models()
         for model in models:

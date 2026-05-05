@@ -78,7 +78,7 @@ class YFinanceUtils:
 
     def get_company_info(
         symbol: Annotated[str, "ticker symbol"],
-        save_path: Optional[str] = None,
+        save_path: str | None = None,
     ) -> DataFrame:
         """Fetches and returns company information as a DataFrame."""
         ticker = symbol
@@ -98,7 +98,7 @@ class YFinanceUtils:
 
     def get_stock_dividends(
         symbol: Annotated[str, "ticker symbol"],
-        save_path: Optional[str] = None,
+        save_path: str | None = None,
     ) -> DataFrame:
         """Fetches and returns the latest dividends data as a DataFrame."""
         ticker = symbol

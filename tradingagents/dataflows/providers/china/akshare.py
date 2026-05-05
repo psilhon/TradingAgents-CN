@@ -167,7 +167,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.error(f"❌ AKShare初始化失败: {e}")
             self.connected = False
 
-    def _get_stock_news_direct(self, symbol: str, limit: int = 10) -> Optional[pd.DataFrame]:
+    def _get_stock_news_direct(self, symbol: str, limit: int = 10) -> pd.DataFrame | None:
         """
         直接调用东方财富网新闻 API（绕过 AKShare）
         使用 curl_cffi 模拟真实浏览器，适用于 Docker 环境
@@ -290,7 +290,7 @@ class AKShareProvider(BaseStockDataProvider):
         logger.info("✅ AKShare连接测试成功（库已加载）")
         return True
 
-    def get_stock_list_sync(self) -> Optional[pd.DataFrame]:
+    def get_stock_list_sync(self) -> pd.DataFrame | None:
         """获取股票列表（同步版本）"""
         if not self.connected:
             return None
@@ -349,7 +349,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.error(f"❌ AKShare获取股票列表失败: {e}")
             return []
 
-    async def get_stock_basic_info(self, code: str) -> Optional[dict[str, Any]]:
+    async def get_stock_basic_info(self, code: str) -> dict[str, Any] | None:
         """
         获取股票基础信息
         
@@ -701,7 +701,7 @@ class AKShareProvider(BaseStockDataProvider):
                     logger.error(f"❌ 批量获取实时行情失败，已达最大重试次数: {e}")
                     return {}
 
-    async def get_stock_quotes(self, code: str) -> Optional[dict[str, Any]]:
+    async def get_stock_quotes(self, code: str) -> dict[str, Any] | None:
         """
         获取单个股票实时行情
 
@@ -982,7 +982,7 @@ class AKShareProvider(BaseStockDataProvider):
         start_date: str,
         end_date: str,
         period: str = "daily"
-    ) -> Optional[pd.DataFrame]:
+    ) -> pd.DataFrame | None:
         """
         获取历史行情数据
 
@@ -1190,7 +1190,7 @@ class AKShareProvider(BaseStockDataProvider):
                 "error": str(e)
             }
 
-    def get_stock_news_sync(self, symbol: str = None, limit: int = 10) -> Optional[pd.DataFrame]:
+    def get_stock_news_sync(self, symbol: str = None, limit: int = 10) -> pd.DataFrame | None:
         """
         获取股票新闻（同步版本，返回原始 DataFrame）
 
@@ -1264,7 +1264,7 @@ class AKShareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ AKShare新闻获取失败: {e}")
             return None
 
-    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> Optional[list[dict[str, Any]]]:
+    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> list[dict[str, Any]] | None:
         """
         获取股票新闻（异步版本，返回结构化列表）
 
@@ -1446,7 +1446,7 @@ class AKShareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取AKShare新闻失败 symbol={symbol}: {e}")
             return None
 
-    def _parse_news_time(self, time_str: str) -> Optional[datetime]:
+    def _parse_news_time(self, time_str: str) -> datetime | None:
         """解析新闻时间"""
         if not time_str:
             return datetime.utcnow()

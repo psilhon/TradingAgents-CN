@@ -25,7 +25,7 @@ BASICS_COLLECTION = "stock_basic_info"
 QUOTES_COLLECTION = "market_quotes"
 
 
-def get_basics_from_cache(stock_code: Optional[str] = None) -> Optional[dict[str, Any] | list[dict[str, Any]]]:
+def get_basics_from_cache(stock_code: str | None = None) -> dict[str, Any] | list[dict[str, Any]] | None:
     """从 app 的 stock_basic_info 读取基础信息。"""
     if get_mongodb_client is None:
         return None
@@ -69,7 +69,7 @@ def get_basics_from_cache(stock_code: Optional[str] = None) -> Optional[dict[str
         return None
 
 
-def get_market_quote_dataframe(symbol: str) -> Optional[pd.DataFrame]:
+def get_market_quote_dataframe(symbol: str) -> pd.DataFrame | None:
     """从 app 的 market_quotes 读取单只股票的最新一条快照，并转为 DataFrame。"""
     if get_mongodb_client is None:
         return None

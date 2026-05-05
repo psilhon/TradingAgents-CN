@@ -73,7 +73,7 @@ class StructuredFormatter(logging.Formatter):
 class TradingAgentsLogger:
     """TradingAgents统一日志管理器"""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or self._load_default_config()
         self.loggers: dict[str, logging.Logger] = {}
         self._setup_logging()
@@ -137,7 +137,7 @@ class TradingAgentsLogger:
             }
         }
 
-    def _load_config_file(self) -> Optional[dict[str, Any]]:
+    def _load_config_file(self) -> dict[str, Any] | None:
         """从配置文件加载日志配置"""
         # 确定配置文件路径
         config_paths = [
@@ -426,7 +426,7 @@ class TradingAgentsLogger:
 
 
 # 全局日志管理器实例
-_logger_manager: Optional[TradingAgentsLogger] = None
+_logger_manager: TradingAgentsLogger | None = None
 
 
 def get_logger_manager() -> TradingAgentsLogger:
@@ -442,7 +442,7 @@ def get_logger(name: str) -> logging.Logger:
     return get_logger_manager().get_logger(name)
 
 
-def setup_logging(config: Optional[dict[str, Any]] = None):
+def setup_logging(config: dict[str, Any] | None = None):
     """设置项目日志系统（便捷函数）"""
     global _logger_manager
     _logger_manager = TradingAgentsLogger(config)
