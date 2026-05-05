@@ -971,7 +971,7 @@ class AKShareProvider(BaseStockDataProvider):
             if pd.isna(value) or value is None:
                 return ""
             return str(value)
-        except:
+        except Exception:
             return ""
 
     async def get_historical_data(

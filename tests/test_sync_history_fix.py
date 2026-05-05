@@ -99,7 +99,7 @@ async def test_multiple_sync_records():
                 try:
                     start_dt = datetime.fromisoformat(started_at.replace('Z', '+00:00'))
                     start_local = start_dt.strftime('%Y-%m-%d %H:%M:%S')
-                except:
+                except Exception:
                     start_local = started_at
             else:
                 start_local = "未知"
@@ -108,7 +108,7 @@ async def test_multiple_sync_records():
                 try:
                     finish_dt = datetime.fromisoformat(finished_at.replace('Z', '+00:00'))
                     finish_local = finish_dt.strftime('%Y-%m-%d %H:%M:%S')
-                except:
+                except Exception:
                     finish_local = finished_at
             else:
                 finish_local = "未完成"
