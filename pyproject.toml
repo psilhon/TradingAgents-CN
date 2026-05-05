@@ -123,5 +123,5 @@ typeCheckingMode = "standard"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # 上游 tests/ 含一些非测试脚本（debug_*.py / fast_tdx_test.py 等），collect 时忽略
-addopts = "-ra --strict-markers --ignore=tests/0.1.14"
-norecursedirs = ["0.1.14", "config"]
+addopts = "-ra --strict-markers"
+norecursedirs = ["config"]
