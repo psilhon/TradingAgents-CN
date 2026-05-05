@@ -4,7 +4,7 @@ DeepSeek LLM适配器，支持Token使用统计
 
 import os
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
@@ -232,7 +232,7 @@ class ChatDeepSeek(ChatOpenAI):
 
     def invoke(
         self,
-        input: Union[str, list[BaseMessage]],
+        input: str | list[BaseMessage],
         config: dict | None = None,
         **kwargs: Any,
     ) -> AIMessage:

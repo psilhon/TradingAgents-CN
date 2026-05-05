@@ -90,7 +90,7 @@ def test_recommended_model():
                 }
 
                 for report_key, report_name in reports.items():
-                    if report_key in state and state[report_key]:
+                    if state.get(report_key):
                         report_content = state[report_key]
                         print(f"   {report_name}: {len(report_content)} 字符")
                         if len(report_content) > 100:

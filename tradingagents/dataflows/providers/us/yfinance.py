@@ -1,9 +1,9 @@
 # gets data/stats
 
+from collections.abc import Callable
 from datetime import datetime
 from functools import wraps
-from typing import Annotated, Any, Optional
-from collections.abc import Callable
+from typing import Annotated, Any
 
 import pandas as pd
 import yfinance as yf
@@ -193,7 +193,7 @@ def get_stock_data_with_indicators(
 
     except Exception as e:
         logger.error(f"❌ [yfinance] 获取股票数据失败 {symbol}: {e}")
-        return f"Error retrieving stock data for {symbol}: {str(e)}"
+        return f"Error retrieving stock data for {symbol}: {e!s}"
 
 
 def get_technical_indicator(
@@ -352,4 +352,4 @@ def get_technical_indicator(
         return "❌ 需要安装 stockstats 库: pip install stockstats"
     except Exception as e:
         logger.error(f"❌ [yfinance] 计算技术指标失败 {symbol}/{indicator}: {e}")
-        return f"Error calculating indicator {indicator} for {symbol}: {str(e)}"
+        return f"Error calculating indicator {indicator} for {symbol}: {e!s}"

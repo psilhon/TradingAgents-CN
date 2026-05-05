@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 测试CLI修复 - KeyError: 'stock_symbol' 问题
 Test CLI Fix - KeyError: 'stock_symbol' Issue
@@ -92,7 +91,7 @@ def test_process_signal_call():
     try:
         # 读取main.py文件内容
         main_file = project_root / 'cli' / 'main.py'
-        with open(main_file, 'r', encoding='utf-8') as f:
+        with open(main_file, encoding='utf-8') as f:
             content = f.read()
 
         # 检查是否使用了正确的键名
@@ -125,7 +124,7 @@ def test_code_consistency():
 
     try:
         main_file = project_root / 'cli' / 'main.py'
-        with open(main_file, 'r', encoding='utf-8') as f:
+        with open(main_file, encoding='utf-8') as f:
             content = f.read()
 
         # 统计ticker键的使用次数

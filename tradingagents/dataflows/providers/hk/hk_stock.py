@@ -5,7 +5,7 @@
 
 import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import numpy as np

@@ -152,7 +152,7 @@ def test_market_analyst_modification():
 
     try:
         # 读取市场分析师文件内容
-        with open('tradingagents/agents/analysts/market_analyst.py', 'r', encoding='utf-8') as f:
+        with open('tradingagents/agents/analysts/market_analyst.py', encoding='utf-8') as f:
             content = f.read()
 
         # 检查是否包含港股配置

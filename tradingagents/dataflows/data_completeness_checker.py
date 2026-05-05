@@ -6,7 +6,6 @@
 
 import logging
 from datetime import datetime, timedelta
-from typing import List, Optional, Tuple
 
 import pandas as pd
 
@@ -149,7 +148,7 @@ class DataCompletenessChecker:
 
         except Exception as e:
             self.logger.error(f"❌ 检查数据完整性失败: {e}")
-            return False, f"检查失败: {str(e)}", details
+            return False, f"检查失败: {e!s}", details
 
     def _parse_data_to_dataframe(self, data: str) -> pd.DataFrame | None:
         """将数据字符串解析为 DataFrame"""

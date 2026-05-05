@@ -62,7 +62,7 @@ def test_signal_processor():
         return result
 
     except Exception as e:
-        print(f"❌ 测试失败: {str(e)}")
+        print(f"❌ 测试失败: {e!s}")
         import traceback
         traceback.print_exc()
         return None
@@ -104,7 +104,7 @@ def test_trading_graph():
         return result
 
     except Exception as e:
-        print(f"❌ 测试失败: {str(e)}")
+        print(f"❌ 测试失败: {e!s}")
         import traceback
         traceback.print_exc()
         return None

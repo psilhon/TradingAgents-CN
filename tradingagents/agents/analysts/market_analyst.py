@@ -340,7 +340,7 @@ def create_market_analyst(llm, toolkit):
                                     break
                                 except Exception as tool_error:
                                     logger.error(f"❌ [DEBUG] 工具执行失败: {tool_error}")
-                                    tool_result = f"工具执行失败: {str(tool_error)}"
+                                    tool_result = f"工具执行失败: {tool_error!s}"
 
                         if tool_result is None:
                             tool_result = f"未找到工具: {tool_name}"

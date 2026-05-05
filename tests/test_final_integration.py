@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 验证统一新闻工具集成效果的最终测试
 """
@@ -84,7 +83,7 @@ def test_final_integration():
         print("\n🔧 第三步：验证工具集成...")
 
         # 检查新闻分析师文件中的统一新闻工具导入
-        with open("tradingagents/agents/analysts/news_analyst.py", "r", encoding="utf-8") as f:
+        with open("tradingagents/agents/analysts/news_analyst.py", encoding="utf-8") as f:
             content = f.read()
 
         checks = [

@@ -140,7 +140,7 @@ def get_fundamentals(
 
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取基本面数据失败 {ticker}: {e}")
-        return f"Error retrieving fundamentals for {ticker}: {str(e)}"
+        return f"Error retrieving fundamentals for {ticker}: {e!s}"
 
 
 def get_balance_sheet(
@@ -169,7 +169,7 @@ def get_balance_sheet(
 
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取资产负债表失败 {ticker}: {e}")
-        return f"Error retrieving balance sheet for {ticker}: {str(e)}"
+        return f"Error retrieving balance sheet for {ticker}: {e!s}"
 
 
 def get_cashflow(
@@ -198,7 +198,7 @@ def get_cashflow(
 
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取现金流量表失败 {ticker}: {e}")
-        return f"Error retrieving cash flow for {ticker}: {str(e)}"
+        return f"Error retrieving cash flow for {ticker}: {e!s}"
 
 
 def get_income_statement(
@@ -227,5 +227,5 @@ def get_income_statement(
 
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取利润表失败 {ticker}: {e}")
-        return f"Error retrieving income statement for {ticker}: {str(e)}"
+        return f"Error retrieving income statement for {ticker}: {e!s}"
 

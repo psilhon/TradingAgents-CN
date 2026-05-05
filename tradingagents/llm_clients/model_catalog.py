@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
-
 ModelOption = tuple[str, str]
 ProviderModeOptions = dict[str, dict[str, list[ModelOption]]]
 

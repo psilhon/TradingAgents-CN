@@ -231,7 +231,7 @@ def create_fundamentals_analyst(llm, toolkit):
 
             except Exception as e:
                 print(f"❌ [DEBUG] 强制工具调用分析失败: {e}")
-                report = f"基本面分析失败：{str(e)}"
+                report = f"基本面分析失败：{e!s}"
 
             return {"fundamentals_report": report}
 

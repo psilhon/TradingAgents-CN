@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 股票数据服务测试程序
 测试MongoDB -> Tushare数据接口的完整降级机制

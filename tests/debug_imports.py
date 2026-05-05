@@ -118,7 +118,7 @@ def check_actual_file_contents():
         google_file = Path("tradingagents/dataflows/googlenews_utils.py")
         if google_file.exists():
             print(f"✅ Google News文件存在: {google_file}")
-            with open(google_file, 'r', encoding='utf-8') as f:
+            with open(google_file, encoding='utf-8') as f:
                 content = f.read()
                 if 'def ' in content:
                     # 提取函数定义
@@ -137,7 +137,7 @@ def check_actual_file_contents():
         reddit_file = Path("tradingagents/dataflows/reddit_utils.py")
         if reddit_file.exists():
             print(f"✅ Reddit文件存在: {reddit_file}")
-            with open(reddit_file, 'r', encoding='utf-8') as f:
+            with open(reddit_file, encoding='utf-8') as f:
                 content = f.read()
                 if 'def ' in content:
                     # 提取函数定义

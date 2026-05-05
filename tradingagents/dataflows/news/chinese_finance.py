@@ -5,7 +5,6 @@
 """
 
 from datetime import datetime
-from typing import Dict, List, Optional
 
 import requests
 
@@ -54,7 +53,7 @@ class ChineseFinanceDataAggregator:
         except Exception as e:
             return {
                 'ticker': ticker,
-                'error': f'数据获取失败: {str(e)}',
+                'error': f'数据获取失败: {e!s}',
                 'fallback_message': '由于中国社交媒体API限制，建议使用财经新闻和基本面分析作为主要参考',
                 'timestamp': datetime.now().isoformat()
             }
@@ -314,7 +313,7 @@ def get_chinese_social_sentiment(ticker: str, curr_date: str) -> str:
 中国市场情绪分析 - {ticker}
 分析日期: {curr_date}
 
-❌ 分析失败: {str(e)}
+❌ 分析失败: {e!s}
 
 💡 替代建议:
 1. 查看财经新闻网站的相关报道

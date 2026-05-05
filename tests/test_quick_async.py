@@ -151,7 +151,7 @@ def test_multiple_concurrent_requests():
             response = requests.get(f"{base_url}/api/health", timeout=5)
             duration = time.time() - start
             results.put((response.status_code, duration))
-        except Exception as e:
+        except Exception:
             results.put((0, 999))
 
     # 启动5个并发请求

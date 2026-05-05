@@ -21,11 +21,11 @@ except ImportError:
     HK_STOCK_AVAILABLE = False
 
 __all__ = [
-    'ImprovedHKStockProvider',
-    'get_improved_hk_provider',
-    'get_hk_stock_info_improved',
     'HK_PROVIDER_AVAILABLE',
-    'HKStockProvider',
     'HK_STOCK_AVAILABLE',
+    'HKStockProvider',
+    'ImprovedHKStockProvider',
+    'get_hk_stock_info_improved',
+    'get_improved_hk_provider',
 ]
 

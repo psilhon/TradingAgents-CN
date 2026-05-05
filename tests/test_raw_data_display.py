@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 原始数据显示测试脚本
 直接调用底层数据接口，显示原始的财务数据
@@ -141,13 +140,13 @@ def test_raw_data_display():
             print("=" * 80)
 
         except Exception as e:
-            print(f"❌ 财务基本面数据获取失败: {str(e)}")
+            print(f"❌ 财务基本面数据获取失败: {e!s}")
             import traceback
             print("🔍 详细错误信息:")
             traceback.print_exc()
 
     except Exception as e:
-        print(f"❌ 测试失败: {str(e)}")
+        print(f"❌ 测试失败: {e!s}")
         import traceback
         print("🔍 详细错误信息:")
         traceback.print_exc()

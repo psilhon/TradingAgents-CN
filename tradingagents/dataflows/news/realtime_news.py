@@ -8,7 +8,6 @@ import os
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import List
 from zoneinfo import ZoneInfo
 
 import requests
@@ -802,7 +801,7 @@ def get_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6) ->
                 logger.warning(f"[新闻分析] 东方财富未获取到 {ticker} 的新闻，耗时 {time_taken:.2f} 秒，尝试使用其他新闻源")
         except Exception as e:
             logger.error(f"[新闻分析] 东方财富新闻获取失败: {e}，将尝试其他新闻源")
-            logger.error(f"[新闻分析] 异常详情: {type(e).__name__}: {str(e)}")
+            logger.error(f"[新闻分析] 异常详情: {type(e).__name__}: {e!s}")
             import traceback
             logger.error(f"[新闻分析] 异常堆栈: {traceback.format_exc()}")
     else:
@@ -851,7 +850,7 @@ def get_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6) ->
             # 如果没有获取到新闻，继续尝试备用方案
     except Exception as e:
         logger.error(f"[新闻分析] 实时新闻聚合器获取失败: {e}，将尝试备用新闻源")
-        logger.error(f"[新闻分析] 异常详情: {type(e).__name__}: {str(e)}")
+        logger.error(f"[新闻分析] 异常详情: {type(e).__name__}: {e!s}")
         import traceback
         logger.error(f"[新闻分析] 异常堆栈: {traceback.format_exc()}")
         # 发生异常时，继续尝试备用方案

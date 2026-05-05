@@ -7,7 +7,7 @@
 
 import logging
 import os
-from typing import Any, Dict, Tuple
+from typing import Any
 
 
 class DatabaseManager:
@@ -120,7 +120,7 @@ class DatabaseManager:
         except ImportError:
             return False, "pymongo未安装"
         except Exception as e:
-            return False, f"MongoDB连接失败: {str(e)}"
+            return False, f"MongoDB连接失败: {e!s}"
 
     def _detect_redis(self) -> tuple[bool, str]:
         """检测Redis是否可用"""
@@ -154,7 +154,7 @@ class DatabaseManager:
         except ImportError:
             return False, "redis未安装"
         except Exception as e:
-            return False, f"Redis连接失败: {str(e)}"
+            return False, f"Redis连接失败: {e!s}"
 
     def _detect_databases(self):
         """检测所有数据库"""

@@ -7,7 +7,7 @@
 import random
 import time
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from tradingagents.config.config_manager import config_manager
@@ -100,7 +100,7 @@ class OptimizedChinaDataProvider:
 
         except Exception as e:
             logger.warning(f"⚠️ 格式化财务数据失败: {e}")
-            return f"# {symbol} 基本面数据\n\n❌ 数据格式化失败: {str(e)}"
+            return f"# {symbol} 基本面数据\n\n❌ 数据格式化失败: {e!s}"
 
     def get_stock_data(self, symbol: str, start_date: str, end_date: str,
                       force_refresh: bool = False) -> str:
@@ -184,7 +184,7 @@ class OptimizedChinaDataProvider:
             return formatted_data
 
         except Exception as e:
-            error_msg = f"Tushare数据接口调用异常: {str(e)}"
+            error_msg = f"Tushare数据接口调用异常: {e!s}"
             logger.error(f"❌ {error_msg}")
 
             # 尝试从旧缓存获取数据
@@ -225,7 +225,7 @@ class OptimizedChinaDataProvider:
             for metadata_file in self.cache.metadata_dir.glob("*_meta.json"):
                 try:
                     import json
-                    with open(metadata_file, 'r', encoding='utf-8') as f:
+                    with open(metadata_file, encoding='utf-8') as f:
                         metadata = json.load(f)
 
                     if (metadata.get('symbol') == symbol and
@@ -263,7 +263,7 @@ class OptimizedChinaDataProvider:
             return fundamentals_data
 
         except Exception as e:
-            error_msg = f"基本面数据生成失败: {str(e)}"
+            error_msg = f"基本面数据生成失败: {e!s}"
             logger.error(f"❌ [数据来源: 生成失败] {error_msg}")
             logger.warning(f"⚠️ [数据来源: 备用数据] 生成备用基本面数据: {symbol}")
             return self._generate_fallback_fundamentals(symbol, error_msg)
@@ -2064,7 +2064,7 @@ class OptimizedChinaDataProvider:
                 try:
                     import json
 
-                    with open(metadata_file, 'r', encoding='utf-8') as f:
+                    with open(metadata_file, encoding='utf-8') as f:
                         metadata = json.load(f)
 
                     if (metadata.get('symbol') == symbol and
@@ -2199,15 +2199,15 @@ def _add_financial_cache_methods():
                 if 'raw_data' in financial_doc and isinstance(financial_doc['raw_data'], dict):
                     raw_data = financial_doc['raw_data']
                     # 映射字段名：raw_data 中使用 cashflow_statement，我们需要 cash_flow
-                    if 'balance_sheet' in raw_data and raw_data['balance_sheet']:
+                    if raw_data.get('balance_sheet'):
                         financial_data['balance_sheet'] = raw_data['balance_sheet']
-                    if 'income_statement' in raw_data and raw_data['income_statement']:
+                    if raw_data.get('income_statement'):
                         financial_data['income_statement'] = raw_data['income_statement']
-                    if 'cashflow_statement' in raw_data and raw_data['cashflow_statement']:
+                    if raw_data.get('cashflow_statement'):
                         financial_data['cash_flow'] = raw_data['cashflow_statement']  # 注意字段名映射
-                    if 'financial_indicators' in raw_data and raw_data['financial_indicators']:
+                    if raw_data.get('financial_indicators'):
                         financial_data['main_indicators'] = raw_data['financial_indicators']  # 注意字段名映射
-                    if 'main_business' in raw_data and raw_data['main_business']:
+                    if raw_data.get('main_business'):
                         financial_data['main_business'] = raw_data['main_business']
 
                 # 第二优先级：检查 financial_data 嵌套字段
@@ -2224,13 +2224,13 @@ def _add_financial_cache_methods():
 
                 # 第三优先级：直接从文档根级别读取
                 else:
-                    if 'balance_sheet' in financial_doc and financial_doc['balance_sheet']:
+                    if financial_doc.get('balance_sheet'):
                         financial_data['balance_sheet'] = financial_doc['balance_sheet']
-                    if 'income_statement' in financial_doc and financial_doc['income_statement']:
+                    if financial_doc.get('income_statement'):
                         financial_data['income_statement'] = financial_doc['income_statement']
-                    if 'cash_flow' in financial_doc and financial_doc['cash_flow']:
+                    if financial_doc.get('cash_flow'):
                         financial_data['cash_flow'] = financial_doc['cash_flow']
-                    if 'main_indicators' in financial_doc and financial_doc['main_indicators']:
+                    if financial_doc.get('main_indicators'):
                         financial_data['main_indicators'] = financial_doc['main_indicators']
 
                 if financial_data:

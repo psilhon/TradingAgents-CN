@@ -12,8 +12,8 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-from typing import Any, Optional
 from collections.abc import Callable
+from typing import Any
 
 _logger = logging.getLogger("tradingagents.config")
 
@@ -214,10 +214,10 @@ def get_zoneinfo(default: str = "Asia/Shanghai") -> _ZoneInfo:
 
 
 __all__ = [
+    "get_bool",
     "get_float",
     "get_int",
-    "get_bool",
-    "use_app_cache_enabled",
     "get_timezone_name",
     "get_zoneinfo",
+    "use_app_cache_enabled",
 ]

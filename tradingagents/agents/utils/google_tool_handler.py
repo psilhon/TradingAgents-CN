@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Google模型工具调用统一处理器
@@ -9,7 +8,7 @@ Google模型工具调用统一处理器
 """
 
 import logging
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
@@ -198,14 +197,14 @@ class GoogleToolCallHandler:
                         except Exception as tool_error:
                             logger.error(f"[{analyst_name}] ❌ 工具执行失败: {tool_error}")
                             logger.error(f"[{analyst_name}] ❌ 异常类型: {type(tool_error).__name__}")
-                            logger.error(f"[{analyst_name}] ❌ 异常详情: {str(tool_error)}")
+                            logger.error(f"[{analyst_name}] ❌ 异常详情: {tool_error!s}")
 
                             # 记录详细的异常堆栈
                             import traceback
                             error_traceback = traceback.format_exc()
                             logger.error(f"[{analyst_name}] ❌ 工具执行异常堆栈:\n{error_traceback}")
 
-                            tool_result = f"工具执行失败: {str(tool_error)}"
+                            tool_result = f"工具执行失败: {tool_error!s}"
 
                 logger.debug(f"[{analyst_name}] 🔧 可用工具列表: {available_tools}")
 
@@ -237,7 +236,7 @@ class GoogleToolCallHandler:
             safe_messages = []
 
             # 只保留初始的用户消息（如果有）
-            if "messages" in state and state["messages"]:
+            if state.get("messages"):
                 # 只保留第一条 HumanMessage（通常是初始任务描述）
                 for msg in state["messages"]:
                     if isinstance(msg, HumanMessage):
@@ -265,7 +264,7 @@ class GoogleToolCallHandler:
             # 检查消息序列是否为空
             if not safe_messages:
                 logger.error(f"[{analyst_name}] ❌ 消息序列为空，无法生成分析报告")
-                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{str(result)}" for i, result in enumerate(tool_results)])
+                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 return report, [result] + tool_messages
 
@@ -314,7 +313,7 @@ class GoogleToolCallHandler:
                         return report, all_messages
                     else:
                         logger.warning(f"[{analyst_name}] ⚠️ Google模型返回内容为空")
-                        logger.debug(f"[{analyst_name}] 🔍 空内容详情: repr={repr(content)}")
+                        logger.debug(f"[{analyst_name}] 🔍 空内容详情: repr={content!r}")
                 else:
                     logger.warning(f"[{analyst_name}] ⚠️ Google模型返回结果没有content属性")
                     logger.debug(f"[{analyst_name}] 🔍 可用属性: {[attr for attr in dir(final_result) if not attr.startswith('_')]}")
@@ -322,7 +321,7 @@ class GoogleToolCallHandler:
                 # 如果到这里，说明内容为空或没有content属性
                 logger.warning(f"[{analyst_name}] ⚠️ Google模型最终分析报告生成失败 - 内容为空")
                 # 降级处理：基于工具结果生成简单报告
-                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{str(result)}" for i, result in enumerate(tool_results)])
+                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 logger.info(f"[{analyst_name}] 🔄 使用降级报告，长度: {len(report)} 字符")
                 return report, [result] + tool_messages
@@ -330,7 +329,7 @@ class GoogleToolCallHandler:
             except Exception as final_error:
                 logger.error(f"[{analyst_name}] ❌ 最终分析报告生成失败: {final_error}")
                 logger.error(f"[{analyst_name}] ❌ 异常类型: {type(final_error).__name__}")
-                logger.error(f"[{analyst_name}] ❌ 异常详情: {str(final_error)}")
+                logger.error(f"[{analyst_name}] ❌ 异常详情: {final_error!s}")
 
                 # 记录详细的异常堆栈
                 import traceback
@@ -338,7 +337,7 @@ class GoogleToolCallHandler:
                 logger.error(f"[{analyst_name}] ❌ 异常堆栈:\n{error_traceback}")
 
                 # 降级处理：基于工具结果生成简单报告
-                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{str(result)}" for i, result in enumerate(tool_results)])
+                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 logger.info(f"[{analyst_name}] 🔄 异常后使用降级报告，长度: {len(report)} 字符")
                 return report, [result] + tool_messages
@@ -350,7 +349,7 @@ class GoogleToolCallHandler:
 
             # 降级处理：返回工具调用信息
             tool_names = [tc.get('name', 'unknown') for tc in result.tool_calls]
-            report = f"{analyst_name}调用了工具 {tool_names} 但处理失败: {str(e)}"
+            report = f"{analyst_name}调用了工具 {tool_names} 但处理失败: {e!s}"
             return report, [result]
 
     @staticmethod

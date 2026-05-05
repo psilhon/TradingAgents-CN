@@ -36,13 +36,13 @@ except ImportError:
     FUNDAMENTALS_SNAPSHOT_AVAILABLE = False
 
 __all__ = [
-    'AKShareProvider',
     'AKSHARE_AVAILABLE',
-    'TushareProvider',
-    'TUSHARE_AVAILABLE',
-    'BaostockProvider',
     'BAOSTOCK_AVAILABLE',
-    'get_fundamentals_snapshot',
     'FUNDAMENTALS_SNAPSHOT_AVAILABLE',
+    'TUSHARE_AVAILABLE',
+    'AKShareProvider',
+    'BaostockProvider',
+    'TushareProvider',
+    'get_fundamentals_snapshot',
 ]
 

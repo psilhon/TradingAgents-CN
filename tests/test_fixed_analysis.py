@@ -128,7 +128,7 @@ def test_fixed_analysis():
                                 # 检查市场分析报告内容
                                 market_report = reports_dir / "market_report.md"
                                 if market_report.exists():
-                                    with open(market_report, 'r', encoding='utf-8') as f:
+                                    with open(market_report, encoding='utf-8') as f:
                                         content = f.read()
                                         if len(content) > 100:
                                             print(f"✅ 市场分析报告有内容 (长度: {len(content)})")

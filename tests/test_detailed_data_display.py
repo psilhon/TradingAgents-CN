@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 详细数据显示测试脚本
 完整显示基本面分析获取的所有数据内容
@@ -105,7 +104,7 @@ def test_detailed_data_display():
         print("\n🎉 数据显示完成！")
 
     except Exception as e:
-        print(f"❌ 测试失败: {str(e)}")
+        print(f"❌ 测试失败: {e!s}")
         import traceback
         print("🔍 详细错误信息:")
         traceback.print_exc()

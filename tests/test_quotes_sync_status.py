@@ -70,7 +70,7 @@ def test_trading_time_logic():
         if result != expected:
             all_passed = False
 
-        print(f"{time_str:6s} | 预期: {str(expected):5s} | 实际: {str(result):5s} | {status} | {description}")
+        print(f"{time_str:6s} | 预期: {expected!s:5s} | 实际: {result!s:5s} | {status} | {description}")
 
     print("-" * 80)
     if all_passed:

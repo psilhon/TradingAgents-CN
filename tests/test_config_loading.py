@@ -32,7 +32,7 @@ def test_pricing_config_loading():
 
         # 直接读取文件内容
         if config_manager.pricing_file.exists():
-            with open(config_manager.pricing_file, 'r', encoding='utf-8') as f:
+            with open(config_manager.pricing_file, encoding='utf-8') as f:
                 content = f.read()
             print(f"📄 文件内容长度: {len(content)}")
 

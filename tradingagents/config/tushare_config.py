@@ -5,7 +5,7 @@ Tushare配置管理
 """
 
 import os
-from typing import Any, Dict
+from typing import Any
 
 from .env_utils import get_env_info, parse_bool_env, parse_str_env
 

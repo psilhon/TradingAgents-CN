@@ -73,7 +73,7 @@ def test_news_analyst_integration():
         # 读取新闻分析师源码
         news_analyst_file = "tradingagents/agents/analysts/news_analyst.py"
         try:
-            with open(news_analyst_file, "r", encoding="utf-8") as f:
+            with open(news_analyst_file, encoding="utf-8") as f:
                 source_code = f.read()
 
             # 检查关键集成点
@@ -104,7 +104,7 @@ def test_news_analyst_integration():
         # 检查工作流程设置文件
         setup_file = "tradingagents/graph/setup.py"
         try:
-            with open(setup_file, "r", encoding="utf-8") as f:
+            with open(setup_file, encoding="utf-8") as f:
                 setup_code = f.read()
 
             workflow_checks = [
@@ -166,7 +166,7 @@ def test_news_analyst_integration():
         print("✨ 大模型已通过 llm.bind_tools(tools) 绑定了统一新闻工具！")
 
     except Exception as e:
-        print(f"❌ 验证过程中出现错误: {str(e)}")
+        print(f"❌ 验证过程中出现错误: {e!s}")
         import traceback
         traceback.print_exc()
 
