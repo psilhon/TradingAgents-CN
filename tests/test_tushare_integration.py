@@ -264,7 +264,7 @@ def check_tushare_environment():
     # 检查缓存目录
     try:
         from tradingagents.dataflows.cache_manager import get_cache
-        cache = get_cache()
+        get_cache()
         print("✅ 缓存管理器可用")
     except Exception as e:
         print(f"⚠️ 缓存管理器不可用: {e}")

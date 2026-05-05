@@ -96,7 +96,7 @@ def test_market_analyst_unified():
         print(f"  测试港股市场分析: {state['company_of_interest']}")
 
         # 调用分析师（这会触发工具选择逻辑）
-        result = analyst(state)
+        analyst(state)
 
         print("  ✅ 市场分析师调用完成")
         return True
@@ -159,7 +159,7 @@ def test_fundamentals_analyst_unified():
         print(f"  测试港股基本面分析: {state['company_of_interest']}")
 
         # 调用分析师（这会触发工具选择逻辑）
-        result = analyst(state)
+        analyst(state)
 
         print("  ✅ 基本面分析师调用完成")
         return True

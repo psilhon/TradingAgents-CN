@@ -148,7 +148,7 @@ def test_deepseek_trading_graph():
         config["online_tools"] = False   # 禁用在线工具以加快测试
 
         # 创建交易图
-        ta = TradingAgentsGraph(debug=True, config=config)
+        TradingAgentsGraph(debug=True, config=config)
         print("✅ 交易图创建成功")
 
         # 注意：这里不执行实际分析，只测试初始化

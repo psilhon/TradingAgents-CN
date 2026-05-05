@@ -110,7 +110,7 @@ def test_tool_selection_verification():
             market_info = StockUtils.get_market_info(ticker)
             is_china = market_info['is_china']
             is_hk = market_info['is_hk']
-            is_us = market_info['is_us']
+            market_info['is_us']
 
             print(f"\n📊 {ticker} ({expected_market}):")
             print(f"  识别结果: {market_info['market_name']}")

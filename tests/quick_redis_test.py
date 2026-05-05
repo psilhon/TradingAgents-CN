@@ -47,7 +47,7 @@ def quick_redis_test(host=None, port=None, password=None):
 
         # GET操作测试
         start_time = time.time()
-        value = r.get("test_key")
+        r.get("test_key")
         get_time = (time.time() - start_time) * 1000
         print(f"  GET操作: {get_time:.2f} ms")
 

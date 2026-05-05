@@ -71,7 +71,7 @@ def test_cli_command_format_consistency():
 
                 # 检查是否使用了推荐的 python -m cli.main 格式
                 old_format_count = len(re.findall(r'python cli/main\.py', content))
-                new_format_count = len(re.findall(r'python -m cli\.main', content))
+                len(re.findall(r'python -m cli\.main', content))
 
                 if old_format_count == 0:
                     print(f"✅ {doc_file} 中 CLI 命令格式正确")

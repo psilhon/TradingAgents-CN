@@ -100,7 +100,7 @@ def test_fundamentals_analyst_tool_selection():
             print(f"\n  测试 {ticker} ({market_type}):")
 
             # 获取市场信息
-            market_info = StockUtils.get_market_info(ticker)
+            StockUtils.get_market_info(ticker)
 
             # 模拟基本面分析师的工具选择逻辑
             if toolkit.config["online_tools"]:
@@ -155,7 +155,7 @@ def test_market_analyst_tool_selection():
             print(f"\n  测试 {ticker} ({market_type}):")
 
             # 获取市场信息
-            market_info = StockUtils.get_market_info(ticker)
+            StockUtils.get_market_info(ticker)
 
             # 模拟市场分析师的工具选择逻辑
             if toolkit.config["online_tools"]:

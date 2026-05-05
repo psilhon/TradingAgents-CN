@@ -118,7 +118,7 @@ class ChatDeepSeek(ChatOpenAI):
         """
 
         # 记录开始时间
-        start_time = time.time()
+        time.time()
 
         # 提取并移除自定义参数，避免传递给父类
         session_id = kwargs.pop('session_id', None)

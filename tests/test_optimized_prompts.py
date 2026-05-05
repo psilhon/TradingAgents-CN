@@ -92,17 +92,12 @@ def test_market_analyst_prompt():
 
         # 创建市场分析师
         from tradingagents.agents.analysts.market_analyst import create_market_analyst
-        market_analyst = create_market_analyst(llm, toolkit)
+        create_market_analyst(llm, toolkit)
 
         print("✅ 市场分析师创建完成")
 
         # 测试分析状态
         test_ticker = "002027"
-        state = {
-            "company_of_interest": test_ticker,
-            "trade_date": "2025-07-16",
-            "messages": []
-        }
 
         print(f"\n🔧 测试股票: {test_ticker}")
         print("🔍 [提示词验证] 检查提示词是否正确包含公司名称和股票代码...")
