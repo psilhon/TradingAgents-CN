@@ -71,6 +71,8 @@
   - 建立 base spec `lint-policy`：定义中文项目友好放行 + 按 rule code 分批 + warn-only 治理过程
   - **CI 仍 red**（870 errors > 0）；转严格模式留给 `lint-strict-mode-enable` change
 
+- **pytest collection 干净化**（OpenSpec change `pytest-collection-fix`）：删除 16 个 dead test（import-time 引用已重组的 `akshare_utils` / `optimized_china_data` / `finnhub_utils` 等模块 / 连 mongo 默认端口 / 缺第三方 stub）。pytest collection 16 errors → 0。`644 tests collected, 0 errors`。
+
 - **pyright handfix pass-1**（OpenSpec change `pyright-handfix-pass-1`）：silence 7 类 fork 项目固有噪音 rule（reportAttributeAccessIssue / reportFunctionMemberAccess / reportReturnType / reportMissingModuleSource / reportUnsupportedDunderAll / reportOperatorIssue / reportAssignmentType）。pyright 1,224 → 879 errors（-28%）。剩 879 是真问题（reportMissingImports 494 / reportOptionalMemberAccess 132 / reportArgumentType 107 / 等），留 `pyright-handfix-pass-2` 治理。
 
 - **pyright baseline 调宽**（OpenSpec change `pyright-cleanup-baseline`）：`pyproject.toml [tool.pyright]` 删 `strict = ["tradingagents"]`。pyright 9,955 → 1,224 errors（-87%）。砍掉的 8,700+ 全是 `reportUnknown*Type`——本 fork 大量用 pandas DataFrame / 第三方数据源（无 type stub）触发的噪音，无价值治理。剩 1,224 多是真问题（`reportMissingImports` 494 / `reportAttributeAccessIssue` 306 等），留独立 change `pyright-handfix-pass-1` 治理。
