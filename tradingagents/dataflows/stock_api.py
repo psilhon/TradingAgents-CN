@@ -117,7 +117,7 @@ def check_data_sources() -> dict[str, Any]:
         'enhanced_fetcher_available': True,  # 这个通常都可用
         'fallback_mode': service.db_manager is None or service.db_manager.mongodb_db is None,
         'recommendation': (
-            "所有数据源正常" if service.db_manager and service.db_manager.mongodb_db 
+            "所有数据源正常" if service.db_manager and service.db_manager.mongodb_db
             else "建议配置MongoDB以获得最佳性能，当前使用统一数据接口降级模式"
         )
     }

@@ -411,7 +411,7 @@ class StockDataCache:
         logger.error(f"❌ 未找到有效的{desc}缓存: {symbol}")
         return None
 
-    def save_news_data(self, symbol: str, news_data: str, 
+    def save_news_data(self, symbol: str, news_data: str,
                       start_date: str = None, end_date: str = None,
                       data_source: str = "unknown") -> str:
         """保存新闻数据到缓存"""

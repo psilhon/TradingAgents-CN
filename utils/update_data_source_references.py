@@ -52,7 +52,7 @@ def main():
 
     # 排除的目录
     exclude_dirs = {
-        ".git", "__pycache__", "env", "venv", ".vscode", 
+        ".git", "__pycache__", "env", "venv", ".vscode",
         "node_modules", ".pytest_cache", "dist", "build"
     }
 

@@ -24,7 +24,7 @@ def simulate_old_strategy():
     # 模拟不同数据深度的历史数据获取
     test_cases = [
         ("basic", 7, "基础分析 - 7天数据"),
-        ("standard", 14, "标准分析 - 14天数据"), 
+        ("standard", 14, "标准分析 - 14天数据"),
         ("full", 21, "完整分析 - 21天数据"),
         ("detailed", 28, "详细分析 - 28天数据"),
         ("comprehensive", 30, "全面分析 - 30天数据")

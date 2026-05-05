@@ -23,8 +23,8 @@ def quick_redis_test(host=None, port=None, password=None):
         # 创建Redis连接
         start_time = time.time()
         r = redis.Redis(
-            host=host, 
-            port=port, 
+            host=host,
+            port=port,
             password=password,
             decode_responses=True,
             socket_connect_timeout=5

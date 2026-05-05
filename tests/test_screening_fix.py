@@ -45,7 +45,7 @@ def test_screening_api():
                 "children": [
                     {
                         "field": "market_cap",
-                        "op": "between", 
+                        "op": "between",
                         "value": [1000000, 50000000]  # 100亿到5000亿（万元）
                     }
                 ]
@@ -105,7 +105,7 @@ def test_screening_api():
             },
             "order_by": [
                 {
-                    "field": "market_cap", 
+                    "field": "market_cap",
                     "direction": "desc"
                 }
             ],

@@ -207,7 +207,7 @@ def create_news_analyst(llm, toolkit):
 
         # 🚨 DashScope/DeepSeek/Zhipu预处理：强制获取新闻数据
         pre_fetched_news = None
-        if ('DashScope' in llm.__class__.__name__ 
+        if ('DashScope' in llm.__class__.__name__
             or 'DeepSeek' in llm.__class__.__name__
             or 'Zhipu' in llm.__class__.__name__
             ):

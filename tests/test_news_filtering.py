@@ -87,7 +87,7 @@ def test_enhanced_news_filter():
 
         # 创建增强过滤器（不使用外部模型依赖）
         enhanced_filter = create_enhanced_news_filter(
-            '600036', 
+            '600036',
             use_semantic=False,  # 暂时不使用语义模型
             use_local_model=False  # 暂时不使用本地模型
         )

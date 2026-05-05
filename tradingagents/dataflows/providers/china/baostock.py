@@ -489,7 +489,7 @@ class BaoStockProvider(BaseStockDataProvider):
         elif code.startswith('0') or code.startswith('3'):
             return {
                 "market_type": "CN",
-                "exchange": "SZSE", 
+                "exchange": "SZSE",
                 "exchange_name": "深圳证券交易所",
                 "currency": "CNY",
                 "timezone": "Asia/Shanghai"
@@ -498,7 +498,7 @@ class BaoStockProvider(BaseStockDataProvider):
             return {
                 "market_type": "CN",
                 "exchange": "BSE",
-                "exchange_name": "北京证券交易所", 
+                "exchange_name": "北京证券交易所",
                 "currency": "CNY",
                 "timezone": "Asia/Shanghai"
             }

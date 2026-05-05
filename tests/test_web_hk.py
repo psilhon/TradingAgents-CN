@@ -161,14 +161,14 @@ def test_market_type_integration():
                 "expected_features": ["港股", "HK$", "香港"]
             },
             {
-                "market_type": "A股", 
+                "market_type": "A股",
                 "symbol": "000001",
                 "currency": "¥",
                 "expected_features": ["A股", "¥", "人民币"]
             },
             {
                 "market_type": "美股",
-                "symbol": "AAPL", 
+                "symbol": "AAPL",
                 "currency": "$",
                 "expected_features": ["美股", "$", "美元"]
             }

@@ -19,7 +19,7 @@ def test_cli_market_selection():
         # 模拟港股市场配置
         hk_market = {
             "name": "港股",
-            "name_en": "Hong Kong Stock", 
+            "name_en": "Hong Kong Stock",
             "default": "0700.HK",
             "examples": ["0700.HK (腾讯)", "9988.HK (阿里巴巴)", "3690.HK (美团)"],
             "format": "代码.HK (如: 0700.HK)",
@@ -31,7 +31,7 @@ def test_cli_market_selection():
         import re
         test_codes = [
             ("0700.HK", True),
-            ("9988.HK", True), 
+            ("9988.HK", True),
             ("3690.HK", True),
             ("700.HK", False),   # 不足4位
             ("07000.HK", False), # 超过4位

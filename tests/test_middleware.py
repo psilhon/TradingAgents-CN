@@ -40,7 +40,7 @@ async def test_middleware():
                 headers = {"Authorization": f"Bearer {token}"}
 
                 logs_response = await client.get(
-                    f"{base_url}/api/system/logs/list", 
+                    f"{base_url}/api/system/logs/list",
                     headers=headers
                 )
                 print(f"获取日志响应状态: {logs_response.status_code}")

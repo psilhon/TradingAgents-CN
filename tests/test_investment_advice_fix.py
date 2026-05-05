@@ -36,7 +36,7 @@ def test_web_components():
             # 应用我们的修复逻辑
             action_translation = {
                 'BUY': '买入',
-                'SELL': '卖出', 
+                'SELL': '卖出',
                 'HOLD': '持有',
                 '买入': '买入',
                 '卖出': '卖出',
@@ -68,7 +68,7 @@ def test_analysis_runner():
         # 模拟analysis_runner的处理逻辑
         test_decisions = [
             "BUY",
-            "SELL", 
+            "SELL",
             "HOLD",
             {"action": "BUY", "confidence": 0.8},
             {"action": "SELL", "confidence": 0.7},
@@ -82,7 +82,7 @@ def test_analysis_runner():
             if isinstance(decision, str):
                 action_translation = {
                     'BUY': '买入',
-                    'SELL': '卖出', 
+                    'SELL': '卖出',
                     'HOLD': '持有',
                     'buy': '买入',
                     'sell': '卖出',
@@ -98,7 +98,7 @@ def test_analysis_runner():
             else:
                 action_translation = {
                     'BUY': '买入',
-                    'SELL': '卖出', 
+                    'SELL': '卖出',
                     'HOLD': '持有',
                     'buy': '买入',
                     'sell': '卖出',

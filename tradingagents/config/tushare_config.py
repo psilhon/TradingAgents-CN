@@ -94,7 +94,7 @@ class TushareConfig:
         """获取环境变量调试信息"""
         env_vars = [
             "TUSHARE_TOKEN",
-            "TUSHARE_ENABLED", 
+            "TUSHARE_ENABLED",
             "DEFAULT_CHINA_DATA_SOURCE",
             "ENABLE_DATA_CACHE"
         ]
@@ -109,7 +109,7 @@ class TushareConfig:
         """测试布尔值解析的兼容性"""
         test_cases = [
             ("true", True),
-            ("True", True), 
+            ("True", True),
             ("TRUE", True),
             ("1", True),
             ("yes", True),

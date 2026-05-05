@@ -44,7 +44,7 @@ def parse_bool_env(env_var: str, default: bool = False) -> bool:
 
     # 真值列表
     true_values = {
-        'true', '1', 'yes', 'on', 'enable', 'enabled', 
+        'true', '1', 'yes', 'on', 'enable', 'enabled',
         't', 'y', 'ok', 'okay'
     }
 
@@ -232,7 +232,7 @@ def get_str_env(env_var: str, default: str = "") -> str:
 # 导出主要函数
 __all__ = [
     'parse_bool_env',
-    'parse_int_env', 
+    'parse_int_env',
     'parse_float_env',
     'parse_str_env',
     'parse_list_env',

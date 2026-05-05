@@ -69,7 +69,7 @@ class IntegratedCacheManager:
         else:
             self.logger.info("📁 使用传统文件缓存系统")
 
-    def save_stock_data(self, symbol: str, data: Any, start_date: str = None, 
+    def save_stock_data(self, symbol: str, data: Any, start_date: str = None,
                        end_date: str = None, data_source: str = "default") -> str:
         """
         保存股票数据到缓存
@@ -121,7 +121,7 @@ class IntegratedCacheManager:
             # 使用传统缓存系统
             return self.legacy_cache.load_stock_data(cache_key)
 
-    def find_cached_stock_data(self, symbol: str, start_date: str = None, 
+    def find_cached_stock_data(self, symbol: str, start_date: str = None,
                               end_date: str = None, data_source: str = "default") -> str | None:
         """
         查找缓存的股票数据

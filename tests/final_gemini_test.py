@@ -84,7 +84,7 @@ def test_recommended_model():
                 # 检查各种报告
                 reports = {
                     "market_report": "市场技术分析",
-                    "fundamentals_report": "基本面分析", 
+                    "fundamentals_report": "基本面分析",
                     "sentiment_report": "情绪分析",
                     "news_report": "新闻分析"
                 }
@@ -127,7 +127,7 @@ def compare_models():
             "推荐": "不推荐（集成问题）"
         },
         "gemini-2.5-flash": {
-            "状态": "❌ LangChain集成问题", 
+            "状态": "❌ LangChain集成问题",
             "优势": "最新版本，速度快",
             "劣势": "LangChain集成不稳定",
             "推荐": "不推荐（集成问题）"

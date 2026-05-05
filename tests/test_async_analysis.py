@@ -43,14 +43,14 @@ async def test_async_analysis():
         print("\n📊 提交分析任务...")
         submit_start = time.time()
 
-        analysis_response = await session.post(f"{base_url}/api/analysis/single", 
+        analysis_response = await session.post(f"{base_url}/api/analysis/single",
                                              json={
                                                  "stock_code": "000001",
                                                  "parameters": {
                                                      "research_depth": 1,  # 快速分析
                                                      "selected_analysts": ["market"]
                                                  }
-                                             }, 
+                                             },
                                              headers=headers)
 
         submit_time = time.time() - submit_start
@@ -83,7 +83,7 @@ async def test_async_analysis():
 
         # 任务状态查询
         status_start = time.time()
-        status_response = await session.get(f"{base_url}/api/analysis/task/{task_id}", 
+        status_response = await session.get(f"{base_url}/api/analysis/task/{task_id}",
                                           headers=headers)
         status_time = time.time() - status_start
         print(f"📋 任务状态查询: {status_response.status} - {status_time:.2f}秒")
@@ -105,7 +105,7 @@ async def test_async_analysis():
         start_wait = time.time()
 
         while time.time() - start_wait < max_wait_time:
-            status_response = await session.get(f"{base_url}/api/analysis/task/{task_id}", 
+            status_response = await session.get(f"{base_url}/api/analysis/task/{task_id}",
                                               headers=headers)
 
             if status_response.status == 200:
@@ -122,7 +122,7 @@ async def test_async_analysis():
             await asyncio.sleep(5)  # 每5秒查询一次
 
         # 6. 获取最终结果
-        final_response = await session.get(f"{base_url}/api/analysis/task/{task_id}", 
+        final_response = await session.get(f"{base_url}/api/analysis/task/{task_id}",
                                          headers=headers)
 
         if final_response.status == 200:
@@ -142,7 +142,7 @@ async def test_async_analysis():
 
         # 7. 测试任务列表
         print("\n📋 测试任务列表...")
-        tasks_response = await session.get(f"{base_url}/api/analysis/tasks", 
+        tasks_response = await session.get(f"{base_url}/api/analysis/tasks",
                                          headers=headers)
 
         if tasks_response.status == 200:

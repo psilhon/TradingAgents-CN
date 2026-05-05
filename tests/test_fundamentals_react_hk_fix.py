@@ -31,7 +31,7 @@ def test_react_fundamentals_hk_config():
         print(f"  港股统一数据调用: {has_hk_unified_call}")
         print(f"  港股信息调用: {has_hk_info_call}")
 
-        if all([has_hk_react_branch, has_hk_stock_data_tool, has_hk_fundamentals_tool, 
+        if all([has_hk_react_branch, has_hk_stock_data_tool, has_hk_fundamentals_tool,
                 has_hk_unified_call, has_hk_info_call]):
             print("  ✅ ReAct模式基本面分析师港股配置正确")
             return True

@@ -149,7 +149,7 @@ def test_time_estimation_scenarios():
             },
             {
                 "analysts": ["market", "fundamentals"],
-                "estimated_time": "8-10分钟", 
+                "estimated_time": "8-10分钟",
                 "description": "两个分析师，包含研究团队协作"
             },
             {
@@ -215,7 +215,7 @@ def test_progress_communication():
         progress_updates = [
             "🔄 启动分析师团队...",
             "✅ 📈 市场分析完成",
-            "✅ 📊 基本面分析完成", 
+            "✅ 📊 基本面分析完成",
             "🔄 🔬 研究团队开始深度分析...",
             "✅ 🔬 研究团队分析完成"
         ]
@@ -233,7 +233,7 @@ def test_progress_communication():
         print("\n策略4: 阶段性里程碑")
         milestones = [
             "25% - 基础分析完成",
-            "50% - 研究团队分析完成", 
+            "50% - 研究团队分析完成",
             "75% - 风险评估完成",
             "100% - 投资决策生成完成"
         ]

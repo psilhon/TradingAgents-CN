@@ -84,7 +84,7 @@ def test_settings_merge():
         # 检查.env中的设置是否正确合并
         env_settings = [
             "finnhub_api_key",
-            "reddit_client_id", 
+            "reddit_client_id",
             "reddit_client_secret",
             "results_dir",
             "log_level"

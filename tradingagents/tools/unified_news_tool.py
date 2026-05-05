@@ -491,7 +491,7 @@ class UnifiedNewsAnalyzer:
                     continue
 
                 # 检查是否包含重要关键词
-                important_keywords = ['股票', '公司', '财报', '业绩', '涨跌', '价格', '市值', '营收', '利润', 
+                important_keywords = ['股票', '公司', '财报', '业绩', '涨跌', '价格', '市值', '营收', '利润',
                                     '增长', '下跌', '上涨', '盈利', '亏损', '投资', '分析', '预期', '公告']
 
                 is_important = any(keyword in line for keyword in important_keywords)

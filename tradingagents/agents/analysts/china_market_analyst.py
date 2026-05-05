@@ -255,7 +255,7 @@ def create_china_stock_screener(llm, toolkit):
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
-                    "system", 
+                    "system",
                     "您是一位专业的股票筛选专家。"
                     " 使用提供的工具分析市场概况。"
                     " 您可以访问以下工具：{tool_names}。\n{system_message}"

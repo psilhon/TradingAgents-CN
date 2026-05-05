@@ -305,7 +305,7 @@ def main():
     parser.add_argument("--port", type=int, default=6379, help="Redis端口")
     parser.add_argument("--password", help="Redis密码")
     parser.add_argument("--db", type=int, default=0, help="Redis数据库编号")
-    parser.add_argument("--test", choices=['latency', 'throughput', 'concurrent', 'memory', 'all'], 
+    parser.add_argument("--test", choices=['latency', 'throughput', 'concurrent', 'memory', 'all'],
                        default='all', help="测试类型")
     parser.add_argument("--output", help="结果输出文件(JSON格式)")
 
