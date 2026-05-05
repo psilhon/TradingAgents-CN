@@ -3,8 +3,6 @@
 测试增强的分析历史功能
 """
 
-import json
-import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -77,7 +75,6 @@ def test_chart_functions():
     """测试图表功能"""
     try:
         import pandas as pd
-        from web.components.analysis_results import render_comprehensive_dashboard, render_time_distribution_charts
 
         print("🔍 测试图表功能...")
 

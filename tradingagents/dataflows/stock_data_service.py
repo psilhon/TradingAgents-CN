@@ -6,10 +6,9 @@
 """
 
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import datetime
+from typing import Any, Dict, Optional
 
-import pandas as pd
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

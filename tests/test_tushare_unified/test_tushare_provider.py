@@ -1,7 +1,6 @@
 """
 测试统一的TushareProvider
 """
-import asyncio
 from datetime import date, datetime
 from unittest.mock import AsyncMock, Mock, patch
 

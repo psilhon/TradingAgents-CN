@@ -6,7 +6,6 @@ import sys
 from datetime import datetime
 
 import akshare as ak
-import pandas as pd
 
 # 设置输出编码
 sys.stdout.reconfigure(encoding='utf-8')

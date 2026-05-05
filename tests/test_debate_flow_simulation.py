@@ -4,7 +4,6 @@
 """
 import pytest
 
-from tradingagents.agents.utils.agent_states import AgentState, InvestDebateState, RiskDebateState
 from tradingagents.graph.conditional_logic import ConditionalLogic
 
 

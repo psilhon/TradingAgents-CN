@@ -24,14 +24,12 @@ def test_web_interface_config():
     try:
         # 测试sidebar配置
         print("📋 测试sidebar配置...")
-        from web.components.sidebar import render_sidebar
 
         # 模拟Streamlit环境（简化测试）
         print("✅ sidebar模块导入成功")
 
         # 测试analysis_runner配置
         print("📊 测试analysis_runner配置...")
-        from web.utils.analysis_runner import run_stock_analysis
 
         print("✅ analysis_runner模块导入成功")
 

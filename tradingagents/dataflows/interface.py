@@ -15,7 +15,6 @@ from tradingagents.utils.logging_init import setup_dataflow_logging
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-from .news.chinese_finance import get_chinese_social_sentiment
 from .news.google_news import *
 
 # 导入 Finnhub 工具（支持新旧路径）
@@ -182,9 +181,7 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ stockstats工具不可用: {e}")
     STOCKSTATS_AVAILABLE = False
-import json
 import os
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 import pandas as pd

@@ -7,10 +7,9 @@
 
 import os
 import sys
-import time
 import unittest
 from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -18,8 +17,7 @@ import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # 导入需要测试的模块
-from tradingagents.dataflows.akshare_utils import get_stock_news_em
-from tradingagents.dataflows.googlenews_utils import getNewsData, make_request
+from tradingagents.dataflows.googlenews_utils import make_request
 
 from tradingagents.dataflows.realtime_news_utils import get_realtime_stock_news
 

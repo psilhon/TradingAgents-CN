@@ -13,7 +13,7 @@ import json
 import os
 import re
 import warnings
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional

@@ -3,11 +3,8 @@
 配置管理功能测试
 """
 
-import os
-import shutil
 import sys
 import tempfile
-from datetime import datetime
 from pathlib import Path
 
 # 添加项目根目录到Python路径

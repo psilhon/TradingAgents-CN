@@ -7,9 +7,8 @@ MongoDB + Redis 数据库缓存管理器
 import hashlib
 import json
 import os
-import pickle
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 from zoneinfo import ZoneInfo
 
 import pandas as pd

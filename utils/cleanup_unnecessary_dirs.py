@@ -4,7 +4,6 @@
 移除自动生成的文件和临时输出
 """
 
-import os
 import shutil
 from pathlib import Path
 

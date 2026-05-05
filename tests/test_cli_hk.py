@@ -15,7 +15,6 @@ def test_cli_market_selection():
 
     try:
         # 导入CLI相关模块
-        from cli.main import get_ticker, select_market
 
         # 模拟港股市场配置
         hk_market = {

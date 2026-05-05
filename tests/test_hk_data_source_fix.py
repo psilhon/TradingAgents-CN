@@ -44,7 +44,6 @@ def test_market_analyst_tools():
     print("\n🧪 测试市场分析师工具配置...")
 
     try:
-        from tradingagents.agents.analysts.market_analyst import create_market_analyst
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
         from tradingagents.utils.stock_utils import StockUtils
@@ -95,7 +94,6 @@ def test_akshare_hk_availability():
             print("  ✅ AKShare港股数据源可用")
 
             # 测试AKShare港股函数
-            from tradingagents.dataflows.akshare_utils import get_hk_stock_data_akshare
             print("  ✅ AKShare港股函数导入成功")
 
         else:
@@ -107,7 +105,6 @@ def test_akshare_hk_availability():
             print("  ⚠️ Yahoo Finance港股数据源不可用")
 
         # 测试统一接口
-        from tradingagents.dataflows.interface import get_hk_stock_data_unified
         print("  ✅ 港股统一接口导入成功")
 
         return True
@@ -125,7 +122,6 @@ def test_data_source_priority():
     try:
         from datetime import datetime, timedelta
 
-        from tradingagents.dataflows.interface import get_hk_stock_data_unified
 
         # 设置测试日期
         end_date = datetime.now().strftime('%Y-%m-%d')

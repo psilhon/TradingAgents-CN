@@ -3,7 +3,6 @@
 测试DataFrame Arrow转换修复
 """
 
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -15,7 +14,6 @@ sys.path.insert(0, str(project_root))
 def test_safe_dataframe():
     """测试安全DataFrame函数"""
     try:
-        import pandas as pd
         from web.components.analysis_results import safe_dataframe
 
         print("🔍 测试安全DataFrame函数...")

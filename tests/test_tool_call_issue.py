@@ -7,7 +7,6 @@
 import logging
 import os
 import sys
-from datetime import datetime
 
 # 添加项目路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -35,7 +34,6 @@ def test_tool_call_mechanism():
         # 1. 导入必要模块
         logger.info("1. 导入模块...")
         from langchain_core.messages import HumanMessage
-        from langchain_core.tools import tool
         from tradingagents.utils.realtime_news_utils import get_realtime_stock_news
 
         from tradingagents.agents.utils.agent_utils import Toolkit

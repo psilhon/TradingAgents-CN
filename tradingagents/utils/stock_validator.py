@@ -6,7 +6,7 @@
 
 import re
 from datetime import datetime, timedelta
-from typing import Dict, Optional, Tuple
+from typing import Dict
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

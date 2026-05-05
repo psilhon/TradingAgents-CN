@@ -3,7 +3,6 @@
 简单的系统测试 - 验证配置和缓存系统
 """
 
-import os
 import sys
 from pathlib import Path
 

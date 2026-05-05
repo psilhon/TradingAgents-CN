@@ -2,7 +2,6 @@
 调试Web界面显示"True"的问题
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -94,7 +93,7 @@ def test_analysis_runner_import():
     print("\n🧪 测试分析运行器导入...")
 
     try:
-        from web.utils.analysis_runner import format_analysis_results, run_stock_analysis, validate_analysis_params
+        from web.utils.analysis_runner import run_stock_analysis, validate_analysis_params
         print("  ✅ 分析运行器导入成功")
 
         # 测试函数签名
@@ -120,8 +119,6 @@ def test_streamlit_components():
 
     try:
         # 测试组件导入
-        from web.components.analysis_form import render_analysis_form
-        from web.components.results_display import render_results
 
         print("  ✅ Streamlit组件导入成功")
 

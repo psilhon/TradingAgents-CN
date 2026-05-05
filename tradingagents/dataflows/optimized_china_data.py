@@ -4,10 +4,9 @@
 集成缓存策略和Tushare数据接口，提高数据获取效率
 """
 
-import os
 import random
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, Optional
 from zoneinfo import ZoneInfo
 
@@ -22,7 +21,7 @@ from .cache import get_cache
 logger = get_logger('agents')
 
 # 导入 MongoDB 缓存适配器
-from .cache.mongodb_cache_adapter import get_financial_data_with_fallback, get_mongodb_cache_adapter, get_stock_data_with_fallback
+from .cache.mongodb_cache_adapter import get_mongodb_cache_adapter
 
 
 class OptimizedChinaDataProvider:

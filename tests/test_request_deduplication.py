@@ -3,7 +3,6 @@
 验证并发请求不会导致重复的API调用
 """
 import asyncio
-from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 

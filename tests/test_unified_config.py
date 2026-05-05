@@ -3,7 +3,6 @@
 测试配置统一
 """
 
-import os
 import sys
 from pathlib import Path
 

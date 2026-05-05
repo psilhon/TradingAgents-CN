@@ -4,16 +4,10 @@
 由于微博API申请困难且功能受限，采用多源数据聚合的方式
 """
 
-import json
-import random
-import re
-import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional
 
-import pandas as pd
 import requests
-from bs4 import BeautifulSoup
 
 
 class ChineseFinanceDataAggregator:

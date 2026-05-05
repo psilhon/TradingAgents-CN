@@ -4,7 +4,6 @@
 """
 
 import os
-import sys
 import traceback
 from datetime import datetime
 
@@ -44,7 +43,7 @@ print("\n📦 测试模块导入...")
 
 # 测试缓存管理器
 try:
-    from tradingagents.dataflows.cache_manager import StockDataCache, get_cache
+    from tradingagents.dataflows.cache_manager import get_cache
     print("✅ cache_manager 导入成功")
 
     # 创建缓存实例

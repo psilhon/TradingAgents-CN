@@ -46,7 +46,7 @@ def test_fallback_priority():
     print("=" * 60)
 
     try:
-        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
+        from tradingagents.dataflows.data_source_manager import DataSourceManager
 
         manager = DataSourceManager()
 
@@ -95,7 +95,7 @@ def test_environment_variable_override():
         import importlib
 
         import tradingagents.dataflows.data_source_manager as dsm
-        from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
+        from tradingagents.dataflows.data_source_manager import ChinaDataSource
         importlib.reload(dsm)
 
         manager = dsm.DataSourceManager()

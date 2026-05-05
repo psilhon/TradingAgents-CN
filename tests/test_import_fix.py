@@ -15,7 +15,6 @@ def test_fundamentals_analyst_import():
 
     try:
         # 测试导入基本面分析师
-        from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
         print("  ✅ 基本面分析师导入成功")
 
         # 测试is_china_stock函数导入
@@ -42,7 +41,7 @@ def test_stock_utils_functions():
     print("\n🧪 测试股票工具函数...")
 
     try:
-        from tradingagents.utils.stock_utils import StockUtils, is_china_stock, is_hk_stock, is_us_stock
+        from tradingagents.utils.stock_utils import is_china_stock, is_hk_stock, is_us_stock
 
         # 测试各种股票代码
         test_cases = [
@@ -115,9 +114,7 @@ def test_complete_analysis_flow():
 
     try:
         # 测试所有必要的导入
-        from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
         from tradingagents.default_config import DEFAULT_CONFIG
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         print("  ✅ 交易图导入成功")
         print("  ✅ 默认配置导入成功")

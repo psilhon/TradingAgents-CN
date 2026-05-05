@@ -125,7 +125,6 @@ def test_tradingagents_with_new_apis():
         print("=" * 50)
 
         # 检查TradingAgents是否支持这些API
-        from tradingagents.dataflows import interface
 
         # 检查可用的数据流工具
         print("📊 检查可用的数据获取工具:")
@@ -157,7 +156,6 @@ def test_social_media_analyst():
         print("=" * 50)
 
         # 检查社交媒体分析师
-        from tradingagents.agents.analysts.social_media_analyst import create_social_media_analyst
         from tradingagents.llm_adapters import ChatDashScope
 
         # 创建模型实例

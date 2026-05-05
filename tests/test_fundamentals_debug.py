@@ -3,7 +3,6 @@
 调试基本面分析师的工具选择问题
 """
 
-import os
 import sys
 
 
@@ -15,7 +14,6 @@ def test_fundamentals_analyst_directly():
         from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
-        from tradingagents.llm_adapters.dashscope_openai_adapter import ChatDashScopeOpenAI
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

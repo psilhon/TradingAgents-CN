@@ -4,7 +4,6 @@ import os
 import re
 import subprocess
 import sys
-import time
 from collections import deque
 from difflib import get_close_matches
 from functools import wraps
@@ -27,7 +26,6 @@ from rich.table import Table
 from rich.text import Text
 
 # 项目内部导入
-from cli.models import AnalystType
 from cli.utils import (
     normalize_ticker_symbol,
     select_analysts,

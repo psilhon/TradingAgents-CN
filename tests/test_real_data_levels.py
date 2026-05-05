@@ -4,7 +4,6 @@
 实际调用 get_stock_fundamentals_unified 函数，验证不同级别下的数据获取差异
 """
 
-import json
 import os
 import sys
 from datetime import datetime, timedelta

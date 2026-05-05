@@ -139,7 +139,6 @@ def analyze_yfinance_issue():
 
     try:
         # 检查yfinance是否可以独立导入
-        import yfinance as yf
         print("✅ yfinance可以独立导入")
         return True
     except Exception as e:
@@ -147,14 +146,12 @@ def analyze_yfinance_issue():
 
         # 检查curl_cffi
         try:
-            import curl_cffi
             print("✅ curl_cffi可以导入")
         except Exception as e2:
             print(f"❌ curl_cffi导入失败: {e2}")
 
         # 检查cffi
         try:
-            import cffi
             print("✅ cffi可以导入")
         except Exception as e3:
             print(f"❌ cffi导入失败: {e3}")

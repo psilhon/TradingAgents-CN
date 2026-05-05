@@ -3,7 +3,6 @@
 测试API返回的数据格式
 """
 
-import json
 import time
 
 import requests

@@ -17,7 +17,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from tradingagents.dataflows.config import get_config, set_config
+from tradingagents.dataflows.config import get_config
 from tradingagents.dataflows.finnhub_utils import get_data_in_range
 
 from tradingagents.dataflows.interface import get_finnhub_news

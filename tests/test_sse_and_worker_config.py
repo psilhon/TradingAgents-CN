@@ -10,7 +10,7 @@ These tests avoid touching real DB/Redis by mocking.
 import asyncio
 
 from app.routers.auth import get_current_user
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 # Import router and dependencies to override

@@ -3,7 +3,6 @@
 测试房地产相关的API调用
 """
 
-import json
 
 import requests
 

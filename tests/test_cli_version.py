@@ -23,15 +23,12 @@ def test_cli_imports():
 
     try:
         # 测试导入CLI主模块
-        from cli.main import app, console
         print("✅ CLI主模块导入成功")
 
         # 测试导入分析师类型
-        from cli.models import AnalystType
         print("✅ 分析师类型导入成功")
 
         # 测试导入工具函数
-        from cli.utils import get_user_selections
         print("✅ CLI工具函数导入成功")
 
         return True

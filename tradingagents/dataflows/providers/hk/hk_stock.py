@@ -3,7 +3,6 @@
 提供港股数据的获取、处理和缓存功能
 """
 
-import os
 import time
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional

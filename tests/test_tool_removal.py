@@ -77,7 +77,6 @@ def test_fundamentals_analyst_tool_selection():
     print("\n🔧 测试基本面分析师工具选择...")
 
     try:
-        from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
 
@@ -135,7 +134,6 @@ def test_market_analyst_tool_selection():
     print("\n🔧 测试市场分析师工具选择...")
 
     try:
-        from tradingagents.agents.analysts.market_analyst import create_market_analyst
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
         from tradingagents.utils.stock_utils import StockUtils

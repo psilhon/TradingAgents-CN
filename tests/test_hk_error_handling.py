@@ -4,7 +4,6 @@
 验证在部分数据获取失败时的优雅降级处理
 """
 
-import os
 import sys
 
 

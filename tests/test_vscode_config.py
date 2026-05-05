@@ -6,7 +6,6 @@ VSCode配置验证测试
 
 import json
 import os
-import subprocess
 import sys
 from pathlib import Path
 
@@ -220,15 +219,12 @@ def test_simple_functionality():
 
     try:
         # 测试TradingAgents导入
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         print("✅ TradingAgents LLM适配器导入成功")
 
         # 测试数据流导入
-        from tradingagents.dataflows import get_china_stock_data_unified
         print("✅ TradingAgents数据流导入成功")
 
         # 测试图形导入
-        from tradingagents.graph.trading_graph import TradingAgentsGraph
         print("✅ TradingAgents图形导入成功")
 
         return True

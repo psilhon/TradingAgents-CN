@@ -9,7 +9,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import asyncio
 import logging
-from datetime import datetime
 
 # 设置日志
 logging.basicConfig(

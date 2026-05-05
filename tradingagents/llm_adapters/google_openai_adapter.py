@@ -5,13 +5,11 @@ Google AI OpenAI兼容适配器
 """
 
 import os
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional
 
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.outputs import LLMResult
-from langchain_core.tools import BaseTool
 from langchain_google_genai import ChatGoogleGenerativeAI
-from pydantic import Field, SecretStr
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

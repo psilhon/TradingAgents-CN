@@ -3,7 +3,6 @@
 测试优化后的目标价生成系统
 """
 
-import os
 import sys
 from pathlib import Path
 

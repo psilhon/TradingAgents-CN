@@ -5,7 +5,7 @@
 
 import re
 from enum import Enum
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger

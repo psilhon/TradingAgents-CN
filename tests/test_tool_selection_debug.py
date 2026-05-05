@@ -3,7 +3,6 @@
 调试工具选择问题 - 检查LLM实际看到的工具列表
 """
 
-import os
 import sys
 
 
@@ -12,10 +11,8 @@ def test_llm_tool_binding():
     print("🔧 测试LLM工具绑定...")
 
     try:
-        from tradingagents.agents.analysts.fundamentals_analyst import create_fundamentals_analyst
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
-        from tradingagents.llm_adapters.dashscope_openai_adapter import ChatDashScopeOpenAI
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()

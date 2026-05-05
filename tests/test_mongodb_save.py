@@ -3,7 +3,6 @@
 测试MongoDB保存功能
 """
 
-import json
 import time
 
 import requests

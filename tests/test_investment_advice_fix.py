@@ -3,7 +3,6 @@
 测试投资建议中文化修复
 """
 
-import os
 import sys
 from pathlib import Path
 

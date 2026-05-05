@@ -71,7 +71,6 @@ def test_tushare_direct():
 
     try:
         # 设置日志级别
-        from tradingagents.utils.logging_init import get_logger
         logger.setLevel("INFO")
 
         print("\n🔧 测试Tushare接口...")
@@ -120,7 +119,6 @@ def test_tushare_provider():
 
     try:
         # 设置日志级别
-        from tradingagents.utils.logging_init import get_logger
         logger.setLevel("INFO")
 
         print("\n🔧 测试Tushare提供器...")
