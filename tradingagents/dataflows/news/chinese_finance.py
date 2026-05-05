@@ -141,20 +141,10 @@ class ChineseFinanceDataAggregator:
             return {"error": str(e), "sentiment_score": 0, "confidence": 0}
 
     def _search_finance_news(self, search_term: str, days: int) -> list[dict]:
-        """搜索财经新闻 (示例实现)"""
-        # 这里可以集成多个新闻源的API或RSS
-        # 例如：财联社、新浪财经、东方财富等
-
-        # 模拟返回数据结构
-        return [
-            {
-                "title": f"{search_term}相关财经新闻标题",
-                "content": "新闻内容摘要...",
-                "source": "财联社",
-                "publish_time": datetime.now().isoformat(),
-                "url": "https://example.com/news/1",
-            }
-        ]
+        # TODO: 接入真实财经新闻源（财联社 / 新浪财经 / 东方财富）。
+        # 在接入前返回空列表——OpenSpec spec dataflow-integrity 禁止返回 hardcoded 假新闻给 LLM。
+        # 调用方 analyze_news_sentiment 已能正确处理空列表（sentiment 为 0）。
+        return []
 
     def _get_media_coverage(self, ticker: str, days: int) -> list[dict]:
         """获取媒体报道 (示例实现)"""

@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **🚨 critical 删除假数据 fallback 污染 LLM 决策链**（OpenSpec change `remove-fake-data-fallback`）：v1.1.0 review 发现数据源失败时 dataflows 返回**伪造业务数据**给 agent——`optimized_china_data.py` 用 `random.uniform(10, 50)` 假 A 股股价、`providers/us/optimized.py` 用 `random.uniform(100, 300)` 假美股股价（audit 漏抓本 change 一并修）、`chinese_finance.py` 用 hardcoded `f"{term}相关财经新闻标题"` 假新闻流入 sentiment 分析。模型无法区分降级 vs 真实信号——直接污染交易决策。本 change 删 3 个 `_generate_fallback_*` 方法，替换为 `_render_data_unavailable` / 返回 `[]`：仅返回明确"数据不可用"标识，无任何业务数字字段。新建 spec `dataflow-integrity` 锁定铁律 ⨯ 3 scenario。
+
 ### Changed
 
 - **CLAUDE.md 漂移修正**（OpenSpec change `claude-md-doc-drift`）：6 处与现状不符内容修正——版本号 `1.0.0-preview → 1.1.0`、阶段从"Phase 0 完成"更新为"v1.1.0 已发布，持续维护期"、删除不存在的 `docker-compose.hub.nginx.{,arm.}yml` 变体描述、删除已废弃 streamlit / chainlit 残留段、pre-commit 模式 `WARN-ONLY → STRICT`。spec `audit-tooling` 加 requirement "CLAUDE.md 必须反映项目当前状态"。
