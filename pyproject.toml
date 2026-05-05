@@ -103,13 +103,15 @@ exclude = ["tests*", "docs*", "scripts*", "data*", "logs*", "reports*", "results
 # ==================================================================================
 
 [tool.ruff]
-line-length = 100
+line-length = 140
 target-version = "py310"
 exclude = ["app", "frontend", "scripts", ".venv"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "RUF"]
 # E/W: pycodestyle, F: pyflakes, I: isort, B: bugbear, UP: pyupgrade, RUF: ruff-specific
+# 中文项目放行：全角字符在变量/字符串/docstring/注释中是常态，非代码质量问题
+ignore = ["RUF001", "RUF002", "RUF003"]
 
 [tool.ruff.format]
 quote-style = "double"
