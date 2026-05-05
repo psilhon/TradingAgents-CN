@@ -259,38 +259,28 @@ class ImprovedHKStockProvider:
 
                 self.last_request_time = time.time()
 
-                # 优先尝试AKShare获取
+                # 优先 AKShare 单股 profile API（OpenSpec spec: dataflow-performance）
+                # 历史版本拉全 HK 市场 stock_hk_spot() 已删除——单股查询走单股 API
                 try:
-                    # 直接使用 akshare 库获取，避免循环调用
-                    logger.debug(f"📊 [港股API] 优先使用AKShare获取: {symbol}")
-
                     import akshare as ak
 
-                    # 标准化代码格式（akshare 需要 5 位数字格式）
                     normalized_symbol = self._normalize_hk_symbol(symbol)
 
-                    # 尝试获取港股实时行情（包含名称）
-                    try:
-                        # 使用新浪财经接口（更稳定）
-                        df = ak.stock_hk_spot()
-                        if df is not None and not df.empty:
-                            # 查找匹配的股票
-                            matched = df[df["代码"] == normalized_symbol]
-                            if not matched.empty:
-                                # 新浪接口返回的列名是 '中文名称'
-                                akshare_name = matched.iloc[0]["中文名称"]
-                                if akshare_name and not str(akshare_name).startswith("港股"):
-                                    # 缓存AKShare结果
-                                    self.cache[cache_key] = {"data": akshare_name, "timestamp": time.time(), "source": "akshare_sina"}
-                                    self._save_cache()
-
-                                    logger.debug(f"📊 [港股AKShare-新浪] 获取公司名称: {symbol} -> {akshare_name}")
-                                    return akshare_name
-                    except Exception as e:
-                        logger.debug(f"📊 [港股AKShare-新浪] 获取实时行情失败: {e}")
-
+                    profile_df = ak.stock_hk_security_profile_em(symbol=normalized_symbol)
+                    if profile_df is not None and not profile_df.empty:
+                        akshare_name = profile_df.iloc[0].get("证券简称")
+                        if akshare_name and not str(akshare_name).startswith("港股"):
+                            akshare_name = str(akshare_name)
+                            self.cache[cache_key] = {
+                                "data": akshare_name,
+                                "timestamp": time.time(),
+                                "source": "akshare_profile",
+                            }
+                            self._save_cache()
+                            logger.debug(f"📊 [港股 AKShare profile] 获取公司名称: {symbol} -> {akshare_name}")
+                            return akshare_name
                 except Exception as e:
-                    logger.debug(f"📊 [港股AKShare] AKShare获取失败: {e}")
+                    logger.debug(f"📊 [港股 AKShare profile] 获取失败: {e}")
 
                 # 备用：尝试从统一接口获取（包含Yahoo Finance）
                 from tradingagents.dataflows.interface import get_hk_stock_info_unified
@@ -701,130 +691,93 @@ import threading  # noqa: E402
 _akshare_hk_spot_lock = threading.Lock()
 
 
+def _safe_float(value: Any) -> float | None:
+    try:
+        if value is None or value == "" or (isinstance(value, float) and value != value):
+            return None
+        return float(value)
+    except Exception:
+        return None
+
+
+def _safe_int(value: Any) -> int | None:
+    try:
+        if value is None or value == "" or (isinstance(value, float) and value != value):
+            return None
+        return int(value)
+    except Exception:
+        return None
+
+
 def get_hk_stock_info_akshare(symbol: str) -> dict[str, Any]:
-    """
-    兼容性函数：直接使用 akshare 获取港股信息（避免循环调用）
-    🔥 使用全局缓存 + 线程锁，避免重复调用 ak.stock_hk_spot()
+    """获取港股信息（OpenSpec spec: dataflow-performance）
 
-    Args:
-        symbol: 港股代码
+    主路径：``stock_hk_security_profile_em(symbol)`` 取公司名 + 板块 + 上市信息
+    + ``stock_hk_hist(symbol, period="daily")`` 取最近一日 K 线得 price/change/volume。
 
-    Returns:
-        Dict: 港股信息
+    历史的 ``ak.stock_hk_spot()`` 全市场拉取（~3000 行 + threading.Lock 60s timeout
+    阻塞 event loop）已删除——单股查询走单股 API 即可。
     """
     try:
-        from datetime import datetime
-
         import akshare as ak
 
-        # 标准化代码
         provider = get_improved_hk_provider()
         normalized_symbol = provider._normalize_hk_symbol(symbol)
 
-        # 尝试从 akshare 获取实时行情
-        try:
-            # 🔥 使用互斥锁保护 AKShare API 调用（防止并发导致被封禁）
-            # 策略：
-            # 1. 尝试获取锁（最多等待 60 秒）
-            # 2. 获取锁后，先检查缓存是否已被其他线程更新
-            # 3. 如果缓存有效，直接使用；否则调用 API
-
-            thread_id = threading.current_thread().name
-            logger.info(f"🔒 [AKShare锁-{thread_id}] 尝试获取锁...")
-
-            # 尝试获取锁，最多等待 60 秒
-            lock_acquired = _akshare_hk_spot_lock.acquire(timeout=60)
-
-            if not lock_acquired:
-                # 超时，返回错误
-                logger.error(f"⏰ [AKShare锁-{thread_id}] 获取锁超时（60秒），放弃")
-                raise Exception("AKShare API 调用超时（其他线程占用）")
-
-            try:
-                logger.info(f"✅ [AKShare锁-{thread_id}] 已获取锁")
-
-                # 获取锁后，检查缓存是否已被其他线程更新
-                now = datetime.now()
-                cache = _akshare_hk_spot_cache
-
-                if cache["data"] is not None and cache["timestamp"] is not None:
-                    elapsed = (now - cache["timestamp"]).total_seconds()
-                    if elapsed <= cache["ttl"]:
-                        # 缓存有效（可能是其他线程刚更新的）
-                        logger.info(f"⚡ [AKShare缓存-{thread_id}] 使用缓存数据（{elapsed:.1f}秒前，可能由其他线程更新）")
-                        df = cache["data"]
-                    else:
-                        # 缓存过期，需要调用 API
-                        logger.info(f"🔄 [AKShare缓存-{thread_id}] 缓存过期（{elapsed:.1f}秒前），调用 API 刷新")
-                        df = ak.stock_hk_spot()
-                        cache["data"] = df
-                        cache["timestamp"] = now
-                        logger.info(f"✅ [AKShare缓存-{thread_id}] 已缓存 {len(df)} 只港股数据")
-                else:
-                    # 缓存为空，首次调用
-                    logger.info(f"🔄 [AKShare缓存-{thread_id}] 首次获取港股数据")
-                    df = ak.stock_hk_spot()
-                    cache["data"] = df
-                    cache["timestamp"] = now
-                    logger.info(f"✅ [AKShare缓存-{thread_id}] 已缓存 {len(df)} 只港股数据")
-
-            finally:
-                # 释放锁
-                _akshare_hk_spot_lock.release()
-                logger.info(f"🔓 [AKShare锁-{thread_id}] 已释放锁")
-
-            # 从缓存的数据中查找目标股票
-            if df is not None and not df.empty:
-                matched = df[df["代码"] == normalized_symbol]
-                if not matched.empty:
-                    row = matched.iloc[0]
-
-                    # 辅助函数：安全转换数值
-                    def safe_float(value):
-                        try:
-                            if value is None or value == "" or (isinstance(value, float) and value != value):  # NaN check
-                                return None
-                            return float(value)
-                        except Exception:
-                            return None
-
-                    def safe_int(value):
-                        try:
-                            if value is None or value == "" or (isinstance(value, float) and value != value):  # NaN check
-                                return None
-                            return int(value)
-                        except Exception:
-                            return None
-
-                    return {
-                        "symbol": symbol,
-                        "name": row["中文名称"],  # 新浪接口的列名
-                        "price": safe_float(row.get("最新价")),
-                        "open": safe_float(row.get("今开")),
-                        "high": safe_float(row.get("最高")),
-                        "low": safe_float(row.get("最低")),
-                        "volume": safe_int(row.get("成交量")),
-                        "change_percent": safe_float(row.get("涨跌幅")),
-                        "currency": "HKD",
-                        "exchange": "HKG",
-                        "market": "港股",
-                        "source": "akshare_sina",
-                    }
-        except Exception as e:
-            logger.debug(f"📊 [港股AKShare-新浪] 获取失败: {e}")
-
-        # 如果失败，返回基本信息
-        return {
+        result: dict[str, Any] = {
             "symbol": symbol,
-            "name": f"港股{normalized_symbol}",
             "currency": "HKD",
             "exchange": "HKG",
             "market": "港股",
-            "source": "akshare_fallback",
         }
 
+        # 1) profile 取名字 + 板块（单股 API，1KB）
+        try:
+            profile_df = ak.stock_hk_security_profile_em(symbol=normalized_symbol)
+            if profile_df is not None and not profile_df.empty:
+                row = profile_df.iloc[0]
+                name = row.get("证券简称")
+                if name:
+                    result["name"] = str(name)
+                board = row.get("板块")
+                if board:
+                    result["board"] = str(board)
+        except Exception as e:
+            logger.debug(f"📊 [港股 profile] 获取失败 {symbol}: {e}")
+
+        # 2) hist 取最近一日 K 线（单股 API）—— 含 price/open/high/low/volume/amount/pct_chg
+        try:
+            hist_df = ak.stock_hk_hist(symbol=normalized_symbol, period="daily", adjust="")
+            if hist_df is not None and not hist_df.empty:
+                latest = hist_df.iloc[-1]
+                result.update(
+                    {
+                        "price": _safe_float(latest.get("收盘")),
+                        "open": _safe_float(latest.get("开盘")),
+                        "high": _safe_float(latest.get("最高")),
+                        "low": _safe_float(latest.get("最低")),
+                        "volume": _safe_int(latest.get("成交量")),
+                        "amount": _safe_float(latest.get("成交额")),
+                        "change_percent": _safe_float(latest.get("涨跌幅")),
+                        "turnover_rate": _safe_float(latest.get("换手率")),
+                    }
+                )
+                # 昨收：从倒数第 2 行取（hist 至少 2 行才有意义）
+                if len(hist_df) >= 2:
+                    result["pre_close"] = _safe_float(hist_df.iloc[-2].get("收盘"))
+        except Exception as e:
+            logger.debug(f"📊 [港股 hist] 获取失败 {symbol}: {e}")
+
+        # 命名兜底
+        if "name" not in result:
+            result["name"] = f"港股{normalized_symbol}"
+
+        # source 标识：成功取到 price 走单股 API；否则 fallback
+        result["source"] = "akshare_single_stock" if "price" in result else "akshare_fallback"
+        return result
+
     except Exception as e:
-        logger.error(f"❌ [港股AKShare-新浪] 获取信息失败: {e}")
+        logger.error(f"❌ [港股 AKShare 单股] 获取失败 {symbol}: {e}")
         return {
             "symbol": symbol,
             "name": f"港股{symbol}",
