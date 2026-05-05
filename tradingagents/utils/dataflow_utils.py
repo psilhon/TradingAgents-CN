@@ -19,7 +19,7 @@ SavePathType = Annotated[str, "File path to save data. If None, data is not save
 def save_output(data: pd.DataFrame, tag: str, save_path: SavePathType = None) -> None:
     """
     保存 DataFrame 到 CSV 文件
-    
+
     Args:
         data: 要保存的 DataFrame
         tag: 标签（用于日志）
@@ -33,7 +33,7 @@ def save_output(data: pd.DataFrame, tag: str, save_path: SavePathType = None) ->
 def get_current_date():
     """
     获取当前日期（YYYY-MM-DD 格式）
-    
+
     Returns:
         str: 当前日期字符串
     """
@@ -43,13 +43,13 @@ def get_current_date():
 def decorate_all_methods(decorator):
     """
     类装饰器：为类的所有方法应用指定的装饰器
-    
+
     Args:
         decorator: 要应用的装饰器函数
-        
+
     Returns:
         function: 类装饰器函数
-        
+
     Example:
         >>> @decorate_all_methods(my_decorator)
         >>> class MyClass:

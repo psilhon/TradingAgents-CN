@@ -34,7 +34,7 @@ class GoogleToolCallHandler:
     ) -> tuple[str, list[Any]]:
         """
         统一处理Google模型的工具调用
-        
+
         Args:
             result: LLM的第一次调用结果
             llm: 语言模型实例
@@ -42,7 +42,7 @@ class GoogleToolCallHandler:
             state: 当前状态
             analysis_prompt_template: 分析提示词模板
             analyst_name: 分析师名称
-            
+
         Returns:
             Tuple[str, List[Any]]: (分析报告, 消息列表)
         """
@@ -473,12 +473,12 @@ class GoogleToolCallHandler:
     ) -> str:
         """
         处理简单的Google模型响应（无工具调用）
-        
+
         Args:
             result: LLM调用结果
             llm: 语言模型实例
             analyst_name: 分析师名称
-            
+
         Returns:
             str: 分析报告
         """
@@ -499,12 +499,12 @@ class GoogleToolCallHandler:
     def generate_final_analysis_report(llm, messages: list, analyst_name: str) -> str:
         """
         生成最终分析报告 - 增强版，支持重试和模型切换
-        
+
         Args:
             llm: LLM实例
             messages: 消息列表
             analyst_name: 分析师名称
-            
+
         Returns:
             str: 分析报告
         """
@@ -536,13 +536,13 @@ class GoogleToolCallHandler:
                 if attempt == 0:
                     analysis_prompt = f"""
                     基于以上工具调用的结果，请为{analyst_name}生成一份详细的分析报告。
-                    
+
                     要求：
                     1. 综合分析所有工具返回的数据
                     2. 提供清晰的投资建议和风险评估
                     3. 报告应该结构化且易于理解
                     4. 包含具体的数据支撑和分析逻辑
-                    
+
                     请生成完整的分析报告：
                     """
                 elif attempt == 1:
@@ -631,11 +631,11 @@ class GoogleToolCallHandler:
     def _optimize_message_sequence(messages: list, analysis_prompt: str) -> list:
         """
         优化消息序列，确保在合理长度内
-        
+
         Args:
             messages: 原始消息列表
             analysis_prompt: 分析提示
-            
+
         Returns:
             List: 优化后的消息列表
         """
@@ -684,11 +684,11 @@ class GoogleToolCallHandler:
     def _generate_fallback_report(messages: list, analyst_name: str) -> str:
         """
         生成降级报告
-        
+
         Args:
             messages: 消息列表
             analyst_name: 分析师名称
-            
+
         Returns:
             str: 降级报告
         """
@@ -720,13 +720,13 @@ class GoogleToolCallHandler:
     ) -> str:
         """
         创建标准的分析提示词
-        
+
         Args:
             ticker: 股票代码
             company_name: 公司名称
             analyst_type: 分析师类型（如"技术分析"、"基本面分析"等）
             specific_requirements: 特定要求
-            
+
         Returns:
             str: 分析提示词
         """

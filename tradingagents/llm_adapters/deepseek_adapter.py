@@ -33,7 +33,7 @@ except ImportError:
 class ChatDeepSeek(ChatOpenAI):
     """
     DeepSeek聊天模型适配器，支持Token使用统计
-    
+
     继承自ChatOpenAI，添加了Token使用量统计功能
     """
 
@@ -48,7 +48,7 @@ class ChatDeepSeek(ChatOpenAI):
     ):
         """
         初始化DeepSeek适配器
-        
+
         Args:
             model: 模型名称，默认为deepseek-chat
             api_key: API密钥，如果不提供则从环境变量DEEPSEEK_API_KEY获取
@@ -194,10 +194,10 @@ class ChatDeepSeek(ChatOpenAI):
     def _estimate_input_tokens(self, messages: list[BaseMessage]) -> int:
         """
         估算输入token数量
-        
+
         Args:
             messages: 输入消息列表
-            
+
         Returns:
             估算的输入token数量
         """
@@ -214,10 +214,10 @@ class ChatDeepSeek(ChatOpenAI):
     def _estimate_output_tokens(self, result: ChatResult) -> int:
         """
         估算输出token数量
-        
+
         Args:
             result: 聊天结果
-            
+
         Returns:
             估算的输出token数量
         """
@@ -238,12 +238,12 @@ class ChatDeepSeek(ChatOpenAI):
     ) -> AIMessage:
         """
         调用模型生成响应
-        
+
         Args:
             input: 输入消息
             config: 配置参数
             **kwargs: 其他参数（包括session_id和analysis_type）
-            
+
         Returns:
             AI消息响应
         """
@@ -272,13 +272,13 @@ def create_deepseek_llm(
 ) -> ChatDeepSeek:
     """
     创建DeepSeek LLM实例的便捷函数
-    
+
     Args:
         model: 模型名称
         temperature: 温度参数
         max_tokens: 最大token数
         **kwargs: 其他参数
-        
+
     Returns:
         ChatDeepSeek实例
     """

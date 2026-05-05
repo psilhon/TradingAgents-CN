@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 def integrate_news_filtering(original_get_stock_news_em):
     """
     装饰器：为get_stock_news_em函数添加新闻过滤功能
-    
+
     Args:
         original_get_stock_news_em: 原始的get_stock_news_em函数
-        
+
     Returns:
         包装后的函数，具有新闻过滤功能
     """
@@ -24,14 +24,14 @@ def integrate_news_filtering(original_get_stock_news_em):
                                   use_semantic: bool = False, use_local_model: bool = False) -> pd.DataFrame:
         """
         增强版get_stock_news_em，集成新闻过滤功能
-        
+
         Args:
             symbol: 股票代码
             enable_filter: 是否启用新闻过滤
             min_score: 最低相关性评分阈值
             use_semantic: 是否使用语义相似度过滤
             use_local_model: 是否使用本地分类模型
-            
+
         Returns:
             pd.DataFrame: 过滤后的新闻数据
         """
@@ -121,14 +121,14 @@ def create_filtered_realtime_news_function():
                                        enable_filter: bool = True, min_score: float = 30) -> str:
         """
         增强版实时新闻获取函数，集成新闻过滤
-        
+
         Args:
             ticker: 股票代码
             curr_date: 当前日期
             hours_back: 回溯小时数
             enable_filter: 是否启用新闻过滤
             min_score: 最低相关性评分阈值
-            
+
         Returns:
             str: 格式化的新闻报告
         """

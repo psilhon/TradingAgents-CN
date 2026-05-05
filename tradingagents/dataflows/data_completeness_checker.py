@@ -28,14 +28,14 @@ class DataCompletenessChecker:
     ) -> tuple[bool, str, dict]:
         """
         检查数据完整性
-        
+
         Args:
             symbol: 股票代码
             data: 数据字符串
             start_date: 开始日期 (YYYY-MM-DD)
             end_date: 结束日期 (YYYY-MM-DD)
             market: 市场类型 (CN/HK/US)
-        
+
         Returns:
             (is_complete, message, details)
             - is_complete: 数据是否完整

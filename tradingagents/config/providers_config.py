@@ -83,10 +83,10 @@ class DataSourceConfig:
     def get_provider_config(self, provider_name: str) -> dict[str, Any]:
         """
         获取指定提供器的配置
-        
+
         Args:
             provider_name: 提供器名称
-            
+
         Returns:
             配置字典
         """

@@ -15,7 +15,7 @@ class NewsRelevanceFilter:
     def __init__(self, stock_code: str, company_name: str):
         """
         初始化过滤器
-        
+
         Args:
             stock_code: 股票代码，如 "600036"
             company_name: 公司名称，如 "招商银行"
@@ -49,11 +49,11 @@ class NewsRelevanceFilter:
     def calculate_relevance_score(self, title: str, content: str) -> float:
         """
         计算新闻相关性评分
-        
+
         Args:
             title: 新闻标题
             content: 新闻内容
-            
+
         Returns:
             float: 相关性评分 (0-100)
         """
@@ -132,11 +132,11 @@ class NewsRelevanceFilter:
     def filter_news(self, news_df: pd.DataFrame, min_score: float = 30) -> pd.DataFrame:
         """
         过滤新闻DataFrame
-        
+
         Args:
             news_df: 原始新闻DataFrame
             min_score: 最低相关性评分阈值
-            
+
         Returns:
             pd.DataFrame: 过滤后的新闻DataFrame，按相关性评分排序
         """
@@ -179,11 +179,11 @@ class NewsRelevanceFilter:
     def get_filter_statistics(self, original_df: pd.DataFrame, filtered_df: pd.DataFrame) -> dict:
         """
         获取过滤统计信息
-        
+
         Args:
             original_df: 原始新闻DataFrame
             filtered_df: 过滤后新闻DataFrame
-            
+
         Returns:
             Dict: 统计信息
         """
@@ -238,10 +238,10 @@ STOCK_COMPANY_MAPPING = {
 def get_company_name(ticker: str) -> str:
     """
     获取股票代码对应的公司名称
-    
+
     Args:
         ticker: 股票代码
-        
+
     Returns:
         str: 公司名称
     """
@@ -263,10 +263,10 @@ def get_company_name(ticker: str) -> str:
 def create_news_filter(ticker: str) -> NewsRelevanceFilter:
     """
     创建新闻过滤器的便捷函数
-    
+
     Args:
         ticker: 股票代码
-        
+
     Returns:
         NewsRelevanceFilter: 配置好的过滤器实例
     """

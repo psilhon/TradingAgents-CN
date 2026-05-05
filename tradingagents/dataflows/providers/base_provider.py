@@ -18,7 +18,7 @@ class BaseStockDataProvider(ABC):
     def __init__(self, provider_name: str):
         """
         初始化数据提供器
-        
+
         Args:
             provider_name: 提供器名称
         """
@@ -32,7 +32,7 @@ class BaseStockDataProvider(ABC):
     async def connect(self) -> bool:
         """
         连接到数据源
-        
+
         Returns:
             bool: 连接是否成功
         """
@@ -53,10 +53,10 @@ class BaseStockDataProvider(ABC):
     async def get_stock_basic_info(self, symbol: str | None = None) -> dict[str, Any] | list[dict[str, Any]] | None:
         """
         获取股票基础信息
-        
+
         Args:
             symbol: 股票代码，为空则获取所有股票
-            
+
         Returns:
             单个股票信息字典或股票列表
         """
@@ -66,10 +66,10 @@ class BaseStockDataProvider(ABC):
     async def get_stock_quotes(self, symbol: str) -> dict[str, Any] | None:
         """
         获取实时行情
-        
+
         Args:
             symbol: 股票代码
-            
+
         Returns:
             实时行情数据字典
         """
@@ -84,12 +84,12 @@ class BaseStockDataProvider(ABC):
     ) -> pd.DataFrame | None:
         """
         获取历史数据
-        
+
         Args:
             symbol: 股票代码
             start_date: 开始日期
             end_date: 结束日期
-            
+
         Returns:
             历史数据DataFrame
         """
@@ -100,10 +100,10 @@ class BaseStockDataProvider(ABC):
     async def get_stock_list(self, market: str | None = None) -> list[dict[str, Any]] | None:
         """
         获取股票列表
-        
+
         Args:
             market: 市场代码 (CN/HK/US)
-            
+
         Returns:
             股票列表
         """
@@ -112,11 +112,11 @@ class BaseStockDataProvider(ABC):
     async def get_financial_data(self, symbol: str, report_type: str = "annual") -> dict[str, Any] | None:
         """
         获取财务数据
-        
+
         Args:
             symbol: 股票代码
             report_type: 报告类型 (annual/quarterly)
-            
+
         Returns:
             财务数据字典
         """
@@ -128,10 +128,10 @@ class BaseStockDataProvider(ABC):
     def standardize_basic_info(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """
         标准化股票基础信息
-        
+
         Args:
             raw_data: 原始数据
-            
+
         Returns:
             标准化后的数据
         """
@@ -159,10 +159,10 @@ class BaseStockDataProvider(ABC):
     def standardize_quotes(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """
         标准化实时行情数据
-        
+
         Args:
             raw_data: 原始数据
-            
+
         Returns:
             标准化后的数据
         """

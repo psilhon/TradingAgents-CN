@@ -170,10 +170,10 @@ class ImprovedHKStockProvider:
     def get_company_name(self, symbol: str) -> str:
         """
         获取港股公司名称
-        
+
         Args:
             symbol: 港股代码
-            
+
         Returns:
             str: 公司名称
         """
@@ -438,10 +438,10 @@ def get_improved_hk_provider() -> ImprovedHKStockProvider:
 def get_hk_company_name_improved(symbol: str) -> str:
     """
     获取港股公司名称的改进版本
-    
+
     Args:
         symbol: 港股代码
-        
+
     Returns:
         str: 公司名称
     """

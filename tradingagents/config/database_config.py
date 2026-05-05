@@ -15,10 +15,10 @@ class DatabaseConfig:
     def get_mongodb_config() -> dict[str, Any]:
         """
         获取MongoDB配置
-        
+
         Returns:
             Dict[str, Any]: MongoDB配置字典
-            
+
         Raises:
             ValueError: 当必要的配置未设置时
         """
@@ -39,10 +39,10 @@ class DatabaseConfig:
     def get_redis_config() -> dict[str, Any]:
         """
         获取Redis配置
-        
+
         Returns:
             Dict[str, Any]: Redis配置字典
-            
+
         Raises:
             ValueError: 当必要的配置未设置时
         """
@@ -76,7 +76,7 @@ class DatabaseConfig:
     def validate_config() -> dict[str, bool]:
         """
         验证数据库配置是否完整
-        
+
         Returns:
             Dict[str, bool]: 验证结果
         """
@@ -103,7 +103,7 @@ class DatabaseConfig:
     def get_config_status() -> str:
         """
         获取配置状态的友好描述
-        
+
         Returns:
             str: 配置状态描述
         """
