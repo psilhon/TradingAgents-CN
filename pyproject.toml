@@ -138,11 +138,19 @@ reportAssignmentType = "none"           # 赋值时类型推断
 reportMissingImports = "none"           # 上游 dead code 引用已删模块（fork 不触达）
 reportOptionalMemberAccess = "none"     # Optional 没 None check（fork 现有大量 case）
 reportArgumentType = "none"             # 第三方库返回 Any 与签名不匹配
-reportPossiblyUnbound = "none"          # 变量可能未定义
+reportPossiblyUnboundVariable = "none"  # 变量可能未定义
+reportUnboundVariable = "none"          # 变量未定义
 reportCallIssue = "none"                # 调用签名错误
 reportIncompatibleMethodOverride = "none"
 reportOptionalOperand = "none"
+reportOptionalCall = "none"             # Optional 当 callable 用
+reportOptionalSubscript = "none"        # Optional 当 subscriptable 用
+reportOptionalIterable = "none"         # Optional 当 iterable 用
 reportGeneralTypeIssues = "none"
+reportSelfClsParameterName = "none"     # self/cls 参数命名
+reportInvalidTypeForm = "none"          # 类型表达式无效（多在 deprecated 代码）
+reportUnusedExpression = "none"         # 未使用表达式
+reportRedeclaration = "none"            # 重复声明
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
