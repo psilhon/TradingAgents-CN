@@ -7,8 +7,8 @@
 from tradingagents.dataflows.news.realtime_news import NewsItem, RealtimeNewsAggregator, get_realtime_stock_news
 
 __all__ = [
-    'get_realtime_stock_news',
+    'NewsItem',
     'RealtimeNewsAggregator',
-    'NewsItem'
+    'get_realtime_stock_news'
 ]
 

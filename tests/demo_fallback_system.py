@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 股票数据降级系统演示
 展示MongoDB -> Tushare数据接口的完整降级机制
@@ -32,7 +31,7 @@ def demo_database_config_fixes():
     env_path = os.path.join(project_root, '.env')
     if os.path.exists(env_path):
         print(f"  ✅ 找到配置文件: {env_path}")
-        with open(env_path, 'r', encoding='utf-8') as f:
+        with open(env_path, encoding='utf-8') as f:
             content = f.read()
             if 'MONGODB_HOST' in content or 'MONGODB_CONNECTION_STRING' in content:
                 print("  ✅ MongoDB配置已设置")

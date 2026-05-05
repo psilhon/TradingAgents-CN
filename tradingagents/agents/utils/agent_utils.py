@@ -140,7 +140,7 @@ class Toolkit:
             # 这里可以集成多个中国平台的数据
             chinese_sentiment_results = interface.get_chinese_social_sentiment(ticker, curr_date)
             return chinese_sentiment_results
-        except Exception as e:
+        except Exception:
             # 如果中国平台数据获取失败，回退到原有的Reddit数据
             return interface.get_reddit_company_news(ticker, curr_date, 7, 5)
 
@@ -183,11 +183,11 @@ class Toolkit:
             error_details = traceback.format_exc()
             logger.error("❌ [DEBUG] ===== agent_utils.get_china_stock_data 异常 =====")
             logger.error(f"❌ [DEBUG] 错误类型: {type(e).__name__}")
-            logger.error(f"❌ [DEBUG] 错误信息: {str(e)}")
+            logger.error(f"❌ [DEBUG] 错误信息: {e!s}")
             logger.error("❌ [DEBUG] 详细堆栈:")
             print(error_details)
             logger.error("❌ [DEBUG] ===== 异常处理结束 =====")
-            return f"中国股票数据获取失败: {str(e)}。请检查网络连接或稍后重试。"
+            return f"中国股票数据获取失败: {e!s}。请检查网络连接或稍后重试。"
 
     @staticmethod
     @tool
@@ -228,7 +228,7 @@ class Toolkit:
 """
 
         except Exception as e:
-            return f"中国市场概览获取失败: {str(e)}。正在从TDX迁移到Tushare数据源。"
+            return f"中国市场概览获取失败: {e!s}。正在从TDX迁移到Tushare数据源。"
 
     @staticmethod
     @tool
@@ -579,8 +579,8 @@ class Toolkit:
             logger.debug(f"📊 [DEBUG] OpenAI基本面分析结果长度: {len(openai_fundamentals_results) if openai_fundamentals_results else 0}")
             return openai_fundamentals_results
         except Exception as e:
-            logger.error(f"❌ [DEBUG] OpenAI基本面分析失败: {str(e)}")
-            return f"基本面分析失败: {str(e)}"
+            logger.error(f"❌ [DEBUG] OpenAI基本面分析失败: {e!s}")
+            return f"基本面分析失败: {e!s}"
 
     @staticmethod
     # @tool  # 已移除：请使用 get_stock_fundamentals_unified
@@ -642,9 +642,9 @@ class Toolkit:
             import traceback
             error_details = traceback.format_exc()
             logger.error("❌ [DEBUG] get_china_fundamentals 失败:")
-            logger.error(f"❌ [DEBUG] 错误: {str(e)}")
+            logger.error(f"❌ [DEBUG] 错误: {e!s}")
             logger.error(f"❌ [DEBUG] 堆栈: {error_details}")
-            return f"中国股票基本面分析失败: {str(e)}"
+            return f"中国股票基本面分析失败: {e!s}"
 
     @staticmethod
     # @tool  # 已移除：请使用 get_stock_fundamentals_unified 或 get_stock_market_data_unified
@@ -679,9 +679,9 @@ class Toolkit:
             import traceback
             error_details = traceback.format_exc()
             logger.error("❌ [DEBUG] get_hk_stock_data_unified 失败:")
-            logger.error(f"❌ [DEBUG] 错误: {str(e)}")
+            logger.error(f"❌ [DEBUG] 错误: {e!s}")
             logger.error(f"❌ [DEBUG] 堆栈: {error_details}")
-            return f"港股数据获取失败: {str(e)}"
+            return f"港股数据获取失败: {e!s}"
 
     @staticmethod
     @tool
@@ -954,7 +954,7 @@ class Toolkit:
 **交易货币**: 港币 (HK$)
 **交易所**: 香港交易所 (HKG)
 
-❌ 数据获取遇到问题: {str(e2)}
+❌ 数据获取遇到问题: {e2!s}
 
 **建议**：
 - 请稍后重试
@@ -1029,7 +1029,7 @@ class Toolkit:
             return combined_result
 
         except Exception as e:
-            error_msg = f"统一基本面分析工具执行失败: {str(e)}"
+            error_msg = f"统一基本面分析工具执行失败: {e!s}"
             logger.error(f"❌ [统一基本面工具] {error_msg}")
             return error_msg
 
@@ -1141,7 +1141,7 @@ class Toolkit:
             return combined_result
 
         except Exception as e:
-            error_msg = f"统一市场数据工具执行失败: {str(e)}"
+            error_msg = f"统一市场数据工具执行失败: {e!s}"
             logger.error(f"❌ [统一市场工具] {error_msg}")
             return error_msg
 
@@ -1276,7 +1276,7 @@ class Toolkit:
             return combined_result
 
         except Exception as e:
-            error_msg = f"统一新闻工具执行失败: {str(e)}"
+            error_msg = f"统一新闻工具执行失败: {e!s}"
             logger.error(f"❌ [统一新闻工具] {error_msg}")
             return error_msg
 
@@ -1370,6 +1370,6 @@ class Toolkit:
             return combined_result
 
         except Exception as e:
-            error_msg = f"统一情绪分析工具执行失败: {str(e)}"
+            error_msg = f"统一情绪分析工具执行失败: {e!s}"
             logger.error(f"❌ [统一情绪工具] {error_msg}")
             return error_msg

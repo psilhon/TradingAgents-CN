@@ -91,7 +91,7 @@ def test_stream_chunk_simulation():
             print(f"\n处理 Chunk {i+1}: {list(chunk.keys())}")
 
             # 处理市场分析报告
-            if "market_report" in chunk and chunk["market_report"]:
+            if chunk.get("market_report"):
                 if "market_report" not in completed_analysts:
                     ui.show_success("📈 市场分析完成")
                     completed_analysts.add("market_report")
@@ -100,7 +100,7 @@ def test_stream_chunk_simulation():
                     print("   🔇 跳过重复的市场分析完成提示")
 
             # 处理基本面分析报告
-            if "fundamentals_report" in chunk and chunk["fundamentals_report"]:
+            if chunk.get("fundamentals_report"):
                 if "fundamentals_report" not in completed_analysts:
                     ui.show_success("📊 基本面分析完成")
                     completed_analysts.add("fundamentals_report")

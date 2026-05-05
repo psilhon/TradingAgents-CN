@@ -118,7 +118,7 @@ def create_risk_manager(llm, memory):
 
             except Exception as e:
                 elapsed_time = time.time() - start_time
-                logger.error(f"❌ [Risk Manager] LLM调用失败 (尝试 {retry_count + 1}): {str(e)}")
+                logger.error(f"❌ [Risk Manager] LLM调用失败 (尝试 {retry_count + 1}): {e!s}")
                 logger.error(f"⏱️ [Risk Manager] 失败前耗时: {elapsed_time:.2f}秒")
                 response_content = ""
 

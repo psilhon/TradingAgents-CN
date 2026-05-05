@@ -9,7 +9,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
@@ -225,7 +225,7 @@ class StockDataCache:
             return None
 
         try:
-            with open(metadata_path, 'r', encoding='utf-8') as f:
+            with open(metadata_path, encoding='utf-8') as f:
                 return json.load(f)
         except Exception as e:
             logger.error(f"⚠️ 加载元数据失败: {e}")
@@ -264,7 +264,7 @@ class StockDataCache:
 
         return is_valid
 
-    def save_stock_data(self, symbol: str, data: Union[pd.DataFrame, str],
+    def save_stock_data(self, symbol: str, data: pd.DataFrame | str,
                        start_date: str = None, end_date: str = None,
                        data_source: str = "unknown") -> str:
         """
@@ -332,7 +332,7 @@ class StockDataCache:
         logger.info(f"💾 {desc}已缓存: {symbol} ({data_source}) -> {cache_key}")
         return cache_key
 
-    def load_stock_data(self, cache_key: str) -> Union[pd.DataFrame, str] | None:
+    def load_stock_data(self, cache_key: str) -> pd.DataFrame | str | None:
         """从缓存加载股票数据"""
         metadata = self._load_metadata(cache_key)
         if not metadata:
@@ -346,7 +346,7 @@ class StockDataCache:
             if metadata['file_format'] == 'csv':
                 return pd.read_csv(cache_path, index_col=0)
             else:
-                with open(cache_path, 'r', encoding='utf-8') as f:
+                with open(cache_path, encoding='utf-8') as f:
                     return f.read()
         except Exception as e:
             logger.error(f"⚠️ 加载缓存数据失败: {e}")
@@ -391,7 +391,7 @@ class StockDataCache:
         # 如果没有精确匹配，查找部分匹配（相同股票代码的其他缓存）
         for metadata_file in self.metadata_dir.glob("*_meta.json"):
             try:
-                with open(metadata_file, 'r', encoding='utf-8') as f:
+                with open(metadata_file, encoding='utf-8') as f:
                     metadata = json.load(f)
 
                 if (metadata.get('symbol') == symbol and
@@ -503,7 +503,7 @@ class StockDataCache:
             return None
 
         try:
-            with open(cache_path, 'r', encoding='utf-8') as f:
+            with open(cache_path, encoding='utf-8') as f:
                 return f.read()
         except Exception as e:
             logger.error(f"⚠️ 加载基本面缓存数据失败: {e}")
@@ -532,7 +532,7 @@ class StockDataCache:
         # 查找匹配的缓存
         for metadata_file in self.metadata_dir.glob("*_meta.json"):
             try:
-                with open(metadata_file, 'r', encoding='utf-8') as f:
+                with open(metadata_file, encoding='utf-8') as f:
                     metadata = json.load(f)
 
                 if (metadata.get('symbol') == symbol and
@@ -559,7 +559,7 @@ class StockDataCache:
 
         for metadata_file in self.metadata_dir.glob("*_meta.json"):
             try:
-                with open(metadata_file, 'r', encoding='utf-8') as f:
+                with open(metadata_file, encoding='utf-8') as f:
                     metadata = json.load(f)
 
                 cached_at = datetime.fromisoformat(metadata['cached_at'])
@@ -596,7 +596,7 @@ class StockDataCache:
         metadata_files_count = 0
         for metadata_file in self.metadata_dir.glob("*_meta.json"):
             try:
-                with open(metadata_file, 'r', encoding='utf-8') as f:
+                with open(metadata_file, encoding='utf-8') as f:
                     metadata = json.load(f)
 
                 data_type = metadata.get('data_type', 'unknown')

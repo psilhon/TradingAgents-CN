@@ -13,10 +13,10 @@ from .trading_graph import TradingAgentsGraph
 logger = get_logger("default")
 
 __all__ = [
-    "TradingAgentsGraph",
     "ConditionalLogic",
     "GraphSetup",
     "Propagator",
     "Reflector",
     "SignalProcessor",
+    "TradingAgentsGraph",
 ]

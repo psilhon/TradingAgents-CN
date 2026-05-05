@@ -67,7 +67,7 @@ def test_env_variable_directly():
         env_file_path = os.path.join(project_root, '.env')
         if os.path.exists(env_file_path):
             print(f"📄 .env文件存在: {env_file_path}")
-            with open(env_file_path, 'r', encoding='utf-8') as f:
+            with open(env_file_path, encoding='utf-8') as f:
                 content = f.read()
                 if 'DEFAULT_CHINA_DATA_SOURCE' in content:
                     for line in content.split('\n'):

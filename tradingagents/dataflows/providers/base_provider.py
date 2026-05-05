@@ -4,7 +4,7 @@
 import logging
 from abc import ABC, abstractmethod
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import pandas as pd
 
@@ -50,7 +50,7 @@ class BaseStockDataProvider(ABC):
     # ==================== 核心数据接口 ====================
 
     @abstractmethod
-    async def get_stock_basic_info(self, symbol: str = None) -> Union[dict[str, Any], list[dict[str, Any]]] | None:
+    async def get_stock_basic_info(self, symbol: str = None) -> dict[str, Any] | list[dict[str, Any]] | None:
         """
         获取股票基础信息
         
@@ -79,8 +79,8 @@ class BaseStockDataProvider(ABC):
     async def get_historical_data(
         self,
         symbol: str,
-        start_date: Union[str, date],
-        end_date: Union[str, date] = None
+        start_date: str | date,
+        end_date: str | date = None
     ) -> pd.DataFrame | None:
         """
         获取历史数据

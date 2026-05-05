@@ -1,7 +1,7 @@
 import os
 import time
 from datetime import datetime
-from typing import Annotated, Dict
+from typing import Annotated
 
 # 导入新闻模块（支持新旧路径）
 try:
@@ -181,8 +181,6 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ stockstats工具不可用: {e}")
     STOCKSTATS_AVAILABLE = False
-import os
-from datetime import datetime
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
@@ -1039,21 +1037,21 @@ def get_fundamentals_finnhub(ticker, curr_date):
         try:
             basic_financials = finnhub_client.company_basic_financials(ticker, 'all')
         except Exception as e:
-            logger.error(f"❌ [DEBUG] Finnhub基本财务数据获取失败: {str(e)}")
+            logger.error(f"❌ [DEBUG] Finnhub基本财务数据获取失败: {e!s}")
             basic_financials = None
 
         # 获取公司概况
         try:
             company_profile = finnhub_client.company_profile2(symbol=ticker)
         except Exception as e:
-            logger.error(f"❌ [DEBUG] Finnhub公司概况获取失败: {str(e)}")
+            logger.error(f"❌ [DEBUG] Finnhub公司概况获取失败: {e!s}")
             company_profile = None
 
         # 获取收益数据
         try:
             earnings = finnhub_client.company_earnings(ticker, limit=4)
         except Exception as e:
-            logger.error(f"❌ [DEBUG] Finnhub收益数据获取失败: {str(e)}")
+            logger.error(f"❌ [DEBUG] Finnhub收益数据获取失败: {e!s}")
             earnings = None
 
         # 格式化报告
@@ -1138,8 +1136,8 @@ def get_fundamentals_finnhub(ticker, curr_date):
     except ImportError:
         return "错误：未安装finnhub-python库，请运行: pip install finnhub-python"
     except Exception as e:
-        logger.error(f"❌ [DEBUG] Finnhub基本面数据获取失败: {str(e)}")
-        return f"Finnhub基本面数据获取失败: {str(e)}"
+        logger.error(f"❌ [DEBUG] Finnhub基本面数据获取失败: {e!s}")
+        return f"Finnhub基本面数据获取失败: {e!s}"
 
 
 def get_fundamentals_openai(ticker, curr_date):
@@ -1232,8 +1230,8 @@ def get_fundamentals_openai(ticker, curr_date):
         return f"❌ 获取 {ticker} 基本面数据失败：所有数据源都不可用"
 
     except Exception as e:
-        logger.error(f"❌ [美股基本面] 获取失败: {str(e)}")
-        return f"❌ 获取 {ticker} 基本面数据失败: {str(e)}"
+        logger.error(f"❌ [美股基本面] 获取失败: {e!s}")
+        return f"❌ 获取 {ticker} 基本面数据失败: {e!s}"
 
 
 def _get_fundamentals_alpha_vantage(ticker, curr_date, cache):
@@ -1397,7 +1395,7 @@ def _get_fundamentals_openai_impl(ticker, curr_date, config, cache):
         return result
 
     except Exception as e:
-        logger.error(f"❌ [OpenAI] 基本面数据获取失败: {str(e)}")
+        logger.error(f"❌ [OpenAI] 基本面数据获取失败: {e!s}")
         raise  # 抛出异常，让外层函数继续尝试其他数据源
 
 

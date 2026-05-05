@@ -50,7 +50,7 @@ def test_vscode_settings():
         return False
 
     try:
-        with open(settings_path, 'r', encoding='utf-8') as f:
+        with open(settings_path, encoding='utf-8') as f:
             settings = json.load(f)
 
         print("✅ settings.json 格式正确")

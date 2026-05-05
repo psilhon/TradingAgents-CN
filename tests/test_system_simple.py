@@ -20,7 +20,7 @@ def test_basic_system():
 
         try:
             import json
-            with open(config_file, 'r', encoding='utf-8') as f:
+            with open(config_file, encoding='utf-8') as f:
                 config = json.load(f)
             print("✅ 配置文件格式正确")
             print(f"  主要缓存后端: {config['cache']['primary_backend']}")

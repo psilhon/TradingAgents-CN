@@ -157,7 +157,7 @@ def test_analysis_result():
 
         found_reports = []
         for key in report_mappings:
-            if key in reports_data and reports_data[key]:
+            if reports_data.get(key):
                 found_reports.append(key)
 
         print(f"   找到的报告模块: {found_reports}")

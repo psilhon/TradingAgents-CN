@@ -6,9 +6,8 @@
 
 import functools
 import time
-from datetime import datetime
-from typing import Optional
 from collections.abc import Callable
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from tradingagents.config.runtime_settings import get_timezone_name
@@ -99,7 +98,7 @@ def log_tool_call(tool_name: str | None = None, log_args: bool = True, log_resul
 
                 # 记录工具调用失败
                 tool_logger.error(
-                    f"❌ [工具调用] {name} - 失败 (耗时: {duration:.2f}s): {str(e)}",
+                    f"❌ [工具调用] {name} - 失败 (耗时: {duration:.2f}s): {e!s}",
                     extra={
                         'tool_name': name,
                         'event_type': 'tool_call_error',
@@ -180,7 +179,7 @@ def log_data_source_call(source_name: str):
                 duration = time.time() - start_time
 
                 tool_logger.error(
-                    f"❌ [数据源] {source_name} - {symbol} 数据获取异常 (耗时: {duration:.2f}s): {str(e)}",
+                    f"❌ [数据源] {source_name} - {symbol} 数据获取异常 (耗时: {duration:.2f}s): {e!s}",
                     extra={
                         'data_source': source_name,
                         'symbol': symbol,
@@ -243,7 +242,7 @@ def log_llm_call(provider: str, model: str):
                 duration = time.time() - start_time
 
                 tool_logger.error(
-                    f"❌ [LLM调用] {provider}/{model} - 失败 (耗时: {duration:.2f}s): {str(e)}",
+                    f"❌ [LLM调用] {provider}/{model} - 失败 (耗时: {duration:.2f}s): {e!s}",
                     extra={
                         'llm_provider': provider,
                         'llm_model': model,

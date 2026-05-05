@@ -7,7 +7,7 @@ MongoDB存储适配器
 import os
 from dataclasses import asdict
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from tradingagents.config.runtime_settings import get_timezone_name

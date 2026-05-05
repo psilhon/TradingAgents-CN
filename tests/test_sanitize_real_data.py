@@ -9,7 +9,7 @@ from app.services.database.backups import _sanitize_document
 def test_sanitize_real_export_file():
     """测试对真实导出文件的脱敏"""
     # 读取真实导出文件
-    with open("install/database_export_config_2025-10-25.json", "r", encoding="utf-8") as f:
+    with open("install/database_export_config_2025-10-25.json", encoding="utf-8") as f:
         export_data = json.load(f)
 
     # 对 data 部分进行脱敏

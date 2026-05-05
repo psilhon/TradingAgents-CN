@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 股票数据API接口
 提供简单易用的股票数据获取接口，内置完整的降级机制
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
@@ -95,7 +94,7 @@ def search_stocks_by_name(name: str) -> list[dict[str, Any]]:
         service = EnhancedStockQueryService()
         return service.query_stocks_by_name(name)
     except Exception as e:
-        return [{'error': f'名称搜索功能不可用: {str(e)}'}]
+        return [{'error': f'名称搜索功能不可用: {e!s}'}]
 
 def check_data_sources() -> dict[str, Any]:
     """

@@ -679,7 +679,7 @@ def create_fundamentals_analyst(llm, toolkit):
 
                 except Exception as e:
                     logger.error(f"❌ [DEBUG] 强制工具调用分析失败: {e}")
-                    report = f"基本面分析失败：{str(e)}"
+                    report = f"基本面分析失败：{e!s}"
 
                 # 🔧 保持工具调用计数器不变（已在开始时根据ToolMessage更新）
                 return {

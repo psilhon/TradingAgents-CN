@@ -55,7 +55,7 @@ def test_akshare_utils_direct():
             print("✅ 找到akshare_utils.py文件")
 
             # 使用exec直接执行文件内容
-            with open(akshare_utils_path, 'r', encoding='utf-8') as f:
+            with open(akshare_utils_path, encoding='utf-8') as f:
                 akshare_utils_code = f.read()
 
             # 创建独立的命名空间
@@ -105,7 +105,7 @@ def check_data_source_enum():
         data_source_manager_path = os.path.join(project_root, 'tradingagents', 'dataflows', 'data_source_manager.py')
 
         if os.path.exists(data_source_manager_path):
-            with open(data_source_manager_path, 'r', encoding='utf-8') as f:
+            with open(data_source_manager_path, encoding='utf-8') as f:
                 content = f.read()
 
             # 检查AKShare相关定义

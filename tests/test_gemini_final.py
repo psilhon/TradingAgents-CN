@@ -76,7 +76,7 @@ def test_gemini_tradingagents():
                 # 检查各种报告
                 reports = ["market_report", "sentiment_report", "news_report", "fundamentals_report"]
                 for report_name in reports:
-                    if report_name in state and state[report_name]:
+                    if state.get(report_name):
                         report_content = state[report_name]
                         print(f"   {report_name}: {len(report_content)} 字符")
                         print(f"   预览: {report_content[:100]}...")

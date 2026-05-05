@@ -6,7 +6,6 @@
 
 import re
 from datetime import datetime, timedelta
-from typing import Dict
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
@@ -202,7 +201,7 @@ class StockDataPreparer:
             # 如果是字典，尝试从常见字段提取名称
             name_fields = ['name', 'longName', 'shortName', 'companyName', '公司名称', '股票名称']
             for field in name_fields:
-                if field in stock_info and stock_info[field]:
+                if stock_info.get(field):
                     name = str(stock_info[field]).strip()
                     if name and name != "未知":
                         return name
@@ -286,7 +285,7 @@ class StockDataPreparer:
                 is_valid=False,
                 stock_code=stock_code,
                 market_type=market_type,
-                error_message=f"数据准备过程中发生错误: {str(e)}",
+                error_message=f"数据准备过程中发生错误: {e!s}",
                 suggestion="请检查网络连接或稍后重试"
             )
 
@@ -316,7 +315,7 @@ class StockDataPreparer:
                 is_valid=False,
                 stock_code=stock_code,
                 market_type=market_type,
-                error_message=f"数据准备过程中发生错误: {str(e)}",
+                error_message=f"数据准备过程中发生错误: {e!s}",
                 suggestion="请检查网络连接或稍后重试"
             )
 
@@ -478,7 +477,7 @@ class StockDataPreparer:
                 stock_name=stock_name,
                 has_basic_info=has_basic_info,
                 has_historical_data=has_historical_data,
-                error_message=f"数据准备失败: {str(e)}",
+                error_message=f"数据准备失败: {e!s}",
                 suggestion="请检查网络连接或数据源配置"
             )
 
@@ -602,7 +601,7 @@ class StockDataPreparer:
                 stock_name=stock_name,
                 has_basic_info=has_basic_info,
                 has_historical_data=has_historical_data,
-                error_message=f"数据准备失败: {str(e)}",
+                error_message=f"数据准备失败: {e!s}",
                 suggestion="请检查网络连接或数据源配置"
             )
 
@@ -696,7 +695,7 @@ class StockDataPreparer:
                 "is_latest": False,
                 "record_count": 0,
                 "latest_date": None,
-                "message": f"检查失败: {str(e)}"
+                "message": f"检查失败: {e!s}"
             }
 
     def _trigger_data_sync_sync(self, stock_code: str, start_date: str, end_date: str) -> dict:
@@ -746,7 +745,7 @@ class StockDataPreparer:
             logger.error(f"❌ [数据同步] 同步包装器失败: {e}", exc_info=True)
             return {
                 "success": False,
-                "message": f"同步失败: {str(e)}",
+                "message": f"同步失败: {e!s}",
                 "synced_records": 0,
                 "data_source": None
             }
@@ -883,7 +882,7 @@ class StockDataPreparer:
                         # 继续尝试下一个数据源
 
                 except Exception as e:
-                    last_error = f"{data_source}: {str(e)}"
+                    last_error = f"{data_source}: {e!s}"
                     logger.warning(f"⚠️ [数据同步] {data_source}同步异常: {e}")
                     import traceback
                     logger.debug(f"详细错误: {traceback.format_exc()}")
@@ -909,7 +908,7 @@ class StockDataPreparer:
             logger.debug(f"详细错误: {traceback.format_exc()}")
             return {
                 "success": False,
-                "message": f"同步失败: {str(e)}",
+                "message": f"同步失败: {e!s}",
                 "synced_records": 0,
                 "data_source": None,
                 "historical_records": 0,
@@ -1111,7 +1110,7 @@ class StockDataPreparer:
                 stock_name=stock_name,
                 has_basic_info=has_basic_info,
                 has_historical_data=has_historical_data,
-                error_message=f"数据准备失败: {str(e)}",
+                error_message=f"数据准备失败: {e!s}",
                 suggestion="请检查网络连接或数据源配置"
             )
 
@@ -1214,7 +1213,7 @@ class StockDataPreparer:
                 is_valid=False,
                 stock_code=formatted_code,
                 market_type="美股",
-                error_message=f"数据准备失败: {str(e)}",
+                error_message=f"数据准备失败: {e!s}",
                 suggestion="请检查网络连接或数据源配置"
             )
 

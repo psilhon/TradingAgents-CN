@@ -30,7 +30,7 @@ print("\n🐍 检查Python语法...")
 for file_path in files_to_check:
     if os.path.exists(file_path):
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 compile(f.read(), file_path, 'exec')
             print(f"✅ {file_path} 语法正确")
         except SyntaxError as e:

@@ -107,7 +107,7 @@ def test_log_file_writing():
             print(f"📄 检查最新日志文件: {latest_log}")
 
             try:
-                with open(latest_log, 'r', encoding='utf-8') as f:
+                with open(latest_log, encoding='utf-8') as f:
                     content = f.read()
                     if test_message in content:
                         print("✅ 测试消息已写入日志文件")

@@ -6,8 +6,7 @@
 """
 
 import logging
-from typing import Any, Dict, Optional
-
+from typing import Any
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import setup_dataflow_logging
