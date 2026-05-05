@@ -697,7 +697,7 @@ class TokenTracker:
         self.config_manager = config_manager
 
     def track_usage(self, provider: str, model_name: str, input_tokens: int,
-                   output_tokens: int, session_id: str = None, analysis_type: str = "stock_analysis"):
+                   output_tokens: int, session_id: str | None = None, analysis_type: str = "stock_analysis"):
         """跟踪Token使用"""
         if session_id is None:
             session_id = f"session_{datetime.now(ZoneInfo(get_timezone_name())).strftime('%Y%m%d_%H%M%S')}"

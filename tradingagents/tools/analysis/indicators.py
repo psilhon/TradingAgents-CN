@@ -23,7 +23,7 @@ def _require_cols(df: pd.DataFrame, cols: Iterable[str]):
         raise ValueError(f"DataFrame缺少必要列: {missing}, 现有列: {list(df.columns)[:10]}...")
 
 
-def ma(close: pd.Series, n: int, min_periods: int = None) -> pd.Series:
+def ma(close: pd.Series, n: int, min_periods: int | None = None) -> pd.Series:
     """
     计算移动平均线（Moving Average）
 
@@ -122,7 +122,7 @@ def rsi(close: pd.Series, n: int = 14, method: str = 'ema') -> pd.Series:
     return rsi_val
 
 
-def boll(close: pd.Series, n: int = 20, k: float = 2.0, min_periods: int = None) -> pd.DataFrame:
+def boll(close: pd.Series, n: int = 20, k: float = 2.0, min_periods: int | None = None) -> pd.DataFrame:
     """
     计算布林带指标（Bollinger Bands）
 

@@ -685,9 +685,9 @@ class Toolkit:
     @log_tool_call(tool_name="get_stock_fundamentals_unified", log_args=True)
     def get_stock_fundamentals_unified(
         ticker: Annotated[str, "股票代码（支持A股、港股、美股）"],
-        start_date: Annotated[str, "开始日期，格式：YYYY-MM-DD"] = None,
-        end_date: Annotated[str, "结束日期，格式：YYYY-MM-DD"] = None,
-        curr_date: Annotated[str, "当前日期，格式：YYYY-MM-DD"] = None
+        start_date: Annotated[str | None, "开始日期，格式：YYYY-MM-DD"] = None,
+        end_date: Annotated[str | None, "结束日期，格式：YYYY-MM-DD"] = None,
+        curr_date: Annotated[str | None, "当前日期，格式：YYYY-MM-DD"] = None
     ) -> str:
         """
         统一的股票基本面分析工具

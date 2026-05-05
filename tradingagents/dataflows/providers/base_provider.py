@@ -50,7 +50,7 @@ class BaseStockDataProvider(ABC):
     # ==================== 核心数据接口 ====================
 
     @abstractmethod
-    async def get_stock_basic_info(self, symbol: str = None) -> dict[str, Any] | list[dict[str, Any]] | None:
+    async def get_stock_basic_info(self, symbol: str | None = None) -> dict[str, Any] | list[dict[str, Any]] | None:
         """
         获取股票基础信息
         
@@ -80,7 +80,7 @@ class BaseStockDataProvider(ABC):
         self,
         symbol: str,
         start_date: str | date,
-        end_date: str | date = None
+        end_date: str | date | None = None
     ) -> pd.DataFrame | None:
         """
         获取历史数据
@@ -97,7 +97,7 @@ class BaseStockDataProvider(ABC):
 
     # ==================== 扩展接口 ====================
 
-    async def get_stock_list(self, market: str = None) -> list[dict[str, Any]] | None:
+    async def get_stock_list(self, market: str | None = None) -> list[dict[str, Any]] | None:
         """
         获取股票列表
         

@@ -27,7 +27,7 @@ from .setup import GraphSetup
 from .signal_processing import SignalProcessor
 
 
-def create_llm_by_provider(provider: str, model: str, backend_url: str, temperature: float, max_tokens: int, timeout: int, api_key: str = None, **extra_kwargs):
+def create_llm_by_provider(provider: str, model: str, backend_url: str, temperature: float, max_tokens: int, timeout: int, api_key: str | None = None, **extra_kwargs):
     """
     根据 provider 创建对应的 LLM 实例
 
@@ -186,7 +186,7 @@ class TradingAgentsGraph:
         self,
         selected_analysts=["market", "social", "news", "fundamentals"],
         debug=False,
-        config: dict[str, Any] = None,
+        config: dict[str, Any] | None = None,
     ):
         """Initialize the trading agents graph and components.
 

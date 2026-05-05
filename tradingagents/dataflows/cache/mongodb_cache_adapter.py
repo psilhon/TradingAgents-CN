@@ -160,7 +160,7 @@ class MongoDBCacheAdapter:
         logger.info("📊 [数据源优先级] 使用默认顺序: ['tushare', 'akshare', 'baostock']")
         return ['tushare', 'akshare', 'baostock']
 
-    def get_historical_data(self, symbol: str, start_date: str = None, end_date: str = None,
+    def get_historical_data(self, symbol: str, start_date: str | None = None, end_date: str | None = None,
                           period: str = "daily") -> pd.DataFrame | None:
         """
         获取历史数据，支持多周期，按数据源优先级查询
@@ -221,7 +221,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ 获取历史数据失败: {e}")
             return None
 
-    def get_financial_data(self, symbol: str, report_period: str = None) -> dict[str, Any] | None:
+    def get_financial_data(self, symbol: str, report_period: str | None = None) -> dict[str, Any] | None:
         """获取财务数据，按数据源优先级查询"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -259,7 +259,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ [数据来源: MongoDB-财务数据] 获取财务数据失败: {e}")
             return None
 
-    def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]] | None:
+    def get_news_data(self, symbol: str | None = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]] | None:
         """获取新闻数据"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -293,7 +293,7 @@ class MongoDBCacheAdapter:
             logger.warning(f"⚠️ [数据来源: MongoDB-新闻数据] 获取新闻数据失败: {e}")
             return None
 
-    def get_social_media_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]] | None:
+    def get_social_media_data(self, symbol: str | None = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]] | None:
         """获取社媒数据"""
         if not self.use_app_cache or self.db is None:
             return None
@@ -367,7 +367,7 @@ def get_enhanced_data_adapter() -> MongoDBCacheAdapter:
     return get_mongodb_cache_adapter()
 
 
-def get_stock_data_with_fallback(symbol: str, start_date: str = None, end_date: str = None,
+def get_stock_data_with_fallback(symbol: str, start_date: str | None = None, end_date: str | None = None,
                                 fallback_func=None) -> pd.DataFrame | str | None:
     """
     带降级的股票数据获取

@@ -1190,7 +1190,7 @@ class AKShareProvider(BaseStockDataProvider):
                 "error": str(e)
             }
 
-    def get_stock_news_sync(self, symbol: str = None, limit: int = 10) -> pd.DataFrame | None:
+    def get_stock_news_sync(self, symbol: str | None = None, limit: int = 10) -> pd.DataFrame | None:
         """
         获取股票新闻（同步版本，返回原始 DataFrame）
 
@@ -1264,7 +1264,7 @@ class AKShareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ AKShare新闻获取失败: {e}")
             return None
 
-    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> list[dict[str, Any]] | None:
+    async def get_stock_news(self, symbol: str | None = None, limit: int = 10) -> list[dict[str, Any]] | None:
         """
         获取股票新闻（异步版本，返回结构化列表）
 
