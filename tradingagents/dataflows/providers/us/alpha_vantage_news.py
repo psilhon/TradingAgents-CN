@@ -24,18 +24,18 @@ def get_news(
 ) -> str:
     """
     获取股票相关的新闻和情感分析数据
-    
+
     返回来自全球主要新闻媒体的实时和历史市场新闻及情感数据。
     涵盖股票、加密货币、外汇以及财政政策、并购、IPO等主题。
-    
+
     Args:
         ticker: 股票代码
         start_date: 开始日期，格式 YYYY-MM-DD
         end_date: 结束日期，格式 YYYY-MM-DD
-        
+
     Returns:
         格式化的新闻数据字符串（JSON格式）
-        
+
     Example:
         >>> news = get_news("AAPL", "2024-01-01", "2024-01-31")
     """
@@ -113,15 +113,15 @@ def get_insider_transactions(
 ) -> str:
     """
     获取内部人交易数据
-    
+
     返回关键利益相关者（创始人、高管、董事会成员等）的最新和历史内部人交易数据。
-    
+
     Args:
         symbol: 股票代码
-        
+
     Returns:
         格式化的内部人交易数据字符串（JSON格式）
-        
+
     Example:
         >>> transactions = get_insider_transactions("AAPL")
     """
@@ -179,16 +179,16 @@ def get_market_news(
 ) -> str:
     """
     获取市场整体新闻（不限定特定股票）
-    
+
     Args:
         topics: 新闻主题，多个主题用逗号分隔（可选）
         start_date: 开始日期（可选）
         end_date: 结束日期（可选）
         limit: 返回文章数量，默认50
-        
+
     Returns:
         格式化的新闻数据字符串
-        
+
     Example:
         >>> news = get_market_news(topics="technology,earnings", limit=20)
     """

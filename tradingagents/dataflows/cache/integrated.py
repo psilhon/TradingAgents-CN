@@ -72,14 +72,14 @@ class IntegratedCacheManager:
                        end_date: str | None = None, data_source: str = "default") -> str:
         """
         保存股票数据到缓存
-        
+
         Args:
             symbol: 股票代码
             data: 股票数据
             start_date: 开始日期
             end_date: 结束日期
             data_source: 数据源
-            
+
         Returns:
             缓存键
         """
@@ -106,10 +106,10 @@ class IntegratedCacheManager:
     def load_stock_data(self, cache_key: str) -> Any | None:
         """
         从缓存加载股票数据
-        
+
         Args:
             cache_key: 缓存键
-            
+
         Returns:
             股票数据或None
         """
@@ -124,13 +124,13 @@ class IntegratedCacheManager:
                               end_date: str | None = None, data_source: str = "default") -> str | None:
         """
         查找缓存的股票数据
-        
+
         Args:
             symbol: 股票代码
             start_date: 开始日期
             end_date: 结束日期
             data_source: 数据源
-            
+
         Returns:
             缓存键或None
         """

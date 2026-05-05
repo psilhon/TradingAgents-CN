@@ -111,7 +111,7 @@ class BaoStockProvider(BaseStockDataProvider):
     async def get_stock_list(self) -> list[dict[str, Any]]:
         """
         获取股票列表
-        
+
         Returns:
             股票列表，包含代码和名称
         """
@@ -327,10 +327,10 @@ class BaoStockProvider(BaseStockDataProvider):
     async def get_stock_quotes(self, code: str) -> dict[str, Any]:
         """
         获取股票实时行情
-        
+
         Args:
             code: 股票代码
-            
+
         Returns:
             标准化的行情数据
         """

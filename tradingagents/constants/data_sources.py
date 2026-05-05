@@ -16,7 +16,7 @@ from enum import Enum
 class DataSourceCode(str, Enum):
     """
     数据源编码枚举
-    
+
     命名规范：
     - 使用大写字母和下划线
     - 值使用小写字母和下划线
@@ -281,10 +281,10 @@ DATA_SOURCE_REGISTRY: dict[str, DataSourceInfo] = {
 def get_data_source_info(code: str) -> DataSourceInfo | None:
     """
     获取数据源信息
-    
+
     Args:
         code: 数据源编码
-    
+
     Returns:
         数据源信息，如果不存在则返回 None
     """
@@ -294,7 +294,7 @@ def get_data_source_info(code: str) -> DataSourceInfo | None:
 def list_all_data_sources() -> list[DataSourceInfo]:
     """
     列出所有数据源
-    
+
     Returns:
         所有数据源信息列表
     """
@@ -304,10 +304,10 @@ def list_all_data_sources() -> list[DataSourceInfo]:
 def list_data_sources_by_market(market: str) -> list[DataSourceInfo]:
     """
     列出支持指定市场的数据源
-    
+
     Args:
         market: 市场类型（a_shares, us_stocks, hk_stocks, etc.）
-    
+
     Returns:
         支持该市场的数据源列表
     """
@@ -320,7 +320,7 @@ def list_data_sources_by_market(market: str) -> list[DataSourceInfo]:
 def list_free_data_sources() -> list[DataSourceInfo]:
     """
     列出所有免费数据源
-    
+
     Returns:
         免费数据源列表
     """
@@ -333,10 +333,10 @@ def list_free_data_sources() -> list[DataSourceInfo]:
 def is_data_source_supported(code: str) -> bool:
     """
     检查数据源是否支持
-    
+
     Args:
         code: 数据源编码
-    
+
     Returns:
         是否支持
     """

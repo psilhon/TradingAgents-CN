@@ -26,19 +26,19 @@ def get_fundamentals(
 ) -> str:
     """
     获取公司综合基本面数据
-    
+
     包括财务比率和关键指标，如：
     - 市值、PE、PB、ROE等估值指标
     - 收入、利润、EPS等财务指标
     - 行业、板块等公司信息
-    
+
     Args:
         ticker: 股票代码
         curr_date: 当前日期（Alpha Vantage 不使用此参数）
-        
+
     Returns:
         格式化的公司概况数据字符串
-        
+
     Example:
         >>> fundamentals = get_fundamentals("AAPL")
     """
@@ -150,12 +150,12 @@ def get_balance_sheet(
 ) -> str:
     """
     获取资产负债表数据
-    
+
     Args:
         ticker: 股票代码
         freq: 报告频率（Alpha Vantage 返回所有数据）
         curr_date: 当前日期（不使用）
-        
+
     Returns:
         格式化的资产负债表数据字符串
     """
@@ -179,12 +179,12 @@ def get_cashflow(
 ) -> str:
     """
     获取现金流量表数据
-    
+
     Args:
         ticker: 股票代码
         freq: 报告频率（Alpha Vantage 返回所有数据）
         curr_date: 当前日期（不使用）
-        
+
     Returns:
         格式化的现金流量表数据字符串
     """
@@ -208,12 +208,12 @@ def get_income_statement(
 ) -> str:
     """
     获取利润表数据
-    
+
     Args:
         ticker: 股票代码
         freq: 报告频率（Alpha Vantage 返回所有数据）
         curr_date: 当前日期（不使用）
-        
+
     Returns:
         格式化的利润表数据字符串
     """

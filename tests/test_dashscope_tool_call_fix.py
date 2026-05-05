@@ -47,7 +47,7 @@ def test_dashscope_tool_call_detection():
                     curr_date = params.get('curr_date', 'UNKNOWN')
                     # 返回足够长的新闻数据（>100字符）
                     return f"""【东方财富新闻】{ticker} 股票最新消息：
-                    
+
 1. 公司发布重要公告，第三季度业绩超预期，净利润同比增长25%
 2. 管理层宣布新的战略合作伙伴关系，预计将带来显著的收入增长
 3. 行业分析师上调目标价格，认为该股票具有良好的投资价值
@@ -66,7 +66,7 @@ def test_dashscope_tool_call_detection():
                     curr_date = params.get('curr_date', 'UNKNOWN')
                     # 返回足够长的新闻数据（>100字符）
                     return f"""【Google新闻】{query} 相关新闻汇总：
-                    
+
 1. 市场分析师看好该股票前景，预计未来12个月将有显著上涨
 2. 机构投资者增持该股票，显示对公司长期价值的认可
 3. 行业整体表现良好，该公司作为龙头企业受益明显

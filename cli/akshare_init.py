@@ -206,7 +206,7 @@ def print_help_detail():
   --test-connection   测试AKShare连接状态
   --basic-only        仅同步股票基础信息
   --full              运行完整的数据初始化流程
-  
+
 🔄 完整初始化流程包括:
   1. 检查数据库状态
   2. 同步股票基础信息
@@ -218,7 +218,7 @@ def print_help_detail():
 ⚙️ 配置选项:
   --historical-days   历史数据天数 (默认365天)
   --force            强制重新初始化，忽略已有数据
-  
+
 📝 使用示例:
   # 检查数据库状态
   python cli/akshare_init.py --check-only
@@ -246,7 +246,7 @@ def print_help_detail():
 
 📊 日志文件:
   所有操作日志会保存到 akshare_init.log 文件中
-  
+
 ⚠️ 注意事项:
   - 首次初始化可能需要较长时间（30分钟-2小时）
   - 建议在网络状况良好时运行

@@ -6,7 +6,7 @@
     # 旧代码仍然可以这样导入
     from tradingagents.dataflows.googlenews_utils import getNewsData
     from tradingagents.dataflows.cache_manager import StockDataCache
-    
+
     # 新代码推荐使用新路径
     from tradingagents.dataflows.news import getNewsData
     from tradingagents.dataflows.cache import StockDataCache

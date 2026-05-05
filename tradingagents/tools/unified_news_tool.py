@@ -16,7 +16,7 @@ class UnifiedNewsAnalyzer:
 
     def __init__(self, toolkit):
         """初始化统一新闻分析器
-        
+
         Args:
             toolkit: 包含各种新闻获取工具的工具包
         """
@@ -26,12 +26,12 @@ class UnifiedNewsAnalyzer:
         """
         统一新闻获取接口
         根据股票代码自动识别股票类型并获取相应新闻
-        
+
         Args:
             stock_code: 股票代码
             max_news: 最大新闻数量
             model_info: 当前使用的模型信息，用于特殊处理
-            
+
         Returns:
             str: 格式化的新闻内容
         """
@@ -557,12 +557,12 @@ def create_unified_news_tool(toolkit):
     def get_stock_news_unified(stock_code: str, max_news: int = 100, model_info: str = ""):
         """
         统一新闻获取工具
-        
+
         Args:
             stock_code (str): 股票代码 (支持A股如000001、港股如0700.HK、美股如AAPL)
             max_news (int): 最大新闻数量，默认100
             model_info (str): 当前使用的模型信息，用于特殊处理
-        
+
         Returns:
             str: 格式化的新闻内容
         """

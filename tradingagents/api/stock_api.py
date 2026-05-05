@@ -33,13 +33,13 @@ except ImportError as e:
 def get_stock_info(stock_code: str) -> dict[str, Any]:
     """
     获取单个股票的基础信息
-    
+
     Args:
         stock_code: 股票代码（如 '000001'）
-    
+
     Returns:
         Dict: 股票基础信息
-    
+
     Example:
         >>> info = get_stock_info('000001')
         >>> print(info['name'])  # 平安银行
@@ -66,10 +66,10 @@ def get_stock_info(stock_code: str) -> dict[str, Any]:
 def get_all_stocks() -> list[dict[str, Any]]:
     """
     获取所有股票的基础信息
-    
+
     Returns:
         List[Dict]: 所有股票的基础信息列表
-    
+
     Example:
         >>> stocks = get_all_stocks()
         logger.info(f"共有{len(stocks)}只股票")
@@ -94,15 +94,15 @@ def get_all_stocks() -> list[dict[str, Any]]:
 def get_stock_data(stock_code: str, start_date: str | None = None, end_date: str | None = None) -> str:
     """
     获取股票历史数据（带降级机制）
-    
+
     Args:
         stock_code: 股票代码
         start_date: 开始日期（格式：YYYY-MM-DD），默认为30天前
         end_date: 结束日期（格式：YYYY-MM-DD），默认为今天
-    
+
     Returns:
         str: 股票数据的字符串表示或错误信息
-    
+
     Example:
         >>> data = get_stock_data('000001', '2024-01-01', '2024-01-31')
         >>> print(data)
@@ -123,13 +123,13 @@ def get_stock_data(stock_code: str, start_date: str | None = None, end_date: str
 def search_stocks(keyword: str) -> list[dict[str, Any]]:
     """
     根据关键词搜索股票
-    
+
     Args:
         keyword: 搜索关键词（股票代码或名称的一部分）
-    
+
     Returns:
         List[Dict]: 匹配的股票信息列表
-    
+
     Example:
         >>> results = search_stocks('平安')
         >>> for stock in results:
@@ -159,10 +159,10 @@ def search_stocks(keyword: str) -> list[dict[str, Any]]:
 def get_market_summary() -> dict[str, Any]:
     """
     获取市场概览信息
-    
+
     Returns:
         Dict: 市场统计信息
-    
+
     Example:
         >>> summary = get_market_summary()
         logger.info(f"沪市股票数量: {summary["shanghai_count']}")
@@ -206,10 +206,10 @@ def get_market_summary() -> dict[str, Any]:
 def check_service_status() -> dict[str, Any]:
     """
     检查服务状态
-    
+
     Returns:
         Dict: 服务状态信息
-    
+
     Example:
         >>> status = check_service_status()
         logger.info(f"MongoDB状态: {status["mongodb_status']}")

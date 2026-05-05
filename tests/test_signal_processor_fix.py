@@ -39,13 +39,13 @@ def test_signal_processor_currency_fix():
         # 测试中国A股信号
         china_signal = """
         基于对平安银行(000001)的综合分析，我们建议持有该股票。
-        
+
         技术面分析显示当前价格为12.50元，目标价位为15.00元。
         基本面分析表明公司财务状况良好，ROE为12.5%。
-        
+
         置信度：75%
         风险评分：40%
-        
+
         最终交易建议: **持有**
         """
 
@@ -56,13 +56,13 @@ def test_signal_processor_currency_fix():
         # 测试美股信号
         us_signal = """
         Based on comprehensive analysis of Apple Inc. (AAPL), we recommend BUY.
-        
+
         Technical analysis shows current price at $150.00, target price $180.00.
         Fundamental analysis indicates strong financial performance.
-        
+
         Confidence: 80%
         Risk Score: 30%
-        
+
         Final Trading Recommendation: **BUY**
         """
 

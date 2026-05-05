@@ -19,7 +19,7 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
     def __init__(self, stock_code: str, company_name: str, use_semantic: bool = True, use_local_model: bool = False):
         """
         初始化增强过滤器
-        
+
         Args:
             stock_code: 股票代码
             company_name: 公司名称
@@ -107,11 +107,11 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
     def calculate_semantic_similarity(self, title: str, content: str) -> float:
         """
         计算语义相似度评分
-        
+
         Args:
             title: 新闻标题
             content: 新闻内容
-            
+
         Returns:
             float: 语义相似度评分 (0-100)
         """
@@ -149,11 +149,11 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
     def classify_news_relevance(self, title: str, content: str) -> float:
         """
         使用本地模型分类新闻相关性
-        
+
         Args:
             title: 新闻标题
             content: 新闻内容
-            
+
         Returns:
             float: 分类相关性评分 (0-100)
         """
@@ -203,11 +203,11 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
     def calculate_enhanced_relevance_score(self, title: str, content: str) -> dict[str, float]:
         """
         计算增强相关性评分（综合多种方法）
-        
+
         Args:
             title: 新闻标题
             content: 新闻内容
-            
+
         Returns:
             Dict: 包含各种评分的字典
         """
@@ -254,11 +254,11 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
     def filter_news_enhanced(self, news_df: pd.DataFrame, min_score: float = 40) -> pd.DataFrame:
         """
         增强新闻过滤
-        
+
         Args:
             news_df: 原始新闻DataFrame
             min_score: 最低综合评分阈值
-            
+
         Returns:
             pd.DataFrame: 过滤后的新闻DataFrame，包含详细评分信息
         """
@@ -302,12 +302,12 @@ class EnhancedNewsFilter(NewsRelevanceFilter):
 def create_enhanced_news_filter(ticker: str, use_semantic: bool = True, use_local_model: bool = False) -> EnhancedNewsFilter:
     """
     创建增强新闻过滤器的便捷函数
-    
+
     Args:
         ticker: 股票代码
         use_semantic: 是否使用语义相似度过滤
         use_local_model: 是否使用本地分类模型
-        
+
     Returns:
         EnhancedNewsFilter: 配置好的增强过滤器实例
     """

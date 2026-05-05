@@ -57,10 +57,10 @@ class StockUtils:
     def is_china_stock(ticker: str) -> bool:
         """
         判断是否为中国A股
-        
+
         Args:
             ticker: 股票代码
-            
+
         Returns:
             bool: 是否为中国A股
         """
@@ -70,10 +70,10 @@ class StockUtils:
     def is_hk_stock(ticker: str) -> bool:
         """
         判断是否为港股
-        
+
         Args:
             ticker: 股票代码
-            
+
         Returns:
             bool: 是否为港股
         """
@@ -83,10 +83,10 @@ class StockUtils:
     def is_us_stock(ticker: str) -> bool:
         """
         判断是否为美股
-        
+
         Args:
             ticker: 股票代码
-            
+
         Returns:
             bool: 是否为美股
         """
@@ -96,10 +96,10 @@ class StockUtils:
     def get_currency_info(ticker: str) -> tuple[str, str]:
         """
         根据股票代码获取货币信息
-        
+
         Args:
             ticker: 股票代码
-            
+
         Returns:
             Tuple[str, str]: (货币名称, 货币符号)
         """
@@ -118,10 +118,10 @@ class StockUtils:
     def get_data_source(ticker: str) -> str:
         """
         根据股票代码获取推荐的数据源
-        
+
         Args:
             ticker: 股票代码
-            
+
         Returns:
             str: 数据源名称
         """
@@ -140,10 +140,10 @@ class StockUtils:
     def normalize_hk_ticker(ticker: str) -> str:
         """
         标准化港股代码格式
-        
+
         Args:
             ticker: 原始港股代码
-            
+
         Returns:
             str: 标准化后的港股代码
         """
@@ -166,10 +166,10 @@ class StockUtils:
     def get_market_info(ticker: str) -> dict:
         """
         获取股票市场的详细信息
-        
+
         Args:
             ticker: 股票代码
-            
+
         Returns:
             Dict: 市场信息字典
         """

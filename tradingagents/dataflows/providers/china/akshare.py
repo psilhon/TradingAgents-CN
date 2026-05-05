@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class AKShareProvider(BaseStockDataProvider):
     """
     AKShare统一数据提供器
-    
+
     提供标准化的股票数据接口，支持：
     - 股票基础信息获取
     - 历史行情数据
@@ -352,10 +352,10 @@ class AKShareProvider(BaseStockDataProvider):
     async def get_stock_basic_info(self, code: str) -> dict[str, Any] | None:
         """
         获取股票基础信息
-        
+
         Args:
             code: 股票代码
-            
+
         Returns:
             标准化的股票基础信息
         """

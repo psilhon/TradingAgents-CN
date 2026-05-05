@@ -139,11 +139,11 @@ class StockDataCache:
     def should_skip_cache_for_content(self, content: str, data_type: str = "unknown") -> bool:
         """
         判断是否因为内容超长而跳过缓存
-        
+
         Args:
             content: 要缓存的内容
             data_type: 数据类型（用于日志）
-        
+
         Returns:
             bool: 是否应该跳过缓存
         """
@@ -513,12 +513,12 @@ class StockDataCache:
                                     max_age_hours: int | None = None) -> str | None:
         """
         查找匹配的基本面缓存数据
-        
+
         Args:
             symbol: 股票代码
             data_source: 数据源（如 "openai", "finnhub"）
             max_age_hours: 最大缓存时间（小时），None时使用智能配置
-        
+
         Returns:
             cache_key: 如果找到有效缓存则返回缓存键，否则返回None
         """

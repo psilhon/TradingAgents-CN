@@ -50,7 +50,7 @@ class OpenAICompatibleBase(ChatOpenAI):
     ):
         """
         初始化OpenAI兼容适配器
-        
+
         Args:
             provider_name: 提供商名称 (如: "deepseek", "dashscope")
             model: 模型名称

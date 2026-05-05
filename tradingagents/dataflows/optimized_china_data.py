@@ -317,7 +317,7 @@ class OptimizedChinaDataProvider:
 
     def _generate_fundamentals_report(self, symbol: str, stock_data: str, analysis_modules: str = "standard") -> str:
         """基于股票数据生成真实的基本面分析报告
-        
+
         Args:
             symbol: 股票代码
             stock_data: 股票数据

@@ -300,11 +300,11 @@ def calculate_realtime_pe_pb(
 def validate_pe_pb(pe: float | None, pb: float | None) -> bool:
     """
     验证PE/PB是否在合理范围内
-    
+
     Args:
         pe: 市盈率
         pb: 市净率
-    
+
     Returns:
         bool: 是否合理
     """
