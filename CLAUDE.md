@@ -80,6 +80,33 @@ just setup       # 装 pre-commit hook（首次 setup）
 - **Python 包用 flat layout**（`tradingagents/` 而非 `src/tradingagents/`）—— `pyproject.toml [tool.setuptools.packages.find]` 已配 `include = ["tradingagents*"]`。`project-audit` 报 `src/` 缺失为**已知误报**，不要建 `src/`。
 - **`pre-commit` hook 处于 WARN-ONLY 模式**：所有 hook 用 bash wrapper 强制 exit 0，commit / push 永不被阻塞但 warning 会输出。要切回阻塞：见 `.pre-commit-config.yaml` 顶部注释。
 
+## Fork patch 清单（哪些上游 tracked 文件可改 / 必须改 / 不动）
+
+为对齐 fork 端口段位 / loopback / 工具链定制，下列上游文件**已被 patch 入版本**——不要回滚到上游原始内容：
+
+| 文件 | 已 patched 字段 / 段 | 理由 |
+|------|------|------|
+| `frontend/vite.config.ts` | `server.host` / `server.port` / `server.strictPort` / `server.hmr.host` / `server.proxy['/api'].target` | 上游 hardcode `0.0.0.0:3000` + proxy `:8000`，违反端口段位 + loopback 规定 |
+| `pyproject.toml` | `[tool.ruff]` / `[tool.pyright]` / `[tool.pytest.ini_options]` 段（追加在末尾） + dependencies 移除 streamlit/chainlit | init-ci Recipe B 工具配置 + stable-v1-cleanup 删依赖 |
+| `.pre-commit-config.yaml` | warn-only 模式（bash wrapper 强制 exit 0）+ uvx 工具调用 | 上游存量 ruff issues 不阻塞 commit |
+| `.github/workflows/ci.yml` | `uv sync --frozen` + `uv pip install -e .`（不用 `--locked`） | uv.lock 与 pyproject 不同步已知坑 |
+| `.gitignore` | 末尾追加 `.chainlit/` + `.claude/settings.local.json` | fork-local 自动产物 + 本地权限记录 |
+| `docs/CHANGELOG.md` / `docs/USAGE.md` / `docs/ai-context/*.md` | 全部新建 + 维护 | Phase 0 prime context HARD-GATE |
+
+**完全不动**（原则 — 改动属于"专有授权范围"或"业务逻辑"）：
+
+- `app/` 后端业务代码（专有授权，仅本机学习目的可读）
+- `frontend/src/` 业务代码（同上；vite.config.ts 是构建配置例外）
+- `tradingagents/` Apache 2.0 主代码（除非在 OpenSpec change 范围内）
+- `docs/architecture/` / `docs/api/` / `docs/configuration/` 等技术参考文档
+- `tests/` 业务测试（除非新加 fork 自己的测试）
+
+**通过 override 不直接改**：
+
+- `docker-compose.yml`（端口走 `docker-compose.override.yml` 的 `!override`，不动 tracked）
+
+**改 fork-local 配置后必跑**：`just audit-binds` 验证未引入 hardcode 违规。
+
 ## 端口分配（项目级永恒约定）
 
 **对外服务端口段位：54300–54309**（10 个，顺序分配，下表外的端口禁止占用）。
