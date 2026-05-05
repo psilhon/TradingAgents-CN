@@ -3,7 +3,6 @@
 快速测试修复效果
 """
 
-import json
 import time
 
 import requests

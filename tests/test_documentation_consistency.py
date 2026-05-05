@@ -8,7 +8,6 @@ Documentation Consistency Test
 Test if configurations and descriptions in documentation are consistent
 """
 
-import os
 import re
 import sys
 from pathlib import Path

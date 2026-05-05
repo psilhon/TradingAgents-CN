@@ -1,12 +1,9 @@
-import hashlib
 import os
 import threading
-from typing import Dict, Optional
+from typing import Dict
 
 import chromadb
-import dashscope
 from chromadb.config import Settings
-from dashscope import TextEmbedding
 from openai import OpenAI
 
 # 导入统一日志系统

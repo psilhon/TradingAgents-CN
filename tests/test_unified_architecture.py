@@ -4,7 +4,6 @@
 验证所有分析师都使用统一工具方案
 """
 
-import os
 import sys
 
 

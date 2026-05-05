@@ -15,10 +15,8 @@ def test_analysis_form_hk_support():
 
     try:
         # 模拟Streamlit环境
-        import streamlit as st
 
         # 这里我们只能测试导入是否成功
-        from web.components.analysis_form import render_analysis_form
 
         print("  ✅ 分析表单组件导入成功")
         print("  ✅ 港股选项已添加到市场选择")

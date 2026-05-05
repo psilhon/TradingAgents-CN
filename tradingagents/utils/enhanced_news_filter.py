@@ -4,15 +4,13 @@
 """
 
 import logging
-import re
-from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
 
 import numpy as np
 import pandas as pd
 
 # 导入基础过滤器
-from .news_filter import NewsRelevanceFilter, create_news_filter, get_company_name
+from .news_filter import NewsRelevanceFilter, get_company_name
 
 logger = logging.getLogger(__name__)
 

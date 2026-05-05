@@ -7,7 +7,6 @@
 import os
 import sys
 
-import numpy as np
 import pandas as pd
 
 # 添加项目根目录到Python路径

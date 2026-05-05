@@ -6,9 +6,8 @@ Alpha Vantage 新闻数据提供者
 参考原版 TradingAgents 实现
 """
 
-import json
 from datetime import datetime
-from typing import Annotated, Any, Dict
+from typing import Annotated
 
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger

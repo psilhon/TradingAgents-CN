@@ -8,7 +8,6 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-import pandas as pd
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

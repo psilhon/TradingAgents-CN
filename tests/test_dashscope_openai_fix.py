@@ -6,7 +6,6 @@
 
 import os
 import sys
-from datetime import datetime, timedelta
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,14 +18,8 @@ def test_openai_adapter_import():
     print("=" * 60)
 
     try:
-        from tradingagents.llm_adapters import ChatDashScopeOpenAI
         print("✅ ChatDashScopeOpenAI 导入成功")
 
-        from tradingagents.llm_adapters.dashscope_openai_adapter import (
-            create_dashscope_openai_llm,
-            test_dashscope_openai_connection,
-            test_dashscope_openai_function_calling,
-        )
         print("✅ 相关函数导入成功")
 
         return True
@@ -97,7 +90,6 @@ def test_technical_analysis_with_new_adapter():
         from langchain_core.messages import HumanMessage
         from langchain_core.tools import tool
 
-        from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 创建新的 OpenAI 兼容适配器

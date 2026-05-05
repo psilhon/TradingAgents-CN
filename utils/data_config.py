@@ -8,7 +8,7 @@ Data Directory Configuration Utilities
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent.parent

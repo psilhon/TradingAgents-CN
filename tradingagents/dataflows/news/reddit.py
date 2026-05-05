@@ -1,12 +1,9 @@
 import json
 import os
 import re
-import time
-from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Annotated
 
-import requests
 
 ticker_to_company = {
     "AAPL": "Apple",

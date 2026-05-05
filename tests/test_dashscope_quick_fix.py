@@ -153,7 +153,6 @@ def test_technical_analysis_simulation():
     print("=" * 40)
 
     try:
-        from langchain_core.messages import HumanMessage
         from langchain_core.tools import tool
 
         from tradingagents.llm_adapters import ChatDashScopeOpenAI

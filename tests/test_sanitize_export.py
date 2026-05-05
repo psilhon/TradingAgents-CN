@@ -1,7 +1,6 @@
 """
 测试数据导出脱敏功能
 """
-import pytest
 
 from app.services.database.backups import _sanitize_document
 

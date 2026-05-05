@@ -8,7 +8,6 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
-import pytest
 
 from tradingagents.dataflows.data_source_manager import DataSourceManager
 

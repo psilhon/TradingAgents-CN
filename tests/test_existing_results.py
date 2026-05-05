@@ -3,7 +3,6 @@
 测试已有的分析结果
 """
 
-import json
 import os
 
 import requests

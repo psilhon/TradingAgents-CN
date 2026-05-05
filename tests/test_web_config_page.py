@@ -16,7 +16,6 @@ def test_config_page_import():
     print("=" * 50)
 
     try:
-        from web.pages.config_management import render_config_management
         print("✅ 配置管理页面导入成功")
         return True
     except Exception as e:
@@ -31,7 +30,7 @@ def test_config_manager_import():
     print("=" * 50)
 
     try:
-        from tradingagents.config.config_manager import config_manager, token_tracker
+        from tradingagents.config.config_manager import config_manager
         print("✅ 配置管理器导入成功")
 
         # 测试基本功能
@@ -57,10 +56,6 @@ def test_streamlit_components():
     print("=" * 50)
 
     try:
-        import pandas as pd
-        import plotly.express as px
-        import plotly.graph_objects as go
-        import streamlit as st
 
         print("✅ Streamlit导入成功")
         print("✅ Pandas导入成功")

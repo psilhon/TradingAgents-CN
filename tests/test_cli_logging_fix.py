@@ -5,7 +5,6 @@
 """
 
 import os
-import subprocess
 import sys
 
 # 添加项目根目录到Python路径

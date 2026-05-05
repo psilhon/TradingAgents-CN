@@ -5,7 +5,7 @@
 
 try:
     from bson import ObjectId
-    from webapi.models.user import PyObjectId, User
+    from webapi.models.user import User
 
     print("✅ 导入成功")
 

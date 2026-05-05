@@ -1,5 +1,4 @@
 """测试振幅 API"""
-import json
 
 import requests
 

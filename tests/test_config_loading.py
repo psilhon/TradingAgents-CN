@@ -3,7 +3,6 @@
 测试配置加载问题
 """
 
-import os
 import sys
 from pathlib import Path
 

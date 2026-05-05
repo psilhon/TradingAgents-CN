@@ -3,10 +3,7 @@
 测试修复后的筛选功能
 """
 
-import asyncio
 import json
-import os
-import sys
 
 import requests
 from dotenv import load_dotenv

@@ -3,7 +3,6 @@
 测试前端显示问题的脚本
 """
 
-import json
 import time
 
 import requests

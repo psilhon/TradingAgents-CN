@@ -14,7 +14,6 @@ def test_tool_isolation():
 
     try:
         from langchain_core.messages import HumanMessage
-        from langchain_core.tools import tool
 
         from tradingagents.agents.utils.agent_utils import Toolkit
         from tradingagents.default_config import DEFAULT_CONFIG
