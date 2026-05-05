@@ -71,6 +71,14 @@
   - 建立 base spec `lint-policy`：定义中文项目友好放行 + 按 rule code 分批 + warn-only 治理过程
   - **CI 仍 red**（870 errors > 0）；转严格模式留给 `lint-strict-mode-enable` change
 
+### Added
+
+- **pytest baseline**（OpenSpec change `pytest-baseline`）：`pyproject.toml` 加 `[project.optional-dependencies] dev = ["pytest>=8", "pytest-asyncio>=1.0"]`（新机器 `uv sync --extra dev` 自动装）。pytest collection 不再 INTERNALERROR（之前因 13 个孤立 test 含 `from web.*` import + sys.exit(1) 让 pytest 早退）。
+
+### Removed
+
+- **13 个孤立 test**（同 `pytest-baseline`）：`tests/{test_risk_assessment, test_dataframe_fix, test_web_fix, test_format_fix, test_web_hk, test_progress, test_enhanced_analysis_history, test_import_fix, test_mongodb_check, test_validation_fix, test_pypandoc_functionality, debug_web_issue, test_fix}.py`——全部 `from web.utils.*` import，但 `web/` 已被 `stable-v1-cleanup` 删除。
+
 ### Changed
 
 - **ruff 转严格阻塞模式**（OpenSpec change `ruff-strict-mode-enable`）：4 个 lint changes 治理至 ruff 0 errors 后，`.pre-commit-config.yaml` 的 `ruff-check` / `ruff-format` hook 去掉 warn-only wrapper，引入新 ruff issue 立即阻塞 commit。pyright（9955 errors）+ pytest（未装）保留 warn-only，等独立 `pyright-cleanup` / `pytest-baseline` OpenSpec change 治理后各自转严格。
