@@ -93,7 +93,7 @@ async def test_operation_logs():
         # 测试4: 获取统计信息
         print("\n📊 测试4: 获取统计信息")
         stats = await service.get_stats(days=30)
-        print(f"✅ 统计信息获取成功:")
+        print("✅ 统计信息获取成功:")
         print(f"  - 总日志数: {stats.total_logs}")
         print(f"  - 成功日志: {stats.success_logs}")
         print(f"  - 失败日志: {stats.failed_logs}")

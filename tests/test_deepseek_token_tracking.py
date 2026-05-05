@@ -70,10 +70,10 @@ def test_deepseek_adapter():
         deepseek_stats = provider_stats.get("deepseek", {})
 
         if deepseek_stats:
-            print(f"   📊 DeepSeek统计存在: ✅")
+            print("   📊 DeepSeek统计存在: ✅")
             return True
         else:
-            print(f"   📊 DeepSeek统计缺失: ❌")
+            print("   📊 DeepSeek统计缺失: ❌")
             return False
 
     except Exception as e:
@@ -112,7 +112,7 @@ def test_trading_graph_integration():
             debug=False  # 减少输出
         )
 
-        print(f"   ✅ TradingAgentsGraph创建成功")
+        print("   ✅ TradingAgentsGraph创建成功")
         return True
 
     except Exception as e:

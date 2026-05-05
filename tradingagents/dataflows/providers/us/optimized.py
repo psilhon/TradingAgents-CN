@@ -48,12 +48,12 @@ class OptimizedUSDataProvider:
         try:
             from tradingagents.dataflows.data_source_manager import USDataSourceManager
             self.us_manager = USDataSourceManager()
-            logger.info(f"✅ 美股数据源管理器初始化成功")
+            logger.info("✅ 美股数据源管理器初始化成功")
         except Exception as e:
             logger.warning(f"⚠️ 美股数据源管理器初始化失败: {e}，将使用默认顺序")
             self.us_manager = None
 
-        logger.info(f"📊 优化美股数据提供器初始化完成")
+        logger.info("📊 优化美股数据提供器初始化完成")
 
     def _wait_for_rate_limit(self):
         """等待API限制"""
@@ -324,7 +324,7 @@ class OptimizedUSDataProvider:
         """尝试获取过期的缓存数据作为备用"""
         try:
             # 查找任何相关的缓存，不考虑TTL
-            for metadata_file in self.cache.metadata_dir.glob(f"*_meta.json"):
+            for metadata_file in self.cache.metadata_dir.glob("*_meta.json"):
                 try:
                     import json
                     with open(metadata_file, 'r', encoding='utf-8') as f:
@@ -436,7 +436,7 @@ class OptimizedUSDataProvider:
                 return None
 
             # 调用 Alpha Vantage API (TIME_SERIES_DAILY)
-            url = f"https://www.alphavantage.co/query"
+            url = "https://www.alphavantage.co/query"
             params = {
                 "function": "TIME_SERIES_DAILY",
                 "symbol": symbol.upper(),
@@ -476,7 +476,7 @@ class OptimizedUSDataProvider:
             df = df[(df.index >= start_date) & (df.index <= end_date)]
 
             if df.empty:
-                logger.error(f"❌ Alpha Vantage 数据在指定日期范围内为空")
+                logger.error("❌ Alpha Vantage 数据在指定日期范围内为空")
                 return None
 
             # 格式化数据

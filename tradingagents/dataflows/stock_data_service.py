@@ -51,9 +51,9 @@ class StockDataService:
             try:
                 self.db_manager = get_database_manager()
                 if self.db_manager.is_mongodb_available():
-                    logger.info(f"✅ MongoDB连接成功")
+                    logger.info("✅ MongoDB连接成功")
                 else:
-                    logger.error(f"⚠️ MongoDB连接失败，将使用其他数据源")
+                    logger.error("⚠️ MongoDB连接失败，将使用其他数据源")
             except Exception as e:
                 logger.error(f"⚠️ 数据库管理器初始化失败: {e}")
                 self.db_manager = None
@@ -81,7 +81,7 @@ class StockDataService:
                 logger.error(f"⚠️ MongoDB查询失败: {e}")
 
         # 2. 降级到增强获取器
-        logger.info(f"🔄 MongoDB不可用，降级到增强获取器")
+        logger.info("🔄 MongoDB不可用，降级到增强获取器")
         if ENHANCED_FETCHER_AVAILABLE:
             try:
                 result = self._get_from_enhanced_fetcher(stock_code)
@@ -94,7 +94,7 @@ class StockDataService:
                 logger.error(f"⚠️ 增强获取器查询失败: {e}")
 
         # 3. 最后的降级方案
-        logger.error(f"❌ 所有数据源都不可用")
+        logger.error("❌ 所有数据源都不可用")
         return self._get_fallback_data(stock_code)
 
     def _get_from_mongodb(self, stock_code: str = None) -> Optional[Dict[str, Any]]:

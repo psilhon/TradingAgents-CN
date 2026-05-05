@@ -71,7 +71,7 @@ class TushareProvider(BaseStockDataProvider):
                                 self.logger.info(f"✅ [DB查询] Token 有效 (长度: {len(api_key)})")
                                 return api_key
                             else:
-                                self.logger.warning(f"⚠️ [DB查询] Token 无效或为占位符")
+                                self.logger.warning("⚠️ [DB查询] Token 无效或为占位符")
                 else:
                     self.logger.warning("⚠️ [DB查询] 配置中没有 data_source_configs")
             else:
@@ -129,7 +129,7 @@ class TushareProvider(BaseStockDataProvider):
                     if test_data is not None and not test_data.empty:
                         self.connected = True
                         self.token_source = 'database'
-                        self.logger.info(f"✅ [步骤3.2] Tushare连接成功 (Token来源: 数据库)")
+                        self.logger.info("✅ [步骤3.2] Tushare连接成功 (Token来源: 数据库)")
                         return True
                     else:
                         self.logger.warning("⚠️ [步骤3.2] 数据库 Token 测试失败，尝试降级到 .env 配置...")
@@ -155,7 +155,7 @@ class TushareProvider(BaseStockDataProvider):
                     if test_data is not None and not test_data.empty:
                         self.connected = True
                         self.token_source = 'env'
-                        self.logger.info(f"✅ [步骤4.2] Tushare连接成功 (Token来源: .env 环境变量)")
+                        self.logger.info("✅ [步骤4.2] Tushare连接成功 (Token来源: .env 环境变量)")
                         return True
                     else:
                         self.logger.error("❌ [步骤4.2] .env Token 测试失败")
@@ -209,7 +209,7 @@ class TushareProvider(BaseStockDataProvider):
 
                     if test_data is not None and not test_data.empty:
                         self.connected = True
-                        self.logger.info(f"✅ Tushare连接成功 (Token来源: 数据库)")
+                        self.logger.info("✅ Tushare连接成功 (Token来源: 数据库)")
                         return True
                     else:
                         self.logger.warning("⚠️ 数据库 Token 测试失败，尝试降级到 .env 配置...")
@@ -239,7 +239,7 @@ class TushareProvider(BaseStockDataProvider):
 
                     if test_data is not None and not test_data.empty:
                         self.connected = True
-                        self.logger.info(f"✅ Tushare连接成功 (Token来源: .env 环境变量)")
+                        self.logger.info("✅ Tushare连接成功 (Token来源: .env 环境变量)")
                         return True
                     else:
                         self.logger.error("❌ .env Token 测试失败")
@@ -564,11 +564,11 @@ class TushareProvider(BaseStockDataProvider):
                     f"period={period}, start={start_str}, end={end_str}"
                 )
                 self.logger.warning(
-                    f"💡 可能原因: "
-                    f"1) 该股票在此期间无交易数据 "
-                    f"2) 日期范围不正确 "
-                    f"3) 股票代码格式错误 "
-                    f"4) Tushare API 限制或积分不足"
+                    "💡 可能原因: "
+                    "1) 该股票在此期间无交易数据 "
+                    "2) 日期范围不正确 "
+                    "3) 股票代码格式错误 "
+                    "4) Tushare API 限制或积分不足"
                 )
                 return None
 

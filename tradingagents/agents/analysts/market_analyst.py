@@ -96,7 +96,7 @@ def _get_company_name(ticker: str, market_info: dict) -> str:
 def create_market_analyst(llm, toolkit):
 
     def market_analyst_node(state):
-        logger.debug(f"📈 [DEBUG] ===== 市场分析师节点开始 =====")
+        logger.debug("📈 [DEBUG] ===== 市场分析师节点开始 =====")
 
         # 🔧 工具调用计数器 - 防止无限循环
         tool_call_count = state.get("market_tool_call_count", 0)
@@ -124,7 +124,7 @@ def create_market_analyst(llm, toolkit):
 
         # 统一使用 get_stock_market_data_unified 工具
         # 该工具内部会自动识别股票类型（A股/港股/美股）并调用相应的数据源
-        logger.info(f"📊 [市场分析师] 使用统一市场数据工具，自动识别股票类型")
+        logger.info("📊 [市场分析师] 使用统一市场数据工具，自动识别股票类型")
         tools = [toolkit.get_stock_market_data_unified]
 
         # 安全地获取工具名称用于调试
@@ -229,7 +229,7 @@ def create_market_analyst(llm, toolkit):
         logger.info("📊 [市场分析师] ==========================================")
 
         # 打印实际传递给LLM的消息
-        logger.info(f"📊 [市场分析师] ========== 传递给LLM的消息 ==========")
+        logger.info("📊 [市场分析师] ========== 传递给LLM的消息 ==========")
         for i, msg in enumerate(state["messages"]):
             msg_type = type(msg).__name__
             # 🔥 修复：更安全地提取消息内容
@@ -241,26 +241,26 @@ def create_market_analyst(llm, toolkit):
             else:
                 msg_content = str(msg)[:500]
             logger.info(f"📊 [市场分析师] 消息[{i}] 类型={msg_type}, 内容={msg_content}")
-        logger.info(f"📊 [市场分析师] ========== 消息列表结束 ==========")
+        logger.info("📊 [市场分析师] ========== 消息列表结束 ==========")
 
         chain = prompt | llm.bind_tools(tools)
 
-        logger.info(f"📊 [市场分析师] 开始调用LLM...")
+        logger.info("📊 [市场分析师] 开始调用LLM...")
         # 修复：传递字典而不是直接传递消息列表，以便 ChatPromptTemplate 能正确处理所有变量
         result = chain.invoke({"messages": state["messages"]})
-        logger.info(f"📊 [市场分析师] LLM调用完成")
+        logger.info("📊 [市场分析师] LLM调用完成")
 
         # 打印LLM响应
-        logger.info(f"📊 [市场分析师] ========== LLM响应开始 ==========")
+        logger.info("📊 [市场分析师] ========== LLM响应开始 ==========")
         logger.info(f"📊 [市场分析师] 响应类型: {type(result).__name__}")
         logger.info(f"📊 [市场分析师] 响应内容: {str(result.content)[:1000]}...")
         if hasattr(result, 'tool_calls') and result.tool_calls:
             logger.info(f"📊 [市场分析师] 工具调用: {result.tool_calls}")
-        logger.info(f"📊 [市场分析师] ========== LLM响应结束 ==========")
+        logger.info("📊 [市场分析师] ========== LLM响应结束 ==========")
 
         # 使用统一的Google工具调用处理器
         if GoogleToolCallHandler.is_google_model(llm):
-            logger.info(f"📊 [市场分析师] 检测到Google模型，使用统一工具调用处理器")
+            logger.info("📊 [市场分析师] 检测到Google模型，使用统一工具调用处理器")
 
             # 创建分析提示词
             analysis_prompt_template = GoogleToolCallHandler.create_analysis_prompt(
@@ -289,7 +289,7 @@ def create_market_analyst(llm, toolkit):
         else:
             # 非Google模型的处理逻辑
             logger.info(f"📊 [市场分析师] 非Google模型 ({llm.__class__.__name__})，使用标准处理逻辑")
-            logger.info(f"📊 [市场分析师] 检查LLM返回结果...")
+            logger.info("📊 [市场分析师] 检查LLM返回结果...")
             logger.info(f"📊 [市场分析师] - 是否有tool_calls: {hasattr(result, 'tool_calls')}")
             if hasattr(result, 'tool_calls'):
                 logger.info(f"📊 [市场分析师] - tool_calls数量: {len(result.tool_calls)}")

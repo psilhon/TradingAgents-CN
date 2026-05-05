@@ -67,7 +67,7 @@ def check_key_metrics():
         print("❌ 未找到每股净资产指标")
 
     # 显示所有包含"每股"的指标
-    print(f"\n📋 所有每股相关指标:")
+    print("\n📋 所有每股相关指标:")
     eps_indicators = main_indicators[main_indicators['指标'].str.contains('每股', na=False)]
     for _, row in eps_indicators.iterrows():
         indicator_name = row['指标']
@@ -75,7 +75,7 @@ def check_key_metrics():
         print(f"   {indicator_name}: {value}")
 
     # 显示所有包含"收益率"的指标
-    print(f"\n📋 所有收益率相关指标:")
+    print("\n📋 所有收益率相关指标:")
     roe_indicators = main_indicators[main_indicators['指标'].str.contains('收益率', na=False)]
     for _, row in roe_indicators.iterrows():
         indicator_name = row['指标']

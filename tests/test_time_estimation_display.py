@@ -85,7 +85,7 @@ def test_time_estimation_display():
         ui.show_success("📋 分析报告生成完成")
         ui.show_success("🎉 600036 股票分析全部完成！")
 
-        print(f"\n✅ 时间预估显示测试完成")
+        print("\n✅ 时间预估显示测试完成")
         print(f"📊 模拟分析阶段耗时: {total_time:.1f}秒 (实际约10分钟)")
 
         return True
@@ -178,8 +178,8 @@ def test_time_estimation_scenarios():
             else:
                 ui.show_user_message("💡 提示：正在进行专业分析，请稍候", "dim")
 
-        print(f"\n✅ 时间预估场景测试完成")
-        print(f"📋 建议：根据选择的分析师数量动态调整时间预估")
+        print("\n✅ 时间预估场景测试完成")
+        print("📋 建议：根据选择的分析师数量动态调整时间预估")
 
         return True
 
@@ -243,11 +243,11 @@ def test_progress_communication():
 
         print("   ✅ 提供清晰的进度里程碑")
 
-        print(f"\n📋 沟通策略总结:")
-        print(f"   1. 设定合理期望 - 告知预估时间")
-        print(f"   2. 解释复杂性 - 说明为什么需要时间")
-        print(f"   3. 实时反馈 - 显示当前进展")
-        print(f"   4. 里程碑标记 - 提供进度感知")
+        print("\n📋 沟通策略总结:")
+        print("   1. 设定合理期望 - 告知预估时间")
+        print("   2. 解释复杂性 - 说明为什么需要时间")
+        print("   3. 实时反馈 - 显示当前进展")
+        print("   4. 里程碑标记 - 提供进度感知")
 
         return True
 

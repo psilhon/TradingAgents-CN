@@ -86,7 +86,7 @@ def test_fixed_analysis():
             return False
 
         # 4. 监控任务状态
-        print(f"\n4. 监控任务状态...")
+        print("\n4. 监控任务状态...")
         max_wait_time = 300  # 最多等待5分钟
         start_time = time.time()
 
@@ -108,7 +108,7 @@ def test_fixed_analysis():
                     print("✅ 分析任务完成!")
 
                     # 5. 检查文件保存（应该使用正确的股票代码）
-                    print(f"\n5. 检查文件保存...")
+                    print("\n5. 检查文件保存...")
 
                     # 检查data目录（应该是000001而不是UNKNOWN）
                     data_dir = Path("data/analysis_results/000001/2025-08-20")
@@ -133,24 +133,24 @@ def test_fixed_analysis():
                                             print(f"✅ 市场分析报告有内容 (长度: {len(content)})")
                                             # 检查是否包含正确的股票代码
                                             if "000001" in content:
-                                                print(f"✅ 报告包含正确的股票代码: 000001")
+                                                print("✅ 报告包含正确的股票代码: 000001")
                                             else:
-                                                print(f"⚠️ 报告中未找到股票代码000001")
+                                                print("⚠️ 报告中未找到股票代码000001")
                                         else:
-                                            print(f"⚠️ 市场分析报告内容过短")
+                                            print("⚠️ 市场分析报告内容过短")
                             else:
-                                print(f"⚠️ reports目录存在但没有报告文件")
+                                print("⚠️ reports目录存在但没有报告文件")
                         else:
-                            print(f"❌ reports目录不存在")
+                            print("❌ reports目录不存在")
                     else:
                         print(f"❌ 分析结果目录不存在: {data_dir}")
                         # 检查是否还是保存到UNKNOWN目录
                         unknown_dir = Path("data/analysis_results/UNKNOWN/2025-08-20")
                         if unknown_dir.exists():
-                            print(f"⚠️ 文件保存到了UNKNOWN目录，股票代码传递有问题")
+                            print("⚠️ 文件保存到了UNKNOWN目录，股票代码传递有问题")
 
                     # 6. 获取分析结果
-                    print(f"\n6. 获取分析结果...")
+                    print("\n6. 获取分析结果...")
                     result_response = requests.get(
                         f"{base_url}/api/analysis/tasks/{task_id}/result",
                         headers=headers
@@ -158,7 +158,7 @@ def test_fixed_analysis():
 
                     if result_response.status_code == 200:
                         result_data = result_response.json()
-                        print(f"✅ 成功获取分析结果")
+                        print("✅ 成功获取分析结果")
                         print(f"   股票代码: {result_data.get('stock_code')}")
                         print(f"   股票符号: {result_data.get('stock_symbol')}")
                         print(f"   分析日期: {result_data.get('analysis_date')}")

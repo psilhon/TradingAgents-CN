@@ -68,7 +68,7 @@ def test_market_analyst_unified():
 
                 # 检查是否只绑定了统一工具
                 if len(tools) == 1 and tools[0].name == 'get_stock_market_data_unified':
-                    print(f"  ✅ 正确绑定统一市场数据工具")
+                    print("  ✅ 正确绑定统一市场数据工具")
                     return self
                 else:
                     print(f"  ❌ 绑定了错误的工具: {[tool.name for tool in tools]}")
@@ -98,7 +98,7 @@ def test_market_analyst_unified():
         # 调用分析师（这会触发工具选择逻辑）
         result = analyst(state)
 
-        print(f"  ✅ 市场分析师调用完成")
+        print("  ✅ 市场分析师调用完成")
         return True
 
     except Exception as e:
@@ -131,7 +131,7 @@ def test_fundamentals_analyst_unified():
 
                 # 检查是否只绑定了统一工具
                 if len(tools) == 1 and tools[0].name == 'get_stock_fundamentals_unified':
-                    print(f"  ✅ 正确绑定统一基本面分析工具")
+                    print("  ✅ 正确绑定统一基本面分析工具")
                     return self
                 else:
                     print(f"  ❌ 绑定了错误的工具: {[tool.name for tool in tools]}")
@@ -161,7 +161,7 @@ def test_fundamentals_analyst_unified():
         # 调用分析师（这会触发工具选择逻辑）
         result = analyst(state)
 
-        print(f"  ✅ 基本面分析师调用完成")
+        print("  ✅ 基本面分析师调用完成")
         return True
 
     except Exception as e:
@@ -204,9 +204,9 @@ def test_stock_type_routing():
                 })
 
                 if expected_market in result and expected_currency in result:
-                    print(f"  ✅ 基本面工具路由正确")
+                    print("  ✅ 基本面工具路由正确")
                 else:
-                    print(f"  ⚠️ 基本面工具路由可能有问题")
+                    print("  ⚠️ 基本面工具路由可能有问题")
 
             except Exception as e:
                 print(f"  ❌ 基本面工具调用失败: {e}")
@@ -221,9 +221,9 @@ def test_stock_type_routing():
                 })
 
                 if expected_market in result and expected_currency in result:
-                    print(f"  ✅ 市场数据工具路由正确")
+                    print("  ✅ 市场数据工具路由正确")
                 else:
-                    print(f"  ⚠️ 市场数据工具路由可能有问题")
+                    print("  ⚠️ 市场数据工具路由可能有问题")
 
             except Exception as e:
                 print(f"  ❌ 市场数据工具调用失败: {e}")

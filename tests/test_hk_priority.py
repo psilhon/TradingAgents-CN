@@ -40,7 +40,7 @@ def test_hk_data_source_priority():
             try:
                 result = get_hk_stock_info_unified(symbol)
 
-                print(f"✅ 获取成功:")
+                print("✅ 获取成功:")
                 print(f"   股票代码: {result.get('symbol', 'N/A')}")
                 print(f"   公司名称: {result.get('name', 'N/A')}")
                 print(f"   数据源: {result.get('source', 'N/A')}")
@@ -50,9 +50,9 @@ def test_hk_data_source_priority():
                 # 检查是否成功获取了具体的公司名称
                 name = result.get('name', '')
                 if not name.startswith('港股'):
-                    print(f"   ✅ 成功获取具体公司名称")
+                    print("   ✅ 成功获取具体公司名称")
                 else:
-                    print(f"   ⚠️ 使用默认格式")
+                    print("   ⚠️ 使用默认格式")
 
             except Exception as e:
                 print(f"❌ 获取失败: {e}")
@@ -84,20 +84,20 @@ def test_hk_data_priority():
         result = get_hk_stock_data_unified(test_symbol, start_date, end_date)
 
         if result and "❌" not in result:
-            print(f"✅ 港股数据获取成功")
+            print("✅ 港股数据获取成功")
             print(f"   数据长度: {len(result)}")
 
             # 显示数据的前200字符
-            print(f"   数据预览:")
+            print("   数据预览:")
             print(f"   {result[:200]}...")
 
             # 检查数据中是否包含正确的股票代码
             if "0700" in result or "腾讯" in result:
-                print(f"   ✅ 数据包含正确的股票信息")
+                print("   ✅ 数据包含正确的股票信息")
             else:
-                print(f"   ⚠️ 数据可能不完整")
+                print("   ⚠️ 数据可能不完整")
         else:
-            print(f"❌ 港股数据获取失败")
+            print("❌ 港股数据获取失败")
             print(f"   返回结果: {result}")
 
         return True
@@ -144,9 +144,9 @@ def test_improved_hk_provider_priority():
 
                 # 检查是否成功获取了具体的公司名称
                 if not company_name.startswith('港股'):
-                    print(f"   ✅ 成功获取具体公司名称")
+                    print("   ✅ 成功获取具体公司名称")
                 else:
-                    print(f"   ⚠️ 使用默认格式")
+                    print("   ⚠️ 使用默认格式")
 
             except Exception as e:
                 print(f"❌ 获取失败: {e}")
@@ -192,10 +192,10 @@ def test_data_source_availability():
         except ImportError as e:
             print(f"❌ 统一港股接口不可用: {e}")
 
-        print(f"\n📊 数据源优先级验证:")
+        print("\n📊 数据源优先级验证:")
         print(f"   1. AKShare (优先): {'✅ 可用' if akshare_available else '❌ 不可用'}")
         print(f"   2. Yahoo Finance (备用): {'✅ 可用' if yf_available else '❌ 不可用'}")
-        print(f"   3. 默认格式 (降级): ✅ 总是可用")
+        print("   3. 默认格式 (降级): ✅ 总是可用")
 
         return True
 

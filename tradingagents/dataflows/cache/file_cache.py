@@ -93,9 +93,9 @@ class StockDataCache:
         }
 
         logger.info(f"📁 缓存管理器初始化完成，缓存目录: {self.cache_dir}")
-        logger.info(f"🗄️ 数据库缓存管理器初始化完成")
-        logger.info(f"   美股数据: ✅ 已配置")
-        logger.info(f"   A股数据: ✅ 已配置")
+        logger.info("🗄️ 数据库缓存管理器初始化完成")
+        logger.info("   美股数据: ✅ 已配置")
+        logger.info("   A股数据: ✅ 已配置")
 
     def _determine_market_type(self, symbol: str) -> str:
         """根据股票代码确定市场类型"""
@@ -388,7 +388,7 @@ class StockDataCache:
             return search_key
 
         # 如果没有精确匹配，查找部分匹配（相同股票代码的其他缓存）
-        for metadata_file in self.metadata_dir.glob(f"*_meta.json"):
+        for metadata_file in self.metadata_dir.glob("*_meta.json"):
             try:
                 with open(metadata_file, 'r', encoding='utf-8') as f:
                     metadata = json.load(f)
@@ -529,7 +529,7 @@ class StockDataCache:
             max_age_hours = self.cache_config.get(cache_type, {}).get('ttl_hours', 24)
 
         # 查找匹配的缓存
-        for metadata_file in self.metadata_dir.glob(f"*_meta.json"):
+        for metadata_file in self.metadata_dir.glob("*_meta.json"):
             try:
                 with open(metadata_file, 'r', encoding='utf-8') as f:
                     metadata = json.load(f)

@@ -29,7 +29,7 @@ def create_trader(llm, memory):
         currency = market_info['currency_name']
         currency_symbol = market_info['currency_symbol']
 
-        logger.debug(f"💰 [DEBUG] ===== 交易员节点开始 =====")
+        logger.debug("💰 [DEBUG] ===== 交易员节点开始 =====")
         logger.debug(f"💰 [DEBUG] 交易员检测股票类型: {company_name} -> {market_info['market_name']}, 货币: {currency}")
         logger.debug(f"💰 [DEBUG] 货币符号: {currency_symbol}")
         logger.debug(f"💰 [DEBUG] 市场详情: 中国A股={is_china}, 港股={is_hk}, 美股={is_us}")
@@ -40,13 +40,13 @@ def create_trader(llm, memory):
 
         # 检查memory是否可用
         if memory is not None:
-            logger.warning(f"⚠️ [DEBUG] memory可用，获取历史记忆")
+            logger.warning("⚠️ [DEBUG] memory可用，获取历史记忆")
             past_memories = memory.get_memories(curr_situation, n_matches=2)
             past_memory_str = ""
             for i, rec in enumerate(past_memories, 1):
                 past_memory_str += rec["recommendation"] + "\n\n"
         else:
-            logger.warning(f"⚠️ [DEBUG] memory为None，跳过历史记忆检索")
+            logger.warning("⚠️ [DEBUG] memory为None，跳过历史记忆检索")
             past_memories = []
             past_memory_str = "暂无历史记忆数据可参考。"
 
@@ -105,10 +105,10 @@ def create_trader(llm, memory):
 
         result = llm.invoke(messages)
 
-        logger.debug(f"💰 [DEBUG] LLM调用完成")
+        logger.debug("💰 [DEBUG] LLM调用完成")
         logger.debug(f"💰 [DEBUG] 交易员回复长度: {len(result.content)}")
         logger.debug(f"💰 [DEBUG] 交易员回复前500字符: {result.content[:500]}...")
-        logger.debug(f"💰 [DEBUG] ===== 交易员节点结束 =====")
+        logger.debug("💰 [DEBUG] ===== 交易员节点结束 =====")
 
         return {
             "messages": [result],

@@ -35,7 +35,7 @@ async def login():
                     result = await response.json()
                     if result.get("success"):
                         access_token = result["data"]["access_token"]
-                        print(f"✅ 登录成功，获取访问令牌")
+                        print("✅ 登录成功，获取访问令牌")
                         return True
                     else:
                         print(f"❌ 登录失败: {result.get('message', '未知错误')}")
@@ -160,7 +160,7 @@ async def test_model_capability_service():
             ) as response:
                 if response.status == 200:
                     result = await response.json()
-                    print(f"✅ 模型推荐成功:")
+                    print("✅ 模型推荐成功:")
                     print(f"   - 快速模型: {result.get('data', {}).get('quick_model')}")
                     print(f"   - 深度模型: {result.get('data', {}).get('deep_model')}")
                     print(f"   - 推荐理由: {result.get('data', {}).get('reason')}")

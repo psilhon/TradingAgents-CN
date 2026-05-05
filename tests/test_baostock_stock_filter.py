@@ -85,7 +85,7 @@ def test_baostock_stock_types():
 
                 # 显示样本
                 if stock_type in stock_samples:
-                    print(f"     样本:")
+                    print("     样本:")
                     for code, name in stock_samples[stock_type]:
                         print(f"       {code} - {name}")
                 print()
@@ -124,7 +124,7 @@ def test_baostock_adapter_stock_filter():
             print(f"   列名: {list(df.columns)}")
 
             # 检查是否都是股票
-            print(f"\n   前10条记录:")
+            print("\n   前10条记录:")
             for i, row in df.head(10).iterrows():
                 symbol = row.get('symbol', 'N/A')
                 name = row.get('name', 'N/A')
@@ -132,11 +132,11 @@ def test_baostock_adapter_stock_filter():
                 print(f"     {symbol} - {name} - {ts_code}")
 
             # 检查股票代码格式
-            print(f"\n   📊 股票代码分析:")
+            print("\n   📊 股票代码分析:")
             if 'symbol' in df.columns:
                 # 分析股票代码前缀
                 prefixes = df['symbol'].str[:3].value_counts()
-                print(f"     股票代码前缀分布:")
+                print("     股票代码前缀分布:")
                 for prefix, count in prefixes.head(10).items():
                     print(f"       {prefix}xxx: {count}只")
         else:
@@ -155,7 +155,7 @@ def test_baostock_adapter_stock_filter():
             print(f"   列名: {list(basic_df.columns)}")
 
             # 显示前几条记录
-            print(f"   前10条记录:")
+            print("   前10条记录:")
             for i, row in basic_df.head(10).iterrows():
                 ts_code = row.get('ts_code', 'N/A')
                 name = row.get('name', 'N/A')
@@ -174,7 +174,7 @@ def test_baostock_adapter_stock_filter():
             pe_nonzero = (basic_df['pe'] > 0).sum() if 'pe' in basic_df.columns else 0
             pb_nonzero = (basic_df['pb'] > 0).sum() if 'pb' in basic_df.columns else 0
 
-            print(f"\n   📈 数据统计:")
+            print("\n   📈 数据统计:")
             print(f"     有PE数据的股票: {pe_count}只 (非零: {pe_nonzero}只)")
             print(f"     有PB数据的股票: {pb_count}只 (非零: {pb_nonzero}只)")
             print(f"     有收盘价数据的股票: {close_count}只")

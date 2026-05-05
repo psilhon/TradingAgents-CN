@@ -74,7 +74,7 @@ def test_api_format():
             return False
 
         # 3. 等待任务完成
-        print(f"\n3. 等待任务完成...")
+        print("\n3. 等待任务完成...")
         for i in range(60):  # 最多等待5分钟
             status_response = requests.get(
                 f"{base_url}/api/analysis/tasks/{task_id}/status",
@@ -98,11 +98,11 @@ def test_api_format():
 
             time.sleep(5)
         else:
-            print(f"⏰ 任务执行超时")
+            print("⏰ 任务执行超时")
             return False
 
         # 4. 测试API返回的数据格式
-        print(f"\n4. 测试API返回的数据格式...")
+        print("\n4. 测试API返回的数据格式...")
         result_response = requests.get(
             f"{base_url}/api/analysis/tasks/{task_id}/result",
             headers=headers
@@ -112,7 +112,7 @@ def test_api_format():
             result_data = result_response.json()
             data = result_data["data"]
 
-            print(f"✅ 成功获取分析结果")
+            print("✅ 成功获取分析结果")
             print(f"   stock_symbol: {data.get('stock_symbol')}")
             print(f"   analysts: {data.get('analysts', [])}")
 
@@ -135,7 +135,7 @@ def test_api_format():
 
                 # 验证前端期望的字段
                 expected_fields = ['market_report', 'fundamentals_report', 'investment_plan', 'final_trade_decision']
-                print(f"\n🎯 检查前端期望的字段:")
+                print("\n🎯 检查前端期望的字段:")
                 for field in expected_fields:
                     if field in reports:
                         content = reports[field]
@@ -148,7 +148,7 @@ def test_api_format():
 
                 return True
             else:
-                print(f"❌ API返回未包含reports字段")
+                print("❌ API返回未包含reports字段")
                 return False
         else:
             print(f"❌ 获取API结果失败: {result_response.status_code}")

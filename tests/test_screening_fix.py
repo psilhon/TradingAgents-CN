@@ -78,15 +78,15 @@ def test_screening_api():
             return False
 
         screening_data = screening_response.json()
-        print(f"✅ 筛选成功!")
-        print(f"📊 结果统计:")
+        print("✅ 筛选成功!")
+        print("📊 结果统计:")
         print(f"  - 总数量: {screening_data.get('total', 0)}")
         print(f"  - 返回数量: {len(screening_data.get('items', []))}")
 
         # 显示前5个结果
         items = screening_data.get('items', [])
         if items:
-            print(f"📋 前5个结果:")
+            print("📋 前5个结果:")
             for i, item in enumerate(items[:5], 1):
                 print(f"  {i}. {item.get('code', 'N/A')} - 市值: {item.get('total_mv', 'N/A')}亿")
 
@@ -124,8 +124,8 @@ def test_screening_api():
 
         if complex_response.status_code == 200:
             complex_data = complex_response.json()
-            print(f"✅ 复杂筛选成功!")
-            print(f"📊 结果统计:")
+            print("✅ 复杂筛选成功!")
+            print("📊 结果统计:")
             print(f"  - 总数量: {complex_data.get('total', 0)}")
             print(f"  - 返回数量: {len(complex_data.get('items', []))}")
         else:

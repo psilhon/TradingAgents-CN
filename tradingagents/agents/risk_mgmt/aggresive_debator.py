@@ -23,7 +23,7 @@ def create_risky_debator(llm):
         trader_decision = state["trader_investment_plan"]
 
         # 📊 记录输入数据长度
-        logger.info(f"📊 [Risky Analyst] 输入数据长度统计:")
+        logger.info("📊 [Risky Analyst] 输入数据长度统计:")
         logger.info(f"  - market_report: {len(market_research_report):,} 字符")
         logger.info(f"  - sentiment_report: {len(sentiment_report):,} 字符")
         logger.info(f"  - news_report: {len(news_report):,} 字符")
@@ -50,7 +50,7 @@ def create_risky_debator(llm):
 
 积极参与，解决提出的任何具体担忧，反驳他们逻辑中的弱点，并断言承担风险的好处以超越市场常规。专注于辩论和说服，而不仅仅是呈现数据。挑战每个反驳点，强调为什么高风险方法是最优的。请用中文以对话方式输出，就像您在说话一样，不使用任何特殊格式。"""
 
-        logger.info(f"⏱️ [Risky Analyst] 开始调用LLM...")
+        logger.info("⏱️ [Risky Analyst] 开始调用LLM...")
         import time
         llm_start_time = time.time()
 

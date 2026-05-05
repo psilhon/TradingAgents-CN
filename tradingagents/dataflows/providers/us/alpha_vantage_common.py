@@ -69,7 +69,7 @@ def _get_api_key_from_database() -> Optional[str]:
                             logger.debug(f"✅ [DB查询] API Key 有效 (长度: {len(api_key)})")
                             return api_key
                         else:
-                            logger.debug(f"⚠️ [DB查询] API Key 无效或为占位符")
+                            logger.debug("⚠️ [DB查询] API Key 无效或为占位符")
             else:
                 logger.debug("⚠️ [DB查询] 配置中没有 data_source_configs")
         else:

@@ -181,7 +181,7 @@ def main():
     google_key = os.getenv('GOOGLE_API_KEY')
     reddit_id = os.getenv('REDDIT_CLIENT_ID')
 
-    print(f"🔑 API密钥状态:")
+    print("🔑 API密钥状态:")
     print(f"   Google API: {'✅ 已配置' if google_key else '❌ 未配置'}")
     print(f"   Reddit API: {'✅ 已配置' if reddit_id else '❌ 未配置'}")
 
@@ -193,7 +193,7 @@ def main():
     results['工具包集成'] = test_toolkit_integration()
 
     # 总结结果
-    print(f"\n📊 测试结果总结:")
+    print("\n📊 测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

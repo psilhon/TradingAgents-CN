@@ -66,7 +66,7 @@ def test_unified_news_tool():
                     final_message = result["messages"][-1]
                     if hasattr(final_message, 'content'):
                         report = final_message.content
-                        print(f"✅ 成功获取新闻分析报告")
+                        print("✅ 成功获取新闻分析报告")
                         print(f"📊 报告长度: {len(report)} 字符")
 
                         # 显示报告摘要

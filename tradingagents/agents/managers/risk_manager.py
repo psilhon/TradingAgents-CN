@@ -27,7 +27,7 @@ def create_risk_manager(llm, memory):
         if memory is not None:
             past_memories = memory.get_memories(curr_situation, n_matches=2)
         else:
-            logger.warning(f"⚠️ [DEBUG] memory为None，跳过历史记忆检索")
+            logger.warning("⚠️ [DEBUG] memory为None，跳过历史记忆检索")
             past_memories = []
 
         past_memory_str = ""
@@ -63,7 +63,7 @@ def create_risk_manager(llm, memory):
         # 粗略估算 token 数量（中文约 1.5-2 字符/token，英文约 4 字符/token）
         estimated_tokens = int(prompt_length / 1.8)  # 保守估计
 
-        logger.info(f"📊 [Risk Manager] Prompt 统计:")
+        logger.info("📊 [Risk Manager] Prompt 统计:")
         logger.info(f"   - 辩论历史长度: {len(history)} 字符")
         logger.info(f"   - 交易员计划长度: {len(trader_plan)} 字符")
         logger.info(f"   - 历史记忆长度: {len(past_memory_str)} 字符")
@@ -106,13 +106,13 @@ def create_risk_manager(llm, memory):
                     logger.info(f"📊 [Risk Manager] 响应统计: {response_length} 字符, 估算~{estimated_output_tokens} tokens{usage_info}")
 
                     if len(response_content) > 10:  # 确保响应有实质内容
-                        logger.info(f"✅ [Risk Manager] LLM调用成功")
+                        logger.info("✅ [Risk Manager] LLM调用成功")
                         break
                     else:
                         logger.warning(f"⚠️ [Risk Manager] LLM响应内容过短: {len(response_content)} 字符")
                         response_content = ""
                 else:
-                    logger.warning(f"⚠️ [Risk Manager] LLM响应为空或无效")
+                    logger.warning("⚠️ [Risk Manager] LLM响应为空或无效")
                     response_content = ""
 
             except Exception as e:
@@ -123,12 +123,12 @@ def create_risk_manager(llm, memory):
 
             retry_count += 1
             if retry_count < max_retries and not response_content:
-                logger.info(f"🔄 [Risk Manager] 等待2秒后重试...")
+                logger.info("🔄 [Risk Manager] 等待2秒后重试...")
                 time.sleep(2)
 
         # 如果所有重试都失败，生成默认决策
         if not response_content:
-            logger.error(f"❌ [Risk Manager] 所有LLM调用尝试失败，使用默认决策")
+            logger.error("❌ [Risk Manager] 所有LLM调用尝试失败，使用默认决策")
             response_content = f"""**默认建议：持有**
 
 由于技术原因无法生成详细分析，基于当前市场状况和风险控制原则，建议对{company_name}采取持有策略。

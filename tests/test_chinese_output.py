@@ -92,7 +92,7 @@ def test_signal_processor_chinese():
         print("处理测试信号...")
         decision = processor.process_signal(test_signal, "AAPL")
 
-        print(f"✅ 信号处理成功")
+        print("✅ 信号处理成功")
         print(f"决策结果: {decision}")
 
         # 检查决策是否为中文
@@ -128,7 +128,7 @@ def main():
     # 测试信号处理器
     success2 = test_signal_processor_chinese()
 
-    print(f"\n📊 测试结果:")
+    print("\n📊 测试结果:")
     print(f"  基本中文输出: {'✅ 通过' if success1 else '❌ 失败'}")
     print(f"  信号处理器: {'✅ 通过' if success2 else '❌ 失败'}")
 

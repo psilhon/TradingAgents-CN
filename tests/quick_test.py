@@ -110,7 +110,7 @@ try:
     if loaded_data == test_data:
         print("✅ 数据加载成功，内容匹配")
     else:
-        print(f"❌ 数据不匹配")
+        print("❌ 数据不匹配")
         print(f"  期望: {test_data}")
         print(f"  实际: {loaded_data}")
 

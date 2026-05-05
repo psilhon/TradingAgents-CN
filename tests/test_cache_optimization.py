@@ -21,12 +21,12 @@ def test_cache_manager():
         from tradingagents.dataflows.cache_manager import get_cache
 
         cache = get_cache()
-        print(f"✅ 缓存管理器初始化成功")
+        print("✅ 缓存管理器初始化成功")
         print(f"📁 缓存目录: {cache.cache_dir}")
 
         # 测试缓存配置
         if hasattr(cache, 'cache_config'):
-            print(f"⚙️ 缓存配置:")
+            print("⚙️ 缓存配置:")
             for config_name, config_data in cache.cache_config.items():
                 print(f"  - {config_name}: TTL={config_data.get('ttl_hours')}h, 描述={config_data.get('description')}")
 

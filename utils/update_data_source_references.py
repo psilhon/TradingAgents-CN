@@ -38,8 +38,8 @@ def update_file_content(file_path: Path, replacements: list):
 
 def main():
     """主函数"""
-    logger.info(f"🔧 批量更新数据源引用")
-    logger.info(f"=")
+    logger.info("🔧 批量更新数据源引用")
+    logger.info("=")
 
     # 项目根目录
     project_root = Path(__file__).parent.parent
@@ -115,19 +115,19 @@ def main():
         if update_file_content(file_path, replacements):
             updated_count += 1
 
-    logger.info(f"\n📊 更新完成:")
+    logger.info("\n📊 更新完成:")
     logger.info(f"   检查文件: {len(files_to_update)}")
     logger.info(f"   更新文件: {updated_count}")
 
     if updated_count > 0:
         logger.info(f"\n🎉 成功更新 {updated_count} 个文件的数据源引用！")
-        logger.info(f"\n📋 主要更新内容:")
-        logger.info(f"   ✅ 'Tushare数据接口' → 'Tushare数据接口'")
-        logger.info(f"   ✅ '通达信数据源' → '中国股票数据源'")
-        logger.error(f"   ✅ 错误提示和用户界面文本")
-        logger.info(f"   ✅ 技术文档和注释")
+        logger.info("\n📋 主要更新内容:")
+        logger.info("   ✅ 'Tushare数据接口' → 'Tushare数据接口'")
+        logger.info("   ✅ '通达信数据源' → '中国股票数据源'")
+        logger.error("   ✅ 错误提示和用户界面文本")
+        logger.info("   ✅ 技术文档和注释")
     else:
-        logger.info(f"\n✅ 所有文件的数据源引用都是最新的")
+        logger.info("\n✅ 所有文件的数据源引用都是最新的")
 
 if __name__ == "__main__":
     main()

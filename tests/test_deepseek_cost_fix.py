@@ -72,7 +72,7 @@ def test_deepseek_cost_calculation():
 
         cost_increase = final_cost - initial_cost
 
-        print(f"\n📊 最终统计:")
+        print("\n📊 最终统计:")
         print(f"   初始成本: ¥{initial_cost:.6f}")
         print(f"   最终成本: ¥{final_cost:.6f}")
         print(f"   成本增加: ¥{cost_increase:.6f}")
@@ -88,11 +88,11 @@ def test_deepseek_cost_calculation():
 
         # 验证成本是否合理
         if cost_increase > 0:
-            print(f"\n✅ 成本计算修复成功！")
+            print("\n✅ 成本计算修复成功！")
             print(f"   每次调用平均成本: ¥{cost_increase/len(test_cases):.6f}")
             return True
         else:
-            print(f"\n❌ 成本计算仍有问题")
+            print("\n❌ 成本计算仍有问题")
             return False
 
     except Exception as e:

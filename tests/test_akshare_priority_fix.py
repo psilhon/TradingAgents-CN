@@ -171,7 +171,7 @@ def test_data_source_switching():
                     if current == source:
                         print(f"✅ 当前数据源确认: {current.value}")
                     else:
-                        print(f"❌ 数据源切换验证失败")
+                        print("❌ 数据源切换验证失败")
                         return False
                 else:
                     print(f"❌ 切换到{source.value}失败")

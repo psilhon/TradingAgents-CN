@@ -57,14 +57,14 @@ async def test_timezone_fix():
 
         doc = await db.operation_logs.find_one({"_id": ObjectId(log_id)})
         if doc:
-            print(f"📄 数据库中存储的时间:")
+            print("📄 数据库中存储的时间:")
             print(f"  timestamp: {doc['timestamp']}")
             print(f"  created_at: {doc['created_at']}")
             print(f"  action: {doc['action']}")
 
             # 比较时间
             stored_time = doc['timestamp']
-            print(f"\n⏰ 时间比较:")
+            print("\n⏰ 时间比较:")
             print(f"  存储时间: {stored_time}")
             print(f"  本地时间: {now_local}")
             print(f"  UTC时间: {now_utc}")

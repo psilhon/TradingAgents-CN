@@ -33,7 +33,7 @@ def test_china_stock_data_sources():
 
         # 1. 测试统一数据源接口
         try:
-            print(f"🔍 测试统一数据源接口...")
+            print("🔍 测试统一数据源接口...")
             from tradingagents.dataflows.interface import get_china_stock_data_unified
 
             start_time = time.time()
@@ -59,7 +59,7 @@ def test_china_stock_data_sources():
 
         # 2. 测试优化版本
         try:
-            print(f"🔍 测试优化版本...")
+            print("🔍 测试优化版本...")
             from tradingagents.dataflows.optimized_china_data import get_china_stock_data_cached
 
             start_time = time.time()
@@ -84,7 +84,7 @@ def test_china_stock_data_sources():
 
         # 3. 测试数据源管理器
         try:
-            print(f"🔍 测试数据源管理器...")
+            print("🔍 测试数据源管理器...")
             from tradingagents.dataflows.data_source_manager import DataSourceManager
 
             manager = DataSourceManager()
@@ -135,7 +135,7 @@ def test_us_stock_data_sources():
 
         # 1. 测试优化版本（FinnHub优先）
         try:
-            print(f"🔍 测试优化版本（FinnHub优先）...")
+            print("🔍 测试优化版本（FinnHub优先）...")
             from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
 
             start_time = time.time()
@@ -148,9 +148,9 @@ def test_us_stock_data_sources():
 
                 # 检查数据源
                 if "FINNHUB" in result.upper() or "finnhub" in result:
-                    print(f"   🎯 使用了FinnHub数据源")
+                    print("   🎯 使用了FinnHub数据源")
                 elif "Yahoo Finance" in result or "yfinance" in result:
-                    print(f"   ⚠️ 使用了Yahoo Finance备用数据源")
+                    print("   ⚠️ 使用了Yahoo Finance备用数据源")
 
                 symbol_results['optimized'] = {
                     'success': True,
@@ -167,7 +167,7 @@ def test_us_stock_data_sources():
 
         # 2. 测试原始yfinance接口
         try:
-            print(f"🔍 测试原始yfinance接口...")
+            print("🔍 测试原始yfinance接口...")
             from tradingagents.dataflows.interface import get_YFin_data_online
 
             start_time = time.time()
@@ -211,7 +211,7 @@ def test_news_data_sources():
 
         # 1. 测试实时新闻聚合器
         try:
-            print(f"🔍 测试实时新闻聚合器...")
+            print("🔍 测试实时新闻聚合器...")
             from tradingagents.dataflows.realtime_news_utils import RealtimeNewsAggregator
 
             aggregator = RealtimeNewsAggregator()
@@ -238,7 +238,7 @@ def test_news_data_sources():
 
         # 2. 测试FinnHub新闻
         try:
-            print(f"🔍 测试FinnHub新闻...")
+            print("🔍 测试FinnHub新闻...")
             from tradingagents.dataflows.interface import get_finnhub_news
 
             start_time = time.time()
@@ -274,7 +274,7 @@ def test_cache_system():
     results = {}
 
     try:
-        print(f"🔍 测试缓存管理器...")
+        print("🔍 测试缓存管理器...")
         from tradingagents.dataflows.cache_manager import get_cache
 
         cache = get_cache()
@@ -298,10 +298,10 @@ def test_cache_system():
         loaded_data = cache.load_stock_data(cache_key)
 
         if loaded_data == test_data:
-            print(f"✅ 缓存系统测试成功")
+            print("✅ 缓存系统测试成功")
             results['cache'] = {'success': True, 'cache_type': type(cache).__name__}
         else:
-            print(f"❌ 缓存数据不匹配")
+            print("❌ 缓存数据不匹配")
             results['cache'] = {'success': False, 'error': '数据不匹配'}
 
     except Exception as e:
@@ -327,7 +327,7 @@ def analyze_results(all_results: Dict):
             total_tests += 1
             if category_results.get('success'):
                 successful_tests += 1
-                print(f"   ✅ 缓存系统: 正常")
+                print("   ✅ 缓存系统: 正常")
             else:
                 print(f"   ❌ 缓存系统: {category_results.get('error', '未知错误')}")
         else:
@@ -346,13 +346,13 @@ def analyze_results(all_results: Dict):
 
     # 总体统计
     success_rate = (successful_tests / total_tests * 100) if total_tests > 0 else 0
-    print(f"\n📈 总体统计:")
+    print("\n📈 总体统计:")
     print(f"   总测试数: {total_tests}")
     print(f"   成功数: {successful_tests}")
     print(f"   成功率: {success_rate:.1f}%")
 
     # 性能分析
-    print(f"\n⚡ 性能分析:")
+    print("\n⚡ 性能分析:")
     fastest_times = []
     slowest_times = []
 
@@ -377,7 +377,7 @@ def analyze_results(all_results: Dict):
 
 def print_recommendations(all_results: Dict):
     """打印优化建议"""
-    print(f"\n💡 优化建议:")
+    print("\n💡 优化建议:")
     print("=" * 60)
 
     # 检查中国股票数据源
@@ -467,7 +467,7 @@ def main():
         print_recommendations(all_results)
 
         # 7. 总结
-        print(f"\n🎯 测试总结:")
+        print("\n🎯 测试总结:")
         if success:
             print("✅ 数据源系统运行正常")
             print("✅ 优先级配置正确")
@@ -494,7 +494,7 @@ if __name__ == "__main__":
     else:
         print("⚠️ 数据源测试发现问题，请检查配置。")
 
-    print(f"\n📋 下一步:")
+    print("\n📋 下一步:")
     print("1. 根据建议优化配置")
     print("2. 运行 python -m cli.main 测试完整流程")
     print("3. 检查 .env 文件中的API密钥配置")

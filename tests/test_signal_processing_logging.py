@@ -60,7 +60,7 @@ def test_signal_processing_logging():
 基于综合分析，建议买入{company_name}({stock_symbol})。
 """
 
-            print(f"🔍 [测试] 调用信号处理器...")
+            print("🔍 [测试] 调用信号处理器...")
             print(f"   股票代码: {stock_symbol}")
             print(f"   信号长度: {len(mock_signal)} 字符")
 
@@ -68,7 +68,7 @@ def test_signal_processing_logging():
                 # 调用信号处理器（这里应该会触发日志记录）
                 result = processor.process_signal(mock_signal, stock_symbol)
 
-                print(f"✅ 信号处理完成")
+                print("✅ 信号处理完成")
                 print(f"   返回结果类型: {type(result)}")
 
                 if isinstance(result, dict):
@@ -114,7 +114,7 @@ def test_logging_extraction():
         @log_graph_module("signal_processing")
         def mock_process_signal(self, full_signal: str, stock_symbol: str = None) -> dict:
             """模拟信号处理函数"""
-            print(f"🔍 [模拟函数] 接收到的参数:")
+            print("🔍 [模拟函数] 接收到的参数:")
             print(f"   full_signal 长度: {len(full_signal) if full_signal else 0}")
             print(f"   stock_symbol: {stock_symbol}")
 

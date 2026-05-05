@@ -120,25 +120,25 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
                     api_endpoint = base_url
                     logger.info(f"🔍 [Google官方] 使用完整 base_url 作为域名: {api_endpoint}")
 
-                logger.info(f"✅ [Google官方] SDK 会自动添加 /v1beta 路径")
+                logger.info("✅ [Google官方] SDK 会自动添加 /v1beta 路径")
             else:
                 # 🔄 中转地址：直接使用完整 URL，不让 SDK 添加 /v1beta
                 # 中转服务通常已经包含了完整的路径映射
                 api_endpoint = base_url
                 logger.info(f"🔄 [中转地址] 检测到非官方域名，使用完整 URL: {api_endpoint}")
-                logger.info(f"   中转服务通常已包含完整路径，不需要 SDK 添加 /v1beta")
+                logger.info("   中转服务通常已包含完整路径，不需要 SDK 添加 /v1beta")
 
             # 通过 client_options 传递自定义端点
             # 参考: https://github.com/langchain-ai/langchain-google/issues/783
             kwargs["client_options"] = {"api_endpoint": api_endpoint}
             logger.info(f"✅ [Google初始化] 设置 client_options.api_endpoint: {api_endpoint}")
         else:
-            logger.info(f"🔍 [Google初始化] 未提供 base_url，使用默认端点")
+            logger.info("🔍 [Google初始化] 未提供 base_url，使用默认端点")
 
         # 调用父类初始化
         super().__init__(**kwargs)
 
-        logger.info(f"✅ Google AI OpenAI 兼容适配器初始化成功")
+        logger.info("✅ Google AI OpenAI 兼容适配器初始化成功")
         logger.info(f"   模型: {kwargs.get('model', 'gemini-pro')}")
         logger.info(f"   温度: {kwargs.get('temperature', 0.1)}")
         logger.info(f"   最大Token: {kwargs.get('max_tokens', 2000)}")
@@ -215,7 +215,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
             optimized_content = self._enhance_news_content(content)
             message.content = optimized_content
 
-            logger.debug(f"🔧 [Google适配器] 优化新闻内容格式")
+            logger.debug("🔧 [Google适配器] 优化新闻内容格式")
             logger.debug(f"   原始长度: {len(content)} 字符")
             logger.debug(f"   优化后长度: {len(optimized_content)} 字符")
 
@@ -393,7 +393,7 @@ def test_google_openai_connection(
     """测试 Google AI OpenAI 兼容接口连接"""
 
     try:
-        logger.info(f"🧪 测试 Google AI OpenAI 兼容接口连接")
+        logger.info("🧪 测试 Google AI OpenAI 兼容接口连接")
         logger.info(f"   模型: {model}")
 
         # 创建客户端
@@ -407,11 +407,11 @@ def test_google_openai_connection(
         response = llm.invoke("你好，请简单介绍一下你自己。")
 
         if response and hasattr(response, 'content') and response.content:
-            logger.info(f"✅ Google AI OpenAI 兼容接口连接成功")
+            logger.info("✅ Google AI OpenAI 兼容接口连接成功")
             logger.info(f"   响应: {response.content[:100]}...")
             return True
         else:
-            logger.error(f"❌ Google AI OpenAI 兼容接口响应为空")
+            logger.error("❌ Google AI OpenAI 兼容接口响应为空")
             return False
 
     except Exception as e:
@@ -426,7 +426,7 @@ def test_google_openai_function_calling(
     """测试 Google AI OpenAI 兼容接口的 Function Calling"""
 
     try:
-        logger.info(f"🧪 测试 Google AI Function Calling")
+        logger.info("🧪 测试 Google AI Function Calling")
         logger.info(f"   模型: {model}")
 
         # 创建客户端
@@ -455,7 +455,7 @@ def test_google_openai_function_calling(
         # 测试工具调用
         response = llm_with_tools.invoke("请使用test_news_tool查询'苹果公司'的新闻")
 
-        logger.info(f"✅ Google AI Function Calling 测试完成")
+        logger.info("✅ Google AI Function Calling 测试完成")
         logger.info(f"   响应类型: {type(response)}")
 
         if hasattr(response, 'tool_calls') and response.tool_calls:
@@ -472,8 +472,8 @@ def test_google_openai_function_calling(
 
 if __name__ == "__main__":
     """测试脚本"""
-    logger.info(f"🧪 Google AI OpenAI 兼容适配器测试")
-    logger.info(f"=" * 50)
+    logger.info("🧪 Google AI OpenAI 兼容适配器测试")
+    logger.info("=" * 50)
 
     # 测试连接
     connection_ok = test_google_openai_connection()
@@ -483,8 +483,8 @@ if __name__ == "__main__":
         function_calling_ok = test_google_openai_function_calling()
 
         if function_calling_ok:
-            logger.info(f"\n🎉 所有测试通过！Google AI OpenAI 兼容适配器工作正常")
+            logger.info("\n🎉 所有测试通过！Google AI OpenAI 兼容适配器工作正常")
         else:
-            logger.error(f"\n⚠️ Function Calling 测试失败")
+            logger.error("\n⚠️ Function Calling 测试失败")
     else:
-        logger.error(f"\n❌ 连接测试失败")
+        logger.error("\n❌ 连接测试失败")

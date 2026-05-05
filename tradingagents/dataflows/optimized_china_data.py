@@ -32,7 +32,7 @@ class OptimizedChinaDataProvider:
         self.last_api_call = 0
         self.min_api_interval = get_float("TA_CHINA_MIN_API_INTERVAL_SECONDS", "ta_china_min_api_interval_seconds", 0.5)
 
-        logger.info(f"📊 优化A股数据提供器初始化完成")
+        logger.info("📊 优化A股数据提供器初始化完成")
 
     def _wait_for_rate_limit(self):
         """等待API限制"""
@@ -221,7 +221,7 @@ class OptimizedChinaDataProvider:
         # 2. 检查文件缓存（除非强制刷新）
         if not force_refresh:
             # 查找基本面数据缓存
-            for metadata_file in self.cache.metadata_dir.glob(f"*_meta.json"):
+            for metadata_file in self.cache.metadata_dir.glob("*_meta.json"):
                 try:
                     import json
                     with open(metadata_file, 'r', encoding='utf-8') as f:
@@ -431,7 +431,7 @@ class OptimizedChinaDataProvider:
             logger.debug(f"🔍 [股票代码追踪] _estimate_financial_metrics 返回结果: {financial_estimates}")
         except Exception as e:
             logger.warning(f"⚠️ [基本面分析] 无法获取财务指标: {e}")
-            logger.info(f"📊 [基本面分析] 返回简化的基本面报告（无财务指标）")
+            logger.info("📊 [基本面分析] 返回简化的基本面报告（无财务指标）")
 
             # 返回简化的基本面报告（不包含财务指标）
             simplified_report = f"""# 中国A股基本面分析报告 - {symbol} (简化版)
@@ -735,7 +735,7 @@ class OptimizedChinaDataProvider:
             logger.warning(f"⚠️ 从数据库获取行业信息失败: {e}")
 
         # 备用方案：使用代码前缀判断（但修正了行业/市场的映射）
-        logger.debug(f"🔍 [股票代码追踪] 使用备用方案，基于代码前缀判断")
+        logger.debug("🔍 [股票代码追踪] 使用备用方案，基于代码前缀判断")
         code_prefix = symbol[:3]
         logger.debug(f"🔍 [股票代码追踪] 提取的代码前缀: '{code_prefix}'")
 
@@ -885,10 +885,10 @@ class OptimizedChinaDataProvider:
                     # 解析 MongoDB 标准化的财务数据
                     metrics = self._parse_mongodb_financial_data(financial_data, price_value)
                     if metrics:
-                        logger.info(f"✅ MongoDB 财务数据解析成功，返回指标")
+                        logger.info("✅ MongoDB 财务数据解析成功，返回指标")
                         return metrics
                     else:
-                        logger.warning(f"⚠️ MongoDB 财务数据解析失败")
+                        logger.warning("⚠️ MongoDB 财务数据解析失败")
                 else:
                     logger.info(f"🔄 MongoDB 未找到{symbol}财务数据，尝试从 AKShare API 获取")
             else:
@@ -915,16 +915,16 @@ class OptimizedChinaDataProvider:
                     metrics = self._parse_akshare_financial_data(financial_data, stock_info, price_value)
                     logger.debug(f"🔧 AKShare解析结果: {metrics}")
                     if metrics:
-                        logger.info(f"✅ AKShare解析成功，返回指标")
+                        logger.info("✅ AKShare解析成功，返回指标")
                         # 缓存原始财务数据到数据库（而不是解析后的指标）
                         self._cache_raw_financial_data(symbol, financial_data, stock_info)
                         return metrics
                     else:
-                        logger.warning(f"⚠️ AKShare解析失败，返回None")
+                        logger.warning("⚠️ AKShare解析失败，返回None")
                 else:
                     logger.warning(f"⚠️ AKShare未获取到{symbol}财务数据，尝试Tushare")
             else:
-                logger.warning(f"⚠️ AKShare未连接，尝试Tushare")
+                logger.warning("⚠️ AKShare未连接，尝试Tushare")
 
             # 第三优先级：使用Tushare数据源
             logger.info(f"🔄 使用Tushare备用数据源获取{symbol}财务数据")
@@ -1125,14 +1125,14 @@ class OptimizedChinaDataProvider:
                                 is_loss_stock = True
                                 logger.info(f"⚠️ [PE计算-第1层失败] 检测到亏损股（pe_ttm={pe_ttm_static}），跳过降级计算")
                             else:
-                                logger.warning(f"⚠️ [PE计算-第1层失败] 实时计算返回空结果，将尝试降级计算")
+                                logger.warning("⚠️ [PE计算-第1层失败] 实时计算返回空结果，将尝试降级计算")
 
             except Exception as e:
                 logger.warning(f"⚠️ [PE计算-第1层异常] 实时计算失败: {e}，将尝试降级计算")
 
             # 如果实时计算失败，尝试从 latest_indicators 获取总市值
             if "total_mv" not in metrics:
-                logger.info(f"📊 [总市值-第2层] 尝试从 stock_basic_info 获取")
+                logger.info("📊 [总市值-第2层] 尝试从 stock_basic_info 获取")
                 total_mv_static = latest_indicators.get('total_mv')
                 if total_mv_static is not None and total_mv_static > 0:
                     metrics["total_mv"] = f"{total_mv_static:.2f}亿元"
@@ -1146,16 +1146,16 @@ class OptimizedChinaDataProvider:
                         logger.info(f"✅ [总市值-第3层成功] 总市值={total_mv_yi:.2f}亿元 (从money_cap转换)")
                     else:
                         metrics["total_mv"] = "N/A"
-                        logger.warning(f"⚠️ [总市值-全部失败] 无可用总市值数据")
+                        logger.warning("⚠️ [总市值-全部失败] 无可用总市值数据")
 
             # 如果实时计算失败，尝试传统计算方式
             if pe_value is None:
                 # 🔥 如果已经确认是亏损股，直接设置 PE 为 N/A，不再尝试降级计算
                 if is_loss_stock:
                     metrics["pe"] = "N/A"
-                    logger.info(f"⚠️ [PE计算-亏损股] 已确认为亏损股，PE设置为N/A，跳过第2层计算")
+                    logger.info("⚠️ [PE计算-亏损股] 已确认为亏损股，PE设置为N/A，跳过第2层计算")
                 else:
-                    logger.info(f"📊 [PE计算-第2层] 尝试使用市值/净利润计算")
+                    logger.info("📊 [PE计算-第2层] 尝试使用市值/净利润计算")
 
                     net_profit = latest_indicators.get('net_profit')
 
@@ -1181,7 +1181,7 @@ class OptimizedChinaDataProvider:
                                         if pe_float > 0:
                                             metrics["pe"] = f"{pe_float:.1f}倍"
                                             logger.info(f"✅ [PE计算-第3层成功] 使用静态PE: {metrics['pe']}")
-                                            logger.info(f"   └─ 数据来源: stock_basic_info.pe")
+                                            logger.info("   └─ 数据来源: stock_basic_info.pe")
                                         else:
                                             metrics["pe"] = "N/A"
                                             logger.info(f"⚠️ [PE计算-第3层跳过] 静态PE为负数或零（亏损股）: {pe_float}")
@@ -1190,7 +1190,7 @@ class OptimizedChinaDataProvider:
                                         logger.error(f"❌ [PE计算-第3层失败] 静态PE格式错误: {pe_static}")
                                 else:
                                     metrics["pe"] = "N/A"
-                                    logger.error(f"❌ [PE计算-全部失败] 无可用PE数据")
+                                    logger.error("❌ [PE计算-全部失败] 无可用PE数据")
                         except (ValueError, TypeError, ZeroDivisionError) as e:
                             metrics["pe"] = "N/A"
                             logger.error(f"❌ [PE计算-第2层异常] 计算失败: {e}")
@@ -1210,7 +1210,7 @@ class OptimizedChinaDataProvider:
                                 if pe_float > 0:
                                     metrics["pe"] = f"{pe_float:.1f}倍"
                                     logger.info(f"✅ [PE计算-第3层成功] 使用静态PE: {metrics['pe']}")
-                                    logger.info(f"   └─ 数据来源: stock_basic_info.pe")
+                                    logger.info("   └─ 数据来源: stock_basic_info.pe")
                                 else:
                                     metrics["pe"] = "N/A"
                                     logger.info(f"⚠️ [PE计算-第3层跳过] 静态PE为负数或零（亏损股）: {pe_float}")
@@ -1219,16 +1219,16 @@ class OptimizedChinaDataProvider:
                                 logger.error(f"❌ [PE计算-第3层失败] 静态PE格式错误: {pe_static}")
                         else:
                             metrics["pe"] = "N/A"
-                            logger.error(f"❌ [PE计算-全部失败] 无可用PE数据")
+                            logger.error("❌ [PE计算-全部失败] 无可用PE数据")
 
             # 如果 PE_TTM 未获取到，尝试从静态数据获取
             if pe_ttm_value is None:
                 # 🔥 如果已经确认是亏损股，直接设置 PE_TTM 为 N/A
                 if is_loss_stock:
                     metrics["pe_ttm"] = "N/A"
-                    logger.info(f"⚠️ [PE_TTM计算-亏损股] 已确认为亏损股，PE_TTM设置为N/A")
+                    logger.info("⚠️ [PE_TTM计算-亏损股] 已确认为亏损股，PE_TTM设置为N/A")
                 else:
-                    logger.info(f"📊 [PE_TTM计算-第2层] 尝试从静态数据获取")
+                    logger.info("📊 [PE_TTM计算-第2层] 尝试从静态数据获取")
                     pe_ttm_static = latest_indicators.get('pe_ttm')
                     if pe_ttm_static is not None and str(pe_ttm_static) != 'nan' and pe_ttm_static != '--':
                         try:
@@ -1237,7 +1237,7 @@ class OptimizedChinaDataProvider:
                             if pe_ttm_float > 0:
                                 metrics["pe_ttm"] = f"{pe_ttm_float:.1f}倍"
                                 logger.info(f"✅ [PE_TTM计算-第2层成功] 使用静态PE_TTM: {metrics['pe_ttm']}")
-                                logger.info(f"   └─ 数据来源: stock_basic_info.pe_ttm")
+                                logger.info("   └─ 数据来源: stock_basic_info.pe_ttm")
                             else:
                                 metrics["pe_ttm"] = "N/A"
                                 logger.info(f"⚠️ [PE_TTM计算-第2层跳过] 静态PE_TTM为负数或零（亏损股）: {pe_ttm_float}")
@@ -1246,7 +1246,7 @@ class OptimizedChinaDataProvider:
                             logger.error(f"❌ [PE_TTM计算-第2层失败] 静态PE_TTM格式错误: {pe_ttm_static}")
                     else:
                         metrics["pe_ttm"] = "N/A"
-                        logger.warning(f"⚠️ [PE_TTM计算-全部失败] 无可用PE_TTM数据")
+                        logger.warning("⚠️ [PE_TTM计算-全部失败] 无可用PE_TTM数据")
 
             if pb_value is None:
                 total_equity = latest_indicators.get('total_hldr_eqy_exc_min_int')
@@ -1268,7 +1268,7 @@ class OptimizedChinaDataProvider:
                                 try:
                                     metrics["pb"] = f"{float(pb_static):.2f}倍"
                                     logger.info(f"✅ [PB计算-第3层成功] 使用静态PB: {metrics['pb']}")
-                                    logger.info(f"   └─ 数据来源: stock_basic_info.pb")
+                                    logger.info("   └─ 数据来源: stock_basic_info.pb")
                                 except (ValueError, TypeError):
                                     metrics["pb"] = "N/A"
                             else:
@@ -1283,7 +1283,7 @@ class OptimizedChinaDataProvider:
                         try:
                             metrics["pb"] = f"{float(pb_static):.2f}倍"
                             logger.info(f"✅ [PB计算-第3层成功] 使用静态PB: {metrics['pb']}")
-                            logger.info(f"   └─ 数据来源: stock_basic_info.pb")
+                            logger.info("   └─ 数据来源: stock_basic_info.pb")
                         except (ValueError, TypeError):
                             metrics["pb"] = "N/A"
                     else:
@@ -1444,7 +1444,7 @@ class OptimizedChinaDataProvider:
                                 metrics["pb"] = f"{pb_value:.2f}倍{realtime_tag}"
                                 logger.info(f"✅ [AKShare-PB计算-第1层成功] PB={pb_value:.2f}倍")
                         else:
-                            logger.warning(f"⚠️ [AKShare-PE计算-第1层失败] 实时计算返回空结果，将尝试降级计算")
+                            logger.warning("⚠️ [AKShare-PE计算-第1层失败] 实时计算返回空结果，将尝试降级计算")
             except Exception as e:
                 logger.warning(f"⚠️ [AKShare-PE计算-第1层异常] 实时计算失败: {e}，将尝试降级计算")
 
@@ -1463,18 +1463,18 @@ class OptimizedChinaDataProvider:
 
             # 如果实时计算失败，尝试从 stock_info 获取总市值
             if "total_mv" not in metrics:
-                logger.info(f"📊 [AKShare-总市值-第2层] 尝试从 stock_info 获取")
+                logger.info("📊 [AKShare-总市值-第2层] 尝试从 stock_info 获取")
                 total_mv_static = stock_info.get('total_mv')
                 if total_mv_static is not None and total_mv_static > 0:
                     metrics["total_mv"] = f"{total_mv_static:.2f}亿元"
                     logger.info(f"✅ [AKShare-总市值-第2层成功] 总市值={total_mv_static:.2f}亿元")
                 else:
                     metrics["total_mv"] = "N/A"
-                    logger.warning(f"⚠️ [AKShare-总市值-全部失败] 无可用总市值数据")
+                    logger.warning("⚠️ [AKShare-总市值-全部失败] 无可用总市值数据")
 
             # 🔥 如果实时计算失败，降级到传统计算方式
             if pe_value is None:
-                logger.info(f"📊 [AKShare-PE计算-第2层] 尝试使用股价/EPS计算")
+                logger.info("📊 [AKShare-PE计算-第2层] 尝试使用股价/EPS计算")
 
                 # 计算 PE - 优先使用 TTM 数据
                 # 尝试从 main_indicators DataFrame 计算 TTM EPS
@@ -1529,11 +1529,11 @@ class OptimizedChinaDataProvider:
                     logger.warning(f"⚠️ [AKShare-PE计算-第2层失败] 亏损股票，EPS={eps_for_pe}")
                 else:
                     metrics["pe"] = "N/A"
-                    logger.error(f"❌ [AKShare-PE计算-全部失败] 无可用EPS数据")
+                    logger.error("❌ [AKShare-PE计算-全部失败] 无可用EPS数据")
 
             # 🔥 如果实时PB计算失败，降级到传统计算方式
             if pb_value is None:
-                logger.info(f"📊 [AKShare-PB计算-第2层] 尝试使用股价/BPS计算")
+                logger.info("📊 [AKShare-PB计算-第2层] 尝试使用股价/BPS计算")
 
                 # 获取每股净资产 - 用于计算PB
                 bps_value = indicators_dict.get('每股净资产_最新股数')
@@ -1553,7 +1553,7 @@ class OptimizedChinaDataProvider:
                         logger.error(f"❌ [AKShare-PB计算-第2层异常] {e}")
                 else:
                     metrics["pb"] = "N/A"
-                    logger.error(f"❌ [AKShare-PB计算-全部失败] 无可用BPS数据")
+                    logger.error("❌ [AKShare-PB计算-全部失败] 无可用BPS数据")
 
             # 尝试获取其他指标
             # 总资产收益率(ROA)
@@ -1671,7 +1671,7 @@ class OptimizedChinaDataProvider:
                     logger.info(f"✅ 计算PS({ps_type}): 市值{market_cap:.2f}万元 / 营业收入{revenue_for_ps:.2f}万元 = {metrics['ps']}")
                 else:
                     metrics["ps"] = "N/A（无总股本数据）"
-                    logger.warning(f"⚠️ 无法计算PS: 缺少总股本数据")
+                    logger.warning("⚠️ 无法计算PS: 缺少总股本数据")
             else:
                 metrics["ps"] = "N/A"
 
@@ -2057,7 +2057,7 @@ class OptimizedChinaDataProvider:
         """尝试获取过期的缓存数据作为备用"""
         try:
             # 查找任何相关的缓存，不考虑TTL
-            for metadata_file in self.cache.metadata_dir.glob(f"*_meta.json"):
+            for metadata_file in self.cache.metadata_dir.glob("*_meta.json"):
                 try:
                     import json
 
@@ -2170,7 +2170,7 @@ def _add_financial_cache_methods():
             from .cache.app_adapter import get_mongodb_client
             client = get_mongodb_client()
             if not client:
-                logger.debug(f"📊 [财务缓存] MongoDB客户端不可用")
+                logger.debug("📊 [财务缓存] MongoDB客户端不可用")
                 return None
 
             db = client.get_database('tradingagents')
@@ -2315,13 +2315,13 @@ def _add_financial_cache_methods():
         try:
             from tradingagents.config.runtime_settings import use_app_cache_enabled
             if not use_app_cache_enabled(False):
-                logger.debug(f"📊 [财务缓存] 应用缓存未启用，跳过缓存保存")
+                logger.debug("📊 [财务缓存] 应用缓存未启用，跳过缓存保存")
                 return
 
             from .cache.app_adapter import get_mongodb_client
             client = get_mongodb_client()
             if not client:
-                logger.debug(f"📊 [财务缓存] MongoDB客户端不可用")
+                logger.debug("📊 [财务缓存] MongoDB客户端不可用")
                 return
 
             db = client.get_database('tradingagents')

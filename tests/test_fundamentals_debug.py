@@ -48,12 +48,12 @@ def test_fundamentals_analyst_directly():
         }
 
         print(f"  测试港股: {state['company_of_interest']}")
-        print(f"  调用基本面分析师...")
+        print("  调用基本面分析师...")
 
         # 调用分析师（这会触发工具选择逻辑）
         result = analyst(state)
 
-        print(f"  ✅ 基本面分析师调用完成")
+        print("  ✅ 基本面分析师调用完成")
         print(f"  结果类型: {type(result)}")
 
         return True
@@ -83,10 +83,10 @@ def test_stock_utils_import():
         print(f"  是否美股: {market_info['is_us']}")
 
         if market_info['is_hk']:
-            print(f"  ✅ StockUtils正确识别港股")
+            print("  ✅ StockUtils正确识别港股")
             return True
         else:
-            print(f"  ❌ StockUtils未能识别港股")
+            print("  ❌ StockUtils未能识别港股")
             return False
 
     except Exception as e:

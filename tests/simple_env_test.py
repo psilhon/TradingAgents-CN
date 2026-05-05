@@ -27,7 +27,7 @@ def test_env_reading():
     mongodb_password = os.getenv("MONGODB_PASSWORD")
     mongodb_database = os.getenv("MONGODB_DATABASE", "tradingagents")
 
-    print(f"MongoDB:")
+    print("MongoDB:")
     print(f"  Host: {mongodb_host}")
     print(f"  Port: {mongodb_port}")
     print(f"  Username: {mongodb_username or '未设置'}")
@@ -40,7 +40,7 @@ def test_env_reading():
     redis_password = os.getenv("REDIS_PASSWORD")
     redis_db = os.getenv("REDIS_DB", "0")
 
-    print(f"\nRedis:")
+    print("\nRedis:")
     print(f"  Host: {redis_host}")
     print(f"  Port: {redis_port}")
     print(f"  Password: {'***' if redis_password else '未设置'}")
@@ -90,7 +90,7 @@ def test_env_reading():
         print(f"❌ Redis 连接失败: {e}")
 
     # 总结
-    print(f"\n📊 总结:")
+    print("\n📊 总结:")
     print(f"MongoDB: {'✅ 可用' if mongodb_available else '❌ 不可用'}")
     print(f"Redis: {'✅ 可用' if redis_available else '❌ 不可用'}")
 

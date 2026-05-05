@@ -65,7 +65,7 @@ async def test_field_config_api():
             "categories": categories
         }
 
-        print(f"\n📄 API响应示例:")
+        print("\n📄 API响应示例:")
         print(json.dumps(response_data, indent=2, ensure_ascii=False)[:500] + "...")
 
         print("\n🎉 字段配置API测试完成！")

@@ -31,7 +31,7 @@ def test_summary_recommendation():
         return
 
     token = result["data"]["access_token"]
-    print(f"✅ 登录成功")
+    print("✅ 登录成功")
 
     headers = {
         "Content-Type": "application/json",
@@ -60,7 +60,7 @@ def test_summary_recommendation():
 
     analysis_result = result_data["data"]
 
-    print(f"\n📊 字段检查:")
+    print("\n📊 字段检查:")
     print(f"   summary存在: {bool(analysis_result.get('summary'))}")
     print(f"   summary长度: {len(analysis_result.get('summary', ''))}")
     print(f"   summary内容: {analysis_result.get('summary', '无')[:100]}...")
@@ -88,7 +88,7 @@ def test_summary_recommendation():
     # 保存完整数据用于检查
     with open('full_analysis_result.json', 'w', encoding='utf-8') as f:
         json.dump(analysis_result, f, ensure_ascii=False, indent=2, default=str)
-    print(f"\n💾 完整分析结果已保存到 full_analysis_result.json")
+    print("\n💾 完整分析结果已保存到 full_analysis_result.json")
 
 if __name__ == "__main__":
     test_summary_recommendation()

@@ -45,7 +45,7 @@ def step2_path_check():
         # 添加到Python路径
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
-            print(f"✅ 已添加项目根目录到Python路径")
+            print("✅ 已添加项目根目录到Python路径")
 
         return True
     except Exception as e:
@@ -198,7 +198,7 @@ def step7_actual_call_test():
             HumanMessage(content="请回复：测试成功")
         ])
 
-        print(f"✅ 调用成功")
+        print("✅ 调用成功")
         print(f"   响应类型: {type(response)}")
         print(f"   响应长度: {len(response.content)}字符")
         print(f"   响应内容: {response.content[:100]}...")

@@ -94,7 +94,7 @@ def test_error_logging_functionality():
             content = f.read()
 
         # 检查内容
-        print(f"\n📄 error.log 文件内容（最后 500 字符）:")
+        print("\n📄 error.log 文件内容（最后 500 字符）:")
         print("-" * 60)
         print(content[-500:] if len(content) > 500 else content)
         print("-" * 60)

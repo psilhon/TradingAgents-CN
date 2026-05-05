@@ -42,7 +42,7 @@ def test_tushare_adapter_volume_mapping():
         print(f"📊 原始数据中的vol列: {mock_tushare_data['vol'].tolist()}")
 
         # 测试数据标准化
-        print(f"\n🔧 测试_standardize_data方法...")
+        print("\n🔧 测试_standardize_data方法...")
         standardized_data = adapter._standardize_data(mock_tushare_data)
 
         print(f"📊 标准化后列名: {list(standardized_data.columns)}")
@@ -50,7 +50,7 @@ def test_tushare_adapter_volume_mapping():
         # 检查volume列是否存在
         if 'volume' in standardized_data.columns:
             print(f"✅ volume列存在: {standardized_data['volume'].tolist()}")
-            print(f"✅ vol -> volume 映射成功")
+            print("✅ vol -> volume 映射成功")
 
             # 验证数据是否正确
             original_vol_sum = mock_tushare_data['vol'].sum()
@@ -63,7 +63,7 @@ def test_tushare_adapter_volume_mapping():
                 print(f"❌ 数据映射错误: 原始vol总和={original_vol_sum}, 映射后volume总和={mapped_volume_sum}")
                 return False
         else:
-            print(f"❌ volume列不存在，映射失败")
+            print("❌ volume列不存在，映射失败")
             print(f"❌ 可用列: {list(standardized_data.columns)}")
             return False
 
@@ -75,7 +75,7 @@ def test_tushare_adapter_volume_mapping():
 
 def test_data_source_manager_volume_access():
     """测试数据源管理器中的volume访问"""
-    print(f"\n🧪 测试数据源管理器volume访问")
+    print("\n🧪 测试数据源管理器volume访问")
     print("=" * 60)
 
     try:
@@ -111,7 +111,7 @@ def test_data_source_manager_volume_access():
 
         except KeyError as e:
             print(f"❌ KeyError: {e}")
-            print(f"❌ 这就是PR中提到的问题！")
+            print("❌ 这就是PR中提到的问题！")
             return False
 
     except Exception as e:
@@ -122,7 +122,7 @@ def test_data_source_manager_volume_access():
 
 def test_real_tushare_data():
     """测试真实的Tushare数据获取"""
-    print(f"\n🧪 测试真实Tushare数据获取")
+    print("\n🧪 测试真实Tushare数据获取")
     print("=" * 60)
 
     try:
@@ -144,19 +144,19 @@ def test_real_tushare_data():
             print(f"📊 当前数据源: {manager.current_source.value}")
 
             # 测试获取真实数据
-            print(f"🔍 测试获取000001真实数据...")
+            print("🔍 测试获取000001真实数据...")
 
             try:
                 # 这里我们只测试数据获取，不实际执行以避免API调用
-                print(f"✅ 真实数据测试准备完成")
-                print(f"💡 如需测试真实数据，请手动执行:")
-                print(f"   result = manager._get_tushare_data('000001', '2025-07-20', '2025-07-26')")
+                print("✅ 真实数据测试准备完成")
+                print("💡 如需测试真实数据，请手动执行:")
+                print("   result = manager._get_tushare_data('000001', '2025-07-20', '2025-07-26')")
                 return True
 
             except Exception as e:
                 print(f"❌ 真实数据获取失败: {e}")
                 if "KeyError: 'volume'" in str(e):
-                    print(f"🎯 确认存在PR中提到的问题！")
+                    print("🎯 确认存在PR中提到的问题！")
                 return False
         else:
             print("⚠️ Tushare数据源不可用")
@@ -170,7 +170,7 @@ def test_real_tushare_data():
 
 def test_column_mapping_logic():
     """测试列映射逻辑的详细过程"""
-    print(f"\n🧪 测试列映射逻辑详细过程")
+    print("\n🧪 测试列映射逻辑详细过程")
     print("=" * 60)
 
     try:
@@ -195,7 +195,7 @@ def test_column_mapping_logic():
         print(f"📊 vol列值: {test_data['vol'].iloc[0]}")
 
         # 手动执行映射逻辑
-        print(f"\n🔧 手动执行列映射逻辑...")
+        print("\n🔧 手动执行列映射逻辑...")
 
         # 获取映射配置
         column_mapping = {
@@ -234,7 +234,7 @@ def test_column_mapping_logic():
                 print(f"❌ 访问volume失败: {e}")
                 return False
         else:
-            print(f"❌ volume列不存在")
+            print("❌ volume列不存在")
             return False
 
     except Exception as e:

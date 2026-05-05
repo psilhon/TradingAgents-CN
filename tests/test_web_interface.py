@@ -82,11 +82,11 @@ def test_model_options():
         print(f"   ✅ {model}")
 
     # 验证推荐配置
-    print(f"\n🏆 推荐配置:")
-    print(f"   LLM提供商: Google AI")
-    print(f"   推荐模型: gemini-2.0-flash")
-    print(f"   嵌入服务: 阿里百炼 (自动配置)")
-    print(f"   内存功能: 启用")
+    print("\n🏆 推荐配置:")
+    print("   LLM提供商: Google AI")
+    print("   推荐模型: gemini-2.0-flash")
+    print("   嵌入服务: 阿里百炼 (自动配置)")
+    print("   内存功能: 启用")
 
     return True
 
@@ -113,11 +113,11 @@ def test_api_requirements():
             all_configured = False
 
     if all_configured:
-        print(f"\n🎉 所有必需的API密钥都已配置！")
-        print(f"💡 现在可以使用Google AI进行完整的股票分析")
+        print("\n🎉 所有必需的API密钥都已配置！")
+        print("💡 现在可以使用Google AI进行完整的股票分析")
     else:
-        print(f"\n⚠️ 部分API密钥未配置")
-        print(f"💡 请在.env文件中配置缺失的API密钥")
+        print("\n⚠️ 部分API密钥未配置")
+        print("💡 请在.env文件中配置缺失的API密钥")
 
     return all_configured
 
@@ -134,7 +134,7 @@ def main():
     results['API密钥'] = test_api_requirements()
 
     # 总结结果
-    print(f"\n📊 测试结果总结:")
+    print("\n📊 测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

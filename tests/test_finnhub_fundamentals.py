@@ -59,7 +59,7 @@ def test_finnhub_fundamentals_with_cache():
                 print(f"✅ 缓存功能正常！速度提升了 {((first_time - second_time) / first_time * 100):.1f}%")
                 return True
             else:
-                print(f"⚠️ 缓存可能未生效")
+                print("⚠️ 缓存可能未生效")
                 return False
         else:
             print(f"❌ {test_ticker} 基本面数据获取失败或数据过短")
@@ -117,7 +117,7 @@ def test_openai_fallback_with_cache():
                 print(f"✅ fallback + 缓存功能正常！速度提升了 {((first_time - second_time) / first_time * 100):.1f}%")
                 success = True
             else:
-                print(f"⚠️ 缓存可能未生效")
+                print("⚠️ 缓存可能未生效")
                 success = False
         else:
             print("❌ OpenAI fallback机制可能有问题")
@@ -152,7 +152,7 @@ def test_cache_management():
         print(f"📊 当前缓存统计: {stats}")
 
         # 检查缓存配置
-        print(f"\n⚙️ 基本面数据缓存配置:")
+        print("\n⚙️ 基本面数据缓存配置:")
         for cache_type, config in cache.cache_config.items():
             if 'fundamentals' in cache_type:
                 print(f"  - {cache_type}: TTL={config['ttl_hours']}小时, 最大文件数={config['max_files']}, 描述={config['description']}")

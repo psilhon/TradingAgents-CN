@@ -83,13 +83,13 @@ def test_deepseek_tool_calling():
         print(f"📊 DeepSeek响应类型: {type(result)}")
         print(f"📊 DeepSeek工具调用数量: {len(result.tool_calls) if hasattr(result, 'tool_calls') else 0}")
         print(f"📊 DeepSeek响应内容长度: {len(result.content)}")
-        print(f"📊 DeepSeek响应内容前500字符:")
+        print("📊 DeepSeek响应内容前500字符:")
         print("-" * 50)
         print(result.content[:500])
         print("-" * 50)
 
         if hasattr(result, 'tool_calls') and result.tool_calls:
-            print(f"📊 DeepSeek工具调用详情:")
+            print("📊 DeepSeek工具调用详情:")
             for i, call in enumerate(result.tool_calls):
                 print(f"   工具{i+1}: {call.get('name', 'unknown')}")
                 print(f"   参数: {call.get('args', {})}")
@@ -166,13 +166,13 @@ def test_dashscope_tool_calling():
         print(f"📊 百炼响应类型: {type(result)}")
         print(f"📊 百炼工具调用数量: {len(result.tool_calls) if hasattr(result, 'tool_calls') else 0}")
         print(f"📊 百炼响应内容长度: {len(result.content)}")
-        print(f"📊 百炼响应内容前500字符:")
+        print("📊 百炼响应内容前500字符:")
         print("-" * 50)
         print(result.content[:500])
         print("-" * 50)
 
         if hasattr(result, 'tool_calls') and result.tool_calls:
-            print(f"📊 百炼工具调用详情:")
+            print("📊 百炼工具调用详情:")
             for i, call in enumerate(result.tool_calls):
                 print(f"   工具{i+1}: {call.get('name', 'unknown')}")
                 print(f"   参数: {call.get('args', {})}")
@@ -195,7 +195,7 @@ def compare_results(deepseek_result, dashscope_result):
         deepseek_tools = len(deepseek_result.tool_calls) if hasattr(deepseek_result, 'tool_calls') else 0
         dashscope_tools = len(dashscope_result.tool_calls) if hasattr(dashscope_result, 'tool_calls') else 0
 
-        print(f"📊 工具调用对比:")
+        print("📊 工具调用对比:")
         print(f"   DeepSeek: {deepseek_tools} 次工具调用")
         print(f"   百炼: {dashscope_tools} 次工具调用")
 
@@ -203,12 +203,12 @@ def compare_results(deepseek_result, dashscope_result):
         deepseek_length = len(deepseek_result.content)
         dashscope_length = len(dashscope_result.content)
 
-        print(f"\n📝 响应内容对比:")
+        print("\n📝 响应内容对比:")
         print(f"   DeepSeek: {deepseek_length} 字符")
         print(f"   百炼: {dashscope_length} 字符")
 
         # 内容类型分析
-        print(f"\n🔍 内容类型分析:")
+        print("\n🔍 内容类型分析:")
 
         # 检查是否包含实际数据分析
         deepseek_has_data = any(keyword in deepseek_result.content for keyword in ["¥6.56", "RSI", "MACD", "万科A"])
@@ -225,16 +225,16 @@ def compare_results(deepseek_result, dashscope_result):
         print(f"   百炼描述分析过程: {'⚠️' if dashscope_describes_process else '✅'}")
 
         # 总结
-        print(f"\n📋 总结:")
+        print("\n📋 总结:")
         if deepseek_tools > 0 and deepseek_has_data:
-            print(f"   ✅ DeepSeek: 正确调用工具并分析数据")
+            print("   ✅ DeepSeek: 正确调用工具并分析数据")
         else:
-            print(f"   ❌ DeepSeek: 未正确执行工具调用或数据分析")
+            print("   ❌ DeepSeek: 未正确执行工具调用或数据分析")
 
         if dashscope_tools > 0 and dashscope_has_data:
-            print(f"   ✅ 百炼: 正确调用工具并分析数据")
+            print("   ✅ 百炼: 正确调用工具并分析数据")
         else:
-            print(f"   ❌ 百炼: 未正确执行工具调用或数据分析")
+            print("   ❌ 百炼: 未正确执行工具调用或数据分析")
 
 def main():
     """主函数"""

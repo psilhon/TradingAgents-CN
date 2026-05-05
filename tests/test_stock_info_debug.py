@@ -63,7 +63,7 @@ def test_tushare_api_direct():
 
             if not basic_info.empty:
                 info = basic_info.iloc[0]
-                print(f"✅ 找到股票信息:")
+                print("✅ 找到股票信息:")
                 print(f"   代码: {info['ts_code']}")
                 print(f"   名称: {info['name']}")
                 print(f"   行业: {info.get('industry', 'N/A')}")
@@ -177,7 +177,7 @@ def test_alternative_stock_codes():
             if info and info.get('name') and info['name'] != f'股票{code}':
                 print(f"✅ {code}: {info['name']}")
                 if expected_name in info['name']:
-                    print(f"   ✅ 名称匹配")
+                    print("   ✅ 名称匹配")
                 else:
                     print(f"   ⚠️ 名称不匹配，期望: {expected_name}")
             else:

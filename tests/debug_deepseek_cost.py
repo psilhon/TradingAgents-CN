@@ -65,13 +65,13 @@ def test_token_tracking():
     )
 
     if record:
-        print(f"   ✅ 记录创建成功:")
+        print("   ✅ 记录创建成功:")
         print(f"      Provider: {record.provider}")
         print(f"      Model: {record.model_name}")
         print(f"      Tokens: {record.input_tokens}+{record.output_tokens}")
         print(f"      Cost: ¥{record.cost:.6f}")
     else:
-        print(f"   ❌ 记录创建失败")
+        print("   ❌ 记录创建失败")
 
 def test_deepseek_adapter():
     """测试DeepSeek适配器"""
@@ -92,7 +92,7 @@ def test_deepseek_adapter():
             max_tokens=100
         )
 
-        print(f"   ✅ DeepSeek适配器创建成功")
+        print("   ✅ DeepSeek适配器创建成功")
         print(f"      Model: {llm.model_name}")
         print(f"      Base URL: {llm.openai_api_base}")
 
@@ -124,12 +124,12 @@ def check_usage_statistics():
     deepseek_stats = provider_stats.get('deepseek', {})
 
     if deepseek_stats:
-        print(f"   DeepSeek统计:")
+        print("   DeepSeek统计:")
         print(f"      成本: ¥{deepseek_stats.get('cost', 0):.6f}")
         print(f"      请求: {deepseek_stats.get('requests', 0)}")
         print(f"      Token: {deepseek_stats.get('tokens', 0)}")
     else:
-        print(f"   ❌ 未找到DeepSeek统计")
+        print("   ❌ 未找到DeepSeek统计")
 
 def main():
     """主函数"""

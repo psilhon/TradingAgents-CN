@@ -46,7 +46,7 @@ def debug_config_manager():
             print(f"   - 货币: {config.currency}")
 
         # 测试成本计算
-        print(f"\n💰 测试成本计算:")
+        print("\n💰 测试成本计算:")
         cost = config_manager.calculate_cost(
             provider="deepseek",
             model_name="deepseek-chat",
@@ -56,13 +56,13 @@ def debug_config_manager():
         print(f"   计算结果: ¥{cost:.6f}")
 
         if cost == 0.0:
-            print(f"❌ 成本计算返回0，检查匹配逻辑...")
+            print("❌ 成本计算返回0，检查匹配逻辑...")
 
             # 详细检查匹配逻辑
             for pricing in pricing_configs:
                 print(f"   检查配置: provider='{pricing.provider}', model='{pricing.model_name}'")
                 if pricing.provider == "deepseek" and pricing.model_name == "deepseek-chat":
-                    print(f"   ✅ 找到匹配配置!")
+                    print("   ✅ 找到匹配配置!")
                     input_cost = (2272 / 1000) * pricing.input_price_per_1k
                     output_cost = (1215 / 1000) * pricing.output_price_per_1k
                     total_cost = input_cost + output_cost
@@ -71,7 +71,7 @@ def debug_config_manager():
                     print(f"   总成本: {total_cost:.6f}")
                     break
             else:
-                print(f"   ❌ 未找到匹配的配置")
+                print("   ❌ 未找到匹配的配置")
 
         return True
 
@@ -93,7 +93,7 @@ def debug_token_tracker():
         config_manager = ConfigManager()
         token_tracker = TokenTracker(config_manager)
 
-        print(f"🔧 Token跟踪器创建成功")
+        print("🔧 Token跟踪器创建成功")
 
         # 检查设置
         settings = config_manager.load_settings()
@@ -101,7 +101,7 @@ def debug_token_tracker():
         print(f"📊 成本跟踪启用: {cost_tracking_enabled}")
 
         # 测试跟踪使用
-        print(f"💰 测试Token跟踪...")
+        print("💰 测试Token跟踪...")
         usage_record = token_tracker.track_usage(
             provider="deepseek",
             model_name="deepseek-chat",
@@ -112,7 +112,7 @@ def debug_token_tracker():
         )
 
         if usage_record:
-            print(f"✅ Token跟踪成功")
+            print("✅ Token跟踪成功")
             print(f"   提供商: {usage_record.provider}")
             print(f"   模型: {usage_record.model_name}")
             print(f"   输入tokens: {usage_record.input_tokens}")
@@ -120,13 +120,13 @@ def debug_token_tracker():
             print(f"   成本: ¥{usage_record.cost:.6f}")
 
             if usage_record.cost > 0:
-                print(f"✅ 成本计算正确")
+                print("✅ 成本计算正确")
                 return True
             else:
-                print(f"❌ 成本计算仍为0")
+                print("❌ 成本计算仍为0")
                 return False
         else:
-            print(f"❌ Token跟踪失败")
+            print("❌ Token跟踪失败")
             return False
 
     except Exception as e:
@@ -148,7 +148,7 @@ def debug_deepseek_adapter():
     try:
         from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
-        print(f"🔧 创建DeepSeek适配器...")
+        print("🔧 创建DeepSeek适配器...")
 
         # 创建DeepSeek实例
         deepseek_llm = ChatDeepSeek(
@@ -164,10 +164,10 @@ def debug_deepseek_adapter():
         print(f"📊 Token跟踪启用: {TOKEN_TRACKING_ENABLED}")
 
         # 测试调用
-        print(f"📤 发送测试请求...")
+        print("📤 发送测试请求...")
         result = deepseek_llm.invoke("测试")
 
-        print(f"📊 调用完成")
+        print("📊 调用完成")
         print(f"   响应长度: {len(result.content)}")
 
         return True
@@ -198,14 +198,14 @@ def debug_model_name_issue():
         # 加载定价配置
         pricing_configs = config_manager.load_pricing()
 
-        print(f"📊 定价配置中的DeepSeek模型:")
+        print("📊 定价配置中的DeepSeek模型:")
         for config in pricing_configs:
             if config.provider == "deepseek":
                 print(f"   - 模型名称: '{config.model_name}'")
                 print(f"   - 匹配检查: {config.model_name == deepseek_llm.model_name}")
 
         # 手动测试匹配
-        print(f"\n💰 手动测试成本计算:")
+        print("\n💰 手动测试成本计算:")
         cost = config_manager.calculate_cost(
             provider="deepseek",
             model_name=deepseek_llm.model_name,

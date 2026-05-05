@@ -47,7 +47,7 @@ def test_config_unification():
             print("❌ 未找到DeepSeek配置")
 
         # 测试成本计算
-        print(f"\n💰 测试成本计算:")
+        print("\n💰 测试成本计算:")
         deepseek_cost = config_manager.calculate_cost(
             provider="deepseek",
             model_name="deepseek-chat",

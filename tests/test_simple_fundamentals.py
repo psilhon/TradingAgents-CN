@@ -25,7 +25,7 @@ def test_simple_fundamentals():
         logger = get_logger("default")
         logger.setLevel("INFO")
 
-        print(f"\n🔧 步骤1: 创建LLM实例...")
+        print("\n🔧 步骤1: 创建LLM实例...")
 
         # 检查API密钥
         api_key = os.getenv("DASHSCOPE_API_KEY")
@@ -42,7 +42,7 @@ def test_simple_fundamentals():
         )
         print(f"✅ LLM实例创建完成: {type(llm).__name__}")
 
-        print(f"\n🔧 步骤2: 创建工具包...")
+        print("\n🔧 步骤2: 创建工具包...")
 
         # 创建工具包
         from tradingagents.agents.utils.agent_utils import Toolkit
@@ -52,9 +52,9 @@ def test_simple_fundamentals():
         config["online_tools"] = True
         toolkit = Toolkit()
         toolkit.update_config(config)
-        print(f"✅ 工具包创建完成")
+        print("✅ 工具包创建完成")
 
-        print(f"\n🔧 步骤3: 测试统一基本面工具...")
+        print("\n🔧 步骤3: 测试统一基本面工具...")
 
         # 直接测试统一基本面工具
         result = toolkit.get_stock_fundamentals_unified.invoke({
@@ -64,12 +64,12 @@ def test_simple_fundamentals():
             'curr_date': '2025-07-15'
         })
 
-        print(f"✅ 统一基本面工具调用完成")
+        print("✅ 统一基本面工具调用完成")
         print(f"📊 返回结果长度: {len(result) if result else 0}")
 
         # 检查结果中的股票代码
         if result:
-            print(f"\n🔍 检查工具返回结果中的股票代码...")
+            print("\n🔍 检查工具返回结果中的股票代码...")
             if "002027" in result:
                 print("✅ 工具返回结果中包含正确的股票代码 002027")
                 count_002027 = result.count("002027")
@@ -84,7 +84,7 @@ def test_simple_fundamentals():
             else:
                 print("✅ 工具返回结果中不包含错误的股票代码 002021")
 
-        print(f"\n🔧 步骤4: 测试LLM处理...")
+        print("\n🔧 步骤4: 测试LLM处理...")
 
         # 创建一个简单的提示词，包含工具返回的数据
         prompt = f"""请基于以下真实数据，对股票{test_ticker}进行基本面分析：
@@ -104,12 +104,12 @@ def test_simple_fundamentals():
         from langchain_core.messages import HumanMessage
         response = llm.invoke([HumanMessage(content=prompt)])
 
-        print(f"✅ LLM调用完成")
+        print("✅ LLM调用完成")
         print(f"📊 LLM响应长度: {len(response.content) if response.content else 0}")
 
         # 检查LLM响应中的股票代码
         if response.content:
-            print(f"\n🔍 检查LLM响应中的股票代码...")
+            print("\n🔍 检查LLM响应中的股票代码...")
             if "002027" in response.content:
                 print("✅ LLM响应中包含正确的股票代码 002027")
                 count_002027 = response.content.count("002027")
@@ -137,7 +137,7 @@ def test_simple_fundamentals():
                 print("✅ LLM响应中不包含错误的股票代码 002021")
 
             # 显示LLM响应的前1000字符
-            print(f"\n📄 LLM响应前1000字符:")
+            print("\n📄 LLM响应前1000字符:")
             print("-" * 80)
             print(response.content[:1000])
             print("-" * 80)

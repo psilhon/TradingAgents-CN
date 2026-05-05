@@ -43,9 +43,9 @@ def test_complete_unified_architecture():
 
         # 检查是否包含统一工具
         if 'get_stock_fundamentals_unified' in fundamentals_tool_names:
-            print(f"    ✅ 包含统一基本面工具")
+            print("    ✅ 包含统一基本面工具")
         else:
-            print(f"    ❌ 缺少统一基本面工具")
+            print("    ❌ 缺少统一基本面工具")
             return False
 
         # 检查是否还有旧工具
@@ -63,9 +63,9 @@ def test_complete_unified_architecture():
 
         # 检查是否包含统一工具
         if 'get_stock_market_data_unified' in market_tool_names:
-            print(f"    ✅ 包含统一市场数据工具")
+            print("    ✅ 包含统一市场数据工具")
         else:
-            print(f"    ❌ 缺少统一市场数据工具")
+            print("    ❌ 缺少统一市场数据工具")
             return False
 
         print("✅ 完整统一工具架构测试通过")
@@ -107,7 +107,7 @@ def test_llm_tool_calling_simulation():
 
                 # 验证只绑定了统一工具
                 if len(tools) == 1 and tools[0].name == 'get_stock_fundamentals_unified':
-                    print(f"    ✅ 正确绑定统一基本面工具")
+                    print("    ✅ 正确绑定统一基本面工具")
                     return self
                 else:
                     print(f"    ❌ 绑定了错误的工具: {[tool.name for tool in tools]}")
@@ -149,12 +149,12 @@ def test_llm_tool_calling_simulation():
         # 调用分析师
         result = analyst(state)
 
-        print(f"  ✅ 基本面分析师调用完成")
+        print("  ✅ 基本面分析师调用完成")
         print(f"  返回结果类型: {type(result)}")
 
         # 验证结果
         if isinstance(result, dict) and 'messages' in result:
-            print(f"  ✅ 返回了正确的消息格式")
+            print("  ✅ 返回了正确的消息格式")
             return True
         else:
             print(f"  ❌ 返回格式错误: {result}")
@@ -200,7 +200,7 @@ def test_unified_tools_functionality():
                 if expected_market in result and expected_currency in result:
                     print(f"    ✅ 统一基本面工具正确处理{expected_market}")
                 else:
-                    print(f"    ⚠️ 统一基本面工具处理结果可能有问题")
+                    print("    ⚠️ 统一基本面工具处理结果可能有问题")
                     print(f"    结果前200字符: {result[:200]}...")
 
             except Exception as e:

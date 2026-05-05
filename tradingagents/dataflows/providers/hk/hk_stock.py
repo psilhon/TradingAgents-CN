@@ -32,7 +32,7 @@ class HKStockProvider:
         self.max_retries = get_int("TA_HK_MAX_RETRIES", "ta_hk_max_retries", 3)
         self.rate_limit_wait = get_int("TA_HK_RATE_LIMIT_WAIT_SECONDS", "ta_hk_rate_limit_wait_seconds", 60)
 
-        logger.info(f"🇭🇰 港股数据提供器初始化完成")
+        logger.info("🇭🇰 港股数据提供器初始化完成")
 
     def _wait_for_rate_limit(self):
         """等待速率限制"""
@@ -102,7 +102,7 @@ class HKStockProvider:
                             logger.info(f"⏳ 检测到频率限制，等待{self.rate_limit_wait}秒...")
                             time.sleep(self.rate_limit_wait)
                         else:
-                            logger.error(f"❌ 频率限制，跳过重试")
+                            logger.error("❌ 频率限制，跳过重试")
                             break
                     else:
                         if attempt < self.max_retries - 1:
@@ -308,7 +308,7 @@ class HKStockProvider:
                 logger.info(f"   RSI: {row.get('rsi', 0):.2f}")
                 logger.info(f"   BOLL: 上={row.get('boll_upper', 0):.2f}, 中={row.get('boll_mid', 0):.2f}, 下={row.get('boll_lower', 0):.2f}")
 
-            logger.info(f"🔍 [港股技术指标详情] ===== 数据详情结束 =====")
+            logger.info("🔍 [港股技术指标详情] ===== 数据详情结束 =====")
 
             # 格式化输出包含所有技术指标和解读
             result = f"📊 {stock_name}({symbol}) - 港股技术分析数据\n"
@@ -318,8 +318,8 @@ class HKStockProvider:
             result += "📈 基本信息\n"
             result += f"   代码: {symbol}\n"
             result += f"   名称: {stock_name}\n"
-            result += f"   货币: 港币 (HKD)\n"
-            result += f"   交易所: 香港交易所 (HKG)\n"
+            result += "   货币: 港币 (HKD)\n"
+            result += "   交易所: 香港交易所 (HKG)\n"
             result += f"   数据期间: {start_date} 至 {end_date}\n"
             result += f"   交易天数: {len(data)}天\n\n"
 

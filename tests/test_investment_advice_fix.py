@@ -49,9 +49,9 @@ def test_web_components():
             print(f"   输入: {action} -> 输出: {chinese_action}")
 
             if chinese_action in ['买入', '卖出', '持有']:
-                print(f"   ✅ 正确转换为中文")
+                print("   ✅ 正确转换为中文")
             else:
-                print(f"   ❌ 转换失败")
+                print("   ❌ 转换失败")
                 return False
 
         return True
@@ -118,7 +118,7 @@ def test_analysis_runner():
             print(f"输出决策: {result_action}")
 
             if result_action in ['买入', '卖出', '持有']:
-                print(f"✅ 正确转换为中文")
+                print("✅ 正确转换为中文")
             else:
                 print(f"❌ 转换失败: {result_action}")
                 return False

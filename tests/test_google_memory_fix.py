@@ -28,7 +28,7 @@ def test_google_memory_fixed():
         google_key = os.getenv('GOOGLE_API_KEY')
         dashscope_key = os.getenv('DASHSCOPE_API_KEY')
 
-        print(f"🔑 API密钥状态:")
+        print("🔑 API密钥状态:")
         print(f"   Google API: {'✅ 已配置' if google_key else '❌ 未配置'}")
         print(f"   阿里百炼API: {'✅ 已配置' if dashscope_key else '❌ 未配置'}")
 
@@ -43,7 +43,7 @@ def test_google_memory_fixed():
         print("\n📊 创建Google AI内存实例...")
         memory = FinancialSituationMemory("test_google_memory", config)
 
-        print(f"✅ 内存实例创建成功")
+        print("✅ 内存实例创建成功")
         print(f"   LLM提供商: {memory.llm_provider}")
         print(f"   嵌入模型: {memory.embedding}")
         print(f"   客户端类型: {type(memory.client)}")
@@ -54,7 +54,7 @@ def test_google_memory_fixed():
 
         try:
             embedding = memory.get_embedding(test_text)
-            print(f"✅ 嵌入生成成功")
+            print("✅ 嵌入生成成功")
             print(f"   嵌入维度: {len(embedding)}")
             print(f"   嵌入预览: {embedding[:5]}...")
 
@@ -69,7 +69,7 @@ def test_google_memory_fixed():
             # 测试记忆检索
             print("\n🔍 测试记忆检索...")
             similar_memories = memory.get_memories("通胀上升时期的科技股投资", n_matches=2)
-            print(f"✅ 记忆检索成功")
+            print("✅ 记忆检索成功")
             print(f"   检索到 {len(similar_memories)} 条相关记忆")
 
             for i, mem in enumerate(similar_memories, 1):
@@ -186,7 +186,7 @@ def main():
     results['完整TradingAgents'] = test_google_tradingagents_with_memory()
 
     # 总结结果
-    print(f"\n📊 测试结果总结:")
+    print("\n📊 测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

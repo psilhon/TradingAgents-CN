@@ -80,7 +80,7 @@ def test_toolkit_tools():
                 print(f"❌ {tool_name} 方法不存在")
 
         # 显示所有方法（用于调试）
-        print(f"\n📋 所有可用方法:")
+        print("\n📋 所有可用方法:")
         for i, method in enumerate(sorted(all_methods), 1):
             print(f"  {i:2d}. {method}")
 
@@ -182,7 +182,7 @@ def main():
     check_data_requirements()
 
     # 总结结果
-    print(f"\n📊 测试结果总结:")
+    print("\n📊 测试结果总结:")
     print("=" * 50)
 
     for test_name, success in results.items():

@@ -16,9 +16,9 @@ print()
 
 # 检查两个可能的数据库
 for db_name in ["tradingagents"]:
-    print(f"=" * 60)
+    print("=" * 60)
     print(f"🔍 检查数据库: {db_name}")
-    print(f"=" * 60)
+    print("=" * 60)
 
     db = client[db_name]
 
@@ -46,7 +46,7 @@ for db_name in ["tradingagents"]:
         print("🔍 测试查询 admin 用户:")
         admin_user = db.users.find_one({"username": "admin"})
         if admin_user:
-            print(f"✅ 找到 admin 用户:")
+            print("✅ 找到 admin 用户:")
             print(f"  - ID: {admin_user.get('_id')}")
             print(f"  - Email: {admin_user.get('email')}")
             print(f"  - 激活状态: {admin_user.get('is_active')}")

@@ -37,12 +37,12 @@ class MockToolkit:
 
 def test_news_analyst_integration():
     """测试新闻分析师的统一工具集成"""
-    print(f"🔍 验证统一新闻工具在整体流程中的使用情况")
+    print("🔍 验证统一新闻工具在整体流程中的使用情况")
     print("=" * 70)
 
     try:
         # 1. 检查新闻分析师的工具绑定
-        print(f"\n📰 第一步：检查新闻分析师的工具绑定...")
+        print("\n📰 第一步：检查新闻分析师的工具绑定...")
         from tradingagents.agents.analysts.news_analyst import create_news_analyst
 
         # 创建模拟工具包
@@ -51,23 +51,23 @@ def test_news_analyst_integration():
 
         # 创建新闻分析师
         news_analyst = create_news_analyst(mock_llm, mock_toolkit)
-        print(f"  ✅ 新闻分析师创建成功")
+        print("  ✅ 新闻分析师创建成功")
 
         # 2. 检查统一新闻工具的导入和使用
-        print(f"\n🔧 第二步：检查统一新闻工具的集成...")
+        print("\n🔧 第二步：检查统一新闻工具的集成...")
 
         # 检查统一新闻工具是否能正常导入
         try:
             from tradingagents.tools.unified_news_tool import create_unified_news_tool
             test_tool = create_unified_news_tool(mock_toolkit)
-            print(f"  ✅ 统一新闻工具导入成功")
+            print("  ✅ 统一新闻工具导入成功")
             print(f"  📝 工具名称: {getattr(test_tool, 'name', '未设置')}")
             print(f"  📝 工具描述: {test_tool.description[:100]}...")
         except Exception as e:
             print(f"  ❌ 统一新闻工具导入失败: {e}")
 
         # 3. 检查新闻分析师源码中的集成情况
-        print(f"\n💬 第三步：检查新闻分析师源码集成...")
+        print("\n💬 第三步：检查新闻分析师源码集成...")
 
         # 读取新闻分析师源码
         news_analyst_file = "tradingagents/agents/analysts/news_analyst.py"
@@ -98,7 +98,7 @@ def test_news_analyst_integration():
             print(f"  ❌ 无法读取新闻分析师源码: {e}")
 
         # 4. 验证工作流程中的使用
-        print(f"\n🔄 第四步：验证工作流程中的使用...")
+        print("\n🔄 第四步：验证工作流程中的使用...")
 
         # 检查工作流程设置文件
         setup_file = "tradingagents/graph/setup.py"
@@ -122,7 +122,7 @@ def test_news_analyst_integration():
             print(f"  ❌ 无法读取工作流程设置文件: {e}")
 
         # 5. 测试工具调用
-        print(f"\n🧪 第五步：测试工具调用...")
+        print("\n🧪 第五步：测试工具调用...")
 
         try:
             # 模拟状态
@@ -134,35 +134,35 @@ def test_news_analyst_integration():
             }
 
             # 测试新闻分析师调用（会因为LLM配置问题失败，但可以验证工具加载）
-            print(f"  🔧 测试新闻分析师节点调用...")
+            print("  🔧 测试新闻分析师节点调用...")
 
             # 这里只是验证能否正常创建，不实际调用
-            print(f"  ✅ 新闻分析师节点可以正常创建")
+            print("  ✅ 新闻分析师节点可以正常创建")
 
         except Exception as e:
             print(f"  ⚠️ 新闻分析师节点测试遇到问题: {e}")
 
-        print(f"\n✅ 验证完成！")
+        print("\n✅ 验证完成！")
 
         # 总结
-        print(f"\n📊 集成状态总结:")
-        print(f"  🎯 统一新闻工具: 已创建并集成到新闻分析师")
-        print(f"  🤖 新闻分析师: 已使用统一工具替代原有多个工具")
-        print(f"  🔧 工具绑定: 已实现LLM工具绑定机制")
-        print(f"  💬 系统提示词: 已更新为强制调用统一工具")
-        print(f"  🛡️ 补救机制: 已针对DashScope等模型优化")
-        print(f"  🔄 工作流程: 已集成到整体交易智能体流程")
+        print("\n📊 集成状态总结:")
+        print("  🎯 统一新闻工具: 已创建并集成到新闻分析师")
+        print("  🤖 新闻分析师: 已使用统一工具替代原有多个工具")
+        print("  🔧 工具绑定: 已实现LLM工具绑定机制")
+        print("  💬 系统提示词: 已更新为强制调用统一工具")
+        print("  🛡️ 补救机制: 已针对DashScope等模型优化")
+        print("  🔄 工作流程: 已集成到整体交易智能体流程")
 
-        print(f"\n🚀 在整体流程中的使用情况：")
-        print(f"  1. 当用户选择包含'news'的分析师时，系统会自动加载新闻分析师")
-        print(f"  2. 新闻分析师会创建并绑定统一新闻工具到LLM")
-        print(f"  3. LLM在分析时会调用 get_stock_news_unified 工具")
-        print(f"  4. 统一工具会自动识别股票类型（A股/港股/美股）并获取相应新闻")
-        print(f"  5. 对于DashScope等模型，会预先获取新闻数据以提高成功率")
-        print(f"  6. 分析结果会传递给后续的研究员和管理员节点")
+        print("\n🚀 在整体流程中的使用情况：")
+        print("  1. 当用户选择包含'news'的分析师时，系统会自动加载新闻分析师")
+        print("  2. 新闻分析师会创建并绑定统一新闻工具到LLM")
+        print("  3. LLM在分析时会调用 get_stock_news_unified 工具")
+        print("  4. 统一工具会自动识别股票类型（A股/港股/美股）并获取相应新闻")
+        print("  5. 对于DashScope等模型，会预先获取新闻数据以提高成功率")
+        print("  6. 分析结果会传递给后续的研究员和管理员节点")
 
-        print(f"\n✨ 确认：统一新闻工具已完全集成到整体交易智能体流程中！")
-        print(f"✨ 大模型已通过 llm.bind_tools(tools) 绑定了统一新闻工具！")
+        print("\n✨ 确认：统一新闻工具已完全集成到整体交易智能体流程中！")
+        print("✨ 大模型已通过 llm.bind_tools(tools) 绑定了统一新闻工具！")
 
     except Exception as e:
         print(f"❌ 验证过程中出现错误: {str(e)}")

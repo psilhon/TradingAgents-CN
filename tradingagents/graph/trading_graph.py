@@ -242,7 +242,7 @@ class TradingAgentsGraph:
 
         if normalized_quick_provider and normalized_deep_provider and normalized_quick_provider != normalized_deep_provider:
             # 混合模式：快速模型和深度模型来自不同厂家
-            logger.info(f"🔀 [混合模式] 检测到不同厂家的模型组合")
+            logger.info("🔀 [混合模式] 检测到不同厂家的模型组合")
             logger.info(f"   快速模型: {self.config['quick_think_llm']} ({normalized_quick_provider})")
             logger.info(f"   深度模型: {self.config['deep_think_llm']} ({normalized_deep_provider})")
 
@@ -267,7 +267,7 @@ class TradingAgentsGraph:
                 api_key=self.config.get("deep_api_key")  # 🔥 传递 API Key
             )
 
-            logger.info(f"✅ [混合模式] LLM 实例创建成功")
+            logger.info("✅ [混合模式] LLM 实例创建成功")
 
         elif normalized_provider in {"openai", "siliconflow", "openrouter", "aihubmix", "ollama"}:
             provider = normalized_provider
@@ -339,7 +339,7 @@ class TradingAgentsGraph:
             if backend_url:
                 logger.info(f"🔧 [Google AI] 使用配置的 backend_url: {backend_url}")
             else:
-                logger.info(f"🔧 [Google AI] 未配置 backend_url，使用默认端点")
+                logger.info("🔧 [Google AI] 未配置 backend_url，使用默认端点")
 
             self.deep_thinking_llm, self.quick_thinking_llm = _create_provider_pair(
                 provider="google",
@@ -355,7 +355,7 @@ class TradingAgentsGraph:
                 quick_extra_kwargs={"transport": "rest"},
             )
 
-            logger.info(f"✅ [Google AI] 已启用优化的工具调用和内容格式处理并应用用户配置的模型参数")
+            logger.info("✅ [Google AI] 已启用优化的工具调用和内容格式处理并应用用户配置的模型参数")
         elif normalized_provider == "qwen":
             logger.info("🔧 使用统一 llm_clients 路径初始化阿里百炼/通义千问")
             self.deep_thinking_llm, self.quick_thinking_llm = _create_provider_pair(
@@ -452,7 +452,7 @@ class TradingAgentsGraph:
             if backend_url:
                 logger.info(f"🔧 [智谱AI] 使用配置的 backend_url: {backend_url}")
             else:
-                logger.info(f"🔧 [智谱AI] 未配置 backend_url，使用默认端点")
+                logger.info("🔧 [智谱AI] 未配置 backend_url，使用默认端点")
             self.deep_thinking_llm, self.quick_thinking_llm = _create_provider_pair(
                 provider="glm",
                 config=self.config,
@@ -557,7 +557,7 @@ class TradingAgentsGraph:
             max_debate_rounds=self.config.get("max_debate_rounds", 1),
             max_risk_discuss_rounds=self.config.get("max_risk_discuss_rounds", 1)
         )
-        logger.info(f"🔧 [ConditionalLogic] 初始化完成:")
+        logger.info("🔧 [ConditionalLogic] 初始化完成:")
         logger.info(f"   - max_debate_rounds: {self.conditional_logic.max_debate_rounds}")
         logger.info(f"   - max_risk_discuss_rounds: {self.conditional_logic.max_risk_discuss_rounds}")
 
@@ -657,7 +657,7 @@ class TradingAgentsGraph:
         """
 
         # 添加详细的接收日志
-        logger.debug(f"🔍 [GRAPH DEBUG] ===== TradingAgentsGraph.propagate 接收参数 =====")
+        logger.debug("🔍 [GRAPH DEBUG] ===== TradingAgentsGraph.propagate 接收参数 =====")
         logger.debug(f"🔍 [GRAPH DEBUG] 接收到的company_name: '{company_name}' (类型: {type(company_name)})")
         logger.debug(f"🔍 [GRAPH DEBUG] 接收到的trade_date: '{trade_date}' (类型: {type(trade_date)})")
         logger.debug(f"🔍 [GRAPH DEBUG] 接收到的task_id: '{task_id}'")
@@ -864,7 +864,7 @@ class TradingAgentsGraph:
 
             # 检查是否为结束节点
             if '__end__' in chunk:
-                logger.info(f"📊 [Progress] 检测到__end__节点")
+                logger.info("📊 [Progress] 检测到__end__节点")
                 progress_callback("📊 生成报告")
                 return
 
@@ -1103,7 +1103,7 @@ class TradingAgentsGraph:
             logger.info(f"⚡ 最快节点: {fastest_node[0]} ({fastest_node[1]:.2f}秒)")
 
         # 打印LLM配置信息
-        logger.info(f"\n🤖 LLM配置:")
+        logger.info("\n🤖 LLM配置:")
         logger.info(f"  • 提供商: {self.config.get('llm_provider', 'unknown')}")
         logger.info(f"  • 深度思考模型: {self.config.get('deep_think_llm', 'unknown')}")
         logger.info(f"  • 快速思考模型: {self.config.get('quick_think_llm', 'unknown')}")
