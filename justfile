@@ -22,7 +22,12 @@ typecheck:
     uvx pyright
 
 test:
+    #!/usr/bin/env bash
+    # pytest exit 5 = "no tests collected"，对 -m unit 在 unit 标记 0 个时是合法情况
+    set -uo pipefail
     uv run --no-sync pytest -m unit
+    status=$?
+    [ $status -eq 0 ] || [ $status -eq 5 ]
 
 # 本地：自动修复 lint / format
 fix:
