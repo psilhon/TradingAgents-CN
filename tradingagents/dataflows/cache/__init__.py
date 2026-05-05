@@ -115,28 +115,24 @@ def get_cache() -> StockDataCache | IntegratedCacheManager:
     return _cache_instance
 
 __all__ = [
-    # 统一入口（推荐使用）
-    'get_cache',
-
-    # 缓存类（供高级用户直接使用）
-    'StockDataCache',
-    'IntegratedCacheManager',
-    'DatabaseCacheManager',
-    'AdaptiveCacheSystem',
-
+    'ADAPTIVE_CACHE_AVAILABLE',
+    'APP_CACHE_AVAILABLE',
+    'DB_CACHE_AVAILABLE',
     # 可用性标志
     'FILE_CACHE_AVAILABLE',
-    'DB_CACHE_AVAILABLE',
-    'ADAPTIVE_CACHE_AVAILABLE',
     'INTEGRATED_CACHE_AVAILABLE',
-
-    # 应用缓存适配器
-    'get_basics_from_cache',
-    'get_market_quote_dataframe',
-    'APP_CACHE_AVAILABLE',
-
+    'MONGODB_CACHE_ADAPTER_AVAILABLE',
+    'AdaptiveCacheSystem',
+    'DatabaseCacheManager',
+    'IntegratedCacheManager',
     # MongoDB 缓存适配器
     'MongoDBCacheAdapter',
-    'MONGODB_CACHE_ADAPTER_AVAILABLE',
+    # 缓存类（供高级用户直接使用）
+    'StockDataCache',
+    # 应用缓存适配器
+    'get_basics_from_cache',
+    # 统一入口（推荐使用）
+    'get_cache',
+    'get_market_quote_dataframe',
 ]
 

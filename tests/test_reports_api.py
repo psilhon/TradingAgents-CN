@@ -142,7 +142,7 @@ def test_reports_api():
 
                         # 5. 测试获取特定模块内容
                         if reports_content:
-                            module_name = list(reports_content.keys())[0]
+                            module_name = next(iter(reports_content.keys()))
                             print("\n5. 测试获取模块内容...")
                             print(f"   测试模块: {module_name}")
 
