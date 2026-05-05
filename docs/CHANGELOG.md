@@ -44,6 +44,15 @@
 
 - **主题切换 bug**（OpenSpec change `fix-theme-persistence`）：用户切深色后，路由切换 / API 调用 / 页面刷新会重置回浅色。根因：`stores/auth.ts` 的 `syncUserPreferencesToAppStore()` 在 login / fetchUser / updateUser 三处用后端 `user.preferences.ui_theme`（admin 默认 light）强制覆盖 `appStore.theme`；附加 bug 是 `stores/app.ts toggleTheme()` 未写 localStorage。修复：(1) 删除 auth.ts ui_theme 同步逻辑（后端字段保留 schema 不消费）；(2) toggleTheme 加 `localStorage.setItem('app-theme', ...)`。主题选择现在完全本地持久化。
 
+### Added
+
+- **Binding / port 审计工具与文档**（OpenSpec change `binding-audit-tooling`）：把 Phase 0 撞墙 4 次的"反应式排查"系统化为工具 + 文档：
+  - `just audit-ports`：扫所有段位 5430x 端口的 LISTEN 状态，标记非 127.0.0.1 binding 为违规（exit 1）。段位外端口（如其它项目占的 :54310）不报警
+  - `just audit-binds`：扫 fork-local 配置文件的 binding hygiene（vite.config.ts / docker-compose.override.yml / pyproject.toml）—— 检查 0.0.0.0 hardcode + docker 端口前缀 + vite host/port/proxy 配置
+  - `CLAUDE.md`「Fork patch 清单」段：列 6 类上游 tracked 必 patch 文件 + 完全不动原则文件 + 通过 override 不直接改的文件
+  - `docs/ai-context/coding-standards.md`「Binding / Port 配置层次表」段：6 层（CLI / env / .env / fork-local config / override / 上游 hardcode）+ 优先级 + 改完必跑 audit task
+  - 建立 base spec `audit-tooling`
+
 ### Removed
 
 - **学习中心模块**（OpenSpec change `remove-learning-center`）：删除前端"学习中心"模块——本 fork 是个人二次开发实战平台，不需要保留上游静态学习内容站点。删除范围：(1) `router/index.ts` 的 `/learning` 路由 + 3 个 child route + `/paper/:name.md` 兼容重定向；(2) `views/Learning/` 整个目录（3 个 .vue 文件）；(3) `SidebarMenu.vue` 的"学习中心"菜单项 + 未用 `Reading` icon import；(4) `Dashboard/index.vue` 的 AI 学习中心推荐卡片（template + `goToLearning` 函数 + 相关 SCSS + 未用 `Reading` icon import）。无后端 / 数据库改动。访问 `/learning/*` 现走 404 fallback。建立 base spec `frontend-navigation`。
