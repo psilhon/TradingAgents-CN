@@ -22,7 +22,7 @@ typecheck:
     uvx pyright
 
 test:
-    uv run --no-sync pytest
+    uv run --no-sync pytest -m unit
 
 # 本地：自动修复 lint / format
 fix:
