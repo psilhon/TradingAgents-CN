@@ -90,5 +90,6 @@ def test_tool_parameters():
     print("   3. ✅ 修复了 Pydantic 验证错误")
     print("   4. ✅ 新闻分析师应该能够正常获取新闻数据")
 
+
 if __name__ == "__main__":
     test_tool_parameters()

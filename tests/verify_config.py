@@ -22,6 +22,7 @@ print(f"REDIS_ENABLED: {redis_enabled}")
 # 使用强健的布尔值解析（兼容Python 3.13+）
 try:
     from tradingagents.config.env_utils import parse_bool_env
+
     mongodb_bool = parse_bool_env("MONGODB_ENABLED", False)
     redis_bool = parse_bool_env("REDIS_ENABLED", False)
     print("✅ 使用强健的布尔值解析")

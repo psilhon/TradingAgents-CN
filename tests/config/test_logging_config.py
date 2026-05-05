@@ -18,10 +18,13 @@ backup_count = 1
 """
 
 
-@pytest.mark.parametrize("profile, expect_name", [
-    ("", "logging.toml"),
-    ("docker", "logging_docker.toml"),
-])
+@pytest.mark.parametrize(
+    "profile, expect_name",
+    [
+        ("", "logging.toml"),
+        ("docker", "logging_docker.toml"),
+    ],
+)
 def test_logging_uses_expected_toml(profile, expect_name, monkeypatch, tmp_path, caplog):
     # Arrange: create temporary config directory with desired files
     cfg_dir = tmp_path / "config"
@@ -44,10 +47,10 @@ def test_logging_uses_expected_toml(profile, expect_name, monkeypatch, tmp_path,
 
     # Import after chdir to ensure relative paths resolve under tmp_path
     from app.core import logging_config as lc
+
     reload(lc)
 
     # Act: resolve which file will be used, then apply logging
     chosen = lc.resolve_logging_cfg_path()
     assert chosen.name == expect_name
     lc.setup_logging("INFO")
-

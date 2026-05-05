@@ -28,18 +28,16 @@ def test_basic_functionality():
 
         # 导入新适配器
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
+
         print("✅ 新适配器导入成功")
 
         # 创建实例
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=100
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=100)
         print("✅ 实例创建成功")
 
         # 测试简单调用
         from langchain_core.messages import HumanMessage
+
         response = llm.invoke([HumanMessage(content="请回复：测试成功")])
         print(f"✅ 简单调用成功: {response.content}")
 
@@ -48,6 +46,7 @@ def test_basic_functionality():
     except Exception as e:
         print(f"❌ 基本功能测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -76,25 +75,19 @@ def test_tool_binding():
             return f"测试数据: {query}"
 
         # 创建LLM并绑定工具
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=200
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=200)
 
         llm_with_tools = llm.bind_tools([get_test_data])
         print("✅ 工具绑定成功")
 
         # 测试工具调用
-        response = llm_with_tools.invoke([
-            HumanMessage(content="请调用get_test_data工具，参数为'hello'")
-        ])
+        response = llm_with_tools.invoke([HumanMessage(content="请调用get_test_data工具，参数为'hello'")])
 
         print(f"📊 响应类型: {type(response)}")
         print(f"📊 响应内容: {response.content[:100]}...")
 
         # 检查工具调用
-        if hasattr(response, 'tool_calls') and len(response.tool_calls) > 0:
+        if hasattr(response, "tool_calls") and len(response.tool_calls) > 0:
             print(f"✅ 工具调用成功: {len(response.tool_calls)}个调用")
             return True
         else:
@@ -104,6 +97,7 @@ def test_tool_binding():
     except Exception as e:
         print(f"❌ 工具绑定测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -139,7 +133,7 @@ def test_vs_old_adapter():
             old_llm_with_tools = old_llm.bind_tools([test_tool])
             old_response = old_llm_with_tools.invoke([HumanMessage(content=prompt)])
 
-            old_has_tools = hasattr(old_response, 'tool_calls') and len(old_response.tool_calls) > 0
+            old_has_tools = hasattr(old_response, "tool_calls") and len(old_response.tool_calls) > 0
             print(f"   旧适配器工具调用: {'✅ 有' if old_has_tools else '❌ 无'}")
             print(f"   旧适配器响应长度: {len(old_response.content)}字符")
         except Exception as e:
@@ -151,7 +145,7 @@ def test_vs_old_adapter():
             new_llm_with_tools = new_llm.bind_tools([test_tool])
             new_response = new_llm_with_tools.invoke([HumanMessage(content=prompt)])
 
-            new_has_tools = hasattr(new_response, 'tool_calls') and len(new_response.tool_calls) > 0
+            new_has_tools = hasattr(new_response, "tool_calls") and len(new_response.tool_calls) > 0
             print(f"   新适配器工具调用: {'✅ 有' if new_has_tools else '❌ 无'}")
             print(f"   新适配器响应长度: {len(new_response.content)}字符")
         except Exception as e:
@@ -179,10 +173,7 @@ def test_trading_graph_creation():
             "quick_think_llm": "qwen-turbo",
             "max_debate_rounds": 1,
             "online_tools": False,  # 关闭在线工具避免复杂性
-            "selected_analysts": {
-                0: "fundamentals_analyst",
-                1: "market_analyst"
-            }
+            "selected_analysts": {0: "fundamentals_analyst", 1: "market_analyst"},
         }
 
         print("🔄 创建TradingGraph...")
@@ -203,6 +194,7 @@ def test_trading_graph_creation():
     except Exception as e:
         print(f"❌ TradingGraph创建失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -217,7 +209,7 @@ def main():
         ("基本功能", test_basic_functionality),
         ("工具绑定", test_tool_binding),
         ("新旧适配器对比", test_vs_old_adapter),
-        ("TradingGraph创建", test_trading_graph_creation)
+        ("TradingGraph创建", test_trading_graph_creation),
     ]
 
     results = []

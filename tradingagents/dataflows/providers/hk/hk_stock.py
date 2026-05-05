@@ -17,8 +17,7 @@ from tradingagents.config.runtime_settings import get_float, get_int, get_timezo
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
-
+logger = get_logger("agents")
 
 
 class HKStockProvider:
@@ -63,9 +62,9 @@ class HKStockProvider:
 
             # 设置默认日期
             if not end_date:
-                end_date = datetime.now(ZoneInfo(get_timezone_name())).strftime('%Y-%m-%d')
+                end_date = datetime.now(ZoneInfo(get_timezone_name())).strftime("%Y-%m-%d")
             if not start_date:
-                start_date = (datetime.now(ZoneInfo(get_timezone_name())) - timedelta(days=365)).strftime('%Y-%m-%d')
+                start_date = (datetime.now(ZoneInfo(get_timezone_name())) - timedelta(days=365)).strftime("%Y-%m-%d")
 
             logger.info(f"🇭🇰 获取港股数据: {symbol} ({start_date} 到 {end_date})")
 
@@ -76,16 +75,12 @@ class HKStockProvider:
 
                     # 使用yfinance获取数据
                     ticker = yf.Ticker(symbol)
-                    data = ticker.history(
-                        start=start_date,
-                        end=end_date,
-                        timeout=self.timeout
-                    )
+                    data = ticker.history(start=start_date, end=end_date, timeout=self.timeout)
 
                     if not data.empty:
                         # 数据预处理
                         data = data.reset_index()
-                        data['Symbol'] = symbol
+                        data["Symbol"] = symbol
 
                         logger.info(f"✅ 港股数据获取成功: {symbol}, {len(data)}条记录")
                         return data
@@ -106,7 +101,7 @@ class HKStockProvider:
                             break
                     else:
                         if attempt < self.max_retries - 1:
-                            time.sleep(2 ** attempt)  # 指数退避
+                            time.sleep(2**attempt)  # 指数退避
 
             logger.error(f"❌ 港股数据获取最终失败: {symbol}")
             return None
@@ -135,36 +130,23 @@ class HKStockProvider:
             ticker = yf.Ticker(symbol)
             info = ticker.info
 
-            if info and 'symbol' in info:
+            if info and "symbol" in info:
                 return {
-                    'symbol': symbol,
-                    'name': info.get('longName', info.get('shortName', f'港股{symbol}')),
-                    'currency': info.get('currency', 'HKD'),
-                    'exchange': info.get('exchange', 'HKG'),
-                    'market_cap': info.get('marketCap'),
-                    'sector': info.get('sector'),
-                    'industry': info.get('industry'),
-                    'source': 'yfinance_hk'
+                    "symbol": symbol,
+                    "name": info.get("longName", info.get("shortName", f"港股{symbol}")),
+                    "currency": info.get("currency", "HKD"),
+                    "exchange": info.get("exchange", "HKG"),
+                    "market_cap": info.get("marketCap"),
+                    "sector": info.get("sector"),
+                    "industry": info.get("industry"),
+                    "source": "yfinance_hk",
                 }
             else:
-                return {
-                    'symbol': symbol,
-                    'name': f'港股{symbol}',
-                    'currency': 'HKD',
-                    'exchange': 'HKG',
-                    'source': 'yfinance_hk'
-                }
+                return {"symbol": symbol, "name": f"港股{symbol}", "currency": "HKD", "exchange": "HKG", "source": "yfinance_hk"}
 
         except Exception as e:
             logger.error(f"❌ 获取港股信息失败: {e}")
-            return {
-                'symbol': symbol,
-                'name': f'港股{symbol}',
-                'currency': 'HKD',
-                'exchange': 'HKG',
-                'source': 'unknown',
-                'error': str(e)
-            }
+            return {"symbol": symbol, "name": f"港股{symbol}", "currency": "HKD", "exchange": "HKG", "source": "unknown", "error": str(e)}
 
     def get_real_time_price(self, symbol: str) -> dict | None:
         """
@@ -189,14 +171,14 @@ class HKStockProvider:
             if not data.empty:
                 latest = data.iloc[-1]
                 return {
-                    'symbol': symbol,
-                    'price': latest['Close'],
-                    'open': latest['Open'],
-                    'high': latest['High'],
-                    'low': latest['Low'],
-                    'volume': latest['Volume'],
-                    'timestamp': data.index[-1].strftime('%Y-%m-%d %H:%M:%S'),
-                    'currency': 'HKD'
+                    "symbol": symbol,
+                    "price": latest["Close"],
+                    "open": latest["Open"],
+                    "high": latest["High"],
+                    "low": latest["Low"],
+                    "volume": latest["Volume"],
+                    "timestamp": data.index[-1].strftime("%Y-%m-%d %H:%M:%S"),
+                    "currency": "HKD",
                 }
             else:
                 return None
@@ -224,13 +206,13 @@ class HKStockProvider:
         symbol = str(symbol).strip().upper()
 
         # 如果已经有.HK后缀，先移除
-        if symbol.endswith('.HK'):
+        if symbol.endswith(".HK"):
             symbol = symbol[:-3]
 
         # 如果是纯数字，标准化为4位数字
         if symbol.isdigit():
             # 移除前导0，然后补齐到4位
-            clean_code = symbol.lstrip('0') or '0'  # 如果全是0，保留一个0
+            clean_code = symbol.lstrip("0") or "0"  # 如果全是0，保留一个0
             normalized_code = clean_code.zfill(4)
             return f"{normalized_code}.HK"
 
@@ -258,39 +240,39 @@ class HKStockProvider:
 
             # 获取股票基本信息
             stock_info = self.get_stock_info(symbol)
-            stock_name = stock_info.get('name', f'港股{symbol}')
+            stock_name = stock_info.get("name", f"港股{symbol}")
 
             # 确保数据按日期排序
-            if 'Date' in data.columns:
-                data = data.sort_values('Date')
+            if "Date" in data.columns:
+                data = data.sort_values("Date")
             else:
                 data = data.sort_index()
 
             # 计算移动平均线
-            data['ma5'] = data['Close'].rolling(window=5, min_periods=1).mean()
-            data['ma10'] = data['Close'].rolling(window=10, min_periods=1).mean()
-            data['ma20'] = data['Close'].rolling(window=20, min_periods=1).mean()
-            data['ma60'] = data['Close'].rolling(window=60, min_periods=1).mean()
+            data["ma5"] = data["Close"].rolling(window=5, min_periods=1).mean()
+            data["ma10"] = data["Close"].rolling(window=10, min_periods=1).mean()
+            data["ma20"] = data["Close"].rolling(window=20, min_periods=1).mean()
+            data["ma60"] = data["Close"].rolling(window=60, min_periods=1).mean()
 
             # 计算RSI（相对强弱指标）
-            delta = data['Close'].diff()
+            delta = data["Close"].diff()
             gain = (delta.where(delta > 0, 0)).rolling(window=14, min_periods=1).mean()
             loss = (-delta.where(delta < 0, 0)).rolling(window=14, min_periods=1).mean()
             rs = gain / (loss.replace(0, np.nan))
-            data['rsi'] = 100 - (100 / (1 + rs))
+            data["rsi"] = 100 - (100 / (1 + rs))
 
             # 计算MACD
-            ema12 = data['Close'].ewm(span=12, adjust=False).mean()
-            ema26 = data['Close'].ewm(span=26, adjust=False).mean()
-            data['macd_dif'] = ema12 - ema26
-            data['macd_dea'] = data['macd_dif'].ewm(span=9, adjust=False).mean()
-            data['macd'] = (data['macd_dif'] - data['macd_dea']) * 2
+            ema12 = data["Close"].ewm(span=12, adjust=False).mean()
+            ema26 = data["Close"].ewm(span=26, adjust=False).mean()
+            data["macd_dif"] = ema12 - ema26
+            data["macd_dea"] = data["macd_dif"].ewm(span=9, adjust=False).mean()
+            data["macd"] = (data["macd_dif"] - data["macd_dea"]) * 2
 
             # 计算布林带
-            data['boll_mid'] = data['Close'].rolling(window=20, min_periods=1).mean()
-            std = data['Close'].rolling(window=20, min_periods=1).std()
-            data['boll_upper'] = data['boll_mid'] + 2 * std
-            data['boll_lower'] = data['boll_mid'] - 2 * std
+            data["boll_mid"] = data["Close"].rolling(window=20, min_periods=1).mean()
+            std = data["Close"].rolling(window=20, min_periods=1).std()
+            data["boll_upper"] = data["boll_mid"] + 2 * std
+            data["boll_lower"] = data["boll_mid"] - 2 * std
 
             # 只保留最后3-5天的数据用于展示（减少token消耗）
             display_rows = min(5, len(data))
@@ -300,13 +282,19 @@ class HKStockProvider:
             # 🔍 [调试日志] 打印最近5天的原始数据和技术指标
             logger.info(f"🔍 [港股技术指标详情] ===== 最近{display_rows}个交易日数据 =====")
             for i, (idx, row) in enumerate(display_data.iterrows(), 1):
-                date_str = row.get('Date', idx.strftime('%Y-%m-%d') if hasattr(idx, 'strftime') else str(idx))
+                date_str = row.get("Date", idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx))
                 logger.info(f"🔍 [港股技术指标详情] 第{i}天 ({date_str}):")
-                logger.info(f"   价格: 开={row.get('Open', 0):.2f}, 高={row.get('High', 0):.2f}, 低={row.get('Low', 0):.2f}, 收={row.get('Close', 0):.2f}")  # noqa: E501
-                logger.info(f"   MA: MA5={row.get('ma5', 0):.2f}, MA10={row.get('ma10', 0):.2f}, MA20={row.get('ma20', 0):.2f}, MA60={row.get('ma60', 0):.2f}")  # noqa: E501
+                logger.info(
+                    f"   价格: 开={row.get('Open', 0):.2f}, 高={row.get('High', 0):.2f}, 低={row.get('Low', 0):.2f}, 收={row.get('Close', 0):.2f}"
+                )  # noqa: E501
+                logger.info(
+                    f"   MA: MA5={row.get('ma5', 0):.2f}, MA10={row.get('ma10', 0):.2f}, MA20={row.get('ma20', 0):.2f}, MA60={row.get('ma60', 0):.2f}"
+                )  # noqa: E501
                 logger.info(f"   MACD: DIF={row.get('macd_dif', 0):.4f}, DEA={row.get('macd_dea', 0):.4f}, MACD={row.get('macd', 0):.4f}")
                 logger.info(f"   RSI: {row.get('rsi', 0):.2f}")
-                logger.info(f"   BOLL: 上={row.get('boll_upper', 0):.2f}, 中={row.get('boll_mid', 0):.2f}, 下={row.get('boll_lower', 0):.2f}")  # noqa: E501
+                logger.info(
+                    f"   BOLL: 上={row.get('boll_upper', 0):.2f}, 中={row.get('boll_mid', 0):.2f}, 下={row.get('boll_lower', 0):.2f}"
+                )  # noqa: E501
 
             logger.info("🔍 [港股技术指标详情] ===== 数据详情结束 =====")
 
@@ -324,7 +312,7 @@ class HKStockProvider:
             result += f"   交易天数: {len(data)}天\n\n"
 
             # 最新价格
-            latest_price = latest_data['Close']
+            latest_price = latest_data["Close"]
             result += "💰 最新价格\n"
             result += f"   收盘价: HK${latest_price:.2f}\n"
             result += f"   开盘价: HK${latest_data['Open']:.2f}\n"
@@ -334,10 +322,10 @@ class HKStockProvider:
 
             # 移动平均线
             result += "📊 移动平均线 (MA)\n"
-            ma5 = latest_data['ma5']
-            ma10 = latest_data['ma10']
-            ma20 = latest_data['ma20']
-            ma60 = latest_data['ma60']
+            ma5 = latest_data["ma5"]
+            ma10 = latest_data["ma10"]
+            ma20 = latest_data["ma20"]
+            ma60 = latest_data["ma60"]
 
             if not pd.isna(ma5):
                 ma5_diff = ((latest_price - ma5) / ma5) * 100
@@ -372,9 +360,9 @@ class HKStockProvider:
 
             # MACD指标
             result += "📉 MACD指标\n"
-            macd_dif = latest_data['macd_dif']
-            macd_dea = latest_data['macd_dea']
-            macd = latest_data['macd']
+            macd_dif = latest_data["macd_dif"]
+            macd_dea = latest_data["macd_dea"]
+            macd = latest_data["macd"]
 
             if not pd.isna(macd_dif) and not pd.isna(macd_dea):
                 result += f"   DIF: {macd_dif:.4f}\n"
@@ -383,10 +371,10 @@ class HKStockProvider:
 
                 # MACD金叉/死叉检测
                 if len(data) > 1:
-                    prev_dif = data.iloc[-2]['macd_dif']
-                    prev_dea = data.iloc[-2]['macd_dea']
-                    curr_dif = latest_data['macd_dif']
-                    curr_dea = latest_data['macd_dea']
+                    prev_dif = data.iloc[-2]["macd_dif"]
+                    prev_dea = data.iloc[-2]["macd_dea"]
+                    curr_dif = latest_data["macd_dif"]
+                    curr_dea = latest_data["macd_dea"]
 
                     if not pd.isna(prev_dif) and not pd.isna(prev_dea):
                         if prev_dif <= prev_dea and curr_dif > curr_dea:
@@ -404,7 +392,7 @@ class HKStockProvider:
 
             # RSI指标
             result += "📊 RSI指标\n"
-            rsi = latest_data['rsi']
+            rsi = latest_data["rsi"]
 
             if not pd.isna(rsi):
                 result += f"   RSI(14): {rsi:.2f}"
@@ -423,9 +411,9 @@ class HKStockProvider:
 
             # 布林带
             result += "📐 布林带 (BOLL)\n"
-            boll_upper = latest_data['boll_upper']
-            boll_mid = latest_data['boll_mid']
-            boll_lower = latest_data['boll_lower']
+            boll_upper = latest_data["boll_upper"]
+            boll_mid = latest_data["boll_mid"]
+            boll_lower = latest_data["boll_lower"]
 
             if not pd.isna(boll_upper) and not pd.isna(boll_mid) and not pd.isna(boll_lower):
                 result += f"   上轨: HK${boll_upper:.2f}\n"
@@ -452,10 +440,10 @@ class HKStockProvider:
             # 最近交易日数据
             result += "📅 最近交易日数据\n"
             for _, row in display_data.iterrows():
-                if 'Date' in row:
-                    date_str = row['Date'].strftime('%Y-%m-%d')
+                if "Date" in row:
+                    date_str = row["Date"].strftime("%Y-%m-%d")
                 else:
-                    date_str = row.name.strftime('%Y-%m-%d')
+                    date_str = row.name.strftime("%Y-%m-%d")
 
                 result += f"   {date_str}: "
                 result += f"开盘HK${row['Open']:.2f}, "
@@ -477,6 +465,7 @@ class HKStockProvider:
 
 # 全局提供器实例
 _hk_provider = None
+
 
 def get_hk_stock_provider() -> HKStockProvider:
     """获取全局港股提供器实例"""

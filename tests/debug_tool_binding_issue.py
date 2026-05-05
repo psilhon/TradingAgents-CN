@@ -31,18 +31,14 @@ def test_tool_isolation():
         toolkit = Toolkit(config)
 
         # 创建LLM
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=200
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=200)
 
         print("\n📋 工具包中的所有工具:")
         all_tools = []
         for attr_name in dir(toolkit):
-            if not attr_name.startswith('_') and callable(getattr(toolkit, attr_name)):
+            if not attr_name.startswith("_") and callable(getattr(toolkit, attr_name)):
                 attr = getattr(toolkit, attr_name)
-                if hasattr(attr, 'name'):
+                if hasattr(attr, "name"):
                     all_tools.append(attr.name)
                     print(f"  - {attr.name}")
 
@@ -60,8 +56,8 @@ def test_tool_isolation():
             print(f"  响应类型: {type(response)}")
             print(f"  工具调用数量: {len(getattr(response, 'tool_calls', []))}")
 
-            if hasattr(response, 'tool_calls') and response.tool_calls:
-                called_tools = [call.get('name', 'unknown') for call in response.tool_calls]
+            if hasattr(response, "tool_calls") and response.tool_calls:
+                called_tools = [call.get("name", "unknown") for call in response.tool_calls]
                 print(f"  实际调用的工具: {called_tools}")
 
                 # 检查是否调用了未绑定的工具
@@ -79,11 +75,7 @@ def test_tool_isolation():
             return False
 
         print("\n🔧 测试2: 创建新的LLM实例")
-        llm2 = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=200
-        )
+        llm2 = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=200)
 
         china_tools = [toolkit.get_china_stock_data]
         llm2_china = llm2.bind_tools(china_tools)
@@ -97,8 +89,8 @@ def test_tool_isolation():
             print(f"  响应类型: {type(response2)}")
             print(f"  工具调用数量: {len(getattr(response2, 'tool_calls', []))}")
 
-            if hasattr(response2, 'tool_calls') and response2.tool_calls:
-                called_tools2 = [call.get('name', 'unknown') for call in response2.tool_calls]
+            if hasattr(response2, "tool_calls") and response2.tool_calls:
+                called_tools2 = [call.get("name", "unknown") for call in response2.tool_calls]
                 print(f"  实际调用的工具: {called_tools2}")
 
                 # 检查是否调用了未绑定的工具
@@ -121,6 +113,7 @@ def test_tool_isolation():
     except Exception as e:
         print(f"❌ 工具隔离测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 

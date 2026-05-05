@@ -2,6 +2,7 @@
 """
 测试AKShare性能优化
 """
+
 import os
 import sys
 
@@ -12,10 +13,8 @@ import time
 from datetime import datetime, timedelta
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 def test_akshare_performance():
     """测试AKShare性能"""
@@ -48,23 +47,23 @@ def test_akshare_performance():
             print("✅ daily_basic数据获取成功:")
             print(f"   📊 记录数量: {len(df)}条")
             print(f"   ⏱️ 耗时: {duration:.1f}秒")
-            print(f"   🚀 平均速度: {len(df)/duration:.1f}条/秒")
+            print(f"   🚀 平均速度: {len(df) / duration:.1f}条/秒")
 
             # 检查数据质量
-            close_count = df['close'].notna().sum() if 'close' in df.columns else 0
-            mv_count = df['total_mv'].notna().sum() if 'total_mv' in df.columns else 0
+            close_count = df["close"].notna().sum() if "close" in df.columns else 0
+            mv_count = df["total_mv"].notna().sum() if "total_mv" in df.columns else 0
 
             print("   📈 数据质量:")
-            print(f"     有收盘价数据: {close_count}只 ({close_count/len(df)*100:.1f}%)")
-            print(f"     有总市值数据: {mv_count}只 ({mv_count/len(df)*100:.1f}%)")
+            print(f"     有收盘价数据: {close_count}只 ({close_count / len(df) * 100:.1f}%)")
+            print(f"     有总市值数据: {mv_count}只 ({mv_count / len(df) * 100:.1f}%)")
 
             # 显示样本数据
             print("   📋 样本数据:")
             for _i, row in df.head(3).iterrows():
-                ts_code = row.get('ts_code', 'N/A')
-                name = row.get('name', 'N/A')
-                close = row.get('close', 'N/A')
-                total_mv = row.get('total_mv', 'N/A')
+                ts_code = row.get("ts_code", "N/A")
+                name = row.get("name", "N/A")
+                close = row.get("close", "N/A")
+                total_mv = row.get("total_mv", "N/A")
                 print(f"     {ts_code} - {name}: 价格={close}, 市值={total_mv}")
 
             # 性能评估
@@ -81,7 +80,9 @@ def test_akshare_performance():
     except Exception as e:
         print(f"❌ 性能测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 def test_web_api_simulation():
     """模拟Web API调用"""
@@ -106,7 +107,7 @@ def test_web_api_simulation():
         # 找到AKShare适配器
         akshare_adapter = None
         for adapter in manager.get_available_adapters():
-            if adapter.name == 'akshare':
+            if adapter.name == "akshare":
                 akshare_adapter = adapter
                 break
 
@@ -159,7 +160,9 @@ def test_web_api_simulation():
     except Exception as e:
         print(f"❌ Web API模拟测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_akshare_performance()

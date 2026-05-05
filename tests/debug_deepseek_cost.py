@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_pricing_config():
     """测试定价配置"""
     print("🔍 测试定价配置...")
@@ -28,7 +29,10 @@ def test_pricing_config():
     print(f"📊 加载了 {len(pricing_configs)} 个定价配置:")
     for pricing in pricing_configs:
         if pricing.provider == "deepseek":
-            print(f"   ✅ {pricing.provider}/{pricing.model_name}: 输入¥{pricing.input_price_per_1k}/1K, 输出¥{pricing.output_price_per_1k}/1K")  # noqa: E501
+            print(
+                f"   ✅ {pricing.provider}/{pricing.model_name}: 输入¥{pricing.input_price_per_1k}/1K, 输出¥{pricing.output_price_per_1k}/1K"
+            )  # noqa: E501
+
 
 def test_cost_calculation():
     """测试成本计算"""
@@ -49,6 +53,7 @@ def test_cost_calculation():
         cost = config_manager.calculate_cost(provider, model, input_tokens, output_tokens)
         print(f"   {provider}/{model}: {input_tokens}+{output_tokens} tokens = ¥{cost:.6f}")
 
+
 def test_token_tracking():
     """测试Token跟踪"""
     print("\n📝 测试Token跟踪...")
@@ -62,7 +67,7 @@ def test_token_tracking():
         input_tokens=2000,
         output_tokens=1000,
         session_id="debug_test_001",
-        analysis_type="debug_test"
+        analysis_type="debug_test",
     )
 
     if record:
@@ -73,6 +78,7 @@ def test_token_tracking():
         print(f"      Cost: ¥{record.cost:.6f}")
     else:
         print("   ❌ 记录创建失败")
+
 
 def test_deepseek_adapter():
     """测试DeepSeek适配器"""
@@ -87,27 +93,20 @@ def test_deepseek_adapter():
         from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 创建DeepSeek实例
-        llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=100
-        )
+        llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=100)
 
         print("   ✅ DeepSeek适配器创建成功")
         print(f"      Model: {llm.model_name}")
         print(f"      Base URL: {llm.openai_api_base}")
 
         # 测试简单调用
-        response = llm.invoke(
-            "请简单说明什么是股票，不超过30字。",
-            session_id="debug_adapter_test",
-            analysis_type="debug_test"
-        )
+        response = llm.invoke("请简单说明什么是股票，不超过30字。", session_id="debug_adapter_test", analysis_type="debug_test")
 
         print(f"   ✅ API调用成功，响应长度: {len(response.content)}")
 
     except Exception as e:
         print(f"   ❌ DeepSeek适配器测试失败: {e}")
+
 
 def check_usage_statistics():
     """检查使用统计"""
@@ -121,8 +120,8 @@ def check_usage_statistics():
     print(f"   总请求: {stats.get('total_requests', 0)}")
     print(f"   总Token: {stats.get('total_tokens', 0)}")
 
-    provider_stats = stats.get('provider_stats', {})
-    deepseek_stats = provider_stats.get('deepseek', {})
+    provider_stats = stats.get("provider_stats", {})
+    deepseek_stats = provider_stats.get("deepseek", {})
 
     if deepseek_stats:
         print("   DeepSeek统计:")
@@ -131,6 +130,7 @@ def check_usage_statistics():
         print(f"      Token: {deepseek_stats.get('tokens', 0)}")
     else:
         print("   ❌ 未找到DeepSeek统计")
+
 
 def main():
     """主函数"""
@@ -150,7 +150,9 @@ def main():
     except Exception as e:
         print(f"\n❌ 调试过程中出现错误: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     main()

@@ -42,8 +42,5 @@ def test_delete_llm_config_handles_enum_provider():
     result = asyncio.run(service.delete_llm_config("aihubmix", "gpt-5.4"))
 
     assert result is True
-    assert [
-        (service._provider_to_string(item.provider), item.model_name)
-        for item in config.llm_configs
-    ] == [("openai", "gpt-4o")]
+    assert [(service._provider_to_string(item.provider), item.model_name) for item in config.llm_configs] == [("openai", "gpt-4o")]
     service.save_system_config.assert_awaited_once_with(config)

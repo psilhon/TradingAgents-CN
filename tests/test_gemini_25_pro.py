@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
 
+
 def test_gemini_25_pro_basic():
     """测试Gemini 2.5 Pro基础功能"""
     try:
@@ -25,7 +26,7 @@ def test_gemini_25_pro_basic():
         from langchain_google_genai import ChatGoogleGenerativeAI
 
         # 检查API密钥
-        google_api_key = os.getenv('GOOGLE_API_KEY')
+        google_api_key = os.getenv("GOOGLE_API_KEY")
         if not google_api_key:
             print("❌ Google API密钥未配置")
             return False
@@ -34,12 +35,7 @@ def test_gemini_25_pro_basic():
 
         # 创建Gemini 2.5 Pro实例
         print("🚀 创建Gemini 2.5 Pro实例...")
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-pro",
-            temperature=0.1,
-            max_tokens=1500,
-            google_api_key=google_api_key
-        )
+        llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0.1, max_tokens=1500, google_api_key=google_api_key)
 
         print("✅ Gemini 2.5 Pro实例创建成功")
 
@@ -70,8 +66,10 @@ def test_gemini_25_pro_basic():
     except Exception as e:
         print(f"❌ Gemini 2.5 Pro基础测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def test_gemini_25_pro_tradingagents():
     """测试Gemini 2.5 Pro在TradingAgents中的使用"""
@@ -141,14 +139,17 @@ def test_gemini_25_pro_tradingagents():
         except Exception as e:
             print(f"❌ 股票分析失败: {e}")
             import traceback
+
             print(traceback.format_exc())
             return False
 
     except Exception as e:
         print(f"❌ TradingAgents测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def test_gemini_25_pro_complex_reasoning():
     """测试Gemini 2.5 Pro的复杂推理能力"""
@@ -159,12 +160,7 @@ def test_gemini_25_pro_complex_reasoning():
         from langchain_google_genai import ChatGoogleGenerativeAI
 
         # 创建实例
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-pro",
-            temperature=0.1,
-            max_tokens=2000,
-            google_api_key=os.getenv('GOOGLE_API_KEY')
-        )
+        llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0.1, max_tokens=2000, google_api_key=os.getenv("GOOGLE_API_KEY"))
 
         # 复杂推理测试
         complex_prompt = """
@@ -209,13 +205,14 @@ def test_gemini_25_pro_complex_reasoning():
         print(f"❌ 复杂推理测试失败: {e}")
         return False
 
+
 def main():
     """主测试函数"""
     print("🧪 Gemini 2.5 Pro完整测试")
     print("=" * 70)
 
     # 检查环境变量
-    google_api_key = os.getenv('GOOGLE_API_KEY')
+    google_api_key = os.getenv("GOOGLE_API_KEY")
     if not google_api_key:
         print("❌ Google API密钥未配置")
         print("💡 请在.env文件中设置 GOOGLE_API_KEY")
@@ -226,15 +223,15 @@ def main():
 
     print("第1步: 基础功能测试")
     print("-" * 30)
-    results['基础功能'] = test_gemini_25_pro_basic()
+    results["基础功能"] = test_gemini_25_pro_basic()
 
     print("\n第2步: 复杂推理测试")
     print("-" * 30)
-    results['复杂推理'] = test_gemini_25_pro_complex_reasoning()
+    results["复杂推理"] = test_gemini_25_pro_complex_reasoning()
 
     print("\n第3步: TradingAgents集成测试")
     print("-" * 30)
-    results['TradingAgents集成'] = test_gemini_25_pro_tradingagents()
+    results["TradingAgents集成"] = test_gemini_25_pro_tradingagents()
 
     # 总结结果
     print("\n📊 Gemini 2.5 Pro测试结果总结:")
@@ -268,6 +265,7 @@ def main():
     else:
         print("❌ Gemini 2.5 Pro不可用")
         print("💡 请检查API密钥权限和网络连接")
+
 
 if __name__ == "__main__":
     main()

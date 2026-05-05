@@ -32,11 +32,7 @@ def test_level3_deadlock():
     print("\n📊 1. 配置对比分析")
     print("-" * 50)
 
-    levels = [
-        ("快速", 1, "1级"),
-        ("基础", 2, "2级"),
-        ("标准", 3, "3级")
-    ]
+    levels = [("快速", 1, "1级"), ("基础", 2, "2级"), ("标准", 3, "3级")]
 
     configs = {}
     for depth_name, level, desc in levels:
@@ -46,7 +42,7 @@ def test_level3_deadlock():
             quick_model="qwen-plus",
             deep_model="qwen-max",
             llm_provider="dashscope",
-            market_type="A股"
+            market_type="A股",
         )
         configs[level] = config
 
@@ -66,9 +62,15 @@ def test_level3_deadlock():
     level1_config = configs[1]
 
     print("级别3相比级别1、2的差异:")
-    print(f"  - 风险讨论轮次: 级别1={level1_config['max_risk_discuss_rounds']}, 级别2={level2_config['max_risk_discuss_rounds']}, 级别3={level3_config['max_risk_discuss_rounds']}")  # noqa: E501
-    print(f"  - 记忆功能: 级别1={level1_config['memory_enabled']}, 级别2={level2_config['memory_enabled']}, 级别3={level3_config['memory_enabled']}")  # noqa: E501
-    print(f"  - 在线工具: 级别1={level1_config['online_tools']}, 级别2={level2_config['online_tools']}, 级别3={level3_config['online_tools']}")  # noqa: E501
+    print(
+        f"  - 风险讨论轮次: 级别1={level1_config['max_risk_discuss_rounds']}, 级别2={level2_config['max_risk_discuss_rounds']}, 级别3={level3_config['max_risk_discuss_rounds']}"
+    )  # noqa: E501
+    print(
+        f"  - 记忆功能: 级别1={level1_config['memory_enabled']}, 级别2={level2_config['memory_enabled']}, 级别3={level3_config['memory_enabled']}"
+    )  # noqa: E501
+    print(
+        f"  - 在线工具: 级别1={level1_config['online_tools']}, 级别2={level2_config['online_tools']}, 级别3={level3_config['online_tools']}"
+    )  # noqa: E501
 
     # 3. 模拟基本面分析师的条件判断
     print("\n🤖 3. 基本面分析师条件判断模拟")
@@ -76,8 +78,7 @@ def test_level3_deadlock():
 
     # 创建条件逻辑实例
     conditional_logic = ConditionalLogic(
-        max_debate_rounds=level3_config['max_debate_rounds'],
-        max_risk_discuss_rounds=level3_config['max_risk_discuss_rounds']
+        max_debate_rounds=level3_config["max_debate_rounds"], max_risk_discuss_rounds=level3_config["max_risk_discuss_rounds"]
     )
 
     # 模拟不同的状态场景
@@ -87,54 +88,46 @@ def test_level3_deadlock():
     tool_call = ToolCall(
         name="get_stock_fundamentals_unified",
         args={"ticker": "000001", "start_date": "2025-01-01", "end_date": "2025-01-15", "curr_date": "2025-01-15"},
-        id="call_123"
+        id="call_123",
     )
 
     scenarios = [
         {
             "name": "场景1: 空报告 + 有tool_calls",
-            "state": {
-                "messages": [AIMessage(content="分析中...", tool_calls=[tool_call])],
-                "fundamentals_report": ""
-            }
+            "state": {"messages": [AIMessage(content="分析中...", tool_calls=[tool_call])], "fundamentals_report": ""},
         },
-        {
-            "name": "场景2: 空报告 + 无tool_calls",
-            "state": {
-                "messages": [AIMessage(content="分析完成")],
-                "fundamentals_report": ""
-            }
-        },
+        {"name": "场景2: 空报告 + 无tool_calls", "state": {"messages": [AIMessage(content="分析完成")], "fundamentals_report": ""}},
         {
             "name": "场景3: 短报告 + 有tool_calls",
-            "state": {
-                "messages": [AIMessage(content="分析中...", tool_calls=[tool_call])],
-                "fundamentals_report": "短报告"
-            }
+            "state": {"messages": [AIMessage(content="分析中...", tool_calls=[tool_call])], "fundamentals_report": "短报告"},
         },
         {
             "name": "场景4: 完整报告 + 有tool_calls",
             "state": {
                 "messages": [AIMessage(content="分析完成", tool_calls=[tool_call])],
-                "fundamentals_report": "这是一个完整的基本面分析报告，包含了详细的财务数据分析、估值模型计算、行业对比分析等内容，总长度超过100个字符，应该被认为是完成的报告。"  # noqa: E501
-            }
+                "fundamentals_report": "这是一个完整的基本面分析报告，包含了详细的财务数据分析、估值模型计算、行业对比分析等内容，总长度超过100个字符，应该被认为是完成的报告。",  # noqa: E501
+            },
         },
         {
             "name": "场景5: 完整报告 + 无tool_calls",
             "state": {
                 "messages": [AIMessage(content="分析完成")],
-                "fundamentals_report": "这是一个完整的基本面分析报告，包含了详细的财务数据分析、估值模型计算、行业对比分析等内容，总长度超过100个字符，应该被认为是完成的报告。"  # noqa: E501
-            }
-        }
+                "fundamentals_report": "这是一个完整的基本面分析报告，包含了详细的财务数据分析、估值模型计算、行业对比分析等内容，总长度超过100个字符，应该被认为是完成的报告。",  # noqa: E501
+            },
+        },
     ]
 
     for scenario in scenarios:
         print(f"\n{scenario['name']}:")
-        state = AgentState(scenario['state'])
+        state = AgentState(scenario["state"])
         result = conditional_logic.should_continue_fundamentals(state)
 
-        report_len = len(scenario['state']['fundamentals_report'])
-        has_tool_calls = len(scenario['state']['messages']) > 0 and hasattr(scenario['state']['messages'][-1], 'tool_calls') and scenario['state']['messages'][-1].tool_calls  # noqa: E501
+        report_len = len(scenario["state"]["fundamentals_report"])
+        has_tool_calls = (
+            len(scenario["state"]["messages"]) > 0
+            and hasattr(scenario["state"]["messages"][-1], "tool_calls")
+            and scenario["state"]["messages"][-1].tool_calls
+        )  # noqa: E501
 
         print(f"  - 报告长度: {report_len}")
         print(f"  - 有tool_calls: {has_tool_calls}")
@@ -172,6 +165,7 @@ def test_level3_deadlock():
     print("\n" + "=" * 80)
     print("调试分析完成")
     print("=" * 80)
+
 
 if __name__ == "__main__":
     test_level3_deadlock()

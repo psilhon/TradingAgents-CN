@@ -2,6 +2,7 @@
 """
 测试数据一致性检查功能
 """
+
 import os
 import sys
 
@@ -13,10 +14,8 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 def test_data_consistency_checker():
     """测试数据一致性检查器"""
@@ -26,7 +25,6 @@ def test_data_consistency_checker():
 
     try:
         from app.services.data_source_adapters import DataSourceManager
-
 
         # 1. 测试数据源管理器初始化
         print("\n1. 初始化数据源管理器...")
@@ -60,14 +58,14 @@ def test_data_consistency_checker():
                 print(f"   次数据源: {consistency_report['secondary_source']}")
 
                 # 显示具体差异
-                if consistency_report['differences']:
+                if consistency_report["differences"]:
                     print("\n📈 指标差异详情:")
-                    for metric, diff_info in consistency_report['differences'].items():
-                        if isinstance(diff_info, dict) and 'difference_pct' in diff_info:
+                    for metric, diff_info in consistency_report["differences"].items():
+                        if isinstance(diff_info, dict) and "difference_pct" in diff_info:
                             print(f"   {metric}:")
                             print(f"     主数据源值: {diff_info.get('primary_value', 'N/A')}")
                             print(f"     次数据源值: {diff_info.get('secondary_value', 'N/A')}")
-                            if diff_info.get('difference_pct') is not None:
+                            if diff_info.get("difference_pct") is not None:
                                 print(f"     差异百分比: {diff_info['difference_pct']:.2%}")
                             print(f"     是否显著: {'是' if diff_info.get('is_significant') else '否'}")
                             print(f"     容忍度: {diff_info.get('tolerance', 0):.2%}")
@@ -89,8 +87,7 @@ def test_data_consistency_checker():
 
             if primary_data is not None and secondary_data is not None:
                 consistency_result = manager.consistency_checker.check_daily_basic_consistency(
-                    primary_data, secondary_data,
-                    primary_adapter.name, secondary_adapter.name
+                    primary_data, secondary_data, primary_adapter.name, secondary_adapter.name
                 )
 
                 print("✅ 独立一致性检查完成:")
@@ -99,9 +96,7 @@ def test_data_consistency_checker():
                 print(f"   推荐行动: {consistency_result.recommended_action}")
 
                 # 测试冲突解决
-                final_data, strategy = manager.consistency_checker.resolve_data_conflicts(
-                    primary_data, secondary_data, consistency_result
-                )
+                final_data, strategy = manager.consistency_checker.resolve_data_conflicts(primary_data, secondary_data, consistency_result)
                 print(f"   解决策略: {strategy}")
                 print(f"   最终数据条数: {len(final_data) if final_data is not None else 0}")
             else:
@@ -112,7 +107,9 @@ def test_data_consistency_checker():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 def test_mock_data_consistency():
     """使用模拟数据测试一致性检查逻辑"""
@@ -127,31 +124,33 @@ def test_mock_data_consistency():
 
         # 创建模拟数据
         # 主数据源数据
-        primary_data = pd.DataFrame({
-            'ts_code': ['000001.SZ', '000002.SZ', '600000.SH'],
-            'pe': [10.5, 15.2, 8.9],
-            'pb': [1.2, 2.1, 0.9],
-            'total_mv': [100000, 50000, 80000],
-            'trade_date': ['20241201', '20241201', '20241201']
-        })
+        primary_data = pd.DataFrame(
+            {
+                "ts_code": ["000001.SZ", "000002.SZ", "600000.SH"],
+                "pe": [10.5, 15.2, 8.9],
+                "pb": [1.2, 2.1, 0.9],
+                "total_mv": [100000, 50000, 80000],
+                "trade_date": ["20241201", "20241201", "20241201"],
+            }
+        )
 
         # 次数据源数据（略有差异）
-        secondary_data = pd.DataFrame({
-            'ts_code': ['000001.SZ', '000002.SZ', '600000.SH'],
-            'pe': [10.8, 15.0, 9.1],  # 轻微差异
-            'pb': [1.25, 2.0, 0.95],  # 轻微差异
-            'total_mv': [101000, 49500, 81000],  # 轻微差异
-            'trade_date': ['20241201', '20241201', '20241201']
-        })
+        secondary_data = pd.DataFrame(
+            {
+                "ts_code": ["000001.SZ", "000002.SZ", "600000.SH"],
+                "pe": [10.8, 15.0, 9.1],  # 轻微差异
+                "pb": [1.25, 2.0, 0.95],  # 轻微差异
+                "total_mv": [101000, 49500, 81000],  # 轻微差异
+                "trade_date": ["20241201", "20241201", "20241201"],
+            }
+        )
 
         print("📊 模拟数据创建完成:")
         print(f"   主数据源: {len(primary_data)}条记录")
         print(f"   次数据源: {len(secondary_data)}条记录")
 
         # 进行一致性检查
-        result = checker.check_daily_basic_consistency(
-            primary_data, secondary_data, "Tushare", "AKShare"
-        )
+        result = checker.check_daily_basic_consistency(primary_data, secondary_data, "Tushare", "AKShare")
 
         print("\n📈 一致性检查结果:")
         print(f"   数据一致性: {result.is_consistent}")
@@ -164,14 +163,12 @@ def test_mock_data_consistency():
                 print(f"   {metric}:")
                 print(f"     主数据源平均值: {diff.get('primary_value', 'N/A')}")
                 print(f"     次数据源平均值: {diff.get('secondary_value', 'N/A')}")
-                if diff.get('difference_pct') is not None:
+                if diff.get("difference_pct") is not None:
                     print(f"     差异百分比: {diff['difference_pct']:.2%}")
                 print(f"     是否显著: {diff.get('is_significant', False)}")
 
         # 测试冲突解决
-        final_data, strategy = checker.resolve_data_conflicts(
-            primary_data, secondary_data, result
-        )
+        final_data, strategy = checker.resolve_data_conflicts(primary_data, secondary_data, result)
 
         print("\n🔧 冲突解决:")
         print(f"   策略: {strategy}")
@@ -182,7 +179,9 @@ def test_mock_data_consistency():
     except Exception as e:
         print(f"❌ 模拟数据测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_data_consistency_checker()

@@ -4,6 +4,7 @@
 从 tradingagents/dataflows/providers_config.py 迁移而来
 统一管理所有数据源提供器的配置
 """
+
 import logging
 import os
 from typing import Any
@@ -131,6 +132,7 @@ class DataSourceConfig:
 # 全局配置实例
 _config_instance = None
 
+
 def get_data_source_config() -> DataSourceConfig:
     """获取全局数据源配置实例"""
     global _config_instance
@@ -138,8 +140,8 @@ def get_data_source_config() -> DataSourceConfig:
         _config_instance = DataSourceConfig()
     return _config_instance
 
+
 def get_provider_config(provider_name: str) -> dict[str, Any]:
     """获取指定提供器配置的便捷函数"""
     config = get_data_source_config()
     return config.get_provider_config(provider_name)
-

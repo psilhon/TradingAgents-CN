@@ -17,8 +17,4 @@ except ImportError:
     # 如果导入失败，不影响模块的基本功能
     pass
 
-__all__ = [
-    "__author__",
-    "__description__",
-    "__version__"
-]
+__all__ = ["__author__", "__description__", "__version__"]

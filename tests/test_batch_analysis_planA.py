@@ -6,6 +6,7 @@
 - 轮询 /api/analysis/tasks/{task_id}/status 直至 completed
 - 获取 /api/analysis/tasks/{task_id}/result 并验证关键字段
 """
+
 import json
 import time
 
@@ -43,8 +44,8 @@ def submit_batch(token: str):
             "selected_analysts": ["market", "fundamentals"],
             "include_sentiment": True,
             "include_risk": True,
-            "language": "zh-CN"
-        }
+            "language": "zh-CN",
+        },
     }
     r = requests.post(f"{BASE_URL}/api/analysis/batch", json=payload, headers=headers, timeout=30)
     r.raise_for_status()
@@ -113,7 +114,7 @@ def main():
         else:
             print(f"❌ 任务未完成: {stock} ({task_id})")
 
-    with open('batch_results_sample.json', 'w', encoding='utf-8') as f:
+    with open("batch_results_sample.json", "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
     print("💾 已保存结果样本到 batch_results_sample.json")
 
@@ -123,6 +124,5 @@ def main():
         print("⚠️ 部分任务未完成或失败，请检查日志")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-

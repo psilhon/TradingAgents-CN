@@ -91,12 +91,7 @@ async def test_status_record_and_get():
 
     # 测试记录状态
     print("\n📝 测试记录同步状态...")
-    await service._record_sync_status(
-        success=True,
-        source="tushare",
-        records_count=5440,
-        error_msg=None
-    )
+    await service._record_sync_status(success=True, source="tushare", records_count=5440, error_msg=None)
     print("✅ 状态记录成功")
 
     # 测试获取状态
@@ -153,12 +148,7 @@ async def test_error_status():
 
     # 记录错误状态
     print("\n📝 测试记录错误状态...")
-    await service._record_sync_status(
-        success=False,
-        source="akshare_eastmoney",
-        records_count=0,
-        error_msg="API 限流"
-    )
+    await service._record_sync_status(success=False, source="akshare_eastmoney", records_count=0, error_msg="API 限流")
     print("✅ 错误状态记录成功")
 
     # 获取状态
@@ -243,4 +233,3 @@ async def main():
 if __name__ == "__main__":
     exit_code = asyncio.run(main())
     sys.exit(exit_code)
-

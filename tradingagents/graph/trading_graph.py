@@ -17,7 +17,7 @@ from tradingagents.llm_clients.provider_keys import env_key_for_provider, normal
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 from tradingagents.dataflows.interface import set_config  # noqa: E402
 
 from .conditional_logic import ConditionalLogic  # noqa: E402
@@ -27,7 +27,16 @@ from .setup import GraphSetup  # noqa: E402
 from .signal_processing import SignalProcessor  # noqa: E402
 
 
-def create_llm_by_provider(provider: str, model: str, backend_url: str, temperature: float, max_tokens: int, timeout: int, api_key: str | None = None, **extra_kwargs):  # noqa: E501
+def create_llm_by_provider(
+    provider: str,
+    model: str,
+    backend_url: str,
+    temperature: float,
+    max_tokens: int,
+    timeout: int,
+    api_key: str | None = None,
+    **extra_kwargs,
+):  # noqa: E501
     """
     根据 provider 创建对应的 LLM 实例
 
@@ -48,14 +57,25 @@ def create_llm_by_provider(provider: str, model: str, backend_url: str, temperat
 
     normalized_provider = normalize_provider_key(provider)
 
-    if normalized_provider in {"openai", "siliconflow", "openrouter", "aihubmix", "ollama", "deepseek", "qwen", "glm", "custom_openai", "qianfan"}:  # noqa: E501
+    if normalized_provider in {
+        "openai",
+        "siliconflow",
+        "openrouter",
+        "aihubmix",
+        "ollama",
+        "deepseek",
+        "qwen",
+        "glm",
+        "custom_openai",
+        "qianfan",
+    }:  # noqa: E501
         if not api_key:
             if normalized_provider == "siliconflow":
-                api_key = os.getenv('SILICONFLOW_API_KEY')
+                api_key = os.getenv("SILICONFLOW_API_KEY")
             elif normalized_provider == "openrouter":
-                api_key = os.getenv('OPENROUTER_API_KEY') or os.getenv('OPENAI_API_KEY')
+                api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
             elif normalized_provider == "openai":
-                api_key = os.getenv('OPENAI_API_KEY')
+                api_key = os.getenv("OPENAI_API_KEY")
             else:
                 env_key = env_key_for_provider(normalized_provider)
                 if env_key:
@@ -76,7 +96,7 @@ def create_llm_by_provider(provider: str, model: str, backend_url: str, temperat
 
     if normalized_provider == "google":
         # 优先使用传入的 API Key，否则从环境变量读取
-        google_api_key = api_key or os.getenv('GOOGLE_API_KEY')
+        google_api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not google_api_key:
             raise ValueError("使用Google需要设置GOOGLE_API_KEY环境变量或在数据库中配置API Key")
 
@@ -111,8 +131,8 @@ def create_llm_by_provider(provider: str, model: str, backend_url: str, temperat
         # 尝试从环境变量获取 API Key（支持多种命名格式）
         api_key_candidates = [
             f"{provider.upper()}_API_KEY",  # 例如: KYX_API_KEY
-            f"{provider}_API_KEY",          # 例如: kyx_API_KEY
-            "CUSTOM_OPENAI_API_KEY"         # 通用环境变量
+            f"{provider}_API_KEY",  # 例如: kyx_API_KEY
+            "CUSTOM_OPENAI_API_KEY",  # 通用环境变量
         ]
 
         custom_api_key = None
@@ -128,12 +148,7 @@ def create_llm_by_provider(provider: str, model: str, backend_url: str, temperat
         from langchain_openai import ChatOpenAI
 
         return ChatOpenAI(
-            model=model,
-            base_url=backend_url,
-            api_key=custom_api_key,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            timeout=timeout
+            model=model, base_url=backend_url, api_key=custom_api_key, temperature=temperature, max_tokens=max_tokens, timeout=timeout
         )
 
 
@@ -247,7 +262,7 @@ class TradingAgentsGraph:
                 temperature=quick_temperature,
                 max_tokens=quick_max_tokens,
                 timeout=quick_timeout,
-                api_key=self.config.get("quick_api_key")  # 🔥 传递 API Key
+                api_key=self.config.get("quick_api_key"),  # 🔥 传递 API Key
             )
 
             self.deep_thinking_llm = create_llm_by_provider(
@@ -257,27 +272,29 @@ class TradingAgentsGraph:
                 temperature=deep_temperature,
                 max_tokens=deep_max_tokens,
                 timeout=deep_timeout,
-                api_key=self.config.get("deep_api_key")  # 🔥 传递 API Key
+                api_key=self.config.get("deep_api_key"),  # 🔥 传递 API Key
             )
 
             logger.info("✅ [混合模式] LLM 实例创建成功")
 
         elif normalized_provider in {"openai", "siliconflow", "openrouter", "aihubmix", "ollama"}:
             provider = normalized_provider
-            logger.info(f"🔧 [{provider}-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")  # noqa: E501
+            logger.info(
+                f"🔧 [{provider}-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s"
+            )  # noqa: E501
             logger.info(f"🔧 [{provider}-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s")
 
             api_key = None
             if provider == "siliconflow":
-                api_key = os.getenv('SILICONFLOW_API_KEY')
+                api_key = os.getenv("SILICONFLOW_API_KEY")
                 if not api_key:
                     raise ValueError("使用SiliconFlow需要设置SILICONFLOW_API_KEY环境变量")
             elif provider == "openrouter":
-                api_key = os.getenv('OPENROUTER_API_KEY') or os.getenv('OPENAI_API_KEY')
+                api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
                 if not api_key:
                     raise ValueError("使用OpenRouter需要设置OPENROUTER_API_KEY或OPENAI_API_KEY环境变量")
             elif provider == "aihubmix":
-                api_key = os.getenv('AIHUBMIX_API_KEY')
+                api_key = os.getenv("AIHUBMIX_API_KEY")
                 if not api_key:
                     raise ValueError("使用AiHubMix需要设置AIHUBMIX_API_KEY环境变量")
 
@@ -304,25 +321,27 @@ class TradingAgentsGraph:
                 base_url=self.config["backend_url"],
                 temperature=deep_temperature,
                 max_tokens=deep_max_tokens,
-                timeout=deep_timeout
+                timeout=deep_timeout,
             )
             self.quick_thinking_llm = ChatAnthropic(
                 model=self.config["quick_think_llm"],
                 base_url=self.config["backend_url"],
                 temperature=quick_temperature,
                 max_tokens=quick_max_tokens,
-                timeout=quick_timeout
+                timeout=quick_timeout,
             )
         elif normalized_provider == "google":
             # 使用统一 llm_clients 入口，但底层仍返回 ChatGoogleOpenAI 兼容适配器
             logger.info("🔧 使用统一 llm_clients 路径初始化 Google AI（保留工具调用兼容行为）")
 
             # 🔥 优先使用数据库配置的 API Key，否则从环境变量读取
-            google_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv('GOOGLE_API_KEY')
+            google_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv("GOOGLE_API_KEY")
             if not google_api_key:
                 raise ValueError("使用Google AI需要在数据库中配置API Key或设置GOOGLE_API_KEY环境变量")
 
-            logger.info(f"🔑 [Google AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}")  # noqa: E501
+            logger.info(
+                f"🔑 [Google AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}"
+            )  # noqa: E501
 
             logger.info(f"🔧 [Google-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")
             logger.info(f"🔧 [Google-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s")
@@ -364,11 +383,11 @@ class TradingAgentsGraph:
             )
             logger.info("✅ [阿里百炼] 已通过 llm_clients 初始化成功并应用用户配置的模型参数")
         elif normalized_provider == "deepseek":
-            deepseek_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv('DEEPSEEK_API_KEY')
+            deepseek_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv("DEEPSEEK_API_KEY")
             if not deepseek_api_key:
                 raise ValueError("使用DeepSeek需要设置DEEPSEEK_API_KEY环境变量")
 
-            deepseek_base_url = self.config.get("backend_url") or os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com')
+            deepseek_base_url = self.config.get("backend_url") or os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
             self.deep_thinking_llm, self.quick_thinking_llm = _create_provider_pair(
                 provider="deepseek",
                 config=self.config,
@@ -383,7 +402,7 @@ class TradingAgentsGraph:
             )
             logger.info("✅ [DeepSeek] 已通过 llm_clients 初始化成功并应用用户配置的模型参数")
         elif normalized_provider == "custom_openai":
-            custom_api_key = os.getenv('CUSTOM_OPENAI_API_KEY')
+            custom_api_key = os.getenv("CUSTOM_OPENAI_API_KEY")
             if not custom_api_key:
                 raise ValueError("使用自定义OpenAI端点需要设置CUSTOM_OPENAI_API_KEY环境变量")
 
@@ -419,8 +438,10 @@ class TradingAgentsGraph:
             logger.info("✅ [千帆] 文心一言适配器已配置成功并应用用户配置的模型参数")
         elif normalized_provider == "glm":
             # 🔥 优先使用数据库配置的 API Key，否则从环境变量读取
-            zhipu_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv('ZHIPU_API_KEY')
-            logger.info(f"🔑 [智谱AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}")  # noqa: E501
+            zhipu_api_key = self.config.get("quick_api_key") or self.config.get("deep_api_key") or os.getenv("ZHIPU_API_KEY")
+            logger.info(
+                f"🔑 [智谱AI] API Key 来源: {'数据库配置' if self.config.get('quick_api_key') or self.config.get('deep_api_key') else '环境变量'}"
+            )  # noqa: E501
 
             if not zhipu_api_key:
                 raise ValueError("使用智谱AI需要在数据库中配置API Key或设置ZHIPU_API_KEY环境变量")
@@ -461,12 +482,12 @@ class TradingAgentsGraph:
 
             logger.info("✅ [智谱AI] 已通过 llm_clients 初始化成功并应用用户配置的模型参数")
         else:
-            provider_name = self.config['llm_provider']
+            provider_name = self.config["llm_provider"]
             logger.info(f"🔧 使用统一 llm_clients 路径处理自定义厂家: {provider_name}")
             api_key_candidates = [
                 f"{provider_name.upper()}_API_KEY",  # 例如: KYX_API_KEY
-                f"{provider_name}_API_KEY",          # 例如: kyx_API_KEY
-                "CUSTOM_OPENAI_API_KEY"              # 通用环境变量
+                f"{provider_name}_API_KEY",  # 例如: kyx_API_KEY
+                "CUSTOM_OPENAI_API_KEY",  # 通用环境变量
             ]
 
             custom_api_key = None
@@ -486,9 +507,7 @@ class TradingAgentsGraph:
             # 获取 backend_url（从配置中获取）
             backend_url = self.config.get("backend_url")
             if not backend_url:
-                raise ValueError(
-                    f"使用自定义厂家 {provider_name} 需要在数据库配置中设置 default_base_url"
-                )
+                raise ValueError(f"使用自定义厂家 {provider_name} 需要在数据库配置中设置 default_base_url")
 
             logger.info(f"🔧 [自定义厂家 {provider_name}] 使用端点: {backend_url}")
 
@@ -504,8 +523,12 @@ class TradingAgentsGraph:
             deep_temperature = deep_config.get("temperature", 0.7)
             deep_timeout = deep_config.get("timeout", 180)
 
-            logger.info(f"🔧 [{provider_name}-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s")  # noqa: E501
-            logger.info(f"🔧 [{provider_name}-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s")  # noqa: E501
+            logger.info(
+                f"🔧 [{provider_name}-快速模型] max_tokens={quick_max_tokens}, temperature={quick_temperature}, timeout={quick_timeout}s"
+            )  # noqa: E501
+            logger.info(
+                f"🔧 [{provider_name}-深度模型] max_tokens={deep_max_tokens}, temperature={deep_temperature}, timeout={deep_timeout}s"
+            )  # noqa: E501
 
             self.deep_thinking_llm, self.quick_thinking_llm = _create_provider_pair(
                 provider="custom_openai",
@@ -547,8 +570,7 @@ class TradingAgentsGraph:
         # Initialize components
         # 🔥 [修复] 从配置中读取辩论轮次参数
         self.conditional_logic = ConditionalLogic(
-            max_debate_rounds=self.config.get("max_debate_rounds", 1),
-            max_risk_discuss_rounds=self.config.get("max_risk_discuss_rounds", 1)
+            max_debate_rounds=self.config.get("max_debate_rounds", 1), max_risk_discuss_rounds=self.config.get("max_risk_discuss_rounds", 1)
         )
         logger.info("🔧 [ConditionalLogic] 初始化完成:")
         logger.info(f"   - max_debate_rounds: {self.conditional_logic.max_debate_rounds}")
@@ -566,7 +588,7 @@ class TradingAgentsGraph:
             self.risk_manager_memory,
             self.conditional_logic,
             self.config,
-            getattr(self, 'react_llm', None),
+            getattr(self, "react_llm", None),
         )
 
         self.propagator = Propagator()
@@ -660,9 +682,7 @@ class TradingAgentsGraph:
 
         # Initialize state
         logger.debug(f"🔍 [GRAPH DEBUG] 创建初始状态，传递参数: company_name='{company_name}', trade_date='{trade_date}'")
-        init_agent_state = self.propagator.create_initial_state(
-            company_name, trade_date
-        )
+        init_agent_state = self.propagator.create_initial_state(company_name, trade_date)
         logger.debug(f"🔍 [GRAPH DEBUG] 初始状态中的company_of_interest: '{init_agent_state.get('company_of_interest', 'NOT_FOUND')}'")
         logger.debug(f"🔍 [GRAPH DEBUG] 初始状态中的trade_date: '{init_agent_state.get('trade_date', 'NOT_FOUND')}'")
 
@@ -685,7 +705,7 @@ class TradingAgentsGraph:
             for chunk in self.graph.stream(init_agent_state, **args):
                 # 记录节点计时
                 for node_name in chunk.keys():
-                    if not node_name.startswith('__'):
+                    if not node_name.startswith("__"):
                         # 如果有上一个节点，记录其结束时间
                         if current_node_name and current_node_start:
                             elapsed = time.time() - current_node_start
@@ -706,7 +726,7 @@ class TradingAgentsGraph:
                     if final_state is None:
                         final_state = init_agent_state.copy()
                     for node_name, node_update in chunk.items():
-                        if not node_name.startswith('__'):
+                        if not node_name.startswith("__"):
                             final_state.update(node_update)
                 else:
                     # values 模式：chunk = {"messages": [...], ...}
@@ -729,7 +749,7 @@ class TradingAgentsGraph:
                 for chunk in self.graph.stream(init_agent_state, **args):
                     # 记录节点计时
                     for node_name in chunk.keys():
-                        if not node_name.startswith('__'):
+                        if not node_name.startswith("__"):
                             # 如果有上一个节点，记录其结束时间
                             if current_node_name and current_node_start:
                                 elapsed = time.time() - current_node_start
@@ -748,7 +768,7 @@ class TradingAgentsGraph:
                     if final_state is None:
                         final_state = init_agent_state.copy()
                     for node_name, node_update in chunk.items():
-                        if not node_name.startswith('__'):
+                        if not node_name.startswith("__"):
                             final_state.update(node_update)
             else:
                 # 原有的invoke模式（也需要计时）
@@ -759,7 +779,7 @@ class TradingAgentsGraph:
                 for chunk in self.graph.stream(init_agent_state, **args):
                     # 记录节点计时
                     for node_name in chunk.keys():
-                        if not node_name.startswith('__'):
+                        if not node_name.startswith("__"):
                             # 如果有上一个节点，记录其结束时间
                             if current_node_name and current_node_start:
                                 elapsed = time.time() - current_node_start
@@ -775,7 +795,7 @@ class TradingAgentsGraph:
                     if final_state is None:
                         final_state = init_agent_state.copy()
                     for node_name, node_update in chunk.items():
-                        if not node_name.startswith('__'):
+                        if not node_name.startswith("__"):
                             final_state.update(node_update)
 
         # 记录最后一个节点的时间
@@ -801,7 +821,7 @@ class TradingAgentsGraph:
         performance_data = self._build_performance_data(node_timings, total_elapsed)
 
         # 将性能数据添加到状态中
-        final_state['performance_metrics'] = performance_data
+        final_state["performance_metrics"] = performance_data
 
         # Store current state for reflection
         self.curr_state = final_state
@@ -812,7 +832,7 @@ class TradingAgentsGraph:
         # 获取模型信息
         model_info = ""
         try:
-            if hasattr(self.deep_thinking_llm, 'model_name'):
+            if hasattr(self.deep_thinking_llm, "model_name"):
                 model_info = f"{self.deep_thinking_llm.__class__.__name__}:{self.deep_thinking_llm.model_name}"
             else:
                 model_info = self.deep_thinking_llm.__class__.__name__
@@ -821,7 +841,7 @@ class TradingAgentsGraph:
 
         # 处理决策并添加模型信息
         decision = self.process_signal(final_state["final_trade_decision"], company_name)
-        decision['model_info'] = model_info
+        decision["model_info"] = model_info
 
         # Return decision and processed signal
         return final_state, decision
@@ -846,7 +866,7 @@ class TradingAgentsGraph:
             # 获取第一个非特殊键作为节点名
             node_name = None
             for key in chunk.keys():
-                if not key.startswith('__'):
+                if not key.startswith("__"):
                     node_name = key
                     break
 
@@ -856,7 +876,7 @@ class TradingAgentsGraph:
             logger.info(f"🔍 [Progress] 节点名称: {node_name}")
 
             # 检查是否为结束节点
-            if '__end__' in chunk:
+            if "__end__" in chunk:
                 logger.info("📊 [Progress] 检测到__end__节点")
                 progress_callback("📊 生成报告")
                 return
@@ -864,31 +884,31 @@ class TradingAgentsGraph:
             # 节点名称映射表（匹配 LangGraph 实际节点名）
             node_mapping = {
                 # 分析师节点
-                'Market Analyst': "📊 市场分析师",
-                'Fundamentals Analyst': "💼 基本面分析师",
-                'News Analyst': "📰 新闻分析师",
-                'Social Analyst': "💬 社交媒体分析师",
+                "Market Analyst": "📊 市场分析师",
+                "Fundamentals Analyst": "💼 基本面分析师",
+                "News Analyst": "📰 新闻分析师",
+                "Social Analyst": "💬 社交媒体分析师",
                 # 工具节点（不发送进度更新，避免重复）
-                'tools_market': None,
-                'tools_fundamentals': None,
-                'tools_news': None,
-                'tools_social': None,
+                "tools_market": None,
+                "tools_fundamentals": None,
+                "tools_news": None,
+                "tools_social": None,
                 # 消息清理节点（不发送进度更新）
-                'Msg Clear Market': None,
-                'Msg Clear Fundamentals': None,
-                'Msg Clear News': None,
-                'Msg Clear Social': None,
+                "Msg Clear Market": None,
+                "Msg Clear Fundamentals": None,
+                "Msg Clear News": None,
+                "Msg Clear Social": None,
                 # 研究员节点
-                'Bull Researcher': "🐂 看涨研究员",
-                'Bear Researcher': "🐻 看跌研究员",
-                'Research Manager': "👔 研究经理",
+                "Bull Researcher": "🐂 看涨研究员",
+                "Bear Researcher": "🐻 看跌研究员",
+                "Research Manager": "👔 研究经理",
                 # 交易员节点
-                'Trader': "💼 交易员决策",
+                "Trader": "💼 交易员决策",
                 # 风险评估节点
-                'Risky Analyst': "🔥 激进风险评估",
-                'Safe Analyst': "🛡️ 保守风险评估",
-                'Neutral Analyst': "⚖️ 中性风险评估",
-                'Risk Judge': "🎯 风险经理",
+                "Risky Analyst": "🔥 激进风险评估",
+                "Safe Analyst": "🛡️ 保守风险评估",
+                "Neutral Analyst": "⚖️ 中性风险评估",
+                "Risk Judge": "🎯 风险经理",
             }
 
             # 查找映射的消息
@@ -932,22 +952,22 @@ class TradingAgentsGraph:
 
         for node_name, elapsed in node_timings.items():
             # 优先匹配风险管理团队（因为它们也包含'Analyst'）
-            if 'Risky' in node_name or 'Safe' in node_name or 'Neutral' in node_name or 'Risk Judge' in node_name:
+            if "Risky" in node_name or "Safe" in node_name or "Neutral" in node_name or "Risk Judge" in node_name:
                 risk_nodes[node_name] = elapsed
             # 然后匹配分析师团队
-            elif 'Analyst' in node_name:
+            elif "Analyst" in node_name:
                 analyst_nodes[node_name] = elapsed
             # 工具节点
-            elif node_name.startswith('tools_'):
+            elif node_name.startswith("tools_"):
                 tool_nodes[node_name] = elapsed
             # 消息清理节点
-            elif node_name.startswith('Msg Clear'):
+            elif node_name.startswith("Msg Clear"):
                 msg_clear_nodes[node_name] = elapsed
             # 研究团队
-            elif 'Researcher' in node_name or 'Research Manager' in node_name:
+            elif "Researcher" in node_name or "Research Manager" in node_name:
                 research_nodes[node_name] = elapsed
             # 交易团队
-            elif 'Trader' in node_name:
+            elif "Trader" in node_name:
                 trader_nodes[node_name] = elapsed
             # 其他节点
             else:
@@ -963,57 +983,51 @@ class TradingAgentsGraph:
             "total_time_minutes": round(total_elapsed / 60, 2),
             "node_count": len(node_timings),
             "average_node_time": round(avg_time, 2),
-            "slowest_node": {
-                "name": slowest_node[0],
-                "time": round(slowest_node[1], 2)
-            } if slowest_node[0] else None,
-            "fastest_node": {
-                "name": fastest_node[0],
-                "time": round(fastest_node[1], 2)
-            } if fastest_node[0] else None,
+            "slowest_node": {"name": slowest_node[0], "time": round(slowest_node[1], 2)} if slowest_node[0] else None,
+            "fastest_node": {"name": fastest_node[0], "time": round(fastest_node[1], 2)} if fastest_node[0] else None,
             "node_timings": {k: round(v, 2) for k, v in node_timings.items()},
             "category_timings": {
                 "analyst_team": {
                     "nodes": {k: round(v, 2) for k, v in analyst_nodes.items()},
                     "total": round(sum(analyst_nodes.values()), 2),
-                    "percentage": round(sum(analyst_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0
+                    "percentage": round(sum(analyst_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0,
                 },
                 "tool_calls": {
                     "nodes": {k: round(v, 2) for k, v in tool_nodes.items()},
                     "total": round(sum(tool_nodes.values()), 2),
-                    "percentage": round(sum(tool_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0
+                    "percentage": round(sum(tool_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0,
                 },
                 "message_clearing": {
                     "nodes": {k: round(v, 2) for k, v in msg_clear_nodes.items()},
                     "total": round(sum(msg_clear_nodes.values()), 2),
-                    "percentage": round(sum(msg_clear_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0
+                    "percentage": round(sum(msg_clear_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0,
                 },
                 "research_team": {
                     "nodes": {k: round(v, 2) for k, v in research_nodes.items()},
                     "total": round(sum(research_nodes.values()), 2),
-                    "percentage": round(sum(research_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0
+                    "percentage": round(sum(research_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0,
                 },
                 "trader_team": {
                     "nodes": {k: round(v, 2) for k, v in trader_nodes.items()},
                     "total": round(sum(trader_nodes.values()), 2),
-                    "percentage": round(sum(trader_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0
+                    "percentage": round(sum(trader_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0,
                 },
                 "risk_management_team": {
                     "nodes": {k: round(v, 2) for k, v in risk_nodes.items()},
                     "total": round(sum(risk_nodes.values()), 2),
-                    "percentage": round(sum(risk_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0
+                    "percentage": round(sum(risk_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0,
                 },
                 "other": {
                     "nodes": {k: round(v, 2) for k, v in other_nodes.items()},
                     "total": round(sum(other_nodes.values()), 2),
-                    "percentage": round(sum(other_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0
-                }
+                    "percentage": round(sum(other_nodes.values()) / total_elapsed * 100, 1) if total_elapsed > 0 else 0,
+                },
             },
             "llm_config": {
-                "provider": self.config.get('llm_provider', 'unknown'),
-                "deep_think_model": self.config.get('deep_think_llm', 'unknown'),
-                "quick_think_model": self.config.get('quick_think_llm', 'unknown')
-            }
+                "provider": self.config.get("llm_provider", "unknown"),
+                "deep_think_model": self.config.get("deep_think_llm", "unknown"),
+                "quick_think_model": self.config.get("quick_think_llm", "unknown"),
+            },
         }
 
     def _print_timing_summary(self, node_timings: dict[str, float], total_elapsed: float):
@@ -1042,22 +1056,22 @@ class TradingAgentsGraph:
 
         for node_name, elapsed in node_timings.items():
             # 优先匹配风险管理团队（因为它们也包含'Analyst'）
-            if 'Risky' in node_name or 'Safe' in node_name or 'Neutral' in node_name or 'Risk Judge' in node_name:
+            if "Risky" in node_name or "Safe" in node_name or "Neutral" in node_name or "Risk Judge" in node_name:
                 risk_nodes.append((node_name, elapsed))
             # 然后匹配分析师团队
-            elif 'Analyst' in node_name:
+            elif "Analyst" in node_name:
                 analyst_nodes.append((node_name, elapsed))
             # 工具节点
-            elif node_name.startswith('tools_'):
+            elif node_name.startswith("tools_"):
                 tool_nodes.append((node_name, elapsed))
             # 消息清理节点
-            elif node_name.startswith('Msg Clear'):
+            elif node_name.startswith("Msg Clear"):
                 msg_clear_nodes.append((node_name, elapsed))
             # 研究团队
-            elif 'Researcher' in node_name or 'Research Manager' in node_name:
+            elif "Researcher" in node_name or "Research Manager" in node_name:
                 research_nodes.append((node_name, elapsed))
             # 交易团队
-            elif 'Trader' in node_name:
+            elif "Trader" in node_name:
                 trader_nodes.append((node_name, elapsed))
             # 其他节点
             else:
@@ -1073,7 +1087,7 @@ class TradingAgentsGraph:
             for node_name, elapsed in sorted(nodes, key=lambda x: x[1], reverse=True):
                 percentage = (elapsed / total_elapsed * 100) if total_elapsed > 0 else 0
                 logger.info(f"  • {node_name:40s} {elapsed:8.2f}秒  ({percentage:5.1f}%)")
-            logger.info(f"  {'小计':40s} {total_category_time:8.2f}秒  ({total_category_time/total_elapsed*100:5.1f}%)")
+            logger.info(f"  {'小计':40s} {total_category_time:8.2f}秒  ({total_category_time / total_elapsed * 100:5.1f}%)")
 
         print_category("分析师团队", analyst_nodes)
         print_category("工具调用", tool_nodes)
@@ -1085,7 +1099,7 @@ class TradingAgentsGraph:
 
         # 打印总体统计
         logger.info("\n" + "=" * 80)
-        logger.info(f"🎯 总执行时间: {total_elapsed:.2f}秒 ({total_elapsed/60:.2f}分钟)")
+        logger.info(f"🎯 总执行时间: {total_elapsed:.2f}秒 ({total_elapsed / 60:.2f}分钟)")
         logger.info(f"📈 节点总数: {len(node_timings)}")
         if node_timings:
             avg_time = sum(node_timings.values()) / len(node_timings)
@@ -1115,12 +1129,8 @@ class TradingAgentsGraph:
                 "bull_history": final_state["investment_debate_state"]["bull_history"],
                 "bear_history": final_state["investment_debate_state"]["bear_history"],
                 "history": final_state["investment_debate_state"]["history"],
-                "current_response": final_state["investment_debate_state"][
-                    "current_response"
-                ],
-                "judge_decision": final_state["investment_debate_state"][
-                    "judge_decision"
-                ],
+                "current_response": final_state["investment_debate_state"]["current_response"],
+                "judge_decision": final_state["investment_debate_state"]["judge_decision"],
             },
             "trader_investment_decision": final_state["trader_investment_plan"],
             "risk_debate_state": {
@@ -1146,21 +1156,11 @@ class TradingAgentsGraph:
 
     def reflect_and_remember(self, returns_losses):
         """Reflect on decisions and update memory based on returns."""
-        self.reflector.reflect_bull_researcher(
-            self.curr_state, returns_losses, self.bull_memory
-        )
-        self.reflector.reflect_bear_researcher(
-            self.curr_state, returns_losses, self.bear_memory
-        )
-        self.reflector.reflect_trader(
-            self.curr_state, returns_losses, self.trader_memory
-        )
-        self.reflector.reflect_invest_judge(
-            self.curr_state, returns_losses, self.invest_judge_memory
-        )
-        self.reflector.reflect_risk_manager(
-            self.curr_state, returns_losses, self.risk_manager_memory
-        )
+        self.reflector.reflect_bull_researcher(self.curr_state, returns_losses, self.bull_memory)
+        self.reflector.reflect_bear_researcher(self.curr_state, returns_losses, self.bear_memory)
+        self.reflector.reflect_trader(self.curr_state, returns_losses, self.trader_memory)
+        self.reflector.reflect_invest_judge(self.curr_state, returns_losses, self.invest_judge_memory)
+        self.reflector.reflect_risk_manager(self.curr_state, returns_losses, self.risk_manager_memory)
 
     def process_signal(self, full_signal, stock_symbol=None):
         """Process a signal to extract the core decision."""

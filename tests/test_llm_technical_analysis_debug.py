@@ -22,11 +22,7 @@ def test_dashscope_technical_analysis():
         from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
 
         # 创建阿里百炼模型
-        llm = ChatDashScope(
-            model="qwen-plus-latest",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        llm = ChatDashScope(model="qwen-plus-latest", temperature=0.1, max_tokens=2000)
 
         print("✅ 阿里百炼模型创建成功")
 
@@ -78,6 +74,7 @@ def test_dashscope_technical_analysis():
     except Exception as e:
         print(f"❌ 阿里百炼测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -93,11 +90,7 @@ def test_deepseek_technical_analysis():
         from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 创建DeepSeek模型
-        llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=2000)
 
         print("✅ DeepSeek模型创建成功")
 
@@ -149,6 +142,7 @@ def test_deepseek_technical_analysis():
     except Exception as e:
         print(f"❌ DeepSeek测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -163,26 +157,28 @@ def test_message_sequence_handling():
         from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
 
         # 创建阿里百炼模型
-        llm = ChatDashScope(
-            model="qwen-plus-latest",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        llm = ChatDashScope(model="qwen-plus-latest", temperature=0.1, max_tokens=2000)
 
         print("✅ 阿里百炼模型创建成功")
 
         # 模拟复杂的消息序列（类似技术面分析中的情况）
         messages = [
             HumanMessage(content="请分析股票600036的技术面"),
-            AIMessage(content="我需要获取股票数据来进行分析", tool_calls=[
-                {
-                    "name": "get_china_stock_data",
-                    "args": {"stock_code": "600036", "start_date": "2025-06-10", "end_date": "2025-07-10"},
-                    "id": "call_1"
-                }
-            ]),
-            ToolMessage(content="股票代码: 600036\n股票名称: 招商银行\n当前价格: ¥47.13\n涨跌幅: -1.03%\n成交量: 61.5万手", tool_call_id="call_1"),  # noqa: E501
-            HumanMessage(content="""现在请基于上述工具获取的数据，生成详细的技术分析报告。
+            AIMessage(
+                content="我需要获取股票数据来进行分析",
+                tool_calls=[
+                    {
+                        "name": "get_china_stock_data",
+                        "args": {"stock_code": "600036", "start_date": "2025-06-10", "end_date": "2025-07-10"},
+                        "id": "call_1",
+                    }
+                ],
+            ),
+            ToolMessage(
+                content="股票代码: 600036\n股票名称: 招商银行\n当前价格: ¥47.13\n涨跌幅: -1.03%\n成交量: 61.5万手", tool_call_id="call_1"
+            ),  # noqa: E501
+            HumanMessage(
+                content="""现在请基于上述工具获取的数据，生成详细的技术分析报告。
 
 要求：
 1. 报告必须基于工具返回的真实数据进行分析
@@ -196,7 +192,8 @@ def test_message_sequence_handling():
 - 技术指标解读
 - 支撑阻力位分析
 - 成交量分析
-- 投资建议""")
+- 投资建议"""
+            ),
         ]
 
         print("🔄 测试复杂消息序列...")
@@ -214,6 +211,7 @@ def test_message_sequence_handling():
     except Exception as e:
         print(f"❌ 复杂消息序列测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -244,11 +242,7 @@ def test_max_tokens_impact():
         for max_tokens in token_settings:
             print(f"\n🔄 测试max_tokens={max_tokens}...")
 
-            llm = ChatDashScope(
-                model="qwen-plus-latest",
-                temperature=0.1,
-                max_tokens=max_tokens
-            )
+            llm = ChatDashScope(model="qwen-plus-latest", temperature=0.1, max_tokens=max_tokens)
 
             messages = [HumanMessage(content=prompt)]
             response = llm.invoke(messages)
@@ -283,7 +277,7 @@ def main():
         ("阿里百炼技术面分析", test_dashscope_technical_analysis),
         ("DeepSeek技术面分析", test_deepseek_technical_analysis),
         ("复杂消息序列处理", test_message_sequence_handling),
-        ("max_tokens参数影响", test_max_tokens_impact)
+        ("max_tokens参数影响", test_max_tokens_impact),
     ]
 
     results = []

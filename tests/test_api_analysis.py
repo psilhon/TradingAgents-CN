@@ -39,21 +39,17 @@ def test_api_analysis():
                 "include_risk": False,
                 "language": "zh-CN",
                 "quick_analysis_model": "qwen-turbo",
-                "deep_analysis_model": "qwen-max"
-            }
+                "deep_analysis_model": "qwen-max",
+            },
         }
 
         # 添加认证头（如果需要）
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Bearer admin_token"  # 使用管理员token
+            "Authorization": "Bearer admin_token",  # 使用管理员token
         }
 
-        response = requests.post(
-            f"{base_url}/api/analysis/single",
-            json=analysis_request,
-            headers=headers
-        )
+        response = requests.post(f"{base_url}/api/analysis/single", json=analysis_request, headers=headers)
 
         if response.status_code == 200:
             result = response.json()
@@ -70,10 +66,7 @@ def test_api_analysis():
         start_time = time.time()
 
         while time.time() - start_time < max_wait_time:
-            status_response = requests.get(
-                f"{base_url}/api/analysis/tasks/{task_id}/status",
-                headers=headers
-            )
+            status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", headers=headers)
 
             if status_response.status_code == 200:
                 status_data = status_response.json()
@@ -87,10 +80,7 @@ def test_api_analysis():
                     print("✅ 分析任务完成!")
 
                     # 获取分析结果
-                    result_response = requests.get(
-                        f"{base_url}/api/analysis/tasks/{task_id}/result",
-                        headers=headers
-                    )
+                    result_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/result", headers=headers)
 
                     if result_response.status_code == 200:
                         result_data = result_response.json()
@@ -99,7 +89,7 @@ def test_api_analysis():
                         print(f"   分析日期: {result_data.get('analysis_date')}")
 
                         # 检查报告内容
-                        reports = result_data.get('reports', {})
+                        reports = result_data.get("reports", {})
                         for report_type, content in reports.items():
                             if isinstance(content, str) and len(content) > 0:
                                 print(f"   {report_type}: 有内容 (长度: {len(content)})")
@@ -128,6 +118,7 @@ def test_api_analysis():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = test_api_analysis()

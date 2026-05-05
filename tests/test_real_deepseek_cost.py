@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_real_deepseek_analysis():
     """测试真实的DeepSeek股票分析，观察成本计算"""
     print("🧪 实际测试DeepSeek成本计算")
@@ -35,11 +36,7 @@ def test_real_deepseek_analysis():
         print("🔧 初始化DeepSeek分析师...")
 
         # 创建DeepSeek LLM
-        deepseek_llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=1000
-        )
+        deepseek_llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=1000)
 
         # 创建工具包
         config = DEFAULT_CONFIG.copy()
@@ -54,11 +51,7 @@ def test_real_deepseek_analysis():
         print("-" * 50)
 
         # 模拟状态
-        state = {
-            "company_of_interest": "000002",
-            "trade_date": "2025-07-08",
-            "messages": []
-        }
+        state = {"company_of_interest": "000002", "trade_date": "2025-07-08", "messages": []}
 
         # 执行分析
         result = market_analyst(state)
@@ -66,7 +59,7 @@ def test_real_deepseek_analysis():
         print("-" * 50)
         print("📋 分析完成！")
 
-        market_report = result.get('market_report', '')
+        market_report = result.get("market_report", "")
         print(f"📊 市场报告长度: {len(market_report)}")
 
         if len(market_report) > 500:
@@ -80,8 +73,10 @@ def test_real_deepseek_analysis():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_simple_deepseek_call():
     """测试简单的DeepSeek调用，观察成本"""
@@ -99,11 +94,7 @@ def test_simple_deepseek_call():
         print("🔧 创建DeepSeek实例...")
 
         # 创建DeepSeek实例
-        deepseek_llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=200
-        )
+        deepseek_llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=200)
 
         print("📤 发送测试请求...")
         print("⏱️ 请观察成本计算输出...")
@@ -122,8 +113,10 @@ def test_simple_deepseek_call():
     except Exception as e:
         print(f"❌ 简单调用测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_multiple_calls():
     """测试多次调用，观察累计成本"""
@@ -141,17 +134,9 @@ def test_multiple_calls():
         print("🔧 创建DeepSeek实例...")
 
         # 创建DeepSeek实例
-        deepseek_llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=100
-        )
+        deepseek_llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=100)
 
-        questions = [
-            "什么是股票？",
-            "什么是技术分析？",
-            "什么是基本面分析？"
-        ]
+        questions = ["什么是股票？", "什么是技术分析？", "什么是基本面分析？"]
 
         print(f"📤 发送{len(questions)}个测试请求...")
         print("⏱️ 请观察每次调用的成本计算...")
@@ -170,8 +155,10 @@ def test_multiple_calls():
     except Exception as e:
         print(f"❌ 多次调用测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -216,6 +203,7 @@ def main():
 
     print("\n🎯 测试完成！")
     return overall_success
+
 
 if __name__ == "__main__":
     success = main()

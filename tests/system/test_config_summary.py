@@ -1,4 +1,3 @@
-
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -53,4 +52,3 @@ def test_config_summary_masks_sensitive_fields_with_auth():
     # A few non-sensitive keys should be present for sanity
     for key in ["DEBUG", "HOST", "PORT", "MONGODB_HOST", "REDIS_HOST"]:
         assert key in s
-

@@ -24,6 +24,7 @@ def step1_basic_check():
         print(f"❌ 基本检查失败: {e}")
         return False
 
+
 def step2_path_check():
     """步骤2: 路径检查"""
     print("\n🔍 步骤2: 路径检查")
@@ -35,7 +36,7 @@ def step2_path_check():
         print(f"✅ 项目根目录: {project_root}")
 
         # 检查关键目录
-        key_dirs = ['tradingagents', 'tests', 'cli']
+        key_dirs = ["tradingagents", "tests", "cli"]
         for dir_name in key_dirs:
             dir_path = os.path.join(project_root, dir_name)
             if os.path.exists(dir_path):
@@ -54,6 +55,7 @@ def step2_path_check():
         traceback.print_exc()
         return False
 
+
 def step3_import_check():
     """步骤3: 导入检查"""
     print("\n🔍 步骤3: 导入检查")
@@ -63,7 +65,7 @@ def step3_import_check():
         ("langchain_core.messages", "HumanMessage"),
         ("langchain_core.tools", "tool"),
         ("tradingagents.llm_adapters", "ChatDashScopeOpenAI"),
-        ("tradingagents.config.config_manager", "token_tracker")
+        ("tradingagents.config.config_manager", "token_tracker"),
     ]
 
     success_count = 0
@@ -80,6 +82,7 @@ def step3_import_check():
     print(f"\n📊 导入结果: {success_count}/{len(imports)} 成功")
     return success_count == len(imports)
 
+
 def step4_env_check():
     """步骤4: 环境变量检查"""
     print("\n🔍 步骤4: 环境变量检查")
@@ -87,11 +90,7 @@ def step4_env_check():
 
     try:
         # 检查关键环境变量
-        env_vars = [
-            "DASHSCOPE_API_KEY",
-            "TUSHARE_TOKEN",
-            "OPENAI_API_KEY"
-        ]
+        env_vars = ["DASHSCOPE_API_KEY", "TUSHARE_TOKEN", "OPENAI_API_KEY"]
 
         for var in env_vars:
             value = os.getenv(var)
@@ -104,6 +103,7 @@ def step4_env_check():
     except Exception as e:
         print(f"❌ 环境变量检查失败: {e}")
         return False
+
 
 def step5_simple_llm_test():
     """步骤5: 简单LLM测试"""
@@ -119,14 +119,11 @@ def step5_simple_llm_test():
 
         print("🔄 导入LLM适配器...")
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
+
         print("✅ LLM适配器导入成功")
 
         print("🔄 创建LLM实例...")
-        ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=50
-        )
+        ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=50)
         print("✅ LLM实例创建成功")
 
         return True
@@ -135,6 +132,7 @@ def step5_simple_llm_test():
         print(f"❌ 简单LLM测试失败: {e}")
         traceback.print_exc()
         return False
+
 
 def step6_tool_binding_test():
     """步骤6: 工具绑定测试"""
@@ -153,6 +151,7 @@ def step6_tool_binding_test():
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         print("🔄 定义测试工具...")
+
         @tool
         def test_tool(text: str) -> str:
             """测试工具"""
@@ -169,6 +168,7 @@ def step6_tool_binding_test():
         print(f"❌ 工具绑定测试失败: {e}")
         traceback.print_exc()
         return False
+
 
 def step7_actual_call_test():
     """步骤7: 实际调用测试"""
@@ -197,9 +197,7 @@ def step7_actual_call_test():
         llm_with_tools = llm.bind_tools([test_tool])
 
         print("🔄 发送测试请求...")
-        response = llm_with_tools.invoke([
-            HumanMessage(content="请回复：测试成功")
-        ])
+        response = llm_with_tools.invoke([HumanMessage(content="请回复：测试成功")])
 
         print("✅ 调用成功")
         print(f"   响应类型: {type(response)}")
@@ -207,7 +205,7 @@ def step7_actual_call_test():
         print(f"   响应内容: {response.content[:100]}...")
 
         # 检查工具调用
-        tool_calls = getattr(response, 'tool_calls', [])
+        tool_calls = getattr(response, "tool_calls", [])
         print(f"   工具调用数量: {len(tool_calls)}")
 
         return True
@@ -216,6 +214,7 @@ def step7_actual_call_test():
         print(f"❌ 实际调用测试失败: {e}")
         traceback.print_exc()
         return False
+
 
 def main():
     """主诊断函数"""
@@ -232,12 +231,12 @@ def main():
         ("环境变量检查", step4_env_check),
         ("简单LLM测试", step5_simple_llm_test),
         ("工具绑定测试", step6_tool_binding_test),
-        ("实际调用测试", step7_actual_call_test)
+        ("实际调用测试", step7_actual_call_test),
     ]
 
     results = []
     for step_name, step_func in steps:
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         try:
             result = step_func()
             results.append((step_name, result))
@@ -253,7 +252,7 @@ def main():
             break
 
     # 总结
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("📋 诊断总结")
     print("=" * 60)
 
@@ -271,16 +270,17 @@ def main():
         print("\n🎉 所有诊断通过！")
         print("测试脚本应该可以正常运行")
     else:
-        print(f"\n⚠️ 在第{passed+1}步失败")
+        print(f"\n⚠️ 在第{passed + 1}步失败")
         print("请根据错误信息修复问题")
 
     # 防止脚本闪退
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("诊断完成！按回车键退出...")
     try:
         input()
     except Exception:
         pass
+
 
 if __name__ == "__main__":
     try:

@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
+
 def test_akshare_direct():
     """直接测试AKShare功能"""
     print("🔍 直接测试AKShare功能")
@@ -18,6 +19,7 @@ def test_akshare_direct():
 
     try:
         import akshare as ak
+
         print(f"✅ AKShare导入成功，版本: {ak.__version__}")
 
         # 测试获取股票列表
@@ -42,6 +44,7 @@ def test_akshare_direct():
         print(f"❌ AKShare测试失败: {e}")
         return False
 
+
 def test_akshare_utils_direct():
     """直接测试akshare_utils模块"""
     print("\n🔍 直接测试akshare_utils模块")
@@ -49,13 +52,13 @@ def test_akshare_utils_direct():
 
     try:
         # 直接导入akshare_utils，避免通过__init__.py
-        akshare_utils_path = os.path.join(project_root, 'tradingagents', 'dataflows', 'akshare_utils.py')
+        akshare_utils_path = os.path.join(project_root, "tradingagents", "dataflows", "akshare_utils.py")
 
         if os.path.exists(akshare_utils_path):
             print("✅ 找到akshare_utils.py文件")
 
             # 使用exec直接执行文件内容
-            with open(akshare_utils_path, encoding='utf-8') as f:
+            with open(akshare_utils_path, encoding="utf-8") as f:
                 akshare_utils_code = f.read()
 
             # 创建独立的命名空间
@@ -63,8 +66,8 @@ def test_akshare_utils_direct():
             exec(akshare_utils_code, namespace)
 
             # 测试AKShareProvider
-            if 'AKShareProvider' in namespace:
-                provider_class = namespace['AKShareProvider']
+            if "AKShareProvider" in namespace:
+                provider_class = namespace["AKShareProvider"]
                 provider = provider_class()
 
                 print(f"✅ AKShareProvider初始化成功，连接状态: {provider.connected}")
@@ -92,8 +95,10 @@ def test_akshare_utils_direct():
     except Exception as e:
         print(f"❌ akshare_utils测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def check_data_source_enum():
     """检查数据源枚举定义"""
@@ -102,23 +107,23 @@ def check_data_source_enum():
 
     try:
         # 直接读取data_source_manager.py文件
-        data_source_manager_path = os.path.join(project_root, 'tradingagents', 'dataflows', 'data_source_manager.py')
+        data_source_manager_path = os.path.join(project_root, "tradingagents", "dataflows", "data_source_manager.py")
 
         if os.path.exists(data_source_manager_path):
-            with open(data_source_manager_path, encoding='utf-8') as f:
+            with open(data_source_manager_path, encoding="utf-8") as f:
                 content = f.read()
 
             # 检查AKShare相关定义
-            if 'AKSHARE' in content:
+            if "AKSHARE" in content:
                 print("✅ 找到AKSHARE枚举定义")
             else:
                 print("❌ 未找到AKSHARE枚举定义")
 
-            if 'akshare' in content.lower():
+            if "akshare" in content.lower():
                 print("✅ 找到akshare相关代码")
 
                 # 统计akshare出现次数
-                akshare_count = content.lower().count('akshare')
+                akshare_count = content.lower().count("akshare")
                 print(f"   akshare在代码中出现{akshare_count}次")
             else:
                 print("❌ 未找到akshare相关代码")
@@ -131,6 +136,7 @@ def check_data_source_enum():
     except Exception as e:
         print(f"❌ 数据源枚举检查失败: {e}")
         return False
+
 
 def analyze_yfinance_issue():
     """分析yfinance依赖问题"""
@@ -158,6 +164,7 @@ def analyze_yfinance_issue():
 
         return False
 
+
 def main():
     """主测试函数"""
     print("🔍 AKShare功能独立测试")
@@ -166,16 +173,16 @@ def main():
     test_results = {}
 
     # 1. 直接测试AKShare
-    test_results['akshare_direct'] = test_akshare_direct()
+    test_results["akshare_direct"] = test_akshare_direct()
 
     # 2. 直接测试akshare_utils
-    test_results['akshare_utils_direct'] = test_akshare_utils_direct()
+    test_results["akshare_utils_direct"] = test_akshare_utils_direct()
 
     # 3. 检查数据源枚举
-    test_results['data_source_enum'] = check_data_source_enum()
+    test_results["data_source_enum"] = check_data_source_enum()
 
     # 4. 分析yfinance问题
-    test_results['yfinance_analysis'] = analyze_yfinance_issue()
+    test_results["yfinance_analysis"] = analyze_yfinance_issue()
 
     # 总结结果
     print("\n📊 独立测试总结")
@@ -191,7 +198,7 @@ def main():
     print(f"\n🎯 总体结果: {passed}/{total} 项测试通过")
 
     # 分析结果
-    if test_results.get('akshare_direct', False) and test_results.get('akshare_utils_direct', False):
+    if test_results.get("akshare_direct", False) and test_results.get("akshare_utils_direct", False):
         print("\n🎉 AKShare核心功能完全正常！")
         print("💡 问题只是yfinance依赖导致的模块导入问题")
         print("✅ 可以安全删除重复的AKShare分支")
@@ -207,6 +214,7 @@ def main():
     else:
         print("\n⚠️ AKShare功能存在问题，需要进一步调查")
         return False
+
 
 if __name__ == "__main__":
     success = main()

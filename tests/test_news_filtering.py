@@ -22,32 +22,31 @@ def test_basic_news_filter():
         from tradingagents.utils.news_filter import create_news_filter
 
         # 创建过滤器
-        filter = create_news_filter('600036')
+        filter = create_news_filter("600036")
         print("✅ 成功创建招商银行(600036)新闻过滤器")
 
         # 模拟新闻数据
-        test_news = pd.DataFrame([
-            {
-                '新闻标题': '招商银行发布2024年第三季度业绩报告',
-                '新闻内容': '招商银行今日发布第三季度财报，净利润同比增长8%，资产质量持续改善，不良贷款率进一步下降...'
-            },
-            {
-                '新闻标题': '上证180ETF指数基金（530280）自带杠铃策略',
-                '新闻内容': '数据显示，上证180指数前十大权重股分别为贵州茅台、招商银行600036、五粮液等，该ETF基金采用被动投资策略...'
-            },
-            {
-                '新闻标题': '银行ETF指数(512730)多只成分股上涨',
-                '新闻内容': '银行板块今日表现强势，招商银行、工商银行、建设银行等多只成分股上涨，银行ETF基金受益明显...'
-            },
-            {
-                '新闻标题': '招商银行与某科技公司签署战略合作协议',
-                '新闻内容': '招商银行宣布与知名科技公司达成战略合作，将在数字化转型、金融科技创新等方面深度合作，推动银行业务升级...'
-            },
-            {
-                '新闻标题': '无标题',
-                '新闻内容': '指数基金跟踪上证180指数，该指数包含180只大盘蓝筹股，权重股包括招商银行等金融股...'
-            }
-        ])
+        test_news = pd.DataFrame(
+            [
+                {
+                    "新闻标题": "招商银行发布2024年第三季度业绩报告",
+                    "新闻内容": "招商银行今日发布第三季度财报，净利润同比增长8%，资产质量持续改善，不良贷款率进一步下降...",
+                },
+                {
+                    "新闻标题": "上证180ETF指数基金（530280）自带杠铃策略",
+                    "新闻内容": "数据显示，上证180指数前十大权重股分别为贵州茅台、招商银行600036、五粮液等，该ETF基金采用被动投资策略...",
+                },
+                {
+                    "新闻标题": "银行ETF指数(512730)多只成分股上涨",
+                    "新闻内容": "银行板块今日表现强势，招商银行、工商银行、建设银行等多只成分股上涨，银行ETF基金受益明显...",
+                },
+                {
+                    "新闻标题": "招商银行与某科技公司签署战略合作协议",
+                    "新闻内容": "招商银行宣布与知名科技公司达成战略合作，将在数字化转型、金融科技创新等方面深度合作，推动银行业务升级...",
+                },
+                {"新闻标题": "无标题", "新闻内容": "指数基金跟踪上证180指数，该指数包含180只大盘蓝筹股，权重股包括招商银行等金融股..."},
+            ]
+        )
 
         print(f"📊 测试新闻数量: {len(test_news)}条")
 
@@ -87,31 +86,33 @@ def test_enhanced_news_filter():
 
         # 创建增强过滤器（不使用外部模型依赖）
         enhanced_filter = create_enhanced_news_filter(
-            '600036',
+            "600036",
             use_semantic=False,  # 暂时不使用语义模型
-            use_local_model=False  # 暂时不使用本地模型
+            use_local_model=False,  # 暂时不使用本地模型
         )
         print("✅ 成功创建增强新闻过滤器")
 
         # 使用相同的测试数据
-        test_news = pd.DataFrame([
-            {
-                '新闻标题': '招商银行发布2024年第三季度业绩报告',
-                '新闻内容': '招商银行今日发布第三季度财报，净利润同比增长8%，资产质量持续改善，不良贷款率进一步下降...'
-            },
-            {
-                '新闻标题': '上证180ETF指数基金（530280）自带杠铃策略',
-                '新闻内容': '数据显示，上证180指数前十大权重股分别为贵州茅台、招商银行600036、五粮液等，该ETF基金采用被动投资策略...'
-            },
-            {
-                '新闻标题': '招商银行股东大会通过分红方案',
-                '新闻内容': '招商银行股东大会审议通过2024年度利润分配方案，每10股派发现金红利12元，分红率达到30%...'
-            },
-            {
-                '新闻标题': '招商银行信用卡业务创新发展',
-                '新闻内容': '招商银行信用卡中心推出多项创新产品，包括数字化信用卡、消费分期等，用户体验显著提升...'
-            }
-        ])
+        test_news = pd.DataFrame(
+            [
+                {
+                    "新闻标题": "招商银行发布2024年第三季度业绩报告",
+                    "新闻内容": "招商银行今日发布第三季度财报，净利润同比增长8%，资产质量持续改善，不良贷款率进一步下降...",
+                },
+                {
+                    "新闻标题": "上证180ETF指数基金（530280）自带杠铃策略",
+                    "新闻内容": "数据显示，上证180指数前十大权重股分别为贵州茅台、招商银行600036、五粮液等，该ETF基金采用被动投资策略...",
+                },
+                {
+                    "新闻标题": "招商银行股东大会通过分红方案",
+                    "新闻内容": "招商银行股东大会审议通过2024年度利润分配方案，每10股派发现金红利12元，分红率达到30%...",
+                },
+                {
+                    "新闻标题": "招商银行信用卡业务创新发展",
+                    "新闻内容": "招商银行信用卡中心推出多项创新产品，包括数字化信用卡、消费分期等，用户体验显著提升...",
+                },
+            ]
+        )
 
         print(f"📊 测试新闻数量: {len(test_news)}条")
 
@@ -127,13 +128,16 @@ def test_enhanced_news_filter():
             print("\n🎯 增强过滤后的新闻:")
             for idx, (_, row) in enumerate(enhanced_filtered.iterrows(), 1):
                 print(f"{idx}. {row['新闻标题']}")
-                print(f"   综合评分: {row['final_score']:.1f} (规则:{row['rule_score']:.1f}, 语义:{row['semantic_score']:.1f}, 分类:{row['classification_score']:.1f})")  # noqa: E501
+                print(
+                    f"   综合评分: {row['final_score']:.1f} (规则:{row['rule_score']:.1f}, 语义:{row['semantic_score']:.1f}, 分类:{row['classification_score']:.1f})"
+                )  # noqa: E501
 
         return True
 
     except Exception as e:
         print(f"❌ 增强过滤器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -151,7 +155,7 @@ def test_real_news_filtering():
 
         # 获取真实新闻数据
         start_time = time.time()
-        real_news = get_stock_news_em('600036')
+        real_news = get_stock_news_em("600036")
         fetch_time = time.time() - start_time
 
         if real_news.empty:
@@ -163,11 +167,11 @@ def test_real_news_filtering():
         # 显示前3条新闻标题
         print("\n📰 原始新闻标题示例:")
         for idx, (_, row) in enumerate(real_news.head(3).iterrows(), 1):
-            title = row.get('新闻标题', '无标题')
+            title = row.get("新闻标题", "无标题")
             print(f"{idx}. {title}")
 
         # 创建过滤器并过滤
-        filter = create_news_filter('600036')
+        filter = create_news_filter("600036")
 
         start_time = time.time()
         filtered_real_news = filter.filter_news(real_news, min_score=30)
@@ -180,15 +184,15 @@ def test_real_news_filtering():
         print(f"  - 过滤耗时: {filter_time:.3f}秒")
 
         if not filtered_real_news.empty:
-            avg_score = filtered_real_news['relevance_score'].mean()
-            max_score = filtered_real_news['relevance_score'].max()
+            avg_score = filtered_real_news["relevance_score"].mean()
+            max_score = filtered_real_news["relevance_score"].max()
             print(f"  - 平均评分: {avg_score:.1f}")
             print(f"  - 最高评分: {max_score:.1f}")
 
             print("\n🎯 过滤后高质量新闻标题:")
             for idx, (_, row) in enumerate(filtered_real_news.head(5).iterrows(), 1):
-                title = row.get('新闻标题', '无标题')
-                score = row.get('relevance_score', 0)
+                title = row.get("新闻标题", "无标题")
+                score = row.get("relevance_score", 0)
                 print(f"{idx}. {title} (评分: {score:.1f})")
 
         return True
@@ -196,6 +200,7 @@ def test_real_news_filtering():
     except Exception as e:
         print(f"❌ 真实新闻过滤测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -215,12 +220,7 @@ def test_news_filter_integration():
         # 测试增强版函数
         print("🧪 测试增强版实时新闻函数...")
 
-        test_result = enhanced_function(
-            ticker="600036",
-            curr_date=datetime.now().strftime("%Y-%m-%d"),
-            enable_filter=True,
-            min_score=30
-        )
+        test_result = enhanced_function(ticker="600036", curr_date=datetime.now().strftime("%Y-%m-%d"), enable_filter=True, min_score=30)
 
         print(f"📊 增强版函数返回结果长度: {len(test_result)} 字符")
 
@@ -234,6 +234,7 @@ def test_news_filter_integration():
     except Exception as e:
         print(f"❌ 新闻过滤集成测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 

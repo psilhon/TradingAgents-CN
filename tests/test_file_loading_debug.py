@@ -15,6 +15,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_file_loading():
     """测试文件加载"""
     print("🔬 文件加载调试")
@@ -51,8 +52,10 @@ def test_file_loading():
     except Exception as e:
         print(f"❌ 文件加载测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -70,6 +73,7 @@ def main():
         print("\n❌ 文件加载测试失败")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()

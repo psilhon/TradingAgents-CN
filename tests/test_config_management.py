@@ -29,13 +29,7 @@ def test_config_manager():
         assert len(models) > 0, "应该有默认模型配置"
 
         # 添加新模型
-        new_model = ModelConfig(
-            provider="test_provider",
-            model_name="test_model",
-            api_key="test_key_123",
-            max_tokens=2000,
-            temperature=0.5
-        )
+        new_model = ModelConfig(provider="test_provider", model_name="test_model", api_key="test_key_123", max_tokens=2000, temperature=0.5)
 
         models.append(new_model)
         config_manager.save_models(models)
@@ -57,11 +51,7 @@ def test_config_manager():
 
         # 添加新定价
         new_pricing = PricingConfig(
-            provider="test_provider",
-            model_name="test_model",
-            input_price_per_1k=0.001,
-            output_price_per_1k=0.002,
-            currency="CNY"
+            provider="test_provider", model_name="test_model", input_price_per_1k=0.001, output_price_per_1k=0.002, currency="CNY"
         )
 
         pricing_configs.append(new_pricing)
@@ -82,7 +72,7 @@ def test_config_manager():
             input_tokens=1000,
             output_tokens=500,
             session_id="test_session",
-            analysis_type="test_analysis"
+            analysis_type="test_analysis",
         )
 
         assert record.cost == expected_cost, "使用记录成本应该匹配"
@@ -125,7 +115,7 @@ def test_token_tracker():
             input_tokens=2000,
             output_tokens=1000,
             session_id="test_session_123",
-            analysis_type="stock_analysis"
+            analysis_type="stock_analysis",
         )
 
         assert record is not None, "应该返回使用记录"
@@ -138,10 +128,7 @@ def test_token_tracker():
         # 测试成本估算
         print("📝 测试成本估算...")
         estimated_cost = token_tracker.estimate_cost(
-            provider="dashscope",
-            model_name="qwen-turbo",
-            estimated_input_tokens=1000,
-            estimated_output_tokens=500
+            provider="dashscope", model_name="qwen-turbo", estimated_input_tokens=1000, estimated_output_tokens=500
         )
 
         assert estimated_cost > 0, "估算成本应该大于0"
@@ -213,7 +200,7 @@ def test_usage_statistics():
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 session_id=session_id,
-                analysis_type=analysis_type
+                analysis_type=analysis_type,
             )
             total_expected_cost += record.cost
 
@@ -259,6 +246,7 @@ def main():
     except Exception as e:
         print(f"\n❌ 测试失败: {e}")
         import traceback
+
         print(f"错误详情: {traceback.format_exc()}")
         return False
 

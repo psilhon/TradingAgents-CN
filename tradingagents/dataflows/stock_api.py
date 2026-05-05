@@ -11,7 +11,8 @@ from tradingagents.utils.logging_manager import get_logger
 
 from .stock_data_service import get_stock_data_service
 
-logger = get_logger('agents')
+logger = get_logger("agents")
+
 
 def get_stock_info(stock_code: str) -> dict[str, Any] | None:
     """
@@ -31,6 +32,7 @@ def get_stock_info(stock_code: str) -> dict[str, Any] | None:
     service = get_stock_data_service()
     return service.get_stock_basic_info(stock_code)
 
+
 def get_all_stocks() -> list[dict[str, Any]]:
     """
     获取所有股票列表
@@ -48,10 +50,11 @@ def get_all_stocks() -> list[dict[str, Any]]:
 
     if isinstance(result, list):
         return result
-    elif isinstance(result, dict) and 'error' in result:
+    elif isinstance(result, dict) and "error" in result:
         return [result]  # 返回错误信息
     else:
         return []
+
 
 def get_stock_data(stock_code: str, start_date: str, end_date: str) -> str:
     """
@@ -71,6 +74,7 @@ def get_stock_data(stock_code: str, start_date: str, end_date: str) -> str:
     """
     service = get_stock_data_service()
     return service.get_stock_data_with_fallback(stock_code, start_date, end_date)
+
 
 def search_stocks_by_name(name: str) -> list[dict[str, Any]]:
     """
@@ -94,7 +98,8 @@ def search_stocks_by_name(name: str) -> list[dict[str, Any]]:
         service = EnhancedStockQueryService()
         return service.query_stocks_by_name(name)
     except Exception as e:
-        return [{'error': f'名称搜索功能不可用: {e!s}'}]
+        return [{"error": f"名称搜索功能不可用: {e!s}"}]
+
 
 def check_data_sources() -> dict[str, Any]:
     """
@@ -111,12 +116,13 @@ def check_data_sources() -> dict[str, Any]:
     service = get_stock_data_service()
 
     return {
-        'mongodb_available': service.db_manager is not None and service.db_manager.mongodb_db is not None,
-        'unified_api_available': True,  # 统一接口总是可用
-        'enhanced_fetcher_available': True,  # 这个通常都可用
-        'fallback_mode': service.db_manager is None or service.db_manager.mongodb_db is None,
-        'recommendation': (
-            "所有数据源正常" if service.db_manager and service.db_manager.mongodb_db
+        "mongodb_available": service.db_manager is not None and service.db_manager.mongodb_db is not None,
+        "unified_api_available": True,  # 统一接口总是可用
+        "enhanced_fetcher_available": True,  # 这个通常都可用
+        "fallback_mode": service.db_manager is None or service.db_manager.mongodb_db is None,
+        "recommendation": (
+            "所有数据源正常"
+            if service.db_manager and service.db_manager.mongodb_db
             else "建议配置MongoDB以获得最佳性能，当前使用统一数据接口降级模式"
-        )
+        ),
     }

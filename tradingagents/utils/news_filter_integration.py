@@ -10,6 +10,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+
 def integrate_news_filtering(original_get_stock_news_em):
     """
     装饰器：为get_stock_news_em函数添加新闻过滤功能
@@ -20,8 +21,10 @@ def integrate_news_filtering(original_get_stock_news_em):
     Returns:
         包装后的函数，具有新闻过滤功能
     """
-    def filtered_get_stock_news_em(symbol: str, enable_filter: bool = True, min_score: float = 30,
-                                  use_semantic: bool = False, use_local_model: bool = False) -> pd.DataFrame:
+
+    def filtered_get_stock_news_em(
+        symbol: str, enable_filter: bool = True, min_score: float = 30, use_semantic: bool = False, use_local_model: bool = False
+    ) -> pd.DataFrame:
         """
         增强版get_stock_news_em，集成新闻过滤功能
 
@@ -62,11 +65,7 @@ def integrate_news_filtering(original_get_stock_news_em):
                 from tradingagents.utils.enhanced_news_filter import create_enhanced_news_filter
 
                 # 创建过滤器
-                news_filter = create_enhanced_news_filter(
-                    symbol,
-                    use_semantic=use_semantic,
-                    use_local_model=use_local_model
-                )
+                news_filter = create_enhanced_news_filter(symbol, use_semantic=use_semantic, use_local_model=use_local_model)
 
                 # 执行过滤
                 filtered_df = news_filter.filter_news_enhanced(news_df, min_score=min_score)
@@ -85,8 +84,8 @@ def integrate_news_filtering(original_get_stock_news_em):
                 logger.info(f"  - 过滤耗时: {filter_time:.2f}秒")
 
                 if not filtered_df.empty:
-                    avg_score = filtered_df['final_score'].mean()
-                    max_score = filtered_df['final_score'].max()
+                    avg_score = filtered_df["final_score"].mean()
+                    max_score = filtered_df["final_score"].max()
                     logger.info(f"  - 平均评分: {avg_score:.1f}")
                     logger.info(f"  - 最高评分: {max_score:.1f}")
 
@@ -117,8 +116,10 @@ def create_filtered_realtime_news_function():
     """
     创建增强版的实时新闻获取函数
     """
-    def get_filtered_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6,
-                                       enable_filter: bool = True, min_score: float = 30) -> str:
+
+    def get_filtered_realtime_stock_news(
+        ticker: str, curr_date: str, hours_back: int = 6, enable_filter: bool = True, min_score: float = 30
+    ) -> str:
         """
         增强版实时新闻获取函数，集成新闻过滤
 
@@ -146,9 +147,7 @@ def create_filtered_realtime_news_function():
                 return original_report
 
             # 如果启用过滤且是A股，尝试重新获取并过滤
-            if any(suffix in ticker for suffix in ['.SH', '.SZ', '.SS', '.XSHE', '.XSHG']) or \
-               ('.' not in ticker and ticker.isdigit()):
-
+            if any(suffix in ticker for suffix in [".SH", ".SZ", ".SS", ".XSHE", ".XSHG"]) or ("." not in ticker and ticker.isdigit()):
                 logger.info("[增强实时新闻] 检测到A股代码，尝试使用过滤版东方财富新闻")
 
                 try:
@@ -156,8 +155,7 @@ def create_filtered_realtime_news_function():
                     from tradingagents.dataflows.providers.china.akshare import get_akshare_provider
 
                     # 清理股票代码
-                    ticker.replace('.SH', '').replace('.SZ', '').replace('.SS', '')\
-                                    .replace('.XSHE', '').replace('.XSHG', '')
+                    ticker.replace(".SH", "").replace(".SZ", "").replace(".SS", "").replace(".XSHE", "").replace(".XSHG", "")
 
                     # 使用 AKShareProvider 获取新闻（如果有相应方法）
                     get_akshare_provider()
@@ -207,12 +205,7 @@ if __name__ == "__main__":
     enhanced_news_function = apply_news_filtering_patches()
 
     # 测试增强版函数
-    test_result = enhanced_news_function(
-        ticker="600036",
-        curr_date="2024-07-28",
-        enable_filter=True,
-        min_score=30
-    )
+    test_result = enhanced_news_function(ticker="600036", curr_date="2024-07-28", enable_filter=True, min_score=30)
 
     print(f"测试结果长度: {len(test_result)} 字符")
     print(f"测试结果预览: {test_result[:200]}...")

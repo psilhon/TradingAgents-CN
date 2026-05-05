@@ -30,7 +30,7 @@ def test_optimized_fundamentals():
         ("standard", 14, "标准分析 - 2周数据"),
         ("full", 21, "完整分析 - 3周数据"),
         ("detailed", 28, "详细分析 - 4周数据"),
-        ("comprehensive", 30, "全面分析 - 1个月数据")
+        ("comprehensive", 30, "全面分析 - 1个月数据"),
     ]
 
     results = {}
@@ -40,26 +40,21 @@ def test_optimized_fundamentals():
         print("-" * 50)
 
         # 计算日期范围
-        end_date = today.strftime('%Y-%m-%d')
-        start_date = (today - timedelta(days=days_back)).strftime('%Y-%m-%d')
+        end_date = today.strftime("%Y-%m-%d")
+        start_date = (today - timedelta(days=days_back)).strftime("%Y-%m-%d")
 
         try:
             # 直接调用静态方法，绕过工具装饰器
             toolkit = Toolkit()
-            result = toolkit.get_stock_fundamentals_unified.__func__(
-                test_symbol,
-                start_date,
-                end_date,
-                end_date
-            )
+            result = toolkit.get_stock_fundamentals_unified.__func__(test_symbol, start_date, end_date, end_date)
 
             if result:
                 data_length = len(result)
                 results[depth_name] = {
-                    'success': True,
-                    'data_length': data_length,
-                    'preview': result[:300] + "..." if len(result) > 300 else result,
-                    'description': description
+                    "success": True,
+                    "data_length": data_length,
+                    "preview": result[:300] + "..." if len(result) > 300 else result,
+                    "description": description,
                 }
 
                 print("✅ 成功获取数据")
@@ -77,21 +72,11 @@ def test_optimized_fundamentals():
                 print(f"   - 包含公司信息: {'✅' if has_company else '❌'}")
 
             else:
-                results[depth_name] = {
-                    'success': False,
-                    'data_length': 0,
-                    'preview': "无数据返回",
-                    'description': description
-                }
+                results[depth_name] = {"success": False, "data_length": 0, "preview": "无数据返回", "description": description}
                 print("❌ 未获取到数据")
 
         except Exception as e:
-            results[depth_name] = {
-                'success': False,
-                'data_length': 0,
-                'preview': f"错误: {e!s}",
-                'description': description
-            }
+            results[depth_name] = {"success": False, "data_length": 0, "preview": f"错误: {e!s}", "description": description}
             print(f"❌ 获取数据时出错: {e}")
 
     # 汇总结果
@@ -99,13 +84,13 @@ def test_optimized_fundamentals():
     print("📈 测试结果汇总")
     print("=" * 80)
 
-    successful_tests = sum(1 for r in results.values() if r['success'])
+    successful_tests = sum(1 for r in results.values() if r["success"])
     total_tests = len(results)
 
-    print(f"🎯 成功率: {successful_tests}/{total_tests} ({successful_tests/total_tests*100:.1f}%)")
+    print(f"🎯 成功率: {successful_tests}/{total_tests} ({successful_tests / total_tests * 100:.1f}%)")
 
     if successful_tests > 0:
-        data_lengths = [r['data_length'] for r in results.values() if r['success']]
+        data_lengths = [r["data_length"] for r in results.values() if r["success"]]
         avg_length = sum(data_lengths) / len(data_lengths)
         min_length = min(data_lengths)
         max_length = max(data_lengths)
@@ -114,7 +99,7 @@ def test_optimized_fundamentals():
         print(f"   - 平均长度: {avg_length:,.0f} 字符")
         print(f"   - 最小长度: {min_length:,} 字符")
         print(f"   - 最大长度: {max_length:,} 字符")
-        print(f"   - 数据扩展倍数: {max_length/min_length:.1f}x")
+        print(f"   - 数据扩展倍数: {max_length / min_length:.1f}x")
 
         # 对比优化前后的数据量变化
         print("\n💡 优化效果:")
@@ -125,11 +110,12 @@ def test_optimized_fundamentals():
     # 详细结果
     print("\n📋 各深度详细结果:")
     for depth_name, result in results.items():  # noqa: B007
-        status = "✅ 成功" if result['success'] else "❌ 失败"
+        status = "✅ 成功" if result["success"] else "❌ 失败"
         print(f"   {result['description']:20} | {status} | {result['data_length']:6,} 字符")
 
     print("\n🎉 测试完成！")
     return results
+
 
 if __name__ == "__main__":
     test_optimized_fundamentals()

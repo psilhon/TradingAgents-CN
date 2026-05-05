@@ -2,6 +2,7 @@
 """
 测试同步控制的三个功能：开始同步、刷新状态、清空缓存
 """
+
 import os
 import sys
 
@@ -11,10 +12,8 @@ import asyncio
 import logging
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 async def test_sync_control_functions():
     """测试同步控制的三个核心功能"""
@@ -39,7 +38,7 @@ async def test_sync_control_functions():
             status = await service.get_status()
             print(f"   ✅ 当前状态: {status.get('status', 'unknown')}")
             print(f"   📈 统计信息: 总数={status.get('total', 0)}, 新增={status.get('inserted', 0)}, 更新={status.get('updated', 0)}")
-            if status.get('data_sources_used'):
+            if status.get("data_sources_used"):
                 print(f"   🔗 使用的数据源: {status.get('data_sources_used')}")
         except Exception as e:
             print(f"   ❌ 获取状态失败: {e}")
@@ -67,6 +66,7 @@ async def test_sync_control_functions():
         try:
             # 检查数据源可用性
             from app.services.data_source_adapters import DataSourceManager
+
             manager = DataSourceManager()
             available_adapters = manager.get_available_adapters()
 
@@ -88,7 +88,7 @@ async def test_sync_control_functions():
                 status = await service.get_status()
                 print(f"   📊 同步状态: {status.get('status', 'unknown')}")
 
-                if status.get('status') == 'running':
+                if status.get("status") == "running":
                     print("   ✅ 同步任务已成功启动")
                     print("   ⏳ 等待同步完成...")
 
@@ -97,18 +97,21 @@ async def test_sync_control_functions():
                         await asyncio.wait_for(sync_task, timeout=30)
                         final_status = await service.get_status()
                         print(f"   🎯 同步完成: {final_status.get('status')}")
-                        print(f"   📈 最终统计: 总数={final_status.get('total', 0)}, 新增={final_status.get('inserted', 0)}, 更新={final_status.get('updated', 0)}")  # noqa: E501
+                        print(
+                            f"   📈 最终统计: 总数={final_status.get('total', 0)}, 新增={final_status.get('inserted', 0)}, 更新={final_status.get('updated', 0)}"
+                        )  # noqa: E501
                     except asyncio.TimeoutError:
                         print("   ⏰ 同步超时，但任务仍在后台运行")
                         sync_task.cancel()
                 else:
                     print(f"   ⚠️ 同步状态异常: {status.get('status')}")
-                    if status.get('message'):
+                    if status.get("message"):
                         print(f"   💬 消息: {status.get('message')}")
 
         except Exception as e:
             print(f"   ❌ 同步测试失败: {e}")
             import traceback
+
             traceback.print_exc()
 
         # 4. 最终状态检查
@@ -119,7 +122,7 @@ async def test_sync_control_functions():
             print(f"   🕐 开始时间: {final_status.get('started_at', 'N/A')}")
             print(f"   🕑 结束时间: {final_status.get('finished_at', 'N/A')}")
 
-            if final_status.get('data_sources_used'):
+            if final_status.get("data_sources_used"):
                 print(f"   🔗 使用的数据源: {', '.join(final_status.get('data_sources_used'))}")
 
         except Exception as e:
@@ -130,7 +133,9 @@ async def test_sync_control_functions():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 async def test_api_endpoints():
     """测试API端点（模拟HTTP调用）"""
@@ -174,6 +179,7 @@ async def test_api_endpoints():
 
     except Exception as e:
         print(f"❌ API测试失败: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(test_sync_control_functions())

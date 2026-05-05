@@ -15,6 +15,7 @@ def create_fundamentals_analyst(llm, toolkit):
 
         # 🔧 基本面分析数据范围：固定获取10天数据（处理周末/节假日/数据延迟）
         from datetime import datetime, timedelta
+
         try:
             end_date_dt = datetime.strptime(current_date, "%Y-%m-%d")
             start_date_dt = end_date_dt - timedelta(days=10)
@@ -30,6 +31,7 @@ def create_fundamentals_analyst(llm, toolkit):
 
         # 获取股票市场信息
         from tradingagents.utils.stock_utils import StockUtils
+
         print(f"📊 [基本面分析师] 正在分析股票: {ticker}")
 
         market_info = StockUtils.get_market_info(ticker)
@@ -98,10 +100,12 @@ def create_fundamentals_analyst(llm, toolkit):
         )
 
         # 创建提示模板
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            MessagesPlaceholder(variable_name="messages"),
-        ])
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system_prompt),
+                MessagesPlaceholder(variable_name="messages"),
+            ]
+        )
 
         prompt = prompt.partial(system_message=system_message)
         prompt = prompt.partial(tool_names=", ".join([tool.name for tool in tools]))
@@ -109,20 +113,20 @@ def create_fundamentals_analyst(llm, toolkit):
         prompt = prompt.partial(ticker=ticker)
 
         # 检测阿里百炼模型并创建新实例
-        if hasattr(llm, '__class__') and 'DashScope' in llm.__class__.__name__:  # noqa: F823
+        if hasattr(llm, "__class__") and "DashScope" in llm.__class__.__name__:  # noqa: F823
             print("📊 [DEBUG] 检测到阿里百炼模型，创建新实例以避免工具缓存")
             from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
             # 获取原始 LLM 的 base_url 和 api_key
-            original_base_url = getattr(llm, 'openai_api_base', None)
-            original_api_key = getattr(llm, 'openai_api_key', None)
+            original_base_url = getattr(llm, "openai_api_base", None)
+            original_api_key = getattr(llm, "openai_api_key", None)
 
             llm = ChatDashScopeOpenAI(
                 model=llm.model_name,
                 api_key=original_api_key,  # 🔥 传递原始 LLM 的 API Key
                 base_url=original_base_url if original_base_url else None,  # 传递 base_url
                 temperature=llm.temperature,
-                max_tokens=getattr(llm, 'max_tokens', 2000)
+                max_tokens=getattr(llm, "max_tokens", 2000),
             )
 
             if original_base_url:
@@ -151,17 +155,17 @@ def create_fundamentals_analyst(llm, toolkit):
 
         # 检查工具调用
         expected_tools = [tool.name for tool in tools]
-        actual_tools = [tc['name'] for tc in result.tool_calls] if hasattr(result, 'tool_calls') and result.tool_calls else []
+        actual_tools = [tc["name"] for tc in result.tool_calls] if hasattr(result, "tool_calls") and result.tool_calls else []
 
         print(f"📊 [DEBUG] 期望的工具: {expected_tools}")
         print(f"📊 [DEBUG] 实际调用的工具: {actual_tools}")
 
         # 处理基本面分析报告
-        if hasattr(result, 'tool_calls') and len(result.tool_calls) > 0:
+        if hasattr(result, "tool_calls") and len(result.tool_calls) > 0:
             # 有工具调用，记录工具调用信息
             tool_calls_info = []
             for tc in result.tool_calls:
-                tool_calls_info.append(tc['name'])
+                tool_calls_info.append(tc["name"])
                 print(f"📊 [DEBUG] 工具调用 {len(tool_calls_info)}: {tc}")
 
             print(f"📊 [基本面分析师] 工具调用: {tool_calls_info}")
@@ -176,14 +180,11 @@ def create_fundamentals_analyst(llm, toolkit):
             # 强制调用统一基本面分析工具
             try:
                 print("📊 [DEBUG] 强制调用 get_stock_fundamentals_unified...")
-                unified_tool = next((tool for tool in tools if tool.name == 'get_stock_fundamentals_unified'), None)
+                unified_tool = next((tool for tool in tools if tool.name == "get_stock_fundamentals_unified"), None)
                 if unified_tool:
-                    combined_data = unified_tool.invoke({
-                        'ticker': ticker,
-                        'start_date': start_date,
-                        'end_date': current_date,
-                        'curr_date': current_date
-                    })
+                    combined_data = unified_tool.invoke(
+                        {"ticker": ticker, "start_date": start_date, "end_date": current_date, "curr_date": current_date}
+                    )
                     print(f"📊 [DEBUG] 统一工具数据获取成功，长度: {len(combined_data)}字符")
                 else:
                     combined_data = "统一基本面分析工具不可用"
@@ -214,15 +215,14 @@ def create_fundamentals_analyst(llm, toolkit):
 
             try:
                 # 创建简单的分析链
-                analysis_prompt_template = ChatPromptTemplate.from_messages([
-                    ("system", "你是专业的股票基本面分析师，基于提供的真实数据进行分析。"),
-                    ("human", "{analysis_request}")
-                ])
+                analysis_prompt_template = ChatPromptTemplate.from_messages(
+                    [("system", "你是专业的股票基本面分析师，基于提供的真实数据进行分析。"), ("human", "{analysis_request}")]
+                )
 
                 analysis_chain = analysis_prompt_template | llm
                 analysis_result = analysis_chain.invoke({"analysis_request": analysis_prompt})
 
-                if hasattr(analysis_result, 'content'):
+                if hasattr(analysis_result, "content"):
                     report = analysis_result.content
                 else:
                     report = str(analysis_result)

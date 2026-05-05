@@ -14,12 +14,14 @@ sys.path.insert(0, project_root)
 # 加载.env文件
 try:
     from dotenv import load_dotenv
-    load_dotenv(os.path.join(project_root, '.env'))
+
+    load_dotenv(os.path.join(project_root, ".env"))
     print("✅ 已加载.env文件")
 except ImportError:
     print("⚠️ python-dotenv未安装，尝试手动加载环境变量")
 except Exception as e:
     print(f"⚠️ 加载.env文件失败: {e}")
+
 
 def test_real_tushare_volume_access():
     """测试真实的Tushare数据volume访问"""
@@ -30,7 +32,7 @@ def test_real_tushare_volume_access():
         from tradingagents.dataflows.data_source_manager import ChinaDataSource, DataSourceManager
 
         # 检查Tushare是否可用
-        tushare_token = os.getenv('TUSHARE_TOKEN')
+        tushare_token = os.getenv("TUSHARE_TOKEN")
         if not tushare_token:
             print("⚠️ TUSHARE_TOKEN未设置，无法测试真实数据")
             return True
@@ -49,7 +51,7 @@ def test_real_tushare_volume_access():
             print("🔍 获取000001真实数据...")
 
             try:
-                result = manager._get_tushare_data('000001', '2025-07-20', '2025-07-26')
+                result = manager._get_tushare_data("000001", "2025-07-20", "2025-07-26")
 
                 if result and "❌" not in result:
                     print(f"✅ 成功获取数据，长度: {len(result)}")
@@ -79,6 +81,7 @@ def test_real_tushare_volume_access():
                 if "volume" in str(e).lower():
                     print("🎯 可能与volume相关的错误")
                 import traceback
+
                 traceback.print_exc()
                 return False
         else:
@@ -88,8 +91,10 @@ def test_real_tushare_volume_access():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_tushare_adapter_direct():
     """直接测试Tushare适配器"""
@@ -100,7 +105,7 @@ def test_tushare_adapter_direct():
         from tradingagents.dataflows.tushare_adapter import get_tushare_adapter
 
         # 检查Tushare是否可用
-        tushare_token = os.getenv('TUSHARE_TOKEN')
+        tushare_token = os.getenv("TUSHARE_TOKEN")
         if not tushare_token:
             print("⚠️ TUSHARE_TOKEN未设置，无法测试真实数据")
             return True
@@ -112,21 +117,21 @@ def test_tushare_adapter_direct():
         print("🔍 获取000001股票数据...")
 
         try:
-            data = adapter.get_stock_data('000001', '2025-07-20', '2025-07-26')
+            data = adapter.get_stock_data("000001", "2025-07-20", "2025-07-26")
 
             if data is not None and not data.empty:
                 print(f"✅ 成功获取数据，形状: {data.shape}")
                 print(f"📊 列名: {list(data.columns)}")
 
                 # 检查volume列
-                if 'volume' in data.columns:
+                if "volume" in data.columns:
                     print("✅ volume列存在")
-                    volume_sum = data['volume'].sum()
+                    volume_sum = data["volume"].sum()
                     print(f"📊 总成交量: {volume_sum:,.0f}")
 
                     # 测试访问volume列（这是关键测试）
                     try:
-                        volume_values = data['volume'].tolist()
+                        volume_values = data["volume"].tolist()
                         print(f"✅ 成功访问volume列: {volume_values[:3]}...")
                         return True
                     except KeyError as e:
@@ -151,14 +156,17 @@ def test_tushare_adapter_direct():
         except Exception as e:
             print(f"❌ 其他错误: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_column_mapping_in_real_data():
     """测试真实数据中的列映射"""
@@ -169,7 +177,7 @@ def test_column_mapping_in_real_data():
         import tushare as ts
 
         # 检查Tushare是否可用
-        tushare_token = os.getenv('TUSHARE_TOKEN')
+        tushare_token = os.getenv("TUSHARE_TOKEN")
         if not tushare_token:
             print("⚠️ TUSHARE_TOKEN未设置，无法测试真实数据")
             return True
@@ -180,16 +188,16 @@ def test_column_mapping_in_real_data():
         pro = ts.pro_api()
 
         # 获取原始数据
-        raw_data = pro.daily(ts_code='000001.SZ', start_date='20250720', end_date='20250726')
+        raw_data = pro.daily(ts_code="000001.SZ", start_date="20250720", end_date="20250726")
 
         if raw_data is not None and not raw_data.empty:
             print(f"✅ 获取原始数据成功，形状: {raw_data.shape}")
             print(f"📊 原始列名: {list(raw_data.columns)}")
 
             # 检查原始数据中的列名
-            if 'vol' in raw_data.columns:
+            if "vol" in raw_data.columns:
                 print("✅ 原始数据包含'vol'列")
-                vol_values = raw_data['vol'].tolist()
+                vol_values = raw_data["vol"].tolist()
                 print(f"📊 vol列值: {vol_values}")
             else:
                 print("❌ 原始数据不包含'vol'列")
@@ -197,6 +205,7 @@ def test_column_mapping_in_real_data():
 
             # 测试我们的标准化函数
             from tradingagents.dataflows.tushare_adapter import get_tushare_adapter
+
             adapter = get_tushare_adapter()
 
             print("\n🔧 测试标准化函数...")
@@ -204,13 +213,13 @@ def test_column_mapping_in_real_data():
 
             print(f"📊 标准化后列名: {list(standardized_data.columns)}")
 
-            if 'volume' in standardized_data.columns:
+            if "volume" in standardized_data.columns:
                 print("✅ 标准化后包含'volume'列")
-                volume_values = standardized_data['volume'].tolist()
+                volume_values = standardized_data["volume"].tolist()
                 print(f"📊 volume列值: {volume_values}")
 
                 # 验证映射是否正确
-                if raw_data['vol'].sum() == standardized_data['volume'].sum():
+                if raw_data["vol"].sum() == standardized_data["volume"].sum():
                     print("✅ vol -> volume 映射正确")
                     return True
                 else:
@@ -226,8 +235,10 @@ def test_column_mapping_in_real_data():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -287,6 +298,7 @@ def main():
         print("  3. 🧪 增加更多测试用例")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

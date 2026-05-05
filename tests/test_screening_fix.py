@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 # 加载环境变量
 load_dotenv()
 
+
 def test_screening_api():
     """测试筛选API"""
     print("🧪 测试修复后的筛选功能...")
@@ -20,10 +21,7 @@ def test_screening_api():
     try:
         # 1. 登录获取token
         print("🔐 登录中...")
-        login_response = requests.post(f"{base_url}/api/auth/login", json={
-            "username": "admin",
-            "password": "admin123"
-        }, timeout=10)
+        login_response = requests.post(f"{base_url}/api/auth/login", json={"username": "admin", "password": "admin123"}, timeout=10)
 
         if login_response.status_code != 200:
             print(f"❌ 登录失败: {login_response.status_code}")
@@ -46,29 +44,19 @@ def test_screening_api():
                     {
                         "field": "market_cap",
                         "op": "between",
-                        "value": [1000000, 50000000]  # 100亿到5000亿（万元）
+                        "value": [1000000, 50000000],  # 100亿到5000亿（万元）
                     }
-                ]
+                ],
             },
-            "order_by": [
-                {
-                    "field": "market_cap",
-                    "direction": "desc"
-                }
-            ],
+            "order_by": [{"field": "market_cap", "direction": "desc"}],
             "limit": 10,
-            "offset": 0
+            "offset": 0,
         }
 
         print(f"📋 筛选条件: {json.dumps(screening_request, indent=2, ensure_ascii=False)}")
 
         # 发送筛选请求
-        screening_response = requests.post(
-            f"{base_url}/api/screening/run",
-            json=screening_request,
-            headers=headers,
-            timeout=30
-        )
+        screening_response = requests.post(f"{base_url}/api/screening/run", json=screening_request, headers=headers, timeout=30)
 
         if screening_response.status_code != 200:
             print(f"❌ 筛选失败: {screening_response.status_code}")
@@ -82,7 +70,7 @@ def test_screening_api():
         print(f"  - 返回数量: {len(screening_data.get('items', []))}")
 
         # 显示前5个结果
-        items = screening_data.get('items', [])
+        items = screening_data.get("items", [])
         if items:
             print("📋 前5个结果:")
             for i, item in enumerate(items[:5], 1):
@@ -99,26 +87,16 @@ def test_screening_api():
                     {
                         "field": "market_cap",
                         "op": "between",
-                        "value": [500000, 20000000]  # 50亿到2000亿
+                        "value": [500000, 20000000],  # 50亿到2000亿
                     }
-                ]
+                ],
             },
-            "order_by": [
-                {
-                    "field": "market_cap",
-                    "direction": "desc"
-                }
-            ],
+            "order_by": [{"field": "market_cap", "direction": "desc"}],
             "limit": 15,
-            "offset": 0
+            "offset": 0,
         }
 
-        complex_response = requests.post(
-            f"{base_url}/api/screening/run",
-            json=complex_request,
-            headers=headers,
-            timeout=30
-        )
+        complex_response = requests.post(f"{base_url}/api/screening/run", json=complex_request, headers=headers, timeout=30)
 
         if complex_response.status_code == 200:
             complex_data = complex_response.json()
@@ -135,6 +113,7 @@ def test_screening_api():
     except Exception as e:
         print(f"❌ 测试异常: {e}")
         return False
+
 
 if __name__ == "__main__":
     test_screening_api()

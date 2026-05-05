@@ -4,7 +4,7 @@ from tradingagents.graph.trading_graph import TradingAgentsGraph
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('default')
+logger = get_logger("default")
 
 
 # Create a custom config

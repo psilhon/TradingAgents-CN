@@ -2,6 +2,7 @@
 """
 测试BaoStock估值指标功能
 """
+
 import os
 import sys
 
@@ -11,10 +12,8 @@ import logging
 from datetime import datetime, timedelta
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 def test_baostock_valuation_direct():
     """直接测试BaoStock估值指标API"""
@@ -27,15 +26,15 @@ def test_baostock_valuation_direct():
 
         # 登录BaoStock
         lg = bs.login()
-        if lg.error_code != '0':
+        if lg.error_code != "0":
             print(f"❌ BaoStock登录失败: {lg.error_msg}")
             return
 
         print("✅ BaoStock登录成功")
 
         # 测试股票代码
-        test_codes = ['sh.600000', 'sz.000001', 'sh.600519']
-        trade_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        test_codes = ["sh.600000", "sz.000001", "sh.600519"]
+        trade_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
         print(f"📅 测试日期: {trade_date}")
 
@@ -51,12 +50,12 @@ def test_baostock_valuation_direct():
                     start_date=trade_date,
                     end_date=trade_date,
                     frequency="d",
-                    adjustflag="3"
+                    adjustflag="3",
                 )
 
-                if rs.error_code == '0':
+                if rs.error_code == "0":
                     result_list = []
-                    while (rs.error_code == '0') & rs.next():
+                    while (rs.error_code == "0") & rs.next():
                         result_list.append(rs.get_row_data())
 
                     if result_list:
@@ -86,6 +85,7 @@ def test_baostock_valuation_direct():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
 
+
 def test_baostock_provider_valuation():
     """测试BaoStock Provider的估值功能"""
     print("\n" + "=" * 60)
@@ -98,9 +98,9 @@ def test_baostock_provider_valuation():
         provider = get_baostock_provider()
 
         # 测试股票代码
-        test_symbols = ['600000', '000001', '600519']
-        start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-        end_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        test_symbols = ["600000", "000001", "600519"]
+        start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+        end_date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
         print(f"📅 测试日期范围: {start_date} 到 {end_date}")
 
@@ -137,7 +137,9 @@ def test_baostock_provider_valuation():
     except Exception as e:
         print(f"❌ Provider测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 def test_baostock_adapter_daily_basic():
     """测试BaoStock适配器的daily_basic功能"""
@@ -169,13 +171,13 @@ def test_baostock_adapter_daily_basic():
             # 显示前几条记录
             print("\n📊 前5条记录:")
             for i, row in df.head().iterrows():
-                print(f"   {i+1}. {row.get('ts_code', 'N/A')} - {row.get('name', 'N/A')}")
+                print(f"   {i + 1}. {row.get('ts_code', 'N/A')} - {row.get('name', 'N/A')}")
                 print(f"      PE: {row.get('pe', 'N/A')}, PB: {row.get('pb', 'N/A')}")
                 print(f"      收盘价: {row.get('close', 'N/A')}")
 
             # 统计有效数据
-            pe_count = df['pe'].notna().sum() if 'pe' in df.columns else 0
-            pb_count = df['pb'].notna().sum() if 'pb' in df.columns else 0
+            pe_count = df["pe"].notna().sum() if "pe" in df.columns else 0
+            pb_count = df["pb"].notna().sum() if "pb" in df.columns else 0
 
             print("\n📈 数据统计:")
             print(f"   有PE数据的股票: {pe_count}只")
@@ -189,7 +191,9 @@ def test_baostock_adapter_daily_basic():
     except Exception as e:
         print(f"❌ 适配器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 def test_data_source_manager_with_baostock():
     """测试数据源管理器中的BaoStock功能"""
@@ -208,7 +212,7 @@ def test_data_source_manager_with_baostock():
         # 查找BaoStock适配器
         baostock_adapter = None
         for adapter in available_adapters:
-            if adapter.name == 'baostock':
+            if adapter.name == "baostock":
                 baostock_adapter = adapter
                 break
 
@@ -224,14 +228,14 @@ def test_data_source_manager_with_baostock():
             if df is not None and not df.empty:
                 print(f"✅ Fallback获取成功: {len(df)}条记录，来源: {source}")
 
-                if source == 'baostock':
+                if source == "baostock":
                     print("🎯 使用了BaoStock数据源!")
                     # 检查BaoStock特有的估值指标
-                    if 'ps' in df.columns:
-                        ps_count = df['ps'].notna().sum()
+                    if "ps" in df.columns:
+                        ps_count = df["ps"].notna().sum()
                         print(f"   市销率(PS)数据: {ps_count}只股票")
-                    if 'pcf' in df.columns:
-                        pcf_count = df['pcf'].notna().sum()
+                    if "pcf" in df.columns:
+                        pcf_count = df["pcf"].notna().sum()
                         print(f"   市现率(PCF)数据: {pcf_count}只股票")
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
@@ -245,7 +249,9 @@ def test_data_source_manager_with_baostock():
     except Exception as e:
         print(f"❌ 数据源管理器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_baostock_valuation_direct()

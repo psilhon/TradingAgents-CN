@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def clean_import_test():
     """清理导入测试"""
     print("🧹 清理导入测试")
@@ -18,11 +19,7 @@ def clean_import_test():
 
     try:
         # 清理可能的模块缓存
-        modules_to_clean = [
-            'tradingagents.dataflows.data_source_manager',
-            'tradingagents.dataflows',
-            'tradingagents'
-        ]
+        modules_to_clean = ["tradingagents.dataflows.data_source_manager", "tradingagents.dataflows", "tradingagents"]
 
         for module_name in modules_to_clean:
             if module_name in sys.modules:
@@ -50,8 +47,10 @@ def clean_import_test():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_env_variable_directly():
     """直接测试环境变量"""
@@ -60,18 +59,18 @@ def test_env_variable_directly():
 
     try:
         # 检查环境变量
-        env_value = os.getenv('DEFAULT_CHINA_DATA_SOURCE')
+        env_value = os.getenv("DEFAULT_CHINA_DATA_SOURCE")
         print(f"📊 环境变量 DEFAULT_CHINA_DATA_SOURCE: {env_value}")
 
         # 检查.env文件
-        env_file_path = os.path.join(project_root, '.env')
+        env_file_path = os.path.join(project_root, ".env")
         if os.path.exists(env_file_path):
             print(f"📄 .env文件存在: {env_file_path}")
-            with open(env_file_path, encoding='utf-8') as f:
+            with open(env_file_path, encoding="utf-8") as f:
                 content = f.read()
-                if 'DEFAULT_CHINA_DATA_SOURCE' in content:
-                    for line in content.split('\n'):
-                        if 'DEFAULT_CHINA_DATA_SOURCE' in line and not line.strip().startswith('#'):
+                if "DEFAULT_CHINA_DATA_SOURCE" in content:
+                    for line in content.split("\n"):
+                        if "DEFAULT_CHINA_DATA_SOURCE" in line and not line.strip().startswith("#"):
                             print(f"📊 .env文件中的设置: {line.strip()}")
                             break
         else:
@@ -80,8 +79,9 @@ def test_env_variable_directly():
         # 手动加载.env文件
         try:
             from dotenv import load_dotenv
+
             load_dotenv()
-            env_value_after_load = os.getenv('DEFAULT_CHINA_DATA_SOURCE')
+            env_value_after_load = os.getenv("DEFAULT_CHINA_DATA_SOURCE")
             print(f"📊 加载.env后的环境变量: {env_value_after_load}")
         except ImportError:
             print("⚠️ python-dotenv未安装，无法自动加载.env文件")
@@ -91,8 +91,10 @@ def test_env_variable_directly():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_manual_env_setting():
     """手动设置环境变量测试"""
@@ -101,12 +103,12 @@ def test_manual_env_setting():
 
     try:
         # 手动设置环境变量
-        os.environ['DEFAULT_CHINA_DATA_SOURCE'] = 'akshare'
+        os.environ["DEFAULT_CHINA_DATA_SOURCE"] = "akshare"
         print("📊 手动设置环境变量: DEFAULT_CHINA_DATA_SOURCE=akshare")
 
         # 清理模块缓存
         modules_to_clean = [
-            'tradingagents.dataflows.data_source_manager',
+            "tradingagents.dataflows.data_source_manager",
         ]
 
         for module_name in modules_to_clean:
@@ -131,8 +133,10 @@ def test_manual_env_setting():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_fallback_order():
     """测试备用数据源顺序"""
@@ -141,11 +145,11 @@ def test_fallback_order():
 
     try:
         # 确保环境变量设置
-        os.environ['DEFAULT_CHINA_DATA_SOURCE'] = 'akshare'
+        os.environ["DEFAULT_CHINA_DATA_SOURCE"] = "akshare"
 
         # 清理并重新导入
-        if 'tradingagents.dataflows.data_source_manager' in sys.modules:
-            del sys.modules['tradingagents.dataflows.data_source_manager']
+        if "tradingagents.dataflows.data_source_manager" in sys.modules:
+            del sys.modules["tradingagents.dataflows.data_source_manager"]
 
         from tradingagents.dataflows.data_source_manager import DataSourceManager
 
@@ -153,29 +157,30 @@ def test_fallback_order():
 
         # 检查源代码中的fallback_order
         import inspect
+
         source_code = inspect.getsource(manager._try_fallback_sources)
 
         print("📊 检查备用数据源顺序...")
 
         # 查找fallback_order定义
-        lines = source_code.split('\n')
+        lines = source_code.split("\n")
         in_fallback_order = False
         fallback_sources = []
 
         for line in lines:
-            if 'fallback_order = [' in line:
+            if "fallback_order = [" in line:
                 in_fallback_order = True
                 continue
             elif in_fallback_order:
-                if ']' in line:
+                if "]" in line:
                     break
-                if 'ChinaDataSource.' in line:
-                    source_name = line.strip().replace('ChinaDataSource.', '').replace(',', '')
+                if "ChinaDataSource." in line:
+                    source_name = line.strip().replace("ChinaDataSource.", "").replace(",", "")
                     fallback_sources.append(source_name)
 
         print(f"📊 备用数据源顺序: {fallback_sources}")
 
-        if fallback_sources and fallback_sources[0] == 'AKSHARE':
+        if fallback_sources and fallback_sources[0] == "AKSHARE":
             print("✅ 备用数据源顺序正确: AKShare排在第一位")
             return True
         else:
@@ -185,8 +190,10 @@ def test_fallback_order():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -231,6 +238,7 @@ def main():
     else:
         print("⚠️ 部分测试失败，需要进一步检查。")
         return False
+
 
 if __name__ == "__main__":
     success = main()

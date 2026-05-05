@@ -26,7 +26,7 @@ def test_redis_commander_port_consistency():
     # 检查 .env.example 文件
     env_example_path = project_root / ".env.example"
     if env_example_path.exists():
-        with open(env_example_path, encoding='utf-8') as f:
+        with open(env_example_path, encoding="utf-8") as f:
             env_content = f.read()
             # 应该包含 8082 端口
             if "localhost:8082" in env_content and "Redis Commander" in env_content:
@@ -38,7 +38,7 @@ def test_redis_commander_port_consistency():
     # 检查 database_setup.md 文件
     db_setup_path = project_root / "docs" / "database_setup.md"
     if db_setup_path.exists():
-        with open(db_setup_path, encoding='utf-8') as f:
+        with open(db_setup_path, encoding="utf-8") as f:
             db_content = f.read()
             # 应该包含 8082 端口
             if "8082" in db_content and "Redis Commander" in db_content:
@@ -58,20 +58,17 @@ def test_cli_command_format_consistency():
     print("\n🔍 测试 CLI 命令格式一致性...")
 
     # 检查主要文档文件
-    docs_to_check = [
-        "README-CN.md",
-        "docs/configuration/google-ai-setup.md"
-    ]
+    docs_to_check = ["README-CN.md", "docs/configuration/google-ai-setup.md"]
 
     for doc_file in docs_to_check:
         doc_path = project_root / doc_file
         if doc_path.exists():
-            with open(doc_path, encoding='utf-8') as f:
+            with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
 
                 # 检查是否使用了推荐的 python -m cli.main 格式
-                old_format_count = len(re.findall(r'python cli/main\.py', content))
-                len(re.findall(r'python -m cli\.main', content))
+                old_format_count = len(re.findall(r"python cli/main\.py", content))
+                len(re.findall(r"python -m cli\.main", content))
 
                 if old_format_count == 0:
                     print(f"✅ {doc_file} 中 CLI 命令格式正确")
@@ -92,7 +89,7 @@ def test_cli_smart_suggestions():
     # 检查 cli/main.py 是否包含智能建议代码
     cli_main_path = project_root / "cli" / "main.py"
     if cli_main_path.exists():
-        with open(cli_main_path, encoding='utf-8') as f:
+        with open(cli_main_path, encoding="utf-8") as f:
             content = f.read()
 
             # 检查是否包含智能建议相关代码
@@ -119,7 +116,7 @@ def test_documentation_structure():
         "docs/README.md",
         "docs/database_setup.md",
         "docs/overview/quick-start.md",
-        "docs/configuration/data-directory-configuration.md"
+        "docs/configuration/data-directory-configuration.md",
     ]
 
     missing_docs = []
@@ -148,7 +145,7 @@ def main():
         test_redis_commander_port_consistency,
         test_cli_command_format_consistency,
         test_cli_smart_suggestions,
-        test_documentation_structure
+        test_documentation_structure,
     ]
 
     passed = 0

@@ -76,7 +76,7 @@ def macd(close: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9) -> p
     return pd.DataFrame({"dif": dif, "dea": dea, "macd_hist": hist})
 
 
-def rsi(close: pd.Series, n: int = 14, method: str = 'ema') -> pd.Series:
+def rsi(close: pd.Series, n: int = 14, method: str = "ema") -> pd.Series:
     """
     计算RSI指标（Relative Strength Index）
 
@@ -100,15 +100,15 @@ def rsi(close: pd.Series, n: int = 14, method: str = 'ema') -> pd.Series:
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
 
-    if method == 'ema':
+    if method == "ema":
         # 国际标准：Wilder's指数移动平均
         avg_gain = gain.ewm(alpha=1 / float(n), adjust=False).mean()
         avg_loss = loss.ewm(alpha=1 / float(n), adjust=False).mean()
-    elif method == 'sma':
+    elif method == "sma":
         # 简单移动平均
         avg_gain = gain.rolling(window=int(n), min_periods=1).mean()
         avg_loss = loss.rolling(window=int(n), min_periods=1).mean()
-    elif method == 'china':
+    elif method == "china":
         # 中国式SMA：同花顺/通达信风格
         # SMA(X, N, 1) = ewm(com=N-1, adjust=True).mean()
         # 参考：https://blog.csdn.net/u011218867/article/details/117427927
@@ -149,11 +149,14 @@ def boll(close: pd.Series, n: int = 20, k: float = 2.0, min_periods: int | None 
 
 def atr(high: pd.Series, low: pd.Series, close: pd.Series, n: int = 14) -> pd.Series:
     prev_close = close.shift(1)
-    tr = pd.concat([
-        (high - low).abs(),
-        (high - prev_close).abs(),
-        (low - prev_close).abs(),
-    ], axis=1).max(axis=1)
+    tr = pd.concat(
+        [
+            (high - low).abs(),
+            (high - prev_close).abs(),
+            (low - prev_close).abs(),
+        ],
+        axis=1,
+    ).max(axis=1)
     return tr.rolling(window=int(n), min_periods=int(n)).mean()
 
 
@@ -250,6 +253,7 @@ def compute_indicator(df: pd.DataFrame, spec: IndicatorSpec) -> pd.DataFrame:
 def compute_many(df: pd.DataFrame, specs: list[IndicatorSpec]) -> pd.DataFrame:
     if not specs:
         return df.copy()
+
     # 粗略去重（按 name+sorted(params)）
     def key(s: IndicatorSpec):
         p = s.params or {}
@@ -277,9 +281,9 @@ def last_values(df: pd.DataFrame, columns: list[str]) -> dict[str, Any]:
     return {c: (None if c not in df.columns else (None if pd.isna(last.get(c)) else last.get(c))) for c in columns}
 
 
-def add_all_indicators(df: pd.DataFrame, close_col: str = 'close',
-                       high_col: str = 'high', low_col: str = 'low',
-                       rsi_style: str = 'international') -> pd.DataFrame:
+def add_all_indicators(
+    df: pd.DataFrame, close_col: str = "close", high_col: str = "high", low_col: str = "low", rsi_style: str = "international"
+) -> pd.DataFrame:
     """
     为DataFrame添加所有常用技术指标
 
@@ -319,36 +323,35 @@ def add_all_indicators(df: pd.DataFrame, close_col: str = 'close',
         raise ValueError(f"DataFrame缺少收盘价列: {close_col}")
 
     # 计算移动平均线（MA5, MA10, MA20, MA60）
-    df['ma5'] = ma(df[close_col], 5, min_periods=1)
-    df['ma10'] = ma(df[close_col], 10, min_periods=1)
-    df['ma20'] = ma(df[close_col], 20, min_periods=1)
-    df['ma60'] = ma(df[close_col], 60, min_periods=1)
+    df["ma5"] = ma(df[close_col], 5, min_periods=1)
+    df["ma10"] = ma(df[close_col], 10, min_periods=1)
+    df["ma20"] = ma(df[close_col], 20, min_periods=1)
+    df["ma60"] = ma(df[close_col], 60, min_periods=1)
 
     # 计算RSI指标
-    if rsi_style == 'china':
+    if rsi_style == "china":
         # 中国风格：RSI6, RSI12, RSI24（使用中国式SMA）
-        df['rsi6'] = rsi(df[close_col], 6, method='china')
-        df['rsi12'] = rsi(df[close_col], 12, method='china')
-        df['rsi24'] = rsi(df[close_col], 24, method='china')
+        df["rsi6"] = rsi(df[close_col], 6, method="china")
+        df["rsi12"] = rsi(df[close_col], 12, method="china")
+        df["rsi24"] = rsi(df[close_col], 24, method="china")
         # 保留RSI14作为国际标准参考（使用简单移动平均）
-        df['rsi14'] = rsi(df[close_col], 14, method='sma')
+        df["rsi14"] = rsi(df[close_col], 14, method="sma")
         # 为了兼容性，也添加 'rsi' 列（指向 rsi12）
-        df['rsi'] = df['rsi12']
+        df["rsi"] = df["rsi12"]
     else:
         # 国际标准：RSI14（使用EMA）
-        df['rsi'] = rsi(df[close_col], 14, method='ema')
+        df["rsi"] = rsi(df[close_col], 14, method="ema")
 
     # 计算MACD
     macd_df = macd(df[close_col], fast=12, slow=26, signal=9)
-    df['macd_dif'] = macd_df['dif']
-    df['macd_dea'] = macd_df['dea']
-    df['macd'] = macd_df['macd_hist'] * 2  # 注意：这里乘以2是为了与通达信/同花顺保持一致
+    df["macd_dif"] = macd_df["dif"]
+    df["macd_dea"] = macd_df["dea"]
+    df["macd"] = macd_df["macd_hist"] * 2  # 注意：这里乘以2是为了与通达信/同花顺保持一致
 
     # 计算布林带（20日，2倍标准差）
     boll_df = boll(df[close_col], n=20, k=2.0, min_periods=1)
-    df['boll_mid'] = boll_df['boll_mid']
-    df['boll_upper'] = boll_df['boll_upper']
-    df['boll_lower'] = boll_df['boll_lower']
+    df["boll_mid"] = boll_df["boll_mid"]
+    df["boll_upper"] = boll_df["boll_upper"]
+    df["boll_lower"] = boll_df["boll_lower"]
 
     return df
-

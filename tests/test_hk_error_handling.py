@@ -31,12 +31,9 @@ def test_hk_data_error_handling():
             print(f"\n📊 测试 {ticker}:")
 
             try:
-                result = toolkit.get_stock_fundamentals_unified.invoke({
-                    'ticker': ticker,
-                    'start_date': '2025-06-14',
-                    'end_date': '2025-07-14',
-                    'curr_date': '2025-07-14'
-                })
+                result = toolkit.get_stock_fundamentals_unified.invoke(
+                    {"ticker": ticker, "start_date": "2025-06-14", "end_date": "2025-07-14", "curr_date": "2025-07-14"}
+                )
 
                 print("  ✅ 工具调用成功")
                 print(f"  结果长度: {len(result)}")
@@ -48,7 +45,7 @@ def test_hk_data_error_handling():
                     print(f"  ⚠️ 结果长度偏短（{len(result)}字符）")
 
                 # 检查是否包含港股相关内容
-                if any(keyword in result for keyword in ['港股', 'HK$', '港币', '香港交易所']):
+                if any(keyword in result for keyword in ["港股", "HK$", "港币", "香港交易所"]):
                     print("  ✅ 结果包含港股相关信息")
                 else:
                     print("  ⚠️ 结果未包含港股相关信息")
@@ -74,6 +71,7 @@ def test_hk_data_error_handling():
     except Exception as e:
         print(f"❌ 港股数据获取错误处理测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -88,18 +86,17 @@ def test_akshare_error_recovery():
 
         import pandas as pd
         from tradingagents.dataflows.akshare_utils import format_hk_stock_data_akshare
-        test_data = pd.DataFrame({
-            'Date': [
-                datetime.datetime(2025, 7, 10),
-                datetime.datetime(2025, 7, 11),
-                datetime.datetime(2025, 7, 12)
-            ],
-            'Open': [100.0, 101.0, 102.0],
-            'High': [105.0, 106.0, 107.0],
-            'Low': [99.0, 100.0, 101.0],
-            'Close': [104.0, 105.0, 106.0],
-            'Volume': [1000000, 1100000, 1200000]
-        })
+
+        test_data = pd.DataFrame(
+            {
+                "Date": [datetime.datetime(2025, 7, 10), datetime.datetime(2025, 7, 11), datetime.datetime(2025, 7, 12)],
+                "Open": [100.0, 101.0, 102.0],
+                "High": [105.0, 106.0, 107.0],
+                "Low": [99.0, 100.0, 101.0],
+                "Close": [104.0, 105.0, 106.0],
+                "Volume": [1000000, 1100000, 1200000],
+            }
+        )
 
         # 测试格式化函数的错误处理
         symbol = "0700.HK"
@@ -114,7 +111,7 @@ def test_akshare_error_recovery():
             print(f"  ✅ 格式化成功，长度: {len(result)}")
 
             # 检查是否包含必要信息
-            required_info = ['港股', 'HK$', '代码', '价格']
+            required_info = ["港股", "HK$", "代码", "价格"]
             missing_info = [info for info in required_info if info not in result]
 
             if not missing_info:
@@ -139,6 +136,7 @@ def test_akshare_error_recovery():
     except Exception as e:
         print(f"❌ AKShare错误恢复机制测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -188,7 +186,7 @@ def test_hk_fallback_mechanisms():
             print(f"    数据源: {info_result.get('source', 'N/A')}")
 
             # 验证港股特有信息
-            if info_result.get('currency') == 'HKD' and info_result.get('exchange') == 'HKG':
+            if info_result.get("currency") == "HKD" and info_result.get("exchange") == "HKG":
                 print("  ✅ 港股信息正确")
             else:
                 print("  ⚠️ 港股信息可能不完整")
@@ -202,6 +200,7 @@ def test_hk_fallback_mechanisms():
     except Exception as e:
         print(f"❌ 港股备用机制测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 

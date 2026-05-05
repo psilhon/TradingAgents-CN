@@ -131,5 +131,5 @@ def test_quotes_ingestion_run_once_writes_bulk(monkeypatch):
         assert len(fake_db._coll.last_ops) == 2
 
     import asyncio
-    asyncio.run(_run())
 
+    asyncio.run(_run())

@@ -10,6 +10,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_improved_hk_provider():
     """测试改进的港股提供器"""
     print("\n🇭🇰 测试改进的港股提供器")
@@ -24,12 +25,12 @@ def test_improved_hk_provider():
         # 测试不同格式的港股代码
         test_symbols = [
             "0700.HK",  # 腾讯控股
-            "0700",     # 腾讯控股（无后缀）
-            "00700",    # 腾讯控股（5位）
+            "0700",  # 腾讯控股（无后缀）
+            "00700",  # 腾讯控股（5位）
             "0941.HK",  # 中国移动
-            "1299",     # 友邦保险
+            "1299",  # 友邦保险
             "9988.HK",  # 阿里巴巴
-            "3690",     # 美团
+            "3690",  # 美团
             "1234.HK",  # 不存在的股票
         ]
 
@@ -40,7 +41,7 @@ def test_improved_hk_provider():
                 print(f"   {symbol:10} -> {company_name}")
 
                 # 验证不是默认格式
-                if not company_name.startswith('港股'):
+                if not company_name.startswith("港股"):
                     print("      ✅ 成功获取具体公司名称")
                 else:
                     print("      ⚠️ 使用默认格式")
@@ -53,8 +54,10 @@ def test_improved_hk_provider():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_analyst_integration():
     """测试分析师集成"""
@@ -94,8 +97,10 @@ def test_analyst_integration():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cache_functionality():
     """测试缓存功能"""
@@ -110,9 +115,9 @@ def test_cache_functionality():
         provider = get_improved_hk_provider()
 
         # 使用新的缓存路径（避免根目录污染）
-        cache_dir = os.path.join('data', 'cache', 'hk')
+        cache_dir = os.path.join("data", "cache", "hk")
         os.makedirs(cache_dir, exist_ok=True)
-        cache_file = os.path.join(cache_dir, 'hk_stock_cache.json')
+        cache_file = os.path.join(cache_dir, "hk_stock_cache.json")
 
         # 清理可能存在的缓存文件
         if os.path.exists(cache_file):
@@ -149,7 +154,8 @@ def test_cache_functionality():
 
             # 读取缓存内容
             import json
-            with open(cache_file, encoding='utf-8') as f:
+
+            with open(cache_file, encoding="utf-8") as f:
                 cache_data = json.load(f)
 
             print(f"📄 缓存条目数: {len(cache_data)}")
@@ -163,8 +169,10 @@ def test_cache_functionality():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -190,15 +198,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "改进港股提供器",
-        "分析师集成测试",
-        "缓存功能测试"
-    ]
+    test_names = ["改进港股提供器", "分析师集成测试", "缓存功能测试"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -215,6 +219,7 @@ def main():
         pass
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

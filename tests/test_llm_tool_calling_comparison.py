@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_deepseek_tool_calling():
     """测试DeepSeek的工具调用行为"""
     print("🤖 测试DeepSeek工具调用行为")
@@ -24,16 +25,13 @@ def test_deepseek_tool_calling():
     try:
         # 直接导入DeepSeek适配器，避免导入dashscope
         import sys
+
         sys.path.insert(0, str(project_root / "tradingagents" / "llm_adapters"))
         from deepseek_adapter import ChatDeepSeek
         from langchain_core.tools import BaseTool
 
         # 创建DeepSeek实例
-        deepseek_llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        deepseek_llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=2000)
 
         # 创建模拟的股票数据工具
         class MockChinaStockDataTool(BaseTool):
@@ -88,10 +86,10 @@ def test_deepseek_tool_calling():
         print(result.content[:500])
         print("-" * 50)
 
-        if hasattr(result, 'tool_calls') and result.tool_calls:
+        if hasattr(result, "tool_calls") and result.tool_calls:
             print("📊 DeepSeek工具调用详情:")
             for i, call in enumerate(result.tool_calls):
-                print(f"   工具{i+1}: {call.get('name', 'unknown')}")
+                print(f"   工具{i + 1}: {call.get('name', 'unknown')}")
                 print(f"   参数: {call.get('args', {})}")
 
         return result
@@ -99,8 +97,10 @@ def test_deepseek_tool_calling():
     except Exception as e:
         print(f"❌ DeepSeek测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None
+
 
 def test_dashscope_tool_calling():
     """测试百炼模型的工具调用行为"""
@@ -112,11 +112,7 @@ def test_dashscope_tool_calling():
         from tradingagents.llm_adapters.dashscope_adapter import ChatDashScope
 
         # 创建百炼实例
-        dashscope_llm = ChatDashScope(
-            model="qwen-plus",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        dashscope_llm = ChatDashScope(model="qwen-plus", temperature=0.1, max_tokens=2000)
 
         # 创建相同的模拟工具
         class MockChinaStockDataTool(BaseTool):
@@ -171,10 +167,10 @@ def test_dashscope_tool_calling():
         print(result.content[:500])
         print("-" * 50)
 
-        if hasattr(result, 'tool_calls') and result.tool_calls:
+        if hasattr(result, "tool_calls") and result.tool_calls:
             print("📊 百炼工具调用详情:")
             for i, call in enumerate(result.tool_calls):
-                print(f"   工具{i+1}: {call.get('name', 'unknown')}")
+                print(f"   工具{i + 1}: {call.get('name', 'unknown')}")
                 print(f"   参数: {call.get('args', {})}")
 
         return result
@@ -182,8 +178,10 @@ def test_dashscope_tool_calling():
     except Exception as e:
         print(f"❌ 百炼测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None
+
 
 def compare_results(deepseek_result, dashscope_result):
     """对比两个模型的结果"""
@@ -192,8 +190,8 @@ def compare_results(deepseek_result, dashscope_result):
 
     if deepseek_result and dashscope_result:
         # 工具调用对比
-        deepseek_tools = len(deepseek_result.tool_calls) if hasattr(deepseek_result, 'tool_calls') else 0
-        dashscope_tools = len(dashscope_result.tool_calls) if hasattr(dashscope_result, 'tool_calls') else 0
+        deepseek_tools = len(deepseek_result.tool_calls) if hasattr(deepseek_result, "tool_calls") else 0
+        dashscope_tools = len(dashscope_result.tool_calls) if hasattr(dashscope_result, "tool_calls") else 0
 
         print("📊 工具调用对比:")
         print(f"   DeepSeek: {deepseek_tools} 次工具调用")
@@ -236,6 +234,7 @@ def compare_results(deepseek_result, dashscope_result):
         else:
             print("   ❌ 百炼: 未正确执行工具调用或数据分析")
 
+
 def main():
     """主函数"""
     print("🔬 LLM工具调用行为对比测试")
@@ -265,6 +264,7 @@ def main():
 
     print("\n" + "=" * 80)
     print("🎯 测试完成！")
+
 
 if __name__ == "__main__":
     main()

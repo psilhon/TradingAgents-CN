@@ -55,7 +55,7 @@ class ChromaDBManager:
                     settings = Settings(
                         allow_reset=True,
                         anonymized_telemetry=False,  # 关键：禁用遥测
-                        is_persistent=False
+                        is_persistent=False,
                     )
                     self._client = chromadb.Client(settings)
                     logger.info("📚 [ChromaDB] 使用备用配置初始化完成")
@@ -101,8 +101,8 @@ class FinancialSituationMemory:
         self.llm_provider = config.get("llm_provider", "openai").lower()
 
         # 配置向量缓存的长度限制（向量缓存默认启用长度检查）
-        self.max_embedding_length = int(os.getenv('MAX_EMBEDDING_CONTENT_LENGTH', '50000'))  # 默认50K字符
-        self.enable_embedding_length_check = os.getenv('ENABLE_EMBEDDING_LENGTH_CHECK', 'true').lower() == 'true'  # 向量缓存默认启用
+        self.max_embedding_length = int(os.getenv("MAX_EMBEDDING_CONTENT_LENGTH", "50000"))  # 默认50K字符
+        self.enable_embedding_length_check = os.getenv("ENABLE_EMBEDDING_LENGTH_CHECK", "true").lower() == "true"  # 向量缓存默认启用
 
         # 根据LLM提供商选择嵌入模型和客户端
         # 初始化降级选项标志
@@ -113,7 +113,7 @@ class FinancialSituationMemory:
             self.client = None  # DashScope不需要OpenAI客户端
 
             # 设置DashScope API密钥
-            dashscope_key = os.getenv('DASHSCOPE_API_KEY')
+            dashscope_key = os.getenv("DASHSCOPE_API_KEY")
             if dashscope_key:
                 try:
                     # 尝试导入和初始化DashScope
@@ -145,7 +145,7 @@ class FinancialSituationMemory:
         elif self.llm_provider == "qianfan":
             # 千帆（文心一言）embedding配置
             # 千帆目前没有独立的embedding API，使用阿里百炼作为降级选项
-            dashscope_key = os.getenv('DASHSCOPE_API_KEY')
+            dashscope_key = os.getenv("DASHSCOPE_API_KEY")
             if dashscope_key:
                 try:
                     # 使用阿里百炼嵌入服务作为千帆的embedding解决方案
@@ -171,11 +171,11 @@ class FinancialSituationMemory:
                 logger.info("💡 系统将继续运行，但不会保存或检索历史记忆")
         elif self.llm_provider == "deepseek":
             # 检查是否强制使用OpenAI嵌入
-            force_openai = os.getenv('FORCE_OPENAI_EMBEDDING', 'false').lower() == 'true'
+            force_openai = os.getenv("FORCE_OPENAI_EMBEDDING", "false").lower() == "true"
 
             if not force_openai:
                 # 尝试使用阿里百炼嵌入
-                dashscope_key = os.getenv('DASHSCOPE_API_KEY')
+                dashscope_key = os.getenv("DASHSCOPE_API_KEY")
                 if dashscope_key:
                     try:
                         # 测试阿里百炼是否可用
@@ -199,22 +199,16 @@ class FinancialSituationMemory:
             if not dashscope_key or force_openai:
                 # 降级到OpenAI嵌入
                 self.embedding = "text-embedding-3-small"
-                openai_key = os.getenv('OPENAI_API_KEY')
+                openai_key = os.getenv("OPENAI_API_KEY")
                 if openai_key:
-                    self.client = OpenAI(
-                        api_key=openai_key,
-                        base_url=config.get("backend_url", "https://api.openai.com/v1")
-                    )
+                    self.client = OpenAI(api_key=openai_key, base_url=config.get("backend_url", "https://api.openai.com/v1"))
                     logger.warning("⚠️ DeepSeek回退到OpenAI嵌入服务")
                 else:
                     # 最后尝试DeepSeek自己的嵌入
-                    deepseek_key = os.getenv('DEEPSEEK_API_KEY')
+                    deepseek_key = os.getenv("DEEPSEEK_API_KEY")
                     if deepseek_key:
                         try:
-                            self.client = OpenAI(
-                                api_key=deepseek_key,
-                                base_url="https://api.deepseek.com"
-                            )
+                            self.client = OpenAI(api_key=deepseek_key, base_url="https://api.deepseek.com")
                             logger.info("💡 DeepSeek使用自己的嵌入服务")
                         except Exception as e:
                             logger.error(f"❌ DeepSeek嵌入服务不可用: {e}")
@@ -227,8 +221,8 @@ class FinancialSituationMemory:
                         logger.info("🚨 未找到可用的嵌入服务，内存功能已禁用")
         elif self.llm_provider == "google":
             # Google AI使用阿里百炼嵌入（如果可用），否则禁用记忆功能
-            dashscope_key = os.getenv('DASHSCOPE_API_KEY')
-            openai_key = os.getenv('OPENAI_API_KEY')
+            dashscope_key = os.getenv("DASHSCOPE_API_KEY")
+            openai_key = os.getenv("OPENAI_API_KEY")
 
             if dashscope_key:
                 try:
@@ -266,7 +260,7 @@ class FinancialSituationMemory:
                 logger.info("💡 系统将继续运行，但不会保存或检索历史记忆")
         elif self.llm_provider == "openrouter":
             # OpenRouter支持：优先使用阿里百炼嵌入，否则禁用记忆功能
-            dashscope_key = os.getenv('DASHSCOPE_API_KEY')
+            dashscope_key = os.getenv("DASHSCOPE_API_KEY")
             if dashscope_key:
                 try:
                     # 尝试使用阿里百炼嵌入
@@ -295,12 +289,9 @@ class FinancialSituationMemory:
             self.client = OpenAI(base_url=config["backend_url"])
         else:
             self.embedding = "text-embedding-3-small"
-            openai_key = os.getenv('OPENAI_API_KEY')
+            openai_key = os.getenv("OPENAI_API_KEY")
             if openai_key:
-                self.client = OpenAI(
-                    api_key=openai_key,
-                    base_url=config["backend_url"]
-                )
+                self.client = OpenAI(api_key=openai_key, base_url=config["backend_url"])
             else:
                 self.client = "DISABLED"
                 logger.warning("⚠️ 未找到OPENAI_API_KEY，记忆功能已禁用")
@@ -315,12 +306,12 @@ class FinancialSituationMemory:
             return text, False  # 返回原文本和是否截断的标志
 
         # 尝试在句子边界截断
-        sentences = text.split('。')
+        sentences = text.split("。")
         if len(sentences) > 1:
             truncated = ""
             for sentence in sentences:
-                if len(truncated + sentence + '。') <= max_length - 50:  # 留50字符余量
-                    truncated += sentence + '。'
+                if len(truncated + sentence + "。") <= max_length - 50:  # 留50字符余量
+                    truncated += sentence + "。"
                 else:
                     break
             if len(truncated) > max_length // 2:  # 至少保留一半内容
@@ -328,12 +319,12 @@ class FinancialSituationMemory:
                 return truncated, True
 
         # 尝试在段落边界截断
-        paragraphs = text.split('\n')
+        paragraphs = text.split("\n")
         if len(paragraphs) > 1:
             truncated = ""
             for paragraph in paragraphs:
-                if len(truncated + paragraph + '\n') <= max_length - 50:
-                    truncated += paragraph + '\n'
+                if len(truncated + paragraph + "\n") <= max_length - 50:
+                    truncated += paragraph + "\n"
                 else:
                     break
             if len(truncated) > max_length // 2:
@@ -341,8 +332,8 @@ class FinancialSituationMemory:
                 return truncated, True
 
         # 最后选择：保留前半部分和后半部分的关键信息
-        front_part = text[:max_length//2]
-        back_part = text[-(max_length//2-100):]  # 留100字符给连接符
+        front_part = text[: max_length // 2]
+        back_part = text[-(max_length // 2 - 100) :]  # 留100字符给连接符
         truncated = front_part + "\n...[内容截断]...\n" + back_part
         logger.warning(f"⚠️ 强制截断：保留首尾关键信息，{len(text)}字符截断为{len(truncated)}字符")
         return truncated, True
@@ -371,13 +362,13 @@ class FinancialSituationMemory:
             logger.warning(f"⚠️ 文本过长({text_length:,}字符 > {self.max_embedding_length:,}字符)，跳过向量化")
             # 存储跳过信息
             self._last_text_info = {
-                'original_length': text_length,
-                'processed_length': 0,
-                'was_truncated': False,
-                'was_skipped': True,
-                'provider': self.llm_provider,
-                'strategy': 'length_limit_skip',
-                'max_length': self.max_embedding_length
+                "original_length": text_length,
+                "processed_length": 0,
+                "was_truncated": False,
+                "was_skipped": True,
+                "provider": self.llm_provider,
+                "strategy": "length_limit_skip",
+                "max_length": self.max_embedding_length,
             }
             return [0.0] * 1024
 
@@ -387,20 +378,22 @@ class FinancialSituationMemory:
 
         # 存储文本处理信息
         self._last_text_info = {
-            'original_length': text_length,
-            'processed_length': text_length,  # 不截断，保持原长度
-            'was_truncated': False,  # 永不截断
-            'was_skipped': False,
-            'provider': self.llm_provider,
-            'strategy': 'no_truncation_with_fallback'  # 标记策略
+            "original_length": text_length,
+            "processed_length": text_length,  # 不截断，保持原长度
+            "was_truncated": False,  # 永不截断
+            "was_skipped": False,
+            "provider": self.llm_provider,
+            "strategy": "no_truncation_with_fallback",  # 标记策略
         }
 
-        if (self.llm_provider == "dashscope" or
-            self.llm_provider == "alibaba" or
-            self.llm_provider == "qianfan" or
-            (self.llm_provider == "google" and self.client is None) or
-            (self.llm_provider == "deepseek" and self.client is None) or
-            (self.llm_provider == "openrouter" and self.client is None)):
+        if (
+            self.llm_provider == "dashscope"
+            or self.llm_provider == "alibaba"
+            or self.llm_provider == "qianfan"
+            or (self.llm_provider == "google" and self.client is None)
+            or (self.llm_provider == "deepseek" and self.client is None)
+            or (self.llm_provider == "openrouter" and self.client is None)
+        ):
             # 使用阿里百炼的嵌入模型
             try:
                 # 导入DashScope模块
@@ -408,20 +401,17 @@ class FinancialSituationMemory:
                 from dashscope import TextEmbedding
 
                 # 检查DashScope API密钥是否可用
-                if not hasattr(dashscope, 'api_key') or not dashscope.api_key:
+                if not hasattr(dashscope, "api_key") or not dashscope.api_key:
                     logger.warning("⚠️ DashScope API密钥未设置，记忆功能降级")
                     return [0.0] * 1024  # 返回空向量
 
                 # 尝试调用DashScope API
-                response = TextEmbedding.call(
-                    model=self.embedding,
-                    input=text
-                )
+                response = TextEmbedding.call(model=self.embedding, input=text)
 
                 # 检查响应状态
                 if response.status_code == 200:
                     # 成功获取embedding
-                    embedding = response.output['embeddings'][0]['embedding']
+                    embedding = response.output["embeddings"][0]["embedding"]
                     logger.debug(f"✅ DashScope embedding成功，维度: {len(embedding)}")
                     return embedding
                 else:
@@ -429,17 +419,14 @@ class FinancialSituationMemory:
                     error_msg = f"{response.code} - {response.message}"
 
                     # 检查是否为长度限制错误
-                    if any(keyword in error_msg.lower() for keyword in ['length', 'token', 'limit', 'exceed']):
+                    if any(keyword in error_msg.lower() for keyword in ["length", "token", "limit", "exceed"]):
                         logger.warning(f"⚠️ DashScope长度限制: {error_msg}")
 
                         # 检查是否有降级选项
-                        if hasattr(self, 'fallback_available') and self.fallback_available:
+                        if hasattr(self, "fallback_available") and self.fallback_available:
                             logger.info("💡 尝试使用OpenAI降级处理长文本")
                             try:
-                                response = self.fallback_client.embeddings.create(
-                                    model=self.fallback_embedding,
-                                    input=text
-                                )
+                                response = self.fallback_client.embeddings.create(model=self.fallback_embedding, input=text)
                                 embedding = response.data[0].embedding
                                 logger.info(f"✅ OpenAI降级成功，维度: {len(embedding)}")
                                 return embedding
@@ -458,17 +445,14 @@ class FinancialSituationMemory:
                 error_str = str(e).lower()
 
                 # 检查是否为长度限制错误
-                if any(keyword in error_str for keyword in ['length', 'token', 'limit', 'exceed', 'too long']):
+                if any(keyword in error_str for keyword in ["length", "token", "limit", "exceed", "too long"]):
                     logger.warning(f"⚠️ DashScope长度限制异常: {e!s}")
 
                     # 检查是否有降级选项
-                    if hasattr(self, 'fallback_available') and self.fallback_available:
+                    if hasattr(self, "fallback_available") and self.fallback_available:
                         logger.info("💡 尝试使用OpenAI降级处理长文本")
                         try:
-                            response = self.fallback_client.embeddings.create(
-                                model=self.fallback_embedding,
-                                input=text
-                            )
+                            response = self.fallback_client.embeddings.create(model=self.fallback_embedding, input=text)
                             embedding = response.data[0].embedding
                             logger.info(f"✅ OpenAI降级成功，维度: {len(embedding)}")
                             return embedding
@@ -479,11 +463,11 @@ class FinancialSituationMemory:
                     else:
                         logger.info("💡 无可用降级选项，记忆功能降级")
                         return [0.0] * 1024
-                elif 'import' in error_str:
+                elif "import" in error_str:
                     logger.error(f"❌ DashScope包未安装: {e!s}")
-                elif 'connection' in error_str:
+                elif "connection" in error_str:
                     logger.error(f"❌ DashScope网络连接错误: {e!s}")
-                elif 'timeout' in error_str:
+                elif "timeout" in error_str:
                     logger.error(f"❌ DashScope请求超时: {e!s}")
                 else:
                     logger.error(f"❌ DashScope embedding异常: {e!s}")
@@ -502,10 +486,7 @@ class FinancialSituationMemory:
 
             # 尝试调用OpenAI兼容的embedding API
             try:
-                response = self.client.embeddings.create(
-                    model=self.embedding,
-                    input=text
-                )
+                response = self.client.embeddings.create(model=self.embedding, input=text)
                 embedding = response.data[0].embedding
                 logger.debug(f"✅ {self.llm_provider} embedding成功，维度: {len(embedding)}")
                 return embedding
@@ -515,8 +496,15 @@ class FinancialSituationMemory:
 
                 # 检查是否为长度限制错误
                 length_error_keywords = [
-                    'token', 'length', 'too long', 'exceed', 'maximum', 'limit',
-                    'context', 'input too large', 'request too large'
+                    "token",
+                    "length",
+                    "too long",
+                    "exceed",
+                    "maximum",
+                    "limit",
+                    "context",
+                    "input too large",
+                    "request too large",
                 ]
 
                 is_length_error = any(keyword in error_str for keyword in length_error_keywords)
@@ -527,13 +515,13 @@ class FinancialSituationMemory:
                     logger.info("💡 为保证分析准确性，不截断文本，记忆功能降级")
                 else:
                     # 其他类型的错误
-                    if 'attributeerror' in error_str:
+                    if "attributeerror" in error_str:
                         logger.error(f"❌ {self.llm_provider} API调用错误: {e!s}")
-                    elif 'connectionerror' in error_str or 'connection' in error_str:
+                    elif "connectionerror" in error_str or "connection" in error_str:
                         logger.error(f"❌ {self.llm_provider}网络连接错误: {e!s}")
-                    elif 'timeout' in error_str:
+                    elif "timeout" in error_str:
                         logger.error(f"❌ {self.llm_provider}请求超时: {e!s}")
-                    elif 'keyerror' in error_str:
+                    elif "keyerror" in error_str:
                         logger.error(f"❌ {self.llm_provider}响应格式错误: {e!s}")
                     else:
                         logger.error(f"❌ {self.llm_provider} embedding异常: {e!s}")
@@ -544,16 +532,16 @@ class FinancialSituationMemory:
     def get_embedding_config_status(self):
         """获取向量缓存配置状态"""
         return {
-            'enabled': self.enable_embedding_length_check,
-            'max_embedding_length': self.max_embedding_length,
-            'max_embedding_length_formatted': f"{self.max_embedding_length:,}字符",
-            'provider': self.llm_provider,
-            'client_status': 'DISABLED' if self.client == "DISABLED" else 'ENABLED'
+            "enabled": self.enable_embedding_length_check,
+            "max_embedding_length": self.max_embedding_length,
+            "max_embedding_length_formatted": f"{self.max_embedding_length:,}字符",
+            "provider": self.llm_provider,
+            "client_status": "DISABLED" if self.client == "DISABLED" else "ENABLED",
         }
 
     def get_last_text_info(self):
         """获取最后处理的文本信息"""
-        return getattr(self, '_last_text_info', None)
+        return getattr(self, "_last_text_info", None)
 
     def add_situations(self, situations_and_advice):
         """Add financial situations and their corresponding advice. Parameter is a list of tuples (situation, rec)"""
@@ -600,35 +588,33 @@ class FinancialSituationMemory:
 
         try:
             # 执行相似度查询
-            results = self.situation_collection.query(
-                query_embeddings=[query_embedding],
-                n_results=actual_n_matches
-            )
+            results = self.situation_collection.query(query_embeddings=[query_embedding], n_results=actual_n_matches)
 
             # 处理查询结果
             memories = []
-            if results and 'documents' in results and results['documents']:
-                documents = results['documents'][0]
-                metadatas = results.get('metadatas', [[]])[0]
-                distances = results.get('distances', [[]])[0]
+            if results and "documents" in results and results["documents"]:
+                documents = results["documents"][0]
+                metadatas = results.get("metadatas", [[]])[0]
+                distances = results.get("distances", [[]])[0]
 
                 for i, doc in enumerate(documents):
                     metadata = metadatas[i] if i < len(metadatas) else {}
                     distance = distances[i] if i < len(distances) else 1.0
 
                     memory_item = {
-                        'situation': doc,
-                        'recommendation': metadata.get('recommendation', ''),
-                        'similarity': 1.0 - distance,  # 转换为相似度分数
-                        'distance': distance
+                        "situation": doc,
+                        "recommendation": metadata.get("recommendation", ""),
+                        "similarity": 1.0 - distance,  # 转换为相似度分数
+                        "distance": distance,
                     }
                     memories.append(memory_item)
 
                 # 记录查询信息
-                if hasattr(self, '_last_text_info') and self._last_text_info.get('was_truncated'):
+                if hasattr(self, "_last_text_info") and self._last_text_info.get("was_truncated"):
                     logger.info(f"🔍 截断文本查询完成，找到{len(memories)}个相关记忆")
-                    logger.debug(f"📊 原文长度: {self._last_text_info['original_length']}, "
-                               f"处理后长度: {self._last_text_info['processed_length']}")
+                    logger.debug(
+                        f"📊 原文长度: {self._last_text_info['original_length']}, 处理后长度: {self._last_text_info['processed_length']}"
+                    )
                 else:
                     logger.debug(f"🔍 记忆查询完成，找到{len(memories)}个相关记忆")
 
@@ -641,15 +627,15 @@ class FinancialSituationMemory:
     def get_cache_info(self):
         """获取缓存相关信息，用于调试和监控"""
         info = {
-            'collection_count': self.situation_collection.count(),
-            'client_status': 'enabled' if self.client != "DISABLED" else 'disabled',
-            'embedding_model': self.embedding,
-            'provider': self.llm_provider
+            "collection_count": self.situation_collection.count(),
+            "client_status": "enabled" if self.client != "DISABLED" else "disabled",
+            "embedding_model": self.embedding,
+            "provider": self.llm_provider,
         }
 
         # 添加最后一次文本处理信息
-        if hasattr(self, '_last_text_info'):
-            info['last_text_processing'] = self._last_text_info
+        if hasattr(self, "_last_text_info"):
+            info["last_text_processing"] = self._last_text_info
 
         return info
 

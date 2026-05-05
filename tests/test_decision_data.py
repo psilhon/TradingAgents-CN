@@ -2,6 +2,7 @@
 """
 测试decision数据是否正确保存和获取
 """
+
 import json
 from datetime import datetime
 
@@ -13,16 +14,9 @@ def test_decision_data():
     base_url = "http://localhost:8000"
 
     # 登录获取token
-    login_data = {
-        "username": "admin",
-        "password": "admin123"
-    }
+    login_data = {"username": "admin", "password": "admin123"}
 
-    response = requests.post(
-        f"{base_url}/api/auth/login",
-        json=login_data,
-        headers={"Content-Type": "application/json"}
-    )
+    response = requests.post(f"{base_url}/api/auth/login", json=login_data, headers={"Content-Type": "application/json"})
 
     if response.status_code != 200:
         print(f"❌ 登录失败: {response.status_code}")
@@ -36,10 +30,7 @@ def test_decision_data():
     token = result["data"]["access_token"]
     print("✅ 登录成功")
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}"
-    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
 
     try:
         print("\n🧪 测试decision数据流程")
@@ -49,17 +40,10 @@ def test_decision_data():
         print("\n1. 启动新的分析任务...")
         analysis_request = {
             "stock_code": "000001",
-            "parameters": {
-                "research_depth": "快速",
-                "selected_analysts": ["market", "fundamentals"]
-            }
+            "parameters": {"research_depth": "快速", "selected_analysts": ["market", "fundamentals"]},
         }
 
-        start_response = requests.post(
-            f"{base_url}/api/analysis/single",
-            json=analysis_request,
-            headers=headers
-        )
+        start_response = requests.post(f"{base_url}/api/analysis/single", json=analysis_request, headers=headers)
 
         if start_response.status_code != 200:
             print(f"❌ 启动分析失败: {start_response.status_code}")
@@ -77,14 +61,12 @@ def test_decision_data():
         # 2. 等待任务完成
         print("\n2. 等待任务完成...")
         import time
+
         max_wait = 300  # 最多等待5分钟
         wait_time = 0
 
         while wait_time < max_wait:
-            status_response = requests.get(
-                f"{base_url}/api/analysis/tasks/{task_id}/status",
-                headers=headers
-            )
+            status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", headers=headers)
 
             if status_response.status_code == 200:
                 status_data = status_response.json()
@@ -108,10 +90,7 @@ def test_decision_data():
 
         # 3. 获取完整结果
         print("\n3. 获取完整分析结果...")
-        result_response = requests.get(
-            f"{base_url}/api/analysis/tasks/{task_id}/result",
-            headers=headers
-        )
+        result_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/result", headers=headers)
 
         if result_response.status_code != 200:
             print(f"❌ 获取结果失败: {result_response.status_code}")
@@ -129,8 +108,8 @@ def test_decision_data():
         print("\n4. 检查decision数据...")
         print(f"   有decision字段: {bool(analysis_result.get('decision'))}")
 
-        if analysis_result.get('decision'):
-            decision = analysis_result['decision']
+        if analysis_result.get("decision"):
+            decision = analysis_result["decision"]
             print("   Decision数据结构:")
             print(f"     action: {decision.get('action', '无')}")
             print(f"     target_price: {decision.get('target_price', '无')}")
@@ -139,7 +118,7 @@ def test_decision_data():
             print(f"     reasoning: {len(str(decision.get('reasoning', '')))} 字符")
 
             # 保存decision数据用于检查
-            with open('decision_sample.json', 'w', encoding='utf-8') as f:
+            with open("decision_sample.json", "w", encoding="utf-8") as f:
                 json.dump(decision, f, ensure_ascii=False, indent=2, default=str)
             print("   Decision数据已保存到 decision_sample.json")
         else:
@@ -148,10 +127,7 @@ def test_decision_data():
 
         # 5. 检查MongoDB中的数据
         print("\n5. 检查MongoDB中的数据...")
-        reports_response = requests.get(
-            f"{base_url}/api/reports/list?search_keyword={task_id}",
-            headers=headers
-        )
+        reports_response = requests.get(f"{base_url}/api/reports/list?search_keyword={task_id}", headers=headers)
 
         if reports_response.status_code == 200:
             reports_data = reports_response.json()
@@ -160,10 +136,7 @@ def test_decision_data():
                 report_id = report["id"]
 
                 # 获取报告详情
-                detail_response = requests.get(
-                    f"{base_url}/api/reports/{report_id}/detail",
-                    headers=headers
-                )
+                detail_response = requests.get(f"{base_url}/api/reports/{report_id}/detail", headers=headers)
 
                 if detail_response.status_code == 200:
                     detail_data = detail_response.json()
@@ -171,8 +144,8 @@ def test_decision_data():
                         report_detail = detail_data["data"]
                         print(f"   MongoDB中有decision字段: {bool(report_detail.get('decision'))}")
 
-                        if report_detail.get('decision'):
-                            mongo_decision = report_detail['decision']
+                        if report_detail.get("decision"):
+                            mongo_decision = report_detail["decision"]
                             print("   MongoDB Decision数据:")
                             print(f"     action: {mongo_decision.get('action', '无')}")
                             print(f"     target_price: {mongo_decision.get('target_price', '无')}")
@@ -186,7 +159,9 @@ def test_decision_data():
     except Exception as e:
         print(f"❌ 测试过程中出现异常: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     print(f"开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

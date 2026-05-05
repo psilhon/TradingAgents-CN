@@ -55,4 +55,3 @@ def test_trace_id_header_and_logging():
     finally:
         logger.removeHandler(handler)
         handler.close()
-

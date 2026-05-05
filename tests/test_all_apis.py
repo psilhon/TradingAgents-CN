@@ -17,18 +17,19 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
 
+
 def check_all_api_keys():
     """检查所有API密钥配置"""
     print("🔑 检查API密钥配置")
     print("=" * 50)
 
     api_keys = {
-        'DASHSCOPE_API_KEY': '阿里百炼API',
-        'FINNHUB_API_KEY': '金融数据API',
-        'GOOGLE_API_KEY': 'Google API',
-        'REDDIT_CLIENT_ID': 'Reddit客户端ID',
-        'REDDIT_CLIENT_SECRET': 'Reddit客户端密钥',
-        'REDDIT_USER_AGENT': 'Reddit用户代理'
+        "DASHSCOPE_API_KEY": "阿里百炼API",
+        "FINNHUB_API_KEY": "金融数据API",
+        "GOOGLE_API_KEY": "Google API",
+        "REDDIT_CLIENT_ID": "Reddit客户端ID",
+        "REDDIT_CLIENT_SECRET": "Reddit客户端密钥",
+        "REDDIT_USER_AGENT": "Reddit用户代理",
     }
 
     configured_apis = []
@@ -49,13 +50,14 @@ def check_all_api_keys():
 
     return configured_apis, missing_apis
 
+
 def test_google_api():
     """测试Google API"""
     try:
         print("\n🧪 测试Google API")
         print("=" * 50)
 
-        google_key = os.getenv('GOOGLE_API_KEY')
+        google_key = os.getenv("GOOGLE_API_KEY")
         if not google_key:
             print("❌ Google API密钥未配置")
             return False
@@ -71,15 +73,16 @@ def test_google_api():
         print(f"❌ Google API测试失败: {e}")
         return False
 
+
 def test_reddit_api():
     """测试Reddit API"""
     try:
         print("\n🧪 测试Reddit API")
         print("=" * 50)
 
-        client_id = os.getenv('REDDIT_CLIENT_ID')
-        client_secret = os.getenv('REDDIT_CLIENT_SECRET')
-        user_agent = os.getenv('REDDIT_USER_AGENT')
+        client_id = os.getenv("REDDIT_CLIENT_ID")
+        client_secret = os.getenv("REDDIT_CLIENT_SECRET")
+        user_agent = os.getenv("REDDIT_USER_AGENT")
 
         if not all([client_id, client_secret, user_agent]):
             print("❌ Reddit API配置不完整")
@@ -92,14 +95,10 @@ def test_reddit_api():
         try:
             import praw
 
-            reddit = praw.Reddit(
-                client_id=client_id,
-                client_secret=client_secret,
-                user_agent=user_agent
-            )
+            reddit = praw.Reddit(client_id=client_id, client_secret=client_secret, user_agent=user_agent)
 
             # 测试获取一个简单的subreddit信息
-            subreddit = reddit.subreddit('investing')
+            subreddit = reddit.subreddit("investing")
             print("✅ Reddit API连接成功")
             print(f"  测试subreddit: {subreddit.display_name}")
             print(f"  订阅者数量: {subreddit.subscribers:,}")
@@ -118,6 +117,7 @@ def test_reddit_api():
         print(f"❌ Reddit API测试失败: {e}")
         return False
 
+
 def test_tradingagents_with_new_apis():
     """测试TradingAgents是否能使用新的API"""
     try:
@@ -132,6 +132,7 @@ def test_tradingagents_with_new_apis():
         # 检查Google相关工具
         try:
             from tradingagents.dataflows.googlenews_utils import get_google_news  # noqa: F401
+
             print("✅ Google News工具可用")
         except ImportError:
             print("❌ Google News工具不可用")
@@ -139,6 +140,7 @@ def test_tradingagents_with_new_apis():
         # 检查Reddit相关工具
         try:
             from tradingagents.dataflows.reddit_utils import get_reddit_sentiment  # noqa: F401
+
             print("✅ Reddit情绪分析工具可用")
         except ImportError:
             print("❌ Reddit情绪分析工具不可用")
@@ -148,6 +150,7 @@ def test_tradingagents_with_new_apis():
     except Exception as e:
         print(f"❌ TradingAgents集成测试失败: {e}")
         return False
+
 
 def test_social_media_analyst():
     """测试社交媒体分析师是否能使用Reddit数据"""
@@ -171,6 +174,7 @@ def test_social_media_analyst():
         print(f"❌ 社交媒体分析师测试失败: {e}")
         return False
 
+
 def main():
     """主测试函数"""
     print("🧪 全面API测试")
@@ -182,15 +186,15 @@ def main():
     # 测试各个API
     results = {}
 
-    if 'Google API' in configured:
-        results['Google API'] = test_google_api()
+    if "Google API" in configured:
+        results["Google API"] = test_google_api()
 
-    if all(api in configured for api in ['Reddit客户端ID', 'Reddit客户端密钥']):
-        results['Reddit API'] = test_reddit_api()
+    if all(api in configured for api in ["Reddit客户端ID", "Reddit客户端密钥"]):
+        results["Reddit API"] = test_reddit_api()
 
     # 测试TradingAgents集成
-    results['TradingAgents集成'] = test_tradingagents_with_new_apis()
-    results['社交媒体分析师'] = test_social_media_analyst()
+    results["TradingAgents集成"] = test_tradingagents_with_new_apis()
+    results["社交媒体分析师"] = test_social_media_analyst()
 
     # 总结结果
     print("\n📊 测试结果总结:")
@@ -209,6 +213,7 @@ def main():
         print("🎉 所有测试通过！")
     else:
         print("⚠️ 部分测试失败，请检查配置")
+
 
 if __name__ == "__main__":
     main()

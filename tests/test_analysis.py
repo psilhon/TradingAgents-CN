@@ -17,6 +17,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
 
+
 def test_basic_imports():
     """测试基本导入"""
     try:
@@ -25,6 +26,7 @@ def test_basic_imports():
     except Exception as e:
         print(f"❌ 基本导入失败: {e}")
         return False
+
 
 def test_environment_variables():
     """测试环境变量"""
@@ -35,6 +37,7 @@ def test_environment_variables():
     print(f"FINNHUB_API_KEY: {'已设置' if finnhub_key else '未设置'}")
 
     return bool(dashscope_key and finnhub_key)
+
 
 def test_graph_initialization():
     """测试图初始化"""
@@ -67,8 +70,10 @@ def test_graph_initialization():
     except Exception as e:
         print(f"❌ 图初始化失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False, None
+
 
 def test_simple_analysis():
     """测试简单分析"""
@@ -86,8 +91,10 @@ def test_simple_analysis():
     except Exception as e:
         print(f"❌ 分析失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def main():
     """主测试函数"""
@@ -117,6 +124,7 @@ def main():
         print("\n🎉 所有测试通过！")
     else:
         print("\n❌ 分析测试失败")
+
 
 if __name__ == "__main__":
     main()

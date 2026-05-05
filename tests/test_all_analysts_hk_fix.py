@@ -9,19 +9,20 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_market_analyst_hk_config():
     """测试市场分析师港股配置"""
     print("🧪 测试市场分析师港股配置...")
 
     try:
         # 读取市场分析师文件
-        with open('tradingagents/agents/analysts/market_analyst.py', encoding='utf-8') as f:
+        with open("tradingagents/agents/analysts/market_analyst.py", encoding="utf-8") as f:
             content = f.read()
 
         # 检查港股配置
-        has_hk_branch = 'elif is_hk:' in content
-        has_unified_tool = 'get_hk_stock_data_unified' in content
-        has_akshare_comment = '优先AKShare' in content
+        has_hk_branch = "elif is_hk:" in content
+        has_unified_tool = "get_hk_stock_data_unified" in content
+        has_akshare_comment = "优先AKShare" in content
 
         print(f"  港股分支: {has_hk_branch}")
         print(f"  统一工具: {has_unified_tool}")
@@ -38,19 +39,20 @@ def test_market_analyst_hk_config():
         print(f"❌ 市场分析师港股配置测试失败: {e}")
         return False
 
+
 def test_fundamentals_analyst_hk_config():
     """测试基本面分析师港股配置"""
     print("\n🧪 测试基本面分析师港股配置...")
 
     try:
         # 读取基本面分析师文件
-        with open('tradingagents/agents/analysts/fundamentals_analyst.py', encoding='utf-8') as f:
+        with open("tradingagents/agents/analysts/fundamentals_analyst.py", encoding="utf-8") as f:
             content = f.read()
 
         # 检查港股配置
-        has_hk_branch = 'elif is_hk:' in content
-        has_unified_tool = 'get_hk_stock_data_unified' in content
-        has_akshare_comment = '优先AKShare' in content
+        has_hk_branch = "elif is_hk:" in content
+        has_unified_tool = "get_hk_stock_data_unified" in content
+        has_akshare_comment = "优先AKShare" in content
 
         print(f"  港股分支: {has_hk_branch}")
         print(f"  统一工具: {has_unified_tool}")
@@ -67,19 +69,20 @@ def test_fundamentals_analyst_hk_config():
         print(f"❌ 基本面分析师港股配置测试失败: {e}")
         return False
 
+
 def test_optimized_us_data_hk_support():
     """测试优化美股数据模块的港股支持"""
     print("\n🧪 测试优化美股数据模块的港股支持...")
 
     try:
         # 读取优化美股数据文件
-        with open('tradingagents/dataflows/optimized_us_data.py', encoding='utf-8') as f:
+        with open("tradingagents/dataflows/optimized_us_data.py", encoding="utf-8") as f:
             content = f.read()
 
         # 检查港股支持
         has_hk_detection = "market_info['is_hk']" in content
-        has_akshare_import = 'get_hk_stock_data_unified' in content
-        has_akshare_priority = '优先使用AKShare' in content
+        has_akshare_import = "get_hk_stock_data_unified" in content
+        has_akshare_priority = "优先使用AKShare" in content
 
         print(f"  港股检测: {has_hk_detection}")
         print(f"  AKShare导入: {has_akshare_import}")
@@ -96,6 +99,7 @@ def test_optimized_us_data_hk_support():
         print(f"❌ 优化美股数据模块港股支持测试失败: {e}")
         return False
 
+
 def test_toolkit_hk_method_availability():
     """测试工具包港股方法可用性"""
     print("\n🧪 测试工具包港股方法可用性...")
@@ -110,7 +114,7 @@ def test_toolkit_hk_method_availability():
         toolkit = Toolkit(config)
 
         # 检查港股方法
-        has_hk_method = hasattr(toolkit, 'get_hk_stock_data_unified')
+        has_hk_method = hasattr(toolkit, "get_hk_stock_data_unified")
 
         print(f"  工具包港股方法: {has_hk_method}")
 
@@ -124,6 +128,7 @@ def test_toolkit_hk_method_availability():
     except Exception as e:
         print(f"❌ 工具包港股方法可用性测试失败: {e}")
         return False
+
 
 def test_data_source_priority_summary():
     """测试数据源优先级总结"""
@@ -152,6 +157,7 @@ def test_data_source_priority_summary():
         print(f"❌ 数据源优先级总结失败: {e}")
         return False
 
+
 def main():
     """运行所有测试"""
     print("🔧 所有分析师节点港股数据源修复测试")
@@ -162,7 +168,7 @@ def main():
         test_fundamentals_analyst_hk_config,
         test_optimized_us_data_hk_support,
         test_toolkit_hk_method_availability,
-        test_data_source_priority_summary
+        test_data_source_priority_summary,
     ]
 
     passed = 0
@@ -188,6 +194,7 @@ def main():
         print("\n🚀 现在所有港股分析都会优先使用AKShare数据源！")
     else:
         print("⚠️ 部分测试失败，请检查失败的测试")
+
 
 if __name__ == "__main__":
     main()

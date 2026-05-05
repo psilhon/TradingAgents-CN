@@ -26,12 +26,7 @@ class TestStartupValidator:
 
     def test_config_item_creation(self):
         """测试配置项创建"""
-        config = ConfigItem(
-            key="TEST_KEY",
-            level=ConfigLevel.REQUIRED,
-            description="Test configuration",
-            example="test_value"
-        )
+        config = ConfigItem(key="TEST_KEY", level=ConfigLevel.REQUIRED, description="Test configuration", example="test_value")
 
         assert config.key == "TEST_KEY"
         assert config.level == ConfigLevel.REQUIRED
@@ -40,13 +35,7 @@ class TestStartupValidator:
 
     def test_validation_result_creation(self):
         """测试验证结果创建"""
-        result = ValidationResult(
-            success=True,
-            missing_required=[],
-            missing_recommended=[],
-            invalid_configs=[],
-            warnings=[]
-        )
+        result = ValidationResult(success=True, missing_required=[], missing_recommended=[], invalid_configs=[], warnings=[])
 
         assert result.success is True
         assert len(result.missing_required) == 0
@@ -67,14 +56,17 @@ class TestStartupValidator:
         assert "MONGODB_PORT" in required_keys
         assert "JWT_SECRET" in required_keys
 
-    @patch.dict(os.environ, {
-        "MONGODB_HOST": "localhost",
-        "MONGODB_PORT": "27017",
-        "MONGODB_DATABASE": "test_db",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379",
-        "JWT_SECRET": "test-secret-key-with-enough-length"
-    })
+    @patch.dict(
+        os.environ,
+        {
+            "MONGODB_HOST": "localhost",
+            "MONGODB_PORT": "27017",
+            "MONGODB_DATABASE": "test_db",
+            "REDIS_HOST": "localhost",
+            "REDIS_PORT": "6379",
+            "JWT_SECRET": "test-secret-key-with-enough-length",
+        },
+    )
     def test_validate_with_required_configs(self):
         """测试有必需配置的验证"""
         validator = StartupValidator()
@@ -83,14 +75,17 @@ class TestStartupValidator:
         assert result.success is True
         assert len(result.missing_required) == 0
 
-    @patch.dict(os.environ, {
-        "MONGODB_HOST": "localhost",
-        "MONGODB_PORT": "invalid_port",  # 无效端口
-        "MONGODB_DATABASE": "test_db",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379",
-        "JWT_SECRET": "test-secret-key-with-enough-length"
-    })
+    @patch.dict(
+        os.environ,
+        {
+            "MONGODB_HOST": "localhost",
+            "MONGODB_PORT": "invalid_port",  # 无效端口
+            "MONGODB_DATABASE": "test_db",
+            "REDIS_HOST": "localhost",
+            "REDIS_PORT": "6379",
+            "JWT_SECRET": "test-secret-key-with-enough-length",
+        },
+    )
     def test_validate_invalid_port(self):
         """测试无效端口验证"""
         validator = StartupValidator()
@@ -99,14 +94,17 @@ class TestStartupValidator:
         assert result.success is False
         assert len(result.invalid_configs) > 0
 
-    @patch.dict(os.environ, {
-        "MONGODB_HOST": "localhost",
-        "MONGODB_PORT": "27017",
-        "MONGODB_DATABASE": "test_db",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379",
-        "JWT_SECRET": "short"  # 太短的密钥
-    })
+    @patch.dict(
+        os.environ,
+        {
+            "MONGODB_HOST": "localhost",
+            "MONGODB_PORT": "27017",
+            "MONGODB_DATABASE": "test_db",
+            "REDIS_HOST": "localhost",
+            "REDIS_PORT": "6379",
+            "JWT_SECRET": "short",  # 太短的密钥
+        },
+    )
     def test_validate_short_jwt_secret(self):
         """测试过短的 JWT 密钥"""
         validator = StartupValidator()
@@ -115,14 +113,17 @@ class TestStartupValidator:
         assert result.success is False
         assert len(result.invalid_configs) > 0
 
-    @patch.dict(os.environ, {
-        "MONGODB_HOST": "localhost",
-        "MONGODB_PORT": "27017",
-        "MONGODB_DATABASE": "test_db",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379",
-        "JWT_SECRET": "your-super-secret-jwt-key-change-in-production"  # 默认值
-    })
+    @patch.dict(
+        os.environ,
+        {
+            "MONGODB_HOST": "localhost",
+            "MONGODB_PORT": "27017",
+            "MONGODB_DATABASE": "test_db",
+            "REDIS_HOST": "localhost",
+            "REDIS_PORT": "6379",
+            "JWT_SECRET": "your-super-secret-jwt-key-change-in-production",  # 默认值
+        },
+    )
     def test_validate_default_jwt_secret_warning(self):
         """测试使用默认 JWT 密钥时的警告"""
         validator = StartupValidator()
@@ -132,14 +133,17 @@ class TestStartupValidator:
         assert len(result.warnings) > 0
         assert any("JWT_SECRET" in warning for warning in result.warnings)
 
-    @patch.dict(os.environ, {
-        "MONGODB_HOST": "localhost",
-        "MONGODB_PORT": "27017",
-        "MONGODB_DATABASE": "test_db",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379",
-        "JWT_SECRET": "test-secret-key-with-enough-length"
-    })
+    @patch.dict(
+        os.environ,
+        {
+            "MONGODB_HOST": "localhost",
+            "MONGODB_PORT": "27017",
+            "MONGODB_DATABASE": "test_db",
+            "REDIS_HOST": "localhost",
+            "REDIS_PORT": "6379",
+            "JWT_SECRET": "test-secret-key-with-enough-length",
+        },
+    )
     def test_validate_missing_recommended_configs(self):
         """测试缺少推荐配置"""
         validator = StartupValidator()
@@ -161,14 +165,17 @@ class TestStartupValidator:
         with pytest.raises(ConfigurationError):
             validator.raise_if_failed()
 
-    @patch.dict(os.environ, {
-        "MONGODB_HOST": "localhost",
-        "MONGODB_PORT": "27017",
-        "MONGODB_DATABASE": "test_db",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379",
-        "JWT_SECRET": "test-secret-key-with-enough-length"
-    })
+    @patch.dict(
+        os.environ,
+        {
+            "MONGODB_HOST": "localhost",
+            "MONGODB_PORT": "27017",
+            "MONGODB_DATABASE": "test_db",
+            "REDIS_HOST": "localhost",
+            "REDIS_PORT": "6379",
+            "JWT_SECRET": "test-secret-key-with-enough-length",
+        },
+    )
     def test_raise_if_failed_success(self):
         """测试验证成功时不抛出异常"""
         validator = StartupValidator()
@@ -231,13 +238,7 @@ class TestConfigCompat:
         from app.core.config_compat import TokenTrackerCompat
 
         tracker = TokenTrackerCompat()
-        tracker.track_usage(
-            provider="test_provider",
-            model_name="test_model",
-            input_tokens=100,
-            output_tokens=50,
-            cost=0.01
-        )
+        tracker.track_usage(provider="test_provider", model_name="test_model", input_tokens=100, output_tokens=50, cost=0.01)
 
         summary = tracker.get_usage_summary()
         assert "test_provider:test_model" in summary
@@ -261,10 +262,7 @@ class TestConfigCompat:
 class TestConfigPriority:
     """测试配置优先级"""
 
-    @patch.dict(os.environ, {
-        "TEST_CONFIG": "from_env",
-        "MONGODB_HOST": "localhost"
-    })
+    @patch.dict(os.environ, {"TEST_CONFIG": "from_env", "MONGODB_HOST": "localhost"})
     def test_env_priority(self):
         """测试环境变量优先级"""
         # 环境变量应该有最高优先级
@@ -284,4 +282,3 @@ class TestConfigPriority:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
-

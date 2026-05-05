@@ -11,6 +11,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class UnifiedNewsAnalyzer:
     """统一新闻分析器，整合所有新闻获取逻辑"""
 
@@ -69,21 +70,21 @@ class UnifiedNewsAnalyzer:
         stock_code = stock_code.upper().strip()
 
         # A股判断
-        if re.match(r'^(00|30|60|68)\d{4}$', stock_code):
+        if re.match(r"^(00|30|60|68)\d{4}$", stock_code):
             return "A股"
-        elif re.match(r'^(SZ|SH)\d{6}$', stock_code):
+        elif re.match(r"^(SZ|SH)\d{6}$", stock_code):
             return "A股"
 
         # 港股判断
-        elif re.match(r'^\d{4,5}\.HK$', stock_code):
+        elif re.match(r"^\d{4,5}\.HK$", stock_code):
             return "港股"
-        elif re.match(r'^\d{4,5}$', stock_code) and len(stock_code) <= 5:
+        elif re.match(r"^\d{4,5}$", stock_code) and len(stock_code) <= 5:
             return "港股"
 
         # 美股判断
-        elif re.match(r'^[A-Z]{1,5}$', stock_code):
+        elif re.match(r"^[A-Z]{1,5}$", stock_code):
             return "美股"
-        elif '.' in stock_code and not stock_code.endswith('.HK'):
+        elif "." in stock_code and not stock_code.endswith(".HK"):
             return "美股"
 
         # 默认按A股处理
@@ -114,29 +115,35 @@ class UnifiedNewsAnalyzer:
                 logger.warning("[统一新闻工具] 无法连接到MongoDB")
                 return ""
 
-            db = client.get_database('tradingagents')
+            db = client.get_database("tradingagents")
             collection = db.stock_news
 
             # 标准化股票代码（去除后缀）
-            clean_code = stock_code.replace('.SH', '').replace('.SZ', '').replace('.SS', '')\
-                                   .replace('.XSHE', '').replace('.XSHG', '').replace('.HK', '')
+            clean_code = (
+                stock_code.replace(".SH", "")
+                .replace(".SZ", "")
+                .replace(".SS", "")
+                .replace(".XSHE", "")
+                .replace(".XSHG", "")
+                .replace(".HK", "")
+            )
 
             # 查询最近30天的新闻（扩大时间范围）
             thirty_days_ago = datetime.now() - timedelta(days=30)
 
             # 尝试多种查询方式（使用 symbol 字段）
             query_list = [
-                {'symbol': clean_code, 'publish_time': {'$gte': thirty_days_ago}},
-                {'symbol': stock_code, 'publish_time': {'$gte': thirty_days_ago}},
-                {'symbols': clean_code, 'publish_time': {'$gte': thirty_days_ago}},
+                {"symbol": clean_code, "publish_time": {"$gte": thirty_days_ago}},
+                {"symbol": stock_code, "publish_time": {"$gte": thirty_days_ago}},
+                {"symbols": clean_code, "publish_time": {"$gte": thirty_days_ago}},
                 # 如果最近30天没有新闻，则查询所有新闻（不限时间）
-                {'symbol': clean_code},
-                {'symbols': clean_code},
+                {"symbol": clean_code},
+                {"symbols": clean_code},
             ]
 
             news_items = []
             for query in query_list:
-                cursor = collection.find(query).sort('publish_time', -1).limit(max_news)
+                cursor = collection.find(query).sort("publish_time", -1).limit(max_news)
                 news_items = list(cursor)
                 if news_items:
                     logger.info(f"[统一新闻工具] 📊 使用查询 {query} 找到 {len(news_items)} 条新闻")
@@ -152,18 +159,14 @@ class UnifiedNewsAnalyzer:
             report += f"📊 新闻数量: {len(news_items)} 条\n\n"
 
             for i, news in enumerate(news_items, 1):
-                title = news.get('title', '无标题')
-                content = news.get('content', '') or news.get('summary', '')
-                source = news.get('source', '未知来源')
-                publish_time = news.get('publish_time', datetime.now())
-                sentiment = news.get('sentiment', 'neutral')
+                title = news.get("title", "无标题")
+                content = news.get("content", "") or news.get("summary", "")
+                source = news.get("source", "未知来源")
+                publish_time = news.get("publish_time", datetime.now())
+                sentiment = news.get("sentiment", "neutral")
 
                 # 情绪图标
-                sentiment_icon = {
-                    'positive': '📈',
-                    'negative': '📉',
-                    'neutral': '➖'
-                }.get(sentiment, '➖')
+                sentiment_icon = {"positive": "📈", "negative": "📉", "neutral": "➖"}.get(sentiment, "➖")
 
                 report += f"## {i}. {sentiment_icon} {title}\n\n"
                 report += f"**来源**: {source} | **时间**: {publish_time.strftime('%Y-%m-%d %H:%M') if isinstance(publish_time, datetime) else publish_time}\n"  # noqa: E501
@@ -171,7 +174,7 @@ class UnifiedNewsAnalyzer:
 
                 if content:
                     # 限制内容长度
-                    content_preview = content[:500] + '...' if len(content) > 500 else content
+                    content_preview = content[:500] + "..." if len(content) > 500 else content
                     report += f"{content_preview}\n\n"
 
                 report += "---\n\n"
@@ -182,6 +185,7 @@ class UnifiedNewsAnalyzer:
         except Exception as e:
             logger.error(f"[统一新闻工具] 从数据库获取新闻失败: {e}")
             import traceback
+
             logger.error(traceback.format_exc())
             return ""
 
@@ -202,8 +206,14 @@ class UnifiedNewsAnalyzer:
             import concurrent.futures
 
             # 标准化股票代码（去除后缀）
-            clean_code = stock_code.replace('.SH', '').replace('.SZ', '').replace('.SS', '')\
-                                   .replace('.XSHE', '').replace('.XSHG', '').replace('.HK', '')
+            clean_code = (
+                stock_code.replace(".SH", "")
+                .replace(".SZ", "")
+                .replace(".SS", "")
+                .replace(".XSHE", "")
+                .replace(".XSHG", "")
+                .replace(".HK", "")
+            )
 
             logger.info(f"[统一新闻工具] 🔄 开始同步 {clean_code} 的新闻...")
 
@@ -225,16 +235,14 @@ class UnifiedNewsAnalyzer:
                             provider = AKShareProvider()
 
                             # 调用 provider 获取新闻
-                            news_data = await provider.get_stock_news(
-                                symbol=clean_code,
-                                limit=max_news
-                            )
+                            news_data = await provider.get_stock_news(symbol=clean_code, limit=max_news)
 
                             return news_data
 
                         except Exception as e:
                             logger.error(f"[统一新闻工具] ❌ 获取新闻失败: {e}")
                             import traceback
+
                             logger.error(traceback.format_exc())
                             return None
 
@@ -251,11 +259,7 @@ class UnifiedNewsAnalyzer:
                     from app.services.news_data_service import NewsDataService
 
                     news_service = NewsDataService()
-                    saved_count = news_service.save_news_data_sync(
-                        news_data=news_data,
-                        data_source="akshare",
-                        market="CN"
-                    )
+                    saved_count = news_service.save_news_data_sync(news_data=news_data, data_source="akshare", market="CN")
 
                     logger.info(f"[统一新闻工具] ✅ 同步成功: {saved_count} 条新闻")
                     return saved_count > 0
@@ -277,6 +281,7 @@ class UnifiedNewsAnalyzer:
         except Exception as e:
             logger.error(f"[统一新闻工具] ❌ 同步新闻失败: {e}")
             import traceback
+
             logger.error(traceback.format_exc())
             return False
 
@@ -321,7 +326,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级1: 东方财富实时新闻
         try:
-            if hasattr(self.toolkit, 'get_realtime_stock_news'):
+            if hasattr(self.toolkit, "get_realtime_stock_news"):
                 logger.info("[统一新闻工具] 尝试东方财富实时新闻...")
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
                 result = self.toolkit.get_realtime_stock_news.invoke({"ticker": stock_code, "curr_date": curr_date})
@@ -340,7 +345,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级2: Google新闻（中文搜索）
         try:
-            if hasattr(self.toolkit, 'get_google_news'):
+            if hasattr(self.toolkit, "get_google_news"):
                 logger.info("[统一新闻工具] 尝试Google新闻...")
                 query = f"{stock_code} 股票 新闻 财报 业绩"
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
@@ -353,7 +358,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级3: OpenAI全球新闻
         try:
-            if hasattr(self.toolkit, 'get_global_news_openai'):
+            if hasattr(self.toolkit, "get_global_news_openai"):
                 logger.info("[统一新闻工具] 尝试OpenAI全球新闻...")
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
                 result = self.toolkit.get_global_news_openai.invoke({"curr_date": curr_date})
@@ -374,7 +379,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级1: Google新闻（港股搜索）
         try:
-            if hasattr(self.toolkit, 'get_google_news'):
+            if hasattr(self.toolkit, "get_google_news"):
                 logger.info("[统一新闻工具] 尝试Google港股新闻...")
                 query = f"{stock_code} 港股 香港股票 新闻"
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
@@ -387,7 +392,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级2: OpenAI全球新闻
         try:
-            if hasattr(self.toolkit, 'get_global_news_openai'):
+            if hasattr(self.toolkit, "get_global_news_openai"):
                 logger.info("[统一新闻工具] 尝试OpenAI港股新闻...")
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
                 result = self.toolkit.get_global_news_openai.invoke({"curr_date": curr_date})
@@ -399,7 +404,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级3: 实时新闻（如果支持港股）
         try:
-            if hasattr(self.toolkit, 'get_realtime_stock_news'):
+            if hasattr(self.toolkit, "get_realtime_stock_news"):
                 logger.info("[统一新闻工具] 尝试实时港股新闻...")
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
                 result = self.toolkit.get_realtime_stock_news.invoke({"ticker": stock_code, "curr_date": curr_date})
@@ -420,7 +425,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级1: OpenAI全球新闻
         try:
-            if hasattr(self.toolkit, 'get_global_news_openai'):
+            if hasattr(self.toolkit, "get_global_news_openai"):
                 logger.info("[统一新闻工具] 尝试OpenAI美股新闻...")
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
                 result = self.toolkit.get_global_news_openai.invoke({"curr_date": curr_date})
@@ -432,7 +437,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级2: Google新闻（英文搜索）
         try:
-            if hasattr(self.toolkit, 'get_google_news'):
+            if hasattr(self.toolkit, "get_google_news"):
                 logger.info("[统一新闻工具] 尝试Google美股新闻...")
                 query = f"{stock_code} stock news earnings financial"
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
@@ -445,7 +450,7 @@ class UnifiedNewsAnalyzer:
 
         # 优先级3: FinnHub新闻（如果可用）
         try:
-            if hasattr(self.toolkit, 'get_finnhub_news'):
+            if hasattr(self.toolkit, "get_finnhub_news"):
                 logger.info("[统一新闻工具] 尝试FinnHub美股新闻...")
                 # 使用LangChain工具的正确调用方式：.invoke()方法和字典参数
                 result = self.toolkit.get_finnhub_news.invoke({"symbol": stock_code, "max_results": min(max_news, 50)})
@@ -466,7 +471,7 @@ class UnifiedNewsAnalyzer:
         logger.info(f"[统一新闻工具] 📊 原始内容长度: {len(news_content)} 字符")
 
         # 检测是否为Google/Gemini模型
-        is_google_model = any(keyword in model_info.lower() for keyword in ['google', 'gemini', 'gemma'])
+        is_google_model = any(keyword in model_info.lower() for keyword in ["google", "gemini", "gemma"])
         original_length = len(news_content)
         google_control_applied = False
 
@@ -479,7 +484,7 @@ class UnifiedNewsAnalyzer:
             logger.warning(f"[统一新闻工具] 🔧 检测到Google模型，新闻内容过长({len(news_content)}字符)，进行长度控制...")
 
             # 更严格的长度控制策略
-            lines = news_content.split('\n')
+            lines = news_content.split("\n")
             important_lines = []
             char_count = 0
             target_length = 3000  # 目标长度设为3000字符
@@ -491,8 +496,26 @@ class UnifiedNewsAnalyzer:
                     continue
 
                 # 检查是否包含重要关键词
-                important_keywords = ['股票', '公司', '财报', '业绩', '涨跌', '价格', '市值', '营收', '利润',
-                                    '增长', '下跌', '上涨', '盈利', '亏损', '投资', '分析', '预期', '公告']
+                important_keywords = [
+                    "股票",
+                    "公司",
+                    "财报",
+                    "业绩",
+                    "涨跌",
+                    "价格",
+                    "市值",
+                    "营收",
+                    "利润",
+                    "增长",
+                    "下跌",
+                    "上涨",
+                    "盈利",
+                    "亏损",
+                    "投资",
+                    "分析",
+                    "预期",
+                    "公告",
+                ]
 
                 is_important = any(keyword in line for keyword in important_keywords)
 
@@ -509,7 +532,7 @@ class UnifiedNewsAnalyzer:
 
             # 如果提取的重要内容仍然过长，进行进一步截断
             if important_lines:
-                processed_content = '\n'.join(important_lines)
+                processed_content = "\n".join(important_lines)
                 if len(processed_content) > target_length:
                     processed_content = processed_content[:target_length] + "...(内容已智能截断)"
 

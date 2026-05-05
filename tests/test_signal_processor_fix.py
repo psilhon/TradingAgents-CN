@@ -15,6 +15,7 @@ from dotenv import load_dotenv  # noqa: E402
 
 load_dotenv(project_root / ".env", override=True)
 
+
 def test_signal_processor_currency_fix():
     """测试SignalProcessor的货币修复"""
 
@@ -30,7 +31,7 @@ def test_signal_processor_currency_fix():
             model="qwen-turbo",
             openai_api_base="https://dashscope.aliyuncs.com/compatible-mode/v1",
             openai_api_key=os.getenv("DASHSCOPE_API_KEY"),
-            temperature=0.1
+            temperature=0.1,
         )
 
         # 创建信号处理器
@@ -74,20 +75,20 @@ def test_signal_processor_currency_fix():
         success = True
 
         # 检查中国A股结果
-        if china_decision.get('action') not in ['买入', '持有', '卖出']:
+        if china_decision.get("action") not in ["买入", "持有", "卖出"]:
             print(f"❌ 中国A股动作错误: {china_decision.get('action')}")
             success = False
 
-        if china_decision.get('target_price') is None:
+        if china_decision.get("target_price") is None:
             print("❌ 中国A股目标价位为空")
             success = False
 
         # 检查美股结果
-        if us_decision.get('action') not in ['买入', '持有', '卖出']:
+        if us_decision.get("action") not in ["买入", "持有", "卖出"]:
             print(f"❌ 美股动作错误: {us_decision.get('action')}")
             success = False
 
-        if us_decision.get('target_price') is None:
+        if us_decision.get("target_price") is None:
             print("❌ 美股目标价位为空")
             success = False
 
@@ -101,14 +102,15 @@ def test_signal_processor_currency_fix():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def test_web_currency_display():
     """测试Web界面货币显示修复"""
 
     try:
-
         print("🌐 测试Web界面货币显示...")
 
         # 模拟中国A股结果
@@ -124,6 +126,7 @@ def test_web_currency_display():
     except Exception as e:
         print(f"❌ Web界面测试失败: {e}")
         return False
+
 
 if __name__ == "__main__":
     print("🧪 开始测试SignalProcessor修复...")

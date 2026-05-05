@@ -11,28 +11,34 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
+
 def check_akshare_import():
     """检查AKShare导入"""
     try:
         import akshare as ak
+
         print(f"✅ AKShare导入成功，版本: {ak.__version__}")
         return True
     except ImportError as e:
         print(f"❌ AKShare导入失败: {e}")
         return False
 
+
 def check_akshare_utils():
     """检查akshare_utils.py"""
     try:
         from tradingagents.dataflows.akshare_utils import get_akshare_provider
+
         provider = get_akshare_provider()
         print(f"✅ AKShare工具模块正常，连接状态: {provider.connected}")
         return True, provider
     except Exception as e:
         print(f"❌ AKShare工具模块异常: {e}")
         import traceback
+
         traceback.print_exc()
         return False, None
+
 
 def check_data_source_manager():
     """检查数据源管理器"""
@@ -48,7 +54,7 @@ def check_data_source_manager():
 
         # 检查可用数据源
         available = [s.value for s in manager.available_sources]
-        if 'akshare' in available:
+        if "akshare" in available:
             print("✅ AKShare在可用数据源中")
         else:
             print("⚠️ AKShare不在可用数据源中")
@@ -57,8 +63,10 @@ def check_data_source_manager():
     except Exception as e:
         print(f"❌ 数据源管理器检查失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False, None
+
 
 def test_akshare_adapter():
     """测试AKShare适配器"""
@@ -88,8 +96,10 @@ def test_akshare_adapter():
     except Exception as e:
         print(f"❌ AKShare适配器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_data_source_switching():
     """测试数据源切换"""
@@ -110,8 +120,10 @@ def test_data_source_switching():
     except Exception as e:
         print(f"❌ 数据源切换测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_unified_interface():
     """测试统一数据接口"""
@@ -136,8 +148,10 @@ def test_unified_interface():
     except Exception as e:
         print(f"❌ 统一数据接口测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_basic_akshare():
     """测试基本AKShare功能"""
@@ -159,6 +173,7 @@ def test_basic_akshare():
         print(f"❌ AKShare基本功能测试失败: {e}")
         return False
 
+
 def main():
     """主检查函数"""
     print("🔍 AKShare功能完整检查（修复版）")
@@ -171,29 +186,29 @@ def main():
 
     # 1. 基本AKShare功能
     print("\n1️⃣ 基本AKShare功能测试")
-    test_results['basic_akshare'] = test_basic_akshare()
+    test_results["basic_akshare"] = test_basic_akshare()
 
     # 2. AKShare工具模块
     print("\n2️⃣ AKShare工具模块测试")
     success, _provider = check_akshare_utils()
-    test_results['akshare_utils'] = success
+    test_results["akshare_utils"] = success
 
     # 3. 数据源管理器
     print("\n3️⃣ 数据源管理器测试")
     success, _manager = check_data_source_manager()
-    test_results['data_source_manager'] = success
+    test_results["data_source_manager"] = success
 
     # 4. AKShare适配器
     print("\n4️⃣ AKShare适配器测试")
-    test_results['akshare_adapter'] = test_akshare_adapter()
+    test_results["akshare_adapter"] = test_akshare_adapter()
 
     # 5. 数据源切换
     print("\n5️⃣ 数据源切换测试")
-    test_results['data_source_switching'] = test_data_source_switching()
+    test_results["data_source_switching"] = test_data_source_switching()
 
     # 6. 统一数据接口
     print("\n6️⃣ 统一数据接口测试")
-    test_results['unified_interface'] = test_unified_interface()
+    test_results["unified_interface"] = test_unified_interface()
 
     # 总结结果
     print("\n📊 AKShare功能检查总结")
@@ -219,6 +234,7 @@ def main():
         print("💡 不建议删除AKShare分支，需要先修复问题")
 
     return passed >= total * 0.7
+
 
 if __name__ == "__main__":
     success = main()

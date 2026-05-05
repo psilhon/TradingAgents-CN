@@ -22,6 +22,7 @@ class TushareConfig:
         # 尝试加载python-dotenv
         try:
             from dotenv import load_dotenv
+
             load_dotenv()
         except ImportError:
             pass
@@ -63,41 +64,36 @@ class TushareConfig:
     def get_validation_result(self) -> dict[str, Any]:
         """获取详细的验证结果"""
         result = {
-            'valid': False,
-            'enabled': self.enabled,
-            'token_set': bool(self.token),
-            'token_length': len(self.token),
-            'issues': [],
-            'suggestions': []
+            "valid": False,
+            "enabled": self.enabled,
+            "token_set": bool(self.token),
+            "token_length": len(self.token),
+            "issues": [],
+            "suggestions": [],
         }
 
         # 检查启用状态
         if not self.enabled:
-            result['issues'].append("TUSHARE_ENABLED未启用")
-            result['suggestions'].append("在.env文件中设置 TUSHARE_ENABLED=true")
+            result["issues"].append("TUSHARE_ENABLED未启用")
+            result["suggestions"].append("在.env文件中设置 TUSHARE_ENABLED=true")
 
         # 检查token
         if not self.token:
-            result['issues'].append("TUSHARE_TOKEN未设置")
-            result['suggestions'].append("在.env文件中设置 TUSHARE_TOKEN=your_token_here")
+            result["issues"].append("TUSHARE_TOKEN未设置")
+            result["suggestions"].append("在.env文件中设置 TUSHARE_TOKEN=your_token_here")
         elif len(self.token) < 30:
-            result['issues'].append("TUSHARE_TOKEN格式可能不正确")
-            result['suggestions'].append("检查token是否完整（通常为40字符）")
+            result["issues"].append("TUSHARE_TOKEN格式可能不正确")
+            result["suggestions"].append("检查token是否完整（通常为40字符）")
 
         # 如果没有问题，标记为有效
-        if not result['issues']:
-            result['valid'] = True
+        if not result["issues"]:
+            result["valid"] = True
 
         return result
 
     def get_env_debug_info(self) -> dict[str, Any]:
         """获取环境变量调试信息"""
-        env_vars = [
-            "TUSHARE_TOKEN",
-            "TUSHARE_ENABLED",
-            "DEFAULT_CHINA_DATA_SOURCE",
-            "ENABLE_DATA_CACHE"
-        ]
+        env_vars = ["TUSHARE_TOKEN", "TUSHARE_ENABLED", "DEFAULT_CHINA_DATA_SOURCE", "ENABLE_DATA_CACHE"]
 
         debug_info = {}
         for var in env_vars:
@@ -121,7 +117,7 @@ class TushareConfig:
             ("no", False),
             ("off", False),
             ("", False),  # 空值
-            ("invalid", False)  # 无效值
+            ("invalid", False),  # 无效值
         ]
 
         results = {}
@@ -132,11 +128,7 @@ class TushareConfig:
 
             # 测试解析
             parsed = parse_bool_env("TEST_BOOL_VAR", False)
-            results[test_value] = {
-                'expected': expected,
-                'parsed': parsed,
-                'correct': parsed == expected
-            }
+            results[test_value] = {"expected": expected, "parsed": parsed, "correct": parsed == expected}
 
             # 恢复原始值
             if original_value is not None:
@@ -168,11 +160,11 @@ def check_tushare_compatibility() -> dict[str, Any]:
     config = get_tushare_config()
 
     return {
-        'config_valid': config.is_valid(),
-        'validation_result': config.get_validation_result(),
-        'env_debug_info': config.get_env_debug_info(),
-        'boolean_parsing_test': config.test_boolean_parsing(),
-        'common_fixes': config.fix_common_issues()
+        "config_valid": config.is_valid(),
+        "validation_result": config.get_validation_result(),
+        "env_debug_info": config.get_env_debug_info(),
+        "boolean_parsing_test": config.test_boolean_parsing(),
+        "common_fixes": config.fix_common_issues(),
     }
 
 
@@ -185,33 +177,33 @@ def diagnose_tushare_issues():
 
     # 显示配置状态
     print("\n📊 配置状态:")
-    validation = compatibility['validation_result']
+    validation = compatibility["validation_result"]
     print(f"   配置有效: {'✅' if validation['valid'] else '❌'}")
     print(f"   Tushare启用: {'✅' if validation['enabled'] else '❌'}")
     print(f"   Token设置: {'✅' if validation['token_set'] else '❌'}")
 
     # 显示问题
-    if validation['issues']:
+    if validation["issues"]:
         print("\n⚠️ 发现问题:")
-        for issue in validation['issues']:
+        for issue in validation["issues"]:
             print(f"   - {issue}")
 
     # 显示建议
-    if validation['suggestions']:
+    if validation["suggestions"]:
         print("\n💡 修复建议:")
-        for suggestion in validation['suggestions']:
+        for suggestion in validation["suggestions"]:
             print(f"   - {suggestion}")
 
     # 显示环境变量详情
     print("\n🔍 环境变量详情:")
-    for var, info in compatibility['env_debug_info'].items():
-        status = "✅" if info['exists'] and not info['empty'] else "❌"
+    for var, info in compatibility["env_debug_info"].items():
+        status = "✅" if info["exists"] and not info["empty"] else "❌"
         print(f"   {var}: {status} {info['value']}")
 
     # 显示布尔值解析测试
     print("\n🧪 布尔值解析测试:")
-    bool_tests = compatibility['boolean_parsing_test']
-    failed_tests = [k for k, v in bool_tests.items() if not v['correct']]
+    bool_tests = compatibility["boolean_parsing_test"]
+    failed_tests = [k for k, v in bool_tests.items() if not v["correct"]]
 
     if failed_tests:
         print(f"   ❌ 失败的测试: {failed_tests}")
@@ -220,7 +212,7 @@ def diagnose_tushare_issues():
         print("   ✅ 所有布尔值解析测试通过")
 
     # 显示修复建议
-    fixes = compatibility['common_fixes']
+    fixes = compatibility["common_fixes"]
     if fixes:
         print("\n🔧 自动修复建议:")
         for var, fix in fixes.items():

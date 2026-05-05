@@ -15,11 +15,12 @@ from tradingagents.utils.dataflow_utils import SavePathType, decorate_all_method
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 # 导入缓存管理器（延迟导入，避免循环依赖）
 _cache_module = None
 CACHE_AVAILABLE = True
+
 
 def get_cache():
     """延迟导入缓存管理器"""
@@ -27,6 +28,7 @@ def get_cache():
     if _cache_module is None:
         try:
             from ...cache import get_cache as _get_cache
+
             _cache_module = _get_cache
             CACHE_AVAILABLE = True
         except ImportError as e:
@@ -49,15 +51,10 @@ def init_ticker(func: Callable) -> Callable:
 
 @decorate_all_methods(init_ticker)
 class YFinanceUtils:
-
     def get_stock_data(
         symbol: Annotated[str, "ticker symbol"],
-        start_date: Annotated[
-            str, "start date for retrieving stock price data, YYYY-mm-dd"
-        ],
-        end_date: Annotated[
-            str, "end date for retrieving stock price data, YYYY-mm-dd"
-        ],
+        start_date: Annotated[str, "start date for retrieving stock price data, YYYY-mm-dd"],
+        end_date: Annotated[str, "end date for retrieving stock price data, YYYY-mm-dd"],
         save_path: SavePathType = None,
     ) -> DataFrame:
         """retrieve stock price data for designated ticker symbol"""
@@ -146,6 +143,7 @@ class YFinanceUtils:
 
 # ==================== 技术指标相关函数 ====================
 
+
 def get_stock_data_with_indicators(
     symbol: Annotated[str, "ticker symbol of the company"],
     start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
@@ -227,65 +225,31 @@ def get_technical_indicator(
 
         # 指标说明
         indicator_descriptions = {
-            "close_50_sma": (
-                "50 SMA: 中期趋势指标。"
-                "用途：识别趋势方向，作为动态支撑/阻力位。"
-                "提示：滞后于价格，建议结合快速指标使用。"
-            ),
-            "close_200_sma": (
-                "200 SMA: 长期趋势基准。"
-                "用途：确认整体市场趋势，识别金叉/死叉。"
-                "提示：反应缓慢，适合战略性趋势确认。"
-            ),
-            "close_10_ema": (
-                "10 EMA: 短期响应平均线。"
-                "用途：捕捉快速动量变化和潜在入场点。"
-                "提示：在震荡市场中容易产生噪音。"
-            ),
-            "macd": (
-                "MACD: 通过EMA差值计算动量。"
-                "用途：寻找交叉和背离作为趋势变化信号。"
-                "提示：在低波动或横盘市场中需要其他指标确认。"
-            ),
-            "macds": (
-                "MACD信号线: MACD线的EMA平滑。"
-                "用途：与MACD线交叉触发交易信号。"
-                "提示：应作为更广泛策略的一部分。"
-            ),
+            "close_50_sma": ("50 SMA: 中期趋势指标。用途：识别趋势方向，作为动态支撑/阻力位。提示：滞后于价格，建议结合快速指标使用。"),
+            "close_200_sma": ("200 SMA: 长期趋势基准。用途：确认整体市场趋势，识别金叉/死叉。提示：反应缓慢，适合战略性趋势确认。"),
+            "close_10_ema": ("10 EMA: 短期响应平均线。用途：捕捉快速动量变化和潜在入场点。提示：在震荡市场中容易产生噪音。"),
+            "macd": ("MACD: 通过EMA差值计算动量。用途：寻找交叉和背离作为趋势变化信号。提示：在低波动或横盘市场中需要其他指标确认。"),
+            "macds": ("MACD信号线: MACD线的EMA平滑。用途：与MACD线交叉触发交易信号。提示：应作为更广泛策略的一部分。"),
             "macdh": (
-                "MACD柱状图: MACD线与信号线的差值。"
-                "用途：可视化动量强度，早期发现背离。"
-                "提示：可能波动较大，在快速市场中需要额外过滤。"
+                "MACD柱状图: MACD线与信号线的差值。用途：可视化动量强度，早期发现背离。提示：可能波动较大，在快速市场中需要额外过滤。"
             ),
             "rsi": (
                 "RSI: 测量动量以标记超买/超卖状态。"
                 "用途：应用70/30阈值，观察背离以信号反转。"
                 "提示：在强趋势中RSI可能保持极端值，需结合趋势分析。"
             ),
-            "boll": (
-                "布林带中轨: 20日SMA作为布林带基准。"
-                "用途：作为价格运动的动态基准。"
-                "提示：结合上下轨有效发现突破或反转。"
-            ),
+            "boll": ("布林带中轨: 20日SMA作为布林带基准。用途：作为价格运动的动态基准。提示：结合上下轨有效发现突破或反转。"),
             "boll_ub": (
-                "布林带上轨: 通常为中轨上方2个标准差。"
-                "用途：信号潜在超买状态和突破区域。"
-                "提示：需其他工具确认，强趋势中价格可能沿轨道运行。"
+                "布林带上轨: 通常为中轨上方2个标准差。用途：信号潜在超买状态和突破区域。提示：需其他工具确认，强趋势中价格可能沿轨道运行。"
             ),
-            "boll_lb": (
-                "布林带下轨: 通常为中轨下方2个标准差。"
-                "用途：指示潜在超卖状态。"
-                "提示：使用额外分析避免虚假反转信号。"
-            ),
+            "boll_lb": ("布林带下轨: 通常为中轨下方2个标准差。用途：指示潜在超卖状态。提示：使用额外分析避免虚假反转信号。"),
             "atr": (
                 "ATR: 平均真实波幅测量波动性。"
                 "用途：设置止损位，根据当前市场波动调整仓位大小。"
                 "提示：这是反应性指标，应作为更广泛风险管理策略的一部分。"
             ),
             "vwma": (
-                "VWMA: 成交量加权移动平均。"
-                "用途：通过整合价格和成交量数据确认趋势。"
-                "提示：注意成交量激增导致的偏差，结合其他成交量分析使用。"
+                "VWMA: 成交量加权移动平均。用途：通过整合价格和成交量数据确认趋势。提示：注意成交量激增导致的偏差，结合其他成交量分析使用。"
             ),
             "mfi": (
                 "MFI: 资金流量指标，使用价格和成交量测量买卖压力。"
@@ -313,7 +277,7 @@ def get_technical_indicator(
 
         # 重置索引，将日期作为列
         data = data.reset_index()
-        data['Date'] = pd.to_datetime(data['Date']).dt.strftime('%Y-%m-%d')
+        data["Date"] = pd.to_datetime(data["Date"]).dt.strftime("%Y-%m-%d")
 
         # 使用 stockstats 计算指标
         df = wrap(data)
@@ -325,10 +289,10 @@ def get_technical_indicator(
         end_date = curr_date_dt - relativedelta(days=look_back_days)
 
         while check_date >= end_date:
-            date_str = check_date.strftime('%Y-%m-%d')
+            date_str = check_date.strftime("%Y-%m-%d")
 
             # 查找该日期的指标值
-            matching_rows = df[df['Date'] == date_str]
+            matching_rows = df[df["Date"] == date_str]
 
             if not matching_rows.empty:
                 value = matching_rows.iloc[0][indicator]

@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_fundamentals_analyst():
     """测试基本面分析师的股票代码处理"""
     print("\n🔍 基本面分析师股票代码追踪测试")
@@ -25,15 +26,12 @@ def test_fundamentals_analyst():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
         # 创建模拟状态
-        state = {
-            "company_of_interest": test_ticker,
-            "trade_date": "2025-07-15",
-            "messages": []
-        }
+        state = {"company_of_interest": test_ticker, "trade_date": "2025-07-15", "messages": []}
 
         print("\n🔧 开始调用基本面分析师...")
 
@@ -52,8 +50,8 @@ def test_fundamentals_analyst():
 
         # 检查返回的状态
         if isinstance(result, dict):
-            if 'fundamentals_report' in result:
-                report = result['fundamentals_report']
+            if "fundamentals_report" in result:
+                report = result["fundamentals_report"]
                 print(f"📄 基本面报告长度: {len(report) if report else 0}")
 
                 # 检查报告中的股票代码
@@ -84,8 +82,10 @@ def test_fundamentals_analyst():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_unified_tool_direct():
     """直接测试统一基本面工具"""
@@ -107,12 +107,9 @@ def test_unified_tool_direct():
         print("\n🔧 调用统一基本面工具...")
 
         # 直接调用统一基本面工具
-        result = toolkit.get_stock_fundamentals_unified.invoke({
-            'ticker': test_ticker,
-            'start_date': '2025-06-01',
-            'end_date': '2025-07-15',
-            'curr_date': '2025-07-15'
-        })
+        result = toolkit.get_stock_fundamentals_unified.invoke(
+            {"ticker": test_ticker, "start_date": "2025-06-01", "end_date": "2025-07-15", "curr_date": "2025-07-15"}
+        )
 
         print("\n✅ 统一基本面工具调用完成")
         print(f"📊 返回结果长度: {len(result) if result else 0}")
@@ -141,8 +138,10 @@ def test_unified_tool_direct():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 开始基本面分析股票代码追踪测试")

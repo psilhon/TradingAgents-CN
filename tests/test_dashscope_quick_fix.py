@@ -21,11 +21,7 @@ def test_adapter_creation():
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 创建适配器（不调用API）
-        llm = ChatDashScopeOpenAI(
-            model="qwen-turbo",
-            temperature=0.1,
-            max_tokens=100
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-turbo", temperature=0.1, max_tokens=100)
 
         print("✅ 适配器创建成功")
         print(f"   类型: {type(llm).__name__}")
@@ -88,6 +84,7 @@ def test_vs_old_adapter():
 
         # 检查继承关系
         from langchain_openai import ChatOpenAI
+
         is_openai_compatible = isinstance(new_llm, ChatOpenAI)
         print(f"   OpenAI兼容: {'✅ 是' if is_openai_compatible else '❌ 否'}")
 
@@ -107,7 +104,7 @@ def test_import_completeness():
         ("ChatDashScopeOpenAI", "tradingagents.llm_adapters"),
         ("create_dashscope_openai_llm", "tradingagents.llm_adapters.dashscope_openai_adapter"),
         ("TradingAgentsGraph", "tradingagents.graph.trading_graph"),
-        ("get_china_stock_data_unified", "tradingagents.dataflows")
+        ("get_china_stock_data_unified", "tradingagents.dataflows"),
     ]
 
     success_count = 0
@@ -208,7 +205,7 @@ def main():
         ("新旧适配器对比", test_vs_old_adapter),
         ("导入完整性", test_import_completeness),
         ("API密钥检测", test_api_key_detection),
-        ("技术面分析模拟", test_technical_analysis_simulation)
+        ("技术面分析模拟", test_technical_analysis_simulation),
     ]
 
     results = []

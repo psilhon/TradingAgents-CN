@@ -19,15 +19,9 @@ def quick_test():
     try:
         # 1. 登录获取token
         print("1. 登录获取token...")
-        login_data = {
-            "username": "admin",
-            "password": "admin123"
-        }
+        login_data = {"username": "admin", "password": "admin123"}
 
-        login_response = requests.post(
-            f"{base_url}/api/auth/login",
-            json=login_data
-        )
+        login_response = requests.post(f"{base_url}/api/auth/login", json=login_data)
 
         if login_response.status_code == 200:
             login_result = login_response.json()
@@ -50,20 +44,13 @@ def quick_test():
                 "include_risk": False,
                 "language": "zh-CN",
                 "quick_analysis_model": "qwen-turbo",
-                "deep_analysis_model": "qwen-max"
-            }
+                "deep_analysis_model": "qwen-max",
+            },
         }
 
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}"
-        }
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
 
-        response = requests.post(
-            f"{base_url}/api/analysis/single",
-            json=analysis_request,
-            headers=headers
-        )
+        response = requests.post(f"{base_url}/api/analysis/single", json=analysis_request, headers=headers)
 
         if response.status_code == 200:
             result = response.json()
@@ -77,10 +64,7 @@ def quick_test():
         # 3. 等待任务完成
         print("\n3. 等待任务完成...")
         for _i in range(60):  # 最多等待5分钟
-            status_response = requests.get(
-                f"{base_url}/api/analysis/tasks/{task_id}/status",
-                headers=headers
-            )
+            status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", headers=headers)
 
             if status_response.status_code == 200:
                 status_data = status_response.json()
@@ -105,6 +89,7 @@ def quick_test():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = quick_test()

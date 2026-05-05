@@ -10,8 +10,9 @@ import time
 from datetime import datetime
 
 # 添加项目根目录到路径
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
+
 
 def test_cache_manager_fundamentals():
     """测试缓存管理器的基本面数据功能"""
@@ -29,7 +30,7 @@ def test_cache_manager_fundamentals():
         test_data = f"""
 # {test_symbol} 基本面分析报告（测试数据）
 
-**数据获取时间**: {datetime.now().strftime('%Y-%m-%d')}
+**数据获取时间**: {datetime.now().strftime("%Y-%m-%d")}
 **数据来源**: 测试数据
 
 ## 公司概况
@@ -80,8 +81,10 @@ def test_cache_manager_fundamentals():
     except Exception as e:
         print(f"❌ 缓存管理器测试失败: {e!s}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_fundamentals_with_cache():
     """测试基本面数据获取函数的缓存功能"""
@@ -91,7 +94,7 @@ def test_fundamentals_with_cache():
         from tradingagents.dataflows.interface import get_fundamentals_finnhub
 
         test_symbol = "MSFT"
-        curr_date = datetime.now().strftime('%Y-%m-%d')
+        curr_date = datetime.now().strftime("%Y-%m-%d")
 
         print(f"\n📊 第一次获取 {test_symbol} 基本面数据（应该从API获取）...")
         start_time = time.time()
@@ -124,8 +127,10 @@ def test_fundamentals_with_cache():
     except Exception as e:
         print(f"❌ 基本面数据缓存测试失败: {e!s}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cache_ttl():
     """测试缓存TTL（生存时间）功能"""
@@ -139,7 +144,7 @@ def test_cache_ttl():
         # 检查缓存配置
         print("📋 缓存配置:")
         for cache_type, config in cache.cache_config.items():
-            if 'fundamentals' in cache_type:
+            if "fundamentals" in cache_type:
                 print(f"  - {cache_type}: TTL={config['ttl_hours']}小时, 描述={config['description']}")
 
         # 测试美股和A股的不同TTL设置
@@ -165,8 +170,10 @@ def test_cache_ttl():
     except Exception as e:
         print(f"❌ 缓存TTL测试失败: {e!s}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -186,7 +193,7 @@ def main():
 
     results = []
     for test_name, test_func in tests:
-        print(f"\n{'='*20} {test_name} {'='*20}")
+        print(f"\n{'=' * 20} {test_name} {'=' * 20}")
         try:
             result = test_func()
             results.append((test_name, result))
@@ -195,7 +202,7 @@ def main():
             results.append((test_name, False))
 
     # 输出测试结果
-    print(f"\n{'='*20} 测试结果汇总 {'='*20}")
+    print(f"\n{'=' * 20} 测试结果汇总 {'=' * 20}")
     for test_name, result in results:
         status = "✅ 通过" if result else "❌ 失败"
         print(f"{status} {test_name}")
@@ -208,6 +215,7 @@ def main():
         print("🎉 所有测试都通过了！基本面数据缓存功能正常工作。")
     else:
         print("⚠️ 部分测试失败，请检查相关功能。")
+
 
 if __name__ == "__main__":
     main()

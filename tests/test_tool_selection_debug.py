@@ -25,20 +25,20 @@ def test_llm_tool_binding():
         print("\n📋 工具包中的所有工具:")
         all_tools = []
         for attr_name in dir(toolkit):
-            if not attr_name.startswith('_') and callable(getattr(toolkit, attr_name)):
+            if not attr_name.startswith("_") and callable(getattr(toolkit, attr_name)):
                 attr = getattr(toolkit, attr_name)
-                if hasattr(attr, 'name'):
+                if hasattr(attr, "name"):
                     all_tools.append((attr_name, attr.name))
                     print(f"  {attr_name}: {attr.name}")
 
         # 检查港股相关工具
-        hk_related_tools = [tool for tool in all_tools if 'hk' in tool[0].lower() or 'hk' in tool[1].lower()]
+        hk_related_tools = [tool for tool in all_tools if "hk" in tool[0].lower() or "hk" in tool[1].lower()]
         print("\n🇭🇰 港股相关工具:")
         for attr_name, tool_name in hk_related_tools:
             print(f"  {attr_name}: {tool_name}")
 
         # 检查基本面相关工具
-        fundamentals_tools = [tool for tool in all_tools if 'fundamental' in tool[0].lower() or 'fundamental' in tool[1].lower()]
+        fundamentals_tools = [tool for tool in all_tools if "fundamental" in tool[0].lower() or "fundamental" in tool[1].lower()]
         print("\n📊 基本面相关工具:")
         for attr_name, tool_name in fundamentals_tools:
             print(f"  {attr_name}: {tool_name}")
@@ -48,6 +48,7 @@ def test_llm_tool_binding():
     except Exception as e:
         print(f"❌ 工具绑定测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -65,11 +66,7 @@ def test_tool_descriptions():
         toolkit = Toolkit(config)
 
         # 检查关键工具的描述
-        key_tools = [
-            'get_hk_stock_data_unified',
-            'get_fundamentals_openai',
-            'get_china_stock_data'
-        ]
+        key_tools = ["get_hk_stock_data_unified", "get_fundamentals_openai", "get_china_stock_data"]
 
         for tool_name in key_tools:
             if hasattr(toolkit, tool_name):
@@ -79,8 +76,8 @@ def test_tool_descriptions():
                 print(f"  描述: {getattr(tool, 'description', 'N/A')}")
 
                 # 检查描述中是否提到港股
-                desc = getattr(tool, 'description', '')
-                if '港股' in desc or 'HK' in desc or 'Hong Kong' in desc:
+                desc = getattr(tool, "description", "")
+                if "港股" in desc or "HK" in desc or "Hong Kong" in desc:
                     print("  ✅ 描述中包含港股相关内容")
                 else:
                     print("  ⚠️ 描述中不包含港股相关内容")
@@ -109,9 +106,9 @@ def test_fundamentals_analyst_tool_selection():
         # 测试港股
         ticker = "0700.HK"
         market_info = StockUtils.get_market_info(ticker)
-        is_china = market_info['is_china']
-        is_hk = market_info['is_hk']
-        is_us = market_info['is_us']
+        is_china = market_info["is_china"]
+        is_hk = market_info["is_hk"]
+        is_us = market_info["is_us"]
 
         print(f"\n📊 股票: {ticker}")
         print(f"  市场信息: {market_info['market_name']}")
@@ -122,10 +119,7 @@ def test_fundamentals_analyst_tool_selection():
         # 模拟工具选择逻辑
         if toolkit.config["online_tools"]:
             if is_china:
-                tools = [
-                    toolkit.get_china_stock_data,
-                    toolkit.get_china_fundamentals
-                ]
+                tools = [toolkit.get_china_stock_data, toolkit.get_china_fundamentals]
                 print(f"  选择的工具（A股）: {[tool.name for tool in tools]}")
             elif is_hk:
                 tools = [toolkit.get_hk_stock_data_unified]
@@ -147,6 +141,7 @@ def test_fundamentals_analyst_tool_selection():
     except Exception as e:
         print(f"❌ 基本面分析师工具选择测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 

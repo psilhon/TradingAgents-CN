@@ -39,7 +39,7 @@ async def test_operation_logs():
             success=True,
             duration_ms=100,
             ip_address="127.0.0.1",
-            user_agent="Test Agent"
+            user_agent="Test Agent",
         )
         print(f"✅ 创建日志成功，ID: {log_id}")
 
@@ -51,7 +51,7 @@ async def test_operation_logs():
                 "action": "分析股票 000001",
                 "details": {"stock_code": "000001", "analysis_type": "comprehensive"},
                 "success": True,
-                "duration_ms": 1500
+                "duration_ms": 1500,
             },
             {
                 "action_type": ActionType.CONFIG_MANAGEMENT,
@@ -59,26 +59,20 @@ async def test_operation_logs():
                 "details": {"provider": "openai", "model": "gpt-4"},
                 "success": False,
                 "error_message": "API密钥验证失败",
-                "duration_ms": 500
+                "duration_ms": 500,
             },
             {
                 "action_type": ActionType.DATABASE_OPERATION,
                 "action": "数据库备份",
                 "details": {"backup_type": "full", "size_mb": 150},
                 "success": True,
-                "duration_ms": 3000
-            }
+                "duration_ms": 3000,
+            },
         ]
 
         for i, log_data in enumerate(test_logs):
-            log_id = await log_operation(
-                user_id="admin",
-                username="admin",
-                **log_data,
-                ip_address="127.0.0.1",
-                user_agent="Test Agent"
-            )
-            print(f"✅ 创建测试日志 {i+1} 成功，ID: {log_id}")
+            log_id = await log_operation(user_id="admin", username="admin", **log_data, ip_address="127.0.0.1", user_agent="Test Agent")
+            print(f"✅ 创建测试日志 {i + 1} 成功，ID: {log_id}")
 
         # 测试3: 查询操作日志
         print("\n📋 测试3: 查询操作日志")
@@ -119,7 +113,9 @@ async def test_operation_logs():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(test_operation_logs())

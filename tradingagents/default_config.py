@@ -21,7 +21,6 @@ DEFAULT_CONFIG = {
     "online_tools": os.getenv("ONLINE_TOOLS_ENABLED", "false").lower() == "true",
     "online_news": os.getenv("ONLINE_NEWS_ENABLED", "true").lower() == "true",
     "realtime_data": os.getenv("REALTIME_DATA_ENABLED", "false").lower() == "true",
-
     # Note: Database and cache configuration is now managed by .env file and config.database_manager
     # No database/cache settings in default config to avoid configuration conflicts
 }
