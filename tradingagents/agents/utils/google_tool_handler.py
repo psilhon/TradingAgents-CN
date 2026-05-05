@@ -8,6 +8,7 @@ Google模型工具调用统一处理器
 """
 
 import logging
+import traceback
 from typing import Any
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage

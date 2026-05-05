@@ -3,6 +3,7 @@
 Redis快速连接测试脚本
 """
 
+import os
 import sys
 import time
 

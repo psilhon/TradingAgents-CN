@@ -3,8 +3,11 @@
 基本面分析股票代码追踪测试
 """
 
+import logging
 import os
 import sys
+
+logger = logging.getLogger(__name__)
 
 # 添加项目根目录到Python路径
 project_root = os.path.dirname(os.path.abspath(__file__))
