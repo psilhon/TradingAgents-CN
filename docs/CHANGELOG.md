@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **`docker-compose.yml` 端口段位 + loopback**（OpenSpec change `docker-compose-loopback-baseline`）：base 文件 6 个 service 的端口映射全部加 `127.0.0.1:` 前缀 + 落入 54300-54309 段位（backend 54301 / frontend 54300 / mongo 54302 / redis 54303 / redis-commander 54304 / mongo-express 54305）。新机器 clone 后即合规，不再依赖未 tracked 的 `docker-compose.override.yml` 兜底。同步：`CORS_ORIGINS=http://localhost:54300`、`VITE_API_BASE_URL=http://localhost:54301`、image tag `v1.0.0-preview → v1.1.0`、删 deprecated `version: '3.8'`。新建 spec `loopback-binding-policy` 锁定铁律。
+
 ### Removed
 
 - **`.github/workflows/upstream-sync-check.yml`**（OpenSpec change `delete-upstream-sync-workflow`）：与项目"独立分叉，不再 sync upstream"铁律正面冲突的 workflow。含 cron 定时 + `git push origin main` + `gh issue create` 等 HARD-GATE 明令禁止的自动外部写入动作；所引脚本 `scripts/sync_upstream.py` 不存在，从未成功运行。spec `repository-scope` 增加 scenario 锁定"仓库内不存在自动化 sync workflow"。
