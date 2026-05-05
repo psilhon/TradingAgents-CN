@@ -31,6 +31,8 @@ ruff stat 中 F821 + F811 数量 SHALL 维持 **0**（任何新引入的真 bug 
 - **THEN** 默认删除 line 11
 - **AND** 保留 line 14（实际生效的 import）
 
+## ADDED Requirements
+
 ### Requirement: unsafe-fixes 应用前必须 smoke test
 
 应用 `ruff --fix --unsafe-fixes` 改动后，MUST 验证：
