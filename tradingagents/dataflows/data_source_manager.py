@@ -2131,17 +2131,6 @@ class DataSourceManager:
         return []
 
 
-# 全局数据源管理器实例
-_data_source_manager = None
-
-def get_data_source_manager() -> DataSourceManager:
-    """获取全局数据源管理器实例"""
-    global _data_source_manager
-    if _data_source_manager is None:
-        _data_source_manager = DataSourceManager()
-    return _data_source_manager
-
-
 def get_china_stock_data_unified(symbol: str, start_date: str, end_date: str) -> str:
     """
     统一的中国股票数据获取接口
