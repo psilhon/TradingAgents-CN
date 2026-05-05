@@ -10,6 +10,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_full_fundamentals_flow():
     """测试完整的基本面分析流程"""
     print("\n🔍 完整基本面分析流程测试")
@@ -22,6 +23,7 @@ def test_full_fundamentals_flow():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -49,11 +51,7 @@ def test_full_fundamentals_flow():
         print("\n🔧 步骤3: 准备分析状态...")
 
         # 创建分析状态
-        state = {
-            "company_of_interest": test_ticker,
-            "trade_date": "2025-07-15",
-            "messages": []
-        }
+        state = {"company_of_interest": test_ticker, "trade_date": "2025-07-15", "messages": []}
 
         print("✅ 分析状态准备完成")
         print(f"   - 股票代码: {state['company_of_interest']}")
@@ -70,8 +68,8 @@ def test_full_fundamentals_flow():
 
         # 检查返回结果
         if isinstance(result, dict):
-            if 'fundamentals_report' in result:
-                report = result['fundamentals_report']
+            if "fundamentals_report" in result:
+                report = result["fundamentals_report"]
                 print(f"📄 基本面报告长度: {len(report) if report else 0}")
 
                 # 检查报告中的股票代码
@@ -91,6 +89,7 @@ def test_full_fundamentals_flow():
 
                         # 找出错误代码的位置
                         import re
+
                         positions = [m.start() for m in re.finditer("002021", report)]
                         print(f"   002021 出现位置: {positions}")
 
@@ -113,7 +112,7 @@ def test_full_fundamentals_flow():
                 print(f"   返回结果键: {list(result.keys())}")
         else:
             print(f"❌ 返回结果类型不正确: {type(result)}")
-            if hasattr(result, 'content'):
+            if hasattr(result, "content"):
                 print(f"   内容: {result.content[:200]}...")
 
         return True
@@ -121,8 +120,10 @@ def test_full_fundamentals_flow():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 开始完整基本面分析流程测试")

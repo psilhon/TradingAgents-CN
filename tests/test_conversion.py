@@ -75,16 +75,18 @@ def test_markdown_content():
 
     return test_content
 
+
 def save_test_content():
     """保存测试内容到文件"""
     content = test_markdown_content()
 
-    with open('test_content.md', 'w', encoding='utf-8') as f:
+    with open("test_content.md", "w", encoding="utf-8") as f:
         f.write(content)
 
     print("✅ 测试内容已保存到 test_content.md")
     print(f"📊 内容长度: {len(content)} 字符")
     return content
+
 
 def test_word_conversion(md_content):
     """测试Word转换"""
@@ -92,28 +94,16 @@ def test_word_conversion(md_content):
 
     try:
         # 创建临时文件
-        with tempfile.NamedTemporaryFile(suffix='.docx', delete=False) as tmp_file:
+        with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as tmp_file:
             output_file = tmp_file.name
 
         print(f"📁 临时文件: {output_file}")
 
         # 测试不同的转换参数
         test_cases = [
-            {
-                'name': '基础转换',
-                'format': 'markdown',
-                'extra_args': []
-            },
-            {
-                'name': '带目录转换',
-                'format': 'markdown',
-                'extra_args': ['--toc', '--number-sections']
-            },
-            {
-                'name': '禁用YAML转换',
-                'format': 'markdown',
-                'extra_args': ['--from=markdown-yaml_metadata_block']
-            }
+            {"name": "基础转换", "format": "markdown", "extra_args": []},
+            {"name": "带目录转换", "format": "markdown", "extra_args": ["--toc", "--number-sections"]},
+            {"name": "禁用YAML转换", "format": "markdown", "extra_args": ["--from=markdown-yaml_metadata_block"]},
         ]
 
         for i, test_case in enumerate(test_cases, 1):
@@ -122,11 +112,7 @@ def test_word_conversion(md_content):
 
             try:
                 pypandoc.convert_text(
-                    md_content,
-                    'docx',
-                    format=test_case['format'],
-                    outputfile=output_file,
-                    extra_args=test_case['extra_args']
+                    md_content, "docx", format=test_case["format"], outputfile=output_file, extra_args=test_case["extra_args"]
                 )
 
                 # 检查文件
@@ -155,23 +141,20 @@ def test_word_conversion(md_content):
         print(f"❌ Word转换测试失败: {e}")
         return False
 
+
 def test_pdf_conversion(md_content):
     """测试PDF转换"""
     print("\n🔄 测试PDF转换...")
 
     try:
         # 创建临时文件
-        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp_file:
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_file:
             output_file = tmp_file.name
 
         print(f"📁 临时文件: {output_file}")
 
         # 测试不同的PDF引擎
-        test_engines = [
-            ('wkhtmltopdf', 'HTML转PDF引擎'),
-            ('weasyprint', '现代HTML转PDF引擎'),
-            (None, '默认引擎')
-        ]
+        test_engines = [("wkhtmltopdf", "HTML转PDF引擎"), ("weasyprint", "现代HTML转PDF引擎"), (None, "默认引擎")]
 
         for i, (engine, description) in enumerate(test_engines, 1):
             print(f"\n📊 测试 {i}: {description}")
@@ -179,18 +162,12 @@ def test_pdf_conversion(md_content):
             try:
                 extra_args = []
                 if engine:
-                    extra_args.append(f'--pdf-engine={engine}')
+                    extra_args.append(f"--pdf-engine={engine}")
                     print(f"🔧 使用引擎: {engine}")
                 else:
                     print("🔧 使用默认引擎")
 
-                pypandoc.convert_text(
-                    md_content,
-                    'pdf',
-                    format='markdown',
-                    outputfile=output_file,
-                    extra_args=extra_args
-                )
+                pypandoc.convert_text(md_content, "pdf", format="markdown", outputfile=output_file, extra_args=extra_args)
 
                 # 检查文件
                 if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
@@ -217,6 +194,7 @@ def test_pdf_conversion(md_content):
     except Exception as e:
         print(f"❌ PDF转换测试失败: {e}")
         return False
+
 
 def main():
     """主测试函数"""
@@ -247,6 +225,7 @@ def main():
     else:
         print("\n⚠️ 所有转换都失败了")
         print("💡 需要检查pandoc安装和配置")
+
 
 if __name__ == "__main__":
     main()

@@ -15,6 +15,7 @@ load_dotenv()
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+
 async def test_screening_fields():
     """测试筛选字段映射"""
     print("🧪 测试筛选字段映射...")
@@ -37,16 +38,12 @@ async def test_screening_fields():
             ScreeningCondition(
                 field="total_mv",
                 operator=OperatorType.GTE,
-                value=100  # 总市值 >= 100亿
+                value=100,  # 总市值 >= 100亿
             )
         ]
 
         # 执行筛选
-        results, total = await service.screen_stocks(
-            conditions=conditions,
-            limit=3,
-            order_by=[{"field": "total_mv", "direction": "desc"}]
-        )
+        results, total = await service.screen_stocks(conditions=conditions, limit=3, order_by=[{"field": "total_mv", "direction": "desc"}])
 
         print(f"✅ 筛选完成: 总数={total}, 返回={len(results)}")
 
@@ -56,11 +53,7 @@ async def test_screening_fields():
             first_result = results[0]
 
             # 检查前端期望的字段
-            expected_fields = [
-                "code", "name", "industry",
-                "market_cap", "pe_ratio", "pb_ratio",
-                "price", "change_percent"
-            ]
+            expected_fields = ["code", "name", "industry", "market_cap", "pe_ratio", "pb_ratio", "price", "change_percent"]
 
             print("前端期望的字段:")
             for field in expected_fields:
@@ -83,7 +76,9 @@ async def test_screening_fields():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(test_screening_fields())

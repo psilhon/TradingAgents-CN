@@ -16,9 +16,9 @@ def check_mongodb_before_after():
 
     # 连接MongoDB
     try:
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['tradingagents']
-        collection = db['analysis_reports']
+        client = MongoClient("mongodb://localhost:27017/")
+        db = client["tradingagents"]
+        collection = db["analysis_reports"]
 
         # 检查保存前的记录数
         before_count = collection.count_documents({})
@@ -34,15 +34,9 @@ def check_mongodb_before_after():
     try:
         # 1. 登录获取token
         print("\n1. 登录获取token...")
-        login_data = {
-            "username": "admin",
-            "password": "admin123"
-        }
+        login_data = {"username": "admin", "password": "admin123"}
 
-        login_response = requests.post(
-            f"{base_url}/api/auth/login",
-            json=login_data
-        )
+        login_response = requests.post(f"{base_url}/api/auth/login", json=login_data)
 
         if login_response.status_code == 200:
             login_result = login_response.json()
@@ -65,20 +59,13 @@ def check_mongodb_before_after():
                 "include_risk": False,
                 "language": "zh-CN",
                 "quick_analysis_model": "qwen-turbo",
-                "deep_analysis_model": "qwen-max"
-            }
+                "deep_analysis_model": "qwen-max",
+            },
         }
 
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}"
-        }
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
 
-        response = requests.post(
-            f"{base_url}/api/analysis/single",
-            json=analysis_request,
-            headers=headers
-        )
+        response = requests.post(f"{base_url}/api/analysis/single", json=analysis_request, headers=headers)
 
         if response.status_code == 200:
             result = response.json()
@@ -91,10 +78,7 @@ def check_mongodb_before_after():
         # 3. 等待任务完成
         print("\n3. 等待任务完成...")
         for _i in range(60):  # 最多等待5分钟
-            status_response = requests.get(
-                f"{base_url}/api/analysis/tasks/{task_id}/status",
-                headers=headers
-            )
+            status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", headers=headers)
 
             if status_response.status_code == 200:
                 status_data = status_response.json()
@@ -133,7 +117,7 @@ def check_mongodb_before_after():
                 print(f"   source: {record.get('source')}")
 
                 # 检查reports字段
-                reports = record.get('reports', {})
+                reports = record.get("reports", {})
                 if reports:
                     print(f"✅ 找到reports字段，包含 {len(reports)} 个报告:")
                     for report_type, content in reports.items():
@@ -153,8 +137,9 @@ def check_mongodb_before_after():
         print(f"❌ 测试失败: {e}")
         return False
     finally:
-        if 'client' in locals():
+        if "client" in locals():
             client.close()
+
 
 if __name__ == "__main__":
     success = check_mongodb_before_after()

@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
 
+
 def test_gemini_simple_analysis():
     """测试Gemini的简单分析功能"""
     try:
@@ -26,7 +27,7 @@ def test_gemini_simple_analysis():
         from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 检查API密钥
-        google_api_key = os.getenv('GOOGLE_API_KEY')
+        google_api_key = os.getenv("GOOGLE_API_KEY")
         if not google_api_key:
             print("❌ Google API密钥未配置")
             return False
@@ -90,14 +91,17 @@ def test_gemini_simple_analysis():
         except Exception as e:
             print(f"❌ 股票分析失败: {e}")
             import traceback
+
             print(traceback.format_exc())
             return False
 
     except Exception as e:
         print(f"❌ 简化测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def test_gemini_analyst_direct():
     """直接测试Gemini分析师"""
@@ -118,10 +122,7 @@ def test_gemini_analyst_direct():
 
         # 创建Gemini LLM
         llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash-lite-preview-06-17",
-            temperature=0.1,
-            max_tokens=1000,
-            google_api_key=os.getenv('GOOGLE_API_KEY')
+            model="gemini-2.5-flash-lite-preview-06-17", temperature=0.1, max_tokens=1000, google_api_key=os.getenv("GOOGLE_API_KEY")
         )
 
         # 创建工具包
@@ -138,7 +139,7 @@ def test_gemini_analyst_direct():
         test_state = {
             "messages": [HumanMessage(content="分析AAPL的市场技术指标")],
             "company_of_interest": "AAPL",
-            "trade_date": "2025-06-27"
+            "trade_date": "2025-06-27",
         }
 
         print("📊 开始市场分析...")
@@ -163,8 +164,10 @@ def test_gemini_analyst_direct():
     except Exception as e:
         print(f"❌ 直接分析师测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def main():
     """主测试函数"""
@@ -172,7 +175,7 @@ def main():
     print("=" * 70)
 
     # 检查环境变量
-    google_api_key = os.getenv('GOOGLE_API_KEY')
+    google_api_key = os.getenv("GOOGLE_API_KEY")
     if not google_api_key:
         print("❌ Google API密钥未配置")
         print("💡 请在.env文件中设置 GOOGLE_API_KEY")
@@ -183,11 +186,11 @@ def main():
 
     print("第1步: 直接分析师测试")
     print("-" * 30)
-    results['直接分析师'] = test_gemini_analyst_direct()
+    results["直接分析师"] = test_gemini_analyst_direct()
 
     print("\n第2步: 简化TradingAgents测试")
     print("-" * 30)
-    results['简化TradingAgents'] = test_gemini_simple_analysis()
+    results["简化TradingAgents"] = test_gemini_simple_analysis()
 
     # 总结结果
     print("\n📊 简化测试结果总结:")
@@ -216,6 +219,7 @@ def main():
     else:
         print("❌ Gemini模型不可用")
         print("💡 请检查API密钥和网络连接")
+
 
 if __name__ == "__main__":
     main()

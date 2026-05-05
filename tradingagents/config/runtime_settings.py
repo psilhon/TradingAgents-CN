@@ -130,6 +130,7 @@ def get_int(env_var: str, system_key: str | None, default: int) -> int:
 
 # --- Boolean access helper ---------------------------------------------------
 
+
 def get_bool(env_var: str, system_key: str | None, default: bool) -> bool:
     """按优先级获取布尔配置：DB(system_settings) > ENV > default"""
     # 1) DB 动态设置

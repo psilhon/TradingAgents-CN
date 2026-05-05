@@ -3,6 +3,7 @@
 测试同步历史API功能
 验证历史记录的获取和显示
 """
+
 import os
 import sys
 
@@ -13,10 +14,8 @@ import logging
 from datetime import datetime
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 async def test_sync_history_api():
     """测试同步历史API"""
@@ -55,7 +54,7 @@ async def test_sync_history_api():
                     "updated": 5427,
                     "errors": 0,
                     "data_sources_used": ["stock_list:tushare", "daily_data:tushare"],
-                    "last_trade_date": "20250903"
+                    "last_trade_date": "20250903",
                 },
                 {
                     "job": "stock_basics_multi_source",
@@ -67,8 +66,8 @@ async def test_sync_history_api():
                     "updated": 5400,
                     "errors": 5,
                     "data_sources_used": ["stock_list:akshare", "daily_data:tushare"],
-                    "last_trade_date": "20250902"
-                }
+                    "last_trade_date": "20250902",
+                },
             ]
 
             result = await db.sync_status.insert_many(test_records)
@@ -91,8 +90,8 @@ async def test_sync_history_api():
             print(f"   🔄 是否有更多: {response.data['has_more']}")
 
             # 显示第一条记录的详细信息
-            if response.data['records']:
-                first_record = response.data['records'][0]
+            if response.data["records"]:
+                first_record = response.data["records"][0]
                 print("   📋 第一条记录:")
                 print(f"      状态: {first_record.get('status')}")
                 print(f"      总数: {first_record.get('total')}")
@@ -132,24 +131,26 @@ async def test_sync_history_api():
         final_response = await get_sync_history(page=1, page_size=5)
         print(f"   📊 最新历史记录数: {len(final_response.data['records'])}")
 
-        if final_response.data['records']:
-            latest = final_response.data['records'][0]
+        if final_response.data["records"]:
+            latest = final_response.data["records"][0]
             print(f"   🕐 最新记录时间: {latest.get('started_at')}")
             print(f"   📊 最新记录状态: {latest.get('status')}")
 
         print("\n🎉 同步历史API测试完成")
 
         return {
-            'total_records': final_response.data['total'],
-            'latest_status': final_response.data['records'][0].get('status') if final_response.data['records'] else None,
-            'api_working': True
+            "total_records": final_response.data["total"],
+            "latest_status": final_response.data["records"][0].get("status") if final_response.data["records"] else None,
+            "api_working": True,
         }
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None
+
 
 async def test_frontend_integration():
     """测试前端集成"""
@@ -180,6 +181,7 @@ async def test_frontend_integration():
     print("   - 包含详细的统计信息")
     print()
     print("如果以上功能都正常工作，说明修复成功！")
+
 
 if __name__ == "__main__":
     result = asyncio.run(test_sync_history_api())

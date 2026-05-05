@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_deepseek_cost_calculation():
     """测试DeepSeek成本计算"""
     print("🧪 测试DeepSeek成本计算修复")
@@ -37,33 +38,21 @@ def test_deepseek_cost_calculation():
         print(f"📊 初始成本: ¥{initial_cost:.6f}")
 
         # 创建DeepSeek实例
-        llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=100
-        )
+        llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=100)
 
         # 测试多次调用
-        test_cases = [
-            "什么是股票？",
-            "请简单解释市盈率的含义。",
-            "分析一下投资风险。"
-        ]
-
+        test_cases = ["什么是股票？", "请简单解释市盈率的含义。", "分析一下投资风险。"]
 
         for i, prompt in enumerate(test_cases, 1):
             print(f"\n🔍 测试 {i}: {prompt}")
 
-            response = llm.invoke(
-                prompt,
-                session_id=f"test_cost_{i}",
-                analysis_type="cost_test"
-            )
+            response = llm.invoke(prompt, session_id=f"test_cost_{i}", analysis_type="cost_test")
 
             print(f"   响应长度: {len(response.content)}")
 
         # 等待统计更新
         import time
+
         time.sleep(1)
 
         # 检查最终统计
@@ -89,7 +78,7 @@ def test_deepseek_cost_calculation():
         # 验证成本是否合理
         if cost_increase > 0:
             print("\n✅ 成本计算修复成功！")
-            print(f"   每次调用平均成本: ¥{cost_increase/len(test_cases):.6f}")
+            print(f"   每次调用平均成本: ¥{cost_increase / len(test_cases):.6f}")
             return True
         else:
             print("\n❌ 成本计算仍有问题")
@@ -98,8 +87,10 @@ def test_deepseek_cost_calculation():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cost_precision():
     """测试成本精度显示"""
@@ -112,15 +103,16 @@ def test_cost_precision():
 
     # 测试小额成本计算
     test_cases = [
-        (10, 5),    # 很小的token数
+        (10, 5),  # 很小的token数
         (100, 50),  # 小的token数
-        (1000, 500), # 中等token数
-        (2000, 1000) # 较大token数
+        (1000, 500),  # 中等token数
+        (2000, 1000),  # 较大token数
     ]
 
     for input_tokens, output_tokens in test_cases:
         cost = config_manager.calculate_cost("deepseek", "deepseek-chat", input_tokens, output_tokens)
         print(f"   {input_tokens:4d}+{output_tokens:4d} tokens = ¥{cost:.6f}")
+
 
 def main():
     """主函数"""
@@ -134,6 +126,7 @@ def main():
         print("❌ DeepSeek成本计算仍需修复")
 
     return success1
+
 
 if __name__ == "__main__":
     success = main()

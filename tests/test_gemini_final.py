@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
 
+
 def test_gemini_tradingagents():
     """测试修复后的Gemini与TradingAgents集成"""
     try:
@@ -26,7 +27,7 @@ def test_gemini_tradingagents():
         from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 检查API密钥
-        google_api_key = os.getenv('GOOGLE_API_KEY')
+        google_api_key = os.getenv("GOOGLE_API_KEY")
         if not google_api_key:
             print("❌ Google API密钥未配置")
             return False
@@ -90,14 +91,17 @@ def test_gemini_tradingagents():
         except Exception as e:
             print(f"❌ 股票分析失败: {e}")
             import traceback
+
             print(traceback.format_exc())
             return False
 
     except Exception as e:
         print(f"❌ TradingAgents集成测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def test_gemini_basic():
     """基础Gemini功能测试"""
@@ -109,10 +113,7 @@ def test_gemini_basic():
 
         # 创建LangChain Gemini实例
         llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash-lite-preview-06-17",
-            temperature=0.1,
-            max_tokens=500,
-            google_api_key=os.getenv('GOOGLE_API_KEY')
+            model="gemini-2.5-flash-lite-preview-06-17", temperature=0.1, max_tokens=500, google_api_key=os.getenv("GOOGLE_API_KEY")
         )
 
         print("✅ Gemini实例创建成功")
@@ -134,13 +135,14 @@ def test_gemini_basic():
         print(f"❌ 基础功能测试失败: {e}")
         return False
 
+
 def main():
     """主测试函数"""
     print("🧪 Gemini最终集成测试")
     print("=" * 70)
 
     # 检查环境变量
-    google_api_key = os.getenv('GOOGLE_API_KEY')
+    google_api_key = os.getenv("GOOGLE_API_KEY")
     if not google_api_key:
         print("❌ Google API密钥未配置")
         print("💡 请在.env文件中设置 GOOGLE_API_KEY")
@@ -151,11 +153,11 @@ def main():
 
     print("第1步: 基础功能测试")
     print("-" * 30)
-    results['基础功能'] = test_gemini_basic()
+    results["基础功能"] = test_gemini_basic()
 
     print("\n第2步: TradingAgents集成测试")
     print("-" * 30)
-    results['TradingAgents集成'] = test_gemini_tradingagents()
+    results["TradingAgents集成"] = test_gemini_tradingagents()
 
     # 总结结果
     print("\n📊 最终测试结果总结:")
@@ -180,12 +182,13 @@ def main():
         print("   5. Gemini在多语言和推理能力方面表现优秀")
     elif successful_tests > 0:
         print("⚠️ Gemini部分功能可用")
-        if results['基础功能'] and not results['TradingAgents集成']:
+        if results["基础功能"] and not results["TradingAgents集成"]:
             print("💡 基础功能正常，但TradingAgents集成有问题")
             print("   建议检查配置和依赖")
     else:
         print("❌ Gemini模型不可用")
         print("💡 请检查API密钥、网络连接和依赖安装")
+
 
 if __name__ == "__main__":
     main()

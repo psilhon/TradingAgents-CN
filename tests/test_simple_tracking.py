@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_data_flow():
     """测试数据流中的股票代码处理"""
     print("\n🔍 数据流股票代码追踪测试")
@@ -25,6 +26,7 @@ def test_data_flow():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -62,8 +64,10 @@ def test_data_flow():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_tushare_direct():
     """直接测试Tushare接口"""
@@ -110,8 +114,10 @@ def test_tushare_direct():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_tushare_provider():
     """测试Tushare提供器"""
@@ -144,8 +150,8 @@ def test_tushare_provider():
 
             if stock_data is not None and not stock_data.empty:
                 print(f"📊 股票数据列: {list(stock_data.columns)}")
-                if 'ts_code' in stock_data.columns:
-                    unique_codes = stock_data['ts_code'].unique()
+                if "ts_code" in stock_data.columns:
+                    unique_codes = stock_data["ts_code"].unique()
                     print(f"📊 数据中的ts_code: {unique_codes}")
         else:
             print("❌ Tushare提供器连接失败")
@@ -155,8 +161,10 @@ def test_tushare_provider():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 开始简单股票代码追踪测试")

@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
+
 def test_basic_imports():
     """测试基本导入"""
     print("🔍 测试基本导入")
@@ -19,6 +20,7 @@ def test_basic_imports():
     try:
         # 测试AKShare直接导入
         import akshare as ak
+
         print(f"✅ AKShare导入成功: {ak.__version__}")
     except Exception as e:
         print(f"❌ AKShare导入失败: {e}")
@@ -40,6 +42,7 @@ def test_basic_imports():
 
     return True
 
+
 def test_akshare_provider():
     """测试AKShare提供器"""
     print("\n🔍 测试AKShare提供器")
@@ -47,6 +50,7 @@ def test_akshare_provider():
 
     try:
         from tradingagents.dataflows.akshare_utils import get_akshare_provider
+
         provider = get_akshare_provider()
         print(f"✅ AKShare提供器创建成功，连接状态: {provider.connected}")
 
@@ -63,8 +67,10 @@ def test_akshare_provider():
     except Exception as e:
         print(f"❌ AKShare提供器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_data_source_manager():
     """测试数据源管理器"""
@@ -86,7 +92,7 @@ def test_data_source_manager():
         available = [s.value for s in manager.available_sources]
         print(f"✅ 可用数据源: {available}")
 
-        if 'akshare' in available:
+        if "akshare" in available:
             print("✅ AKShare在可用数据源中")
         else:
             print("⚠️ AKShare不在可用数据源中")
@@ -95,8 +101,10 @@ def test_data_source_manager():
     except Exception as e:
         print(f"❌ 数据源管理器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -131,6 +139,7 @@ def main():
     else:
         print("❌ AKShare功能存在问题")
         return False
+
 
 if __name__ == "__main__":
     success = main()

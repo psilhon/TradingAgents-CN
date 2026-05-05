@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_duplicate_prevention():
     """测试重复提示防止机制"""
     print("🔧 测试重复提示防止机制")
@@ -29,7 +30,7 @@ def test_duplicate_prevention():
 
         # 模拟多次市场分析完成
         for i in range(4):
-            print(f"第{i+1}次 market_report 事件:")
+            print(f"第{i + 1}次 market_report 事件:")
 
             # 检查是否已经完成过
             if "market_report" not in completed_analysts:
@@ -44,7 +45,7 @@ def test_duplicate_prevention():
 
         # 模拟多次基本面分析完成
         for i in range(3):
-            print(f"第{i+1}次 fundamentals_report 事件:")
+            print(f"第{i + 1}次 fundamentals_report 事件:")
 
             if "fundamentals_report" not in completed_analysts:
                 ui.show_success("📊 基本面分析完成")
@@ -61,8 +62,10 @@ def test_duplicate_prevention():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_stream_chunk_simulation():
     """模拟流式处理中的chunk重复"""
@@ -88,7 +91,7 @@ def test_stream_chunk_simulation():
         print("-" * 40)
 
         for i, chunk in enumerate(mock_chunks):
-            print(f"\n处理 Chunk {i+1}: {list(chunk.keys())}")
+            print(f"\n处理 Chunk {i + 1}: {list(chunk.keys())}")
 
             # 处理市场分析报告
             if chunk.get("market_report"):
@@ -117,6 +120,7 @@ def test_stream_chunk_simulation():
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def test_analyst_completion_order():
     """测试分析师完成顺序"""
     print("\n📈 测试分析师完成顺序")
@@ -133,7 +137,7 @@ def test_analyst_completion_order():
             ("market_report", "📈 市场分析完成"),
             ("fundamentals_report", "📊 基本面分析完成"),
             ("technical_report", "🔍 技术分析完成"),
-            ("sentiment_report", "💭 情感分析完成")
+            ("sentiment_report", "💭 情感分析完成"),
         ]
 
         print("📊 模拟分析师按顺序完成:")
@@ -172,6 +176,7 @@ def test_analyst_completion_order():
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def test_real_scenario_simulation():
     """模拟真实场景"""
     print("\n🎭 模拟真实分析场景")
@@ -192,15 +197,10 @@ def test_real_scenario_simulation():
 
         # 模拟市场分析师的多次输出（这是导致重复的原因）
         print("\n📈 市场分析师工作过程:")
-        market_outputs = [
-            "获取市场数据...",
-            "分析价格趋势...",
-            "计算技术指标...",
-            "生成市场报告..."
-        ]
+        market_outputs = ["获取市场数据...", "分析价格趋势...", "计算技术指标...", "生成市场报告..."]
 
         for i, output in enumerate(market_outputs):
-            print(f"   市场分析步骤 {i+1}: {output}")
+            print(f"   市场分析步骤 {i + 1}: {output}")
 
             # 每个步骤都可能触发report更新
             if i == len(market_outputs) - 1:  # 最后一步才算真正完成
@@ -212,14 +212,10 @@ def test_real_scenario_simulation():
 
         # 模拟基本面分析师
         print("\n📊 基本面分析师工作过程:")
-        fundamentals_outputs = [
-            "获取财务数据...",
-            "分析财务指标...",
-            "评估公司价值..."
-        ]
+        fundamentals_outputs = ["获取财务数据...", "分析财务指标...", "评估公司价值..."]
 
         for i, output in enumerate(fundamentals_outputs):
-            print(f"   基本面分析步骤 {i+1}: {output}")
+            print(f"   基本面分析步骤 {i + 1}: {output}")
 
             if i == len(fundamentals_outputs) - 1:
                 if "fundamentals_report" not in completed_analysts:
@@ -236,6 +232,7 @@ def test_real_scenario_simulation():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 def main():
     """主测试函数"""
@@ -264,16 +261,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "重复提示防止机制",
-        "流式处理chunk重复",
-        "分析师完成顺序",
-        "真实场景模拟"
-    ]
+    test_names = ["重复提示防止机制", "流式处理chunk重复", "分析师完成顺序", "真实场景模拟"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -298,6 +290,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

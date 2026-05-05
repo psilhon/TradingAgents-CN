@@ -7,6 +7,7 @@
 - app层: 数据同步服务，负责调用此适配器并写入数据库
 - 职责分离: 适配器只负责数据获取，同步服务负责数据存储
 """
+
 import asyncio
 import os
 from datetime import date, datetime
@@ -48,11 +49,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         self.session = None
 
         # 请求头
-        self.headers = {
-            "User-Agent": "TradingAgents/1.0",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
+        self.headers = {"User-Agent": "TradingAgents/1.0", "Accept": "application/json", "Content-Type": "application/json"}
 
         if self.api_key:
             self.headers["Authorization"] = f"Bearer {self.api_key}"
@@ -70,10 +67,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         try:
             # 创建HTTP会话
             timeout = aiohttp.ClientTimeout(total=self.timeout)
-            self.session = aiohttp.ClientSession(
-                headers=self.headers,
-                timeout=timeout
-            )
+            self.session = aiohttp.ClientSession(headers=self.headers, timeout=timeout)
 
             # 测试连接
             test_url = f"{self.base_url}/ping"
@@ -173,11 +167,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             return None
 
     async def get_historical_data(
-        self,
-        symbol: str,
-        start_date: str | date,
-        end_date: str | date | None = None,
-        period: str = "daily"
+        self, symbol: str, start_date: str | date, end_date: str | date | None = None, period: str = "daily"
     ) -> pd.DataFrame | None:
         """获取历史数据"""
         if not self.connected:
@@ -185,10 +175,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
 
         try:
             url = f"{self.base_url}/stocks/{symbol}/history"
-            params = {
-                "start_date": str(start_date),
-                "period": period
-            }
+            params = {"start_date": str(start_date), "period": period}
 
             if end_date:
                 params["end_date"] = str(end_date)
@@ -265,7 +252,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             "list_date": raw_data.get("listing_date"),
             "pe": raw_data.get("pe_ratio"),
             "pb": raw_data.get("pb_ratio"),
-            "roe": raw_data.get("return_on_equity")
+            "roe": raw_data.get("return_on_equity"),
         }
 
         # 调用父类的标准化方法
@@ -285,7 +272,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             "volume": raw_data.get("trading_volume"),
             "turnover": raw_data.get("trading_value"),
             "date": raw_data.get("trading_date"),
-            "timestamp": raw_data.get("last_updated")
+            "timestamp": raw_data.get("last_updated"),
         }
 
         # 调用父类的标准化方法
@@ -306,7 +293,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
                 "low": self._convert_to_float(item.get("low")),
                 "close": self._convert_to_float(item.get("close")),
                 "volume": self._convert_to_float(item.get("volume")),
-                "amount": self._convert_to_float(item.get("amount"))
+                "amount": self._convert_to_float(item.get("amount")),
             }
             standardized_data.append(standardized_item)
 
@@ -331,7 +318,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             "total_equity": self._convert_to_float(raw_data.get("shareholders_equity")),
             "cash_flow": self._convert_to_float(raw_data.get("operating_cash_flow")),
             "data_source": self.name.lower(),
-            "updated_at": datetime.utcnow()
+            "updated_at": datetime.utcnow(),
         }
 
     def _standardize_news(self, raw_data: dict[str, Any]) -> dict[str, Any]:
@@ -345,7 +332,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             "sentiment": raw_data.get("sentiment"),
             "symbols": raw_data.get("related_symbols", []),
             "data_source": self.name.lower(),
-            "created_at": datetime.utcnow()
+            "created_at": datetime.utcnow(),
         }
 
     # ==================== 清理资源 ====================
@@ -361,6 +348,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
 
 
 # ==================== 使用示例 ====================
+
 
 async def example_usage():
     """使用示例"""

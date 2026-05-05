@@ -17,14 +17,17 @@ from dotenv import load_dotenv  # noqa: E402
 # 加载 .env 文件
 load_dotenv()
 
+
 def test_import():
     """测试导入是否正常"""
     print("🔍 测试1: 检查模块导入...")
     try:
         from tradingagents.llm_adapters import ChatDashScope  # noqa: F401
+
         print("✅ ChatDashScope 导入成功")
 
         from tradingagents.graph.trading_graph import TradingAgentsGraph  # noqa: F401
+
         print("✅ TradingAgentsGraph 导入成功")
 
         return True
@@ -32,12 +35,13 @@ def test_import():
         print(f"❌ 导入失败: {e}")
         return False
 
+
 def test_api_key():
     """测试API密钥配置"""
     print("\n🔍 测试2: 检查API密钥配置...")
 
-    dashscope_key = os.getenv('DASHSCOPE_API_KEY')
-    finnhub_key = os.getenv('FINNHUB_API_KEY')
+    dashscope_key = os.getenv("DASHSCOPE_API_KEY")
+    finnhub_key = os.getenv("FINNHUB_API_KEY")
 
     if not dashscope_key:
         print("❌ 未找到 DASHSCOPE_API_KEY 环境变量")
@@ -55,6 +59,7 @@ def test_api_key():
 
     return True
 
+
 def test_dashscope_connection():
     """测试阿里百炼连接"""
     print("\n🔍 测试3: 检查阿里百炼连接...")
@@ -64,13 +69,11 @@ def test_dashscope_connection():
         from dashscope import Generation
 
         # 设置API密钥
-        dashscope.api_key = os.getenv('DASHSCOPE_API_KEY')
+        dashscope.api_key = os.getenv("DASHSCOPE_API_KEY")
 
         # 测试简单调用
         response = Generation.call(
-            model="qwen-turbo",
-            messages=[{"role": "user", "content": "你好，请回复'连接成功'"}],
-            result_format="message"
+            model="qwen-turbo", messages=[{"role": "user", "content": "你好，请回复'连接成功'"}], result_format="message"
         )
 
         if response.status_code == 200:
@@ -84,6 +87,7 @@ def test_dashscope_connection():
     except Exception as e:
         print(f"❌ 阿里百炼连接测试失败: {e}")
         return False
+
 
 def test_langchain_adapter():
     """测试LangChain适配器"""
@@ -107,6 +111,7 @@ def test_langchain_adapter():
     except Exception as e:
         print(f"❌ LangChain适配器测试失败: {e}")
         return False
+
 
 def test_trading_graph_config():
     """测试TradingGraph配置"""
@@ -133,6 +138,7 @@ def test_trading_graph_config():
     except Exception as e:
         print(f"❌ TradingGraph 配置失败: {e}")
         return False
+
 
 def main():
     """主测试函数"""
@@ -174,6 +180,7 @@ def main():
         print("   4. 查看详细错误信息")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

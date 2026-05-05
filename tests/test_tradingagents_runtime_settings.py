@@ -1,4 +1,3 @@
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -70,4 +69,3 @@ def test_runtime_settings_priority_db_env_default(monkeypatch):
     monkeypatch.delenv("TA_US_MIN_API_INTERVAL_SECONDS", raising=False)
     v_def = rs.get_float("TA_US_MIN_API_INTERVAL_SECONDS", "ta_us_min_api_interval_seconds", 1.0)
     assert abs(v_def - 1.0) < 1e-9
-

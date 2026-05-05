@@ -1,6 +1,7 @@
 """
 测试实时PE/PB计算功能
 """
+
 import pytest
 
 from tradingagents.dataflows.realtime_metrics import calculate_realtime_pe_pb, get_pe_pb_with_fallback, validate_pe_pb
@@ -29,6 +30,7 @@ def test_validate_pe_pb():
 
 def test_calculate_realtime_pe_pb_with_mock_data(monkeypatch):
     """测试实时PE/PB计算（使用mock数据）"""
+
     # Mock MongoDB数据
     class MockCollection:
         def find_one(self, query):
@@ -36,18 +38,14 @@ def test_calculate_realtime_pe_pb_with_mock_data(monkeypatch):
             if code == "000001":
                 if "market_quotes" in str(self):
                     # 返回实时行情
-                    return {
-                        "code": "000001",
-                        "close": 10.5,
-                        "updated_at": "2025-10-14T10:30:00"
-                    }
+                    return {"code": "000001", "close": 10.5, "updated_at": "2025-10-14T10:30:00"}
                 else:
                     # 返回基础信息
                     return {
                         "code": "000001",
                         "total_share": 100000,  # 10万万股 = 10亿股
-                        "net_profit": 50000,    # 5万万元 = 5亿元
-                        "total_hldr_eqy_exc_min_int": 200000  # 20万万元 = 20亿元
+                        "net_profit": 50000,  # 5万万元 = 5亿元
+                        "total_hldr_eqy_exc_min_int": 200000,  # 20万万元 = 20亿元
                     }
             return None
 
@@ -77,6 +75,7 @@ def test_calculate_realtime_pe_pb_with_mock_data(monkeypatch):
 
 def test_calculate_realtime_pe_pb_missing_data(monkeypatch):
     """测试缺少数据时的处理"""
+
     class MockCollection:
         def find_one(self, query):
             return None
@@ -98,6 +97,7 @@ def test_calculate_realtime_pe_pb_missing_data(monkeypatch):
 
 def test_get_pe_pb_with_fallback_success(monkeypatch):
     """测试带降级的获取函数（成功场景）"""
+
     # Mock实时计算成功
     def mock_calculate(symbol, db_client):
         return {
@@ -107,10 +107,11 @@ def test_get_pe_pb_with_fallback_success(monkeypatch):
             "pb_mrq": 3.3,
             "source": "realtime_calculated",
             "is_realtime": True,
-            "updated_at": "2025-10-14T10:30:00"
+            "updated_at": "2025-10-14T10:30:00",
         }
 
     import tradingagents.dataflows.realtime_metrics as metrics_module
+
     monkeypatch.setattr(metrics_module, "calculate_realtime_pe_pb", mock_calculate)
 
     # 执行测试
@@ -124,6 +125,7 @@ def test_get_pe_pb_with_fallback_success(monkeypatch):
 
 def test_get_pe_pb_with_fallback_to_static(monkeypatch):
     """测试降级到静态数据"""
+
     # Mock实时计算失败
     def mock_calculate(symbol, db_client):
         return None
@@ -131,14 +133,7 @@ def test_get_pe_pb_with_fallback_to_static(monkeypatch):
     # Mock静态数据获取
     class MockCollection:
         def find_one(self, query):
-            return {
-                "code": "000001",
-                "pe": 20.0,
-                "pb": 3.0,
-                "pe_ttm": 21.0,
-                "pb_mrq": 3.1,
-                "updated_at": "2025-10-13T16:00:00"
-            }
+            return {"code": "000001", "pe": 20.0, "pb": 3.0, "pe_ttm": 21.0, "pb_mrq": 3.1, "updated_at": "2025-10-13T16:00:00"}
 
     class MockDB:
         def __getitem__(self, name):
@@ -149,6 +144,7 @@ def test_get_pe_pb_with_fallback_to_static(monkeypatch):
             return MockDB()
 
     import tradingagents.dataflows.realtime_metrics as metrics_module
+
     monkeypatch.setattr(metrics_module, "calculate_realtime_pe_pb", mock_calculate)
 
     # 执行测试
@@ -163,4 +159,3 @@ def test_get_pe_pb_with_fallback_to_static(monkeypatch):
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

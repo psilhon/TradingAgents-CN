@@ -1,19 +1,21 @@
 """
 简化版 AKShare 港股接口测试
 """
+
 import sys
 from datetime import datetime
 
 import akshare as ak
 
 # 设置输出编码
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
+
 
 def test_stock_hk_spot():
     """测试新浪财经港股实时行情"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("测试接口: stock_hk_spot (新浪财经)")
-    print("="*80)
+    print("=" * 80)
 
     try:
         df = ak.stock_hk_spot()
@@ -22,13 +24,13 @@ def test_stock_hk_spot():
 
         # 查找腾讯控股
         test_symbol = "00700"
-        matched = df[df['代码'] == test_symbol]
+        matched = df[df["代码"] == test_symbol]
         if not matched.empty:
             print(f"\n找到 {test_symbol} (腾讯控股):")
             print(matched.to_string())
 
         print("\n前5只股票:")
-        print(df.head(5)[['代码', '中文名称', '最新价', '涨跌幅']].to_string())
+        print(df.head(5)[["代码", "中文名称", "最新价", "涨跌幅"]].to_string())
 
         return True, df
     except Exception as e:
@@ -38,9 +40,9 @@ def test_stock_hk_spot():
 
 def test_stock_hk_daily():
     """测试新浪财经港股历史行情"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("测试接口: stock_hk_daily (新浪财经)")
-    print("="*80)
+    print("=" * 80)
 
     try:
         test_symbol = "00700"
@@ -59,9 +61,9 @@ def test_stock_hk_daily():
 
 def test_stock_hk_spot_em():
     """测试东方财富港股实时行情"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("测试接口: stock_hk_spot_em (东方财富)")
-    print("="*80)
+    print("=" * 80)
 
     try:
         df = ak.stock_hk_spot_em()
@@ -70,13 +72,13 @@ def test_stock_hk_spot_em():
 
         # 查找腾讯控股
         test_symbol = "00700"
-        matched = df[df['代码'] == test_symbol]
+        matched = df[df["代码"] == test_symbol]
         if not matched.empty:
             print(f"\n找到 {test_symbol} (腾讯控股):")
             print(matched.to_string())
 
         print("\n前5只股票:")
-        print(df.head(5)[['代码', '名称', '最新价', '涨跌幅']].to_string())
+        print(df.head(5)[["代码", "名称", "最新价", "涨跌幅"]].to_string())
 
         return True, df
     except Exception as e:
@@ -86,9 +88,9 @@ def test_stock_hk_spot_em():
 
 def test_stock_individual_info_hk():
     """测试雪球港股个股信息"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("测试接口: stock_individual_basic_info_hk_xq (雪球)")
-    print("="*80)
+    print("=" * 80)
 
     try:
         test_symbol = "00700"
@@ -107,23 +109,23 @@ def test_stock_individual_info_hk():
 
 def main():
     """主测试函数"""
-    print("="*80)
+    print("=" * 80)
     print("AKShare 港股接口测试")
     print(f"测试时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("="*80)
+    print("=" * 80)
 
     results = {}
 
     # 测试各个接口
-    results['stock_hk_spot'] = test_stock_hk_spot()
-    results['stock_hk_daily'] = test_stock_hk_daily()
-    results['stock_hk_spot_em'] = test_stock_hk_spot_em()
-    results['stock_individual_basic_info_hk_xq'] = test_stock_individual_info_hk()
+    results["stock_hk_spot"] = test_stock_hk_spot()
+    results["stock_hk_daily"] = test_stock_hk_daily()
+    results["stock_hk_spot_em"] = test_stock_hk_spot_em()
+    results["stock_individual_basic_info_hk_xq"] = test_stock_individual_info_hk()
 
     # 总结
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("测试总结")
-    print("="*80)
+    print("=" * 80)
 
     for api_name, (success, _) in results.items():
         status = "成功" if success else "失败"
@@ -137,4 +139,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

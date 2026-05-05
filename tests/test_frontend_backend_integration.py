@@ -21,10 +21,7 @@ def test_frontend_backend_integration():
     # 1. 登录
     print("🔐 登录中...")
     try:
-        login_response = requests.post(f"{base_url}/api/auth/login", json={
-            "username": "admin",
-            "password": "admin123"
-        }, timeout=10)
+        login_response = requests.post(f"{base_url}/api/auth/login", json={"username": "admin", "password": "admin123"}, timeout=10)
 
         if login_response.status_code != 200:
             print(f"❌ 登录失败: {login_response.status_code}")
@@ -55,16 +52,13 @@ def test_frontend_backend_integration():
             "include_risk": True,
             "language": "zh",
             "quick_analysis_model": "qwen-turbo",
-            "deep_analysis_model": "qwen-plus"
-        }
+            "deep_analysis_model": "qwen-plus",
+        },
     }
 
     try:
         submit_start = time.time()
-        submit_response = requests.post(f"{base_url}/api/analysis/single",
-                                      json=analysis_request,
-                                      headers=headers,
-                                      timeout=10)
+        submit_response = requests.post(f"{base_url}/api/analysis/single", json=analysis_request, headers=headers, timeout=10)
 
         submit_time = time.time() - submit_start
         print(f"⏱️ 任务提交耗时: {submit_time:.2f}秒")
@@ -102,9 +96,7 @@ def test_frontend_backend_integration():
     print("\n🔍 查询任务状态...")
 
     try:
-        status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status",
-                                     headers=headers,
-                                     timeout=10)
+        status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", headers=headers, timeout=10)
 
         if status_response.status_code != 200:
             print(f"❌ 状态查询失败: {status_response.status_code}")
@@ -140,9 +132,7 @@ def test_frontend_backend_integration():
     print("\n📋 测试任务列表...")
 
     try:
-        tasks_response = requests.get(f"{base_url}/api/analysis/tasks",
-                                    headers=headers,
-                                    timeout=10)
+        tasks_response = requests.get(f"{base_url}/api/analysis/tasks", headers=headers, timeout=10)
 
         if tasks_response.status_code != 200:
             print(f"❌ 任务列表查询失败: {tasks_response.status_code}")
@@ -175,6 +165,7 @@ def test_frontend_backend_integration():
         print("⚠️ API响应较慢，可能需要优化")
 
     return True
+
 
 if __name__ == "__main__":
     print(f"🚀 开始集成测试: {time.strftime('%Y-%m-%d %H:%M:%S')}")

@@ -12,6 +12,7 @@ from datetime import datetime
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def demo_database_config_fixes():
     """
     演示数据库配置修复
@@ -28,24 +29,25 @@ def demo_database_config_fixes():
     print("\n🔍 检查配置文件:")
 
     # 检查.env文件
-    env_path = os.path.join(project_root, '.env')
+    env_path = os.path.join(project_root, ".env")
     if os.path.exists(env_path):
         print(f"  ✅ 找到配置文件: {env_path}")
-        with open(env_path, encoding='utf-8') as f:
+        with open(env_path, encoding="utf-8") as f:
             content = f.read()
-            if 'MONGODB_HOST' in content or 'MONGODB_CONNECTION_STRING' in content:
+            if "MONGODB_HOST" in content or "MONGODB_CONNECTION_STRING" in content:
                 print("  ✅ MongoDB配置已设置")
-            if 'REDIS_HOST' in content or 'REDIS_CONNECTION_STRING' in content:
+            if "REDIS_HOST" in content or "REDIS_CONNECTION_STRING" in content:
                 print("  ✅ Redis配置已设置")
     else:
         print(f"  ⚠️ 配置文件不存在: {env_path}")
 
     # 检查database_config.py
-    config_path = os.path.join(project_root, 'tradingagents', 'config', 'database_config.py')
+    config_path = os.path.join(project_root, "tradingagents", "config", "database_config.py")
     if os.path.exists(config_path):
         print("  ✅ 找到统一配置管理: database_config.py")
     else:
         print("  ⚠️ 统一配置管理文件不存在")
+
 
 def demo_fallback_mechanism():
     """
@@ -61,23 +63,23 @@ def demo_fallback_mechanism():
         status = check_service_status()
 
         for key, value in status.items():
-            if key == 'mongodb_status':
-                icon = "✅" if value == 'connected' else "⚠️" if value == 'disconnected' else "❌"
+            if key == "mongodb_status":
+                icon = "✅" if value == "connected" else "⚠️" if value == "disconnected" else "❌"
                 print(f"  {icon} MongoDB: {value}")
-            elif key == 'unified_api_status':
-                icon = "✅" if value == 'available' else "⚠️" if value == 'limited' else "❌"
+            elif key == "unified_api_status":
+                icon = "✅" if value == "available" else "⚠️" if value == "limited" else "❌"
                 print(f"  {icon} 统一数据接口: {value}")
 
         print("\n🔍 2. 测试股票查询（展示降级过程）:")
-        test_codes = ['000001', '600000']
+        test_codes = ["000001", "600000"]
 
         for code in test_codes:
             print(f"\n  📊 查询股票 {code}:")
             result = get_stock_info(code)
 
-            if 'error' in result:
+            if "error" in result:
                 print(f"    ❌ 查询失败: {result['error']}")
-                if 'suggestion' in result:
+                if "suggestion" in result:
                     print(f"    💡 建议: {result['suggestion']}")
             else:
                 print(f"    ✅ 查询成功: {result.get('name')}")
@@ -87,7 +89,7 @@ def demo_fallback_mechanism():
         print("\n📈 3. 测试市场概览:")
         summary = get_market_summary()
 
-        if 'error' in summary:
+        if "error" in summary:
             print(f"  ❌ 获取失败: {summary['error']}")
         else:
             print(f"  ✅ 总股票数: {summary.get('total_count', 0):,}")
@@ -100,6 +102,7 @@ def demo_fallback_mechanism():
         print("💡 请确保所有依赖文件都已正确创建")
     except Exception as e:
         print(f"❌ 演示过程中出错: {e}")
+
 
 def demo_configuration_benefits():
     """
@@ -116,12 +119,13 @@ def demo_configuration_benefits():
         ("🛠️ 易于维护", "统一的配置管理，便于运维和部署"),
         ("🔍 错误诊断", "详细的状态检查和错误提示"),
         ("💾 自动缓存", "从API获取的数据自动缓存到MongoDB"),
-        ("🎯 性能优化", "优先使用本地数据库，减少网络请求")
+        ("🎯 性能优化", "优先使用本地数据库，减少网络请求"),
     ]
 
     for icon_title, description in benefits:
         print(f"\n{icon_title}:")
         print(f"  {description}")
+
 
 def demo_usage_scenarios():
     """
@@ -134,34 +138,27 @@ def demo_usage_scenarios():
         {
             "title": "🏢 生产环境",
             "description": "MongoDB正常运行，提供最佳性能",
-            "config": "MONGODB_CONNECTION_STRING=mongodb://prod-server:27017/tradingagents"
+            "config": "MONGODB_CONNECTION_STRING=mongodb://prod-server:27017/tradingagents",
         },
         {
             "title": "🧪 测试环境",
             "description": "使用本地MongoDB进行开发测试",
-            "config": "MONGODB_CONNECTION_STRING=mongodb://localhost:27017/test_db"
+            "config": "MONGODB_CONNECTION_STRING=mongodb://localhost:27017/test_db",
         },
         {
             "title": "☁️ 云端部署",
             "description": "使用云数据库服务",
-            "config": "MONGODB_CONNECTION_STRING=mongodb+srv://user:pass@cluster.mongodb.net/db"
+            "config": "MONGODB_CONNECTION_STRING=mongodb+srv://user:pass@cluster.mongodb.net/db",
         },
-        {
-            "title": "🔧 开发环境",
-            "description": "MongoDB未配置，自动使用Tushare数据接口",
-            "config": "# MONGODB_CONNECTION_STRING 未设置"
-        },
-        {
-            "title": "🌐 离线模式",
-            "description": "网络受限时使用缓存数据",
-            "config": "使用本地文件缓存作为最后降级方案"
-        }
+        {"title": "🔧 开发环境", "description": "MongoDB未配置，自动使用Tushare数据接口", "config": "# MONGODB_CONNECTION_STRING 未设置"},
+        {"title": "🌐 离线模式", "description": "网络受限时使用缓存数据", "config": "使用本地文件缓存作为最后降级方案"},
     ]
 
     for scenario in scenarios:
         print(f"\n{scenario['title']}:")
         print(f"  📝 描述: {scenario['description']}")
         print(f"  ⚙️ 配置: {scenario['config']}")
+
 
 def demo_migration_guide():
     """
@@ -179,7 +176,7 @@ def demo_migration_guide():
         "4. 📝 更新应用代码使用新的API接口",
         "5. 🧪 运行测试验证降级机制",
         "6. 🚀 部署到生产环境",
-        "7. 📊 监控服务状态和性能"
+        "7. 📊 监控服务状态和性能",
     ]
 
     for step in steps:
@@ -192,11 +189,12 @@ def demo_migration_guide():
         "📊 监控数据源的可用性",
         "💾 定期备份MongoDB数据",
         "🔍 使用日志记录关键操作",
-        "⚡ 优化查询性能和缓存策略"
+        "⚡ 优化查询性能和缓存策略",
     ]
 
     for practice in practices:
         print(f"  {practice}")
+
 
 def main():
     """
@@ -229,7 +227,7 @@ def main():
             "tradingagents/api/stock_api.py - 便捷API接口",
             "examples/stock_query_examples.py - 使用示例",
             "tests/test_stock_data_service.py - 测试程序",
-            ".env - 数据库配置文件"
+            ".env - 数据库配置文件",
         ]
 
         for file_info in files:
@@ -240,7 +238,9 @@ def main():
     except Exception as e:
         print(f"\n❌ 演示过程中出错: {e}")
         import traceback
+
         traceback.print_exc()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

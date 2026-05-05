@@ -1,6 +1,7 @@
 """
 测试5个研究深度级别的配置
 """
+
 import pytest
 
 from app.services.simple_analysis_service import create_analysis_config
@@ -17,7 +18,7 @@ class TestResearchDepth5Levels:
             quick_model="qwen-turbo",
             deep_model="qwen-plus",
             llm_provider="dashscope",
-            market_type="A股"
+            market_type="A股",
         )
 
         assert config["max_debate_rounds"] == 1
@@ -35,7 +36,7 @@ class TestResearchDepth5Levels:
             quick_model="qwen-turbo",
             deep_model="qwen-plus",
             llm_provider="dashscope",
-            market_type="A股"
+            market_type="A股",
         )
 
         assert config["max_debate_rounds"] == 1
@@ -53,7 +54,7 @@ class TestResearchDepth5Levels:
             quick_model="qwen-plus",
             deep_model="qwen-max",
             llm_provider="dashscope",
-            market_type="A股"
+            market_type="A股",
         )
 
         assert config["max_debate_rounds"] == 1
@@ -71,7 +72,7 @@ class TestResearchDepth5Levels:
             quick_model="qwen-plus",
             deep_model="qwen-max",
             llm_provider="dashscope",
-            market_type="A股"
+            market_type="A股",
         )
 
         assert config["max_debate_rounds"] == 2  # 深度分析增加辩论轮次
@@ -89,7 +90,7 @@ class TestResearchDepth5Levels:
             quick_model="qwen-max",
             deep_model="qwen-max",
             llm_provider="dashscope",
-            market_type="A股"
+            market_type="A股",
         )
 
         assert config["max_debate_rounds"] == 3  # 全面分析最多辩论轮次
@@ -107,7 +108,7 @@ class TestResearchDepth5Levels:
             quick_model="qwen-plus",
             deep_model="qwen-max",
             llm_provider="dashscope",
-            market_type="A股"
+            market_type="A股",
         )
 
         # 应该使用标准分析的配置
@@ -128,15 +129,17 @@ class TestResearchDepth5Levels:
                 quick_model="qwen-plus",
                 deep_model="qwen-max",
                 llm_provider="dashscope",
-                market_type="A股"
+                market_type="A股",
             )
-            configs.append({
-                "depth": depth,
-                "debate_rounds": config["max_debate_rounds"],
-                "risk_rounds": config["max_risk_discuss_rounds"],
-                "memory": config["memory_enabled"],
-                "online": config["online_tools"]
-            })
+            configs.append(
+                {
+                    "depth": depth,
+                    "debate_rounds": config["max_debate_rounds"],
+                    "risk_rounds": config["max_risk_discuss_rounds"],
+                    "memory": config["memory_enabled"],
+                    "online": config["online_tools"],
+                }
+            )
 
         # 验证辩论轮次递增（除了前3级都是1轮）
         assert configs[0]["debate_rounds"] == 1  # 快速
@@ -183,4 +186,3 @@ class TestAnalysisParametersDefault:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_cli_imports():
     """测试CLI模块导入"""
     print("🔬 测试CLI模块导入")
@@ -36,8 +37,10 @@ def test_cli_imports():
     except Exception as e:
         print(f"❌ CLI模块导入失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cli_config():
     """测试CLI配置"""
@@ -74,8 +77,10 @@ def test_cli_config():
     except Exception as e:
         print(f"❌ CLI配置测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cli_graph_creation():
     """测试CLI图创建"""
@@ -93,22 +98,24 @@ def test_cli_graph_creation():
 
         print("🔧 创建测试配置...")
         config = DEFAULT_CONFIG.copy()
-        config.update({
-            "llm_provider": "deepseek",
-            "deep_think_llm": "deepseek-chat",
-            "quick_think_llm": "deepseek-chat",
-            "max_debate_rounds": 1,
-            "max_risk_discuss_rounds": 1,
-            "online_tools": False,  # 关闭在线工具，减少复杂度
-            "memory_enabled": False
-        })
+        config.update(
+            {
+                "llm_provider": "deepseek",
+                "deep_think_llm": "deepseek-chat",
+                "quick_think_llm": "deepseek-chat",
+                "max_debate_rounds": 1,
+                "max_risk_discuss_rounds": 1,
+                "online_tools": False,  # 关闭在线工具，减少复杂度
+                "memory_enabled": False,
+            }
+        )
 
         print("📊 创建交易分析图...")
         # 使用CLI的方式创建图
         TradingAgentsGraph(
             ["market"],  # 只使用市场分析师
             config=config,
-            debug=True
+            debug=True,
         )
 
         print("✅ CLI图创建成功")
@@ -117,8 +124,10 @@ def test_cli_graph_creation():
     except Exception as e:
         print(f"❌ CLI图创建失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cli_cost_tracking():
     """测试CLI成本跟踪"""
@@ -129,12 +138,7 @@ def test_cli_cost_tracking():
         from tradingagents.config.config_manager import config_manager, token_tracker
 
         print("🔧 测试成本计算...")
-        cost = config_manager.calculate_cost(
-            provider="deepseek",
-            model_name="deepseek-chat",
-            input_tokens=1000,
-            output_tokens=500
-        )
+        cost = config_manager.calculate_cost(provider="deepseek", model_name="deepseek-chat", input_tokens=1000, output_tokens=500)
         print(f"   DeepSeek成本: ¥{cost:.6f}")
 
         if cost > 0:
@@ -147,7 +151,7 @@ def test_cli_cost_tracking():
                 input_tokens=100,
                 output_tokens=50,
                 session_id="cli_test",
-                analysis_type="cli_test"
+                analysis_type="cli_test",
             )
 
             if usage_record and usage_record.cost > 0:
@@ -164,8 +168,10 @@ def test_cli_cost_tracking():
     except Exception as e:
         print(f"❌ CLI成本跟踪测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cli_help():
     """测试CLI帮助功能"""
@@ -185,8 +191,10 @@ def test_cli_help():
     except Exception as e:
         print(f"❌ CLI帮助功能测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -233,6 +241,7 @@ def main():
 
     print("\n🎯 测试完成！")
     return overall_success
+
 
 if __name__ == "__main__":
     success = main()

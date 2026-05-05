@@ -38,4 +38,3 @@ def test_redis_url_builds(monkeypatch):
     monkeypatch.setenv("REDIS_PASSWORD", "p@ss")
     s = Settings()
     assert s.REDIS_URL == "redis://:p@ss@127.0.0.1:6379/2"
-

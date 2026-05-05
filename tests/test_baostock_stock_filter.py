@@ -2,6 +2,7 @@
 """
 测试BaoStock股票过滤功能
 """
+
 import os
 import sys
 
@@ -11,10 +12,8 @@ import logging
 from datetime import datetime, timedelta
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 def test_baostock_stock_types():
     """测试BaoStock返回的不同类型数据"""
@@ -27,7 +26,7 @@ def test_baostock_stock_types():
 
         # 登录BaoStock
         lg = bs.login()
-        if lg.error_code != '0':
+        if lg.error_code != "0":
             print(f"❌ BaoStock登录失败: {lg.error_msg}")
             return
 
@@ -42,13 +41,13 @@ def test_baostock_stock_types():
         print(f"返回消息: {rs.error_msg}")
         print(f"字段列表: {rs.fields}")
 
-        if rs.error_code == '0':
+        if rs.error_code == "0":
             # 解析数据并按类型分类
             type_counts = {}
             stock_samples = {}
             count = 0
 
-            while (rs.error_code == '0') & rs.next():
+            while (rs.error_code == "0") & rs.next():
                 row = rs.get_row_data()
                 count += 1
 
@@ -72,16 +71,10 @@ def test_baostock_stock_types():
                     break
 
             print(f"\n📊 数据类型统计 (前{count}条记录):")
-            type_names = {
-                '1': '股票',
-                '2': '指数',
-                '3': '其它',
-                '4': '可转债',
-                '5': 'ETF'
-            }
+            type_names = {"1": "股票", "2": "指数", "3": "其它", "4": "可转债", "5": "ETF"}
 
             for stock_type, count in type_counts.items():
-                type_name = type_names.get(stock_type, f'未知类型({stock_type})')
+                type_name = type_names.get(stock_type, f"未知类型({stock_type})")
                 print(f"   类型{stock_type} ({type_name}): {count}条")
 
                 # 显示样本
@@ -97,7 +90,9 @@ def test_baostock_stock_types():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 def test_baostock_adapter_stock_filter():
     """测试修复后的BaoStock适配器股票过滤"""
@@ -127,16 +122,16 @@ def test_baostock_adapter_stock_filter():
             # 检查是否都是股票
             print("\n   前10条记录:")
             for _i, row in df.head(10).iterrows():
-                symbol = row.get('symbol', 'N/A')
-                name = row.get('name', 'N/A')
-                ts_code = row.get('ts_code', 'N/A')
+                symbol = row.get("symbol", "N/A")
+                name = row.get("name", "N/A")
+                ts_code = row.get("ts_code", "N/A")
                 print(f"     {symbol} - {name} - {ts_code}")
 
             # 检查股票代码格式
             print("\n   📊 股票代码分析:")
-            if 'symbol' in df.columns:
+            if "symbol" in df.columns:
                 # 分析股票代码前缀
-                prefixes = df['symbol'].str[:3].value_counts()
+                prefixes = df["symbol"].str[:3].value_counts()
                 print("     股票代码前缀分布:")
                 for prefix, count in prefixes.head(10).items():
                     print(f"       {prefix}xxx: {count}只")
@@ -158,22 +153,22 @@ def test_baostock_adapter_stock_filter():
             # 显示前几条记录
             print("   前10条记录:")
             for _i, row in basic_df.head(10).iterrows():
-                ts_code = row.get('ts_code', 'N/A')
-                name = row.get('name', 'N/A')
-                pe = row.get('pe', 'N/A')
-                pb = row.get('pb', 'N/A')
-                close = row.get('close', 'N/A')
+                ts_code = row.get("ts_code", "N/A")
+                name = row.get("name", "N/A")
+                pe = row.get("pe", "N/A")
+                pb = row.get("pb", "N/A")
+                close = row.get("close", "N/A")
                 print(f"     {ts_code} - {name}")
                 print(f"       PE: {pe}, PB: {pb}, 收盘价: {close}")
 
             # 统计有效数据
-            pe_count = basic_df['pe'].notna().sum() if 'pe' in basic_df.columns else 0
-            pb_count = basic_df['pb'].notna().sum() if 'pb' in basic_df.columns else 0
-            close_count = basic_df['close'].notna().sum() if 'close' in basic_df.columns else 0
+            pe_count = basic_df["pe"].notna().sum() if "pe" in basic_df.columns else 0
+            pb_count = basic_df["pb"].notna().sum() if "pb" in basic_df.columns else 0
+            close_count = basic_df["close"].notna().sum() if "close" in basic_df.columns else 0
 
             # 统计非零数据
-            pe_nonzero = (basic_df['pe'] > 0).sum() if 'pe' in basic_df.columns else 0
-            pb_nonzero = (basic_df['pb'] > 0).sum() if 'pb' in basic_df.columns else 0
+            pe_nonzero = (basic_df["pe"] > 0).sum() if "pe" in basic_df.columns else 0
+            pb_nonzero = (basic_df["pb"] > 0).sum() if "pb" in basic_df.columns else 0
 
             print("\n   📈 数据统计:")
             print(f"     有PE数据的股票: {pe_count}只 (非零: {pe_nonzero}只)")
@@ -186,7 +181,9 @@ def test_baostock_adapter_stock_filter():
     except Exception as e:
         print(f"❌ 适配器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_baostock_stock_types()

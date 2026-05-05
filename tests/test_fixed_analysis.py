@@ -29,15 +29,9 @@ def test_fixed_analysis():
 
         # 2. 登录获取token
         print("\n2. 登录获取token...")
-        login_data = {
-            "username": "admin",
-            "password": "admin123"
-        }
+        login_data = {"username": "admin", "password": "admin123"}
 
-        login_response = requests.post(
-            f"{base_url}/api/auth/login",
-            json=login_data
-        )
+        login_response = requests.post(f"{base_url}/api/auth/login", json=login_data)
 
         if login_response.status_code == 200:
             login_result = login_response.json()
@@ -61,21 +55,14 @@ def test_fixed_analysis():
                 "include_risk": False,
                 "language": "zh-CN",
                 "quick_analysis_model": "qwen-turbo",
-                "deep_analysis_model": "qwen-max"
-            }
+                "deep_analysis_model": "qwen-max",
+            },
         }
 
         # 使用获取到的token
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}"
-        }
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
 
-        response = requests.post(
-            f"{base_url}/api/analysis/single",
-            json=analysis_request,
-            headers=headers
-        )
+        response = requests.post(f"{base_url}/api/analysis/single", json=analysis_request, headers=headers)
 
         if response.status_code == 200:
             result = response.json()
@@ -92,10 +79,7 @@ def test_fixed_analysis():
         start_time = time.time()
 
         while time.time() - start_time < max_wait_time:
-            status_response = requests.get(
-                f"{base_url}/api/analysis/tasks/{task_id}/status",
-                headers=headers
-            )
+            status_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/status", headers=headers)
 
             if status_response.status_code == 200:
                 status_data = status_response.json()
@@ -128,7 +112,7 @@ def test_fixed_analysis():
                                 # 检查市场分析报告内容
                                 market_report = reports_dir / "market_report.md"
                                 if market_report.exists():
-                                    with open(market_report, encoding='utf-8') as f:
+                                    with open(market_report, encoding="utf-8") as f:
                                         content = f.read()
                                         if len(content) > 100:
                                             print(f"✅ 市场分析报告有内容 (长度: {len(content)})")
@@ -152,10 +136,7 @@ def test_fixed_analysis():
 
                     # 6. 获取分析结果
                     print("\n6. 获取分析结果...")
-                    result_response = requests.get(
-                        f"{base_url}/api/analysis/tasks/{task_id}/result",
-                        headers=headers
-                    )
+                    result_response = requests.get(f"{base_url}/api/analysis/tasks/{task_id}/result", headers=headers)
 
                     if result_response.status_code == 200:
                         result_data = result_response.json()
@@ -186,6 +167,7 @@ def test_fixed_analysis():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = test_fixed_analysis()

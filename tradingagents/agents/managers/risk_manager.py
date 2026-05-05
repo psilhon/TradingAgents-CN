@@ -88,7 +88,7 @@ def create_risk_manager(llm, memory):
                 # ⏱️ 记录结束时间
                 elapsed_time = time.time() - start_time
 
-                if response and hasattr(response, 'content') and response.content:
+                if response and hasattr(response, "content") and response.content:
                     response_content = response.content.strip()
 
                     # 📊 统计响应信息
@@ -97,10 +97,10 @@ def create_risk_manager(llm, memory):
 
                     # 尝试获取实际的 token 使用情况（如果 LLM 返回了）
                     usage_info = ""
-                    if hasattr(response, 'response_metadata') and response.response_metadata:
+                    if hasattr(response, "response_metadata") and response.response_metadata:
                         metadata = response.response_metadata
-                        if 'token_usage' in metadata:
-                            token_usage = metadata['token_usage']
+                        if "token_usage" in metadata:
+                            token_usage = metadata["token_usage"]
                             usage_info = f", 实际Token: 输入={token_usage.get('prompt_tokens', 'N/A')} 输出={token_usage.get('completion_tokens', 'N/A')} 总计={token_usage.get('total_tokens', 'N/A')}"  # noqa: E501
 
                     logger.info(f"⏱️ [Risk Manager] LLM调用耗时: {elapsed_time:.2f}秒")

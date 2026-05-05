@@ -2,6 +2,7 @@
 """
 测试分析报告API功能
 """
+
 from datetime import datetime
 
 import requests
@@ -9,16 +10,9 @@ import requests
 
 def login_and_get_token(base_url):
     """登录并获取token"""
-    login_data = {
-        "username": "admin",
-        "password": "admin123"
-    }
+    login_data = {"username": "admin", "password": "admin123"}
 
-    response = requests.post(
-        f"{base_url}/api/auth/login",
-        json=login_data,
-        headers={"Content-Type": "application/json"}
-    )
+    response = requests.post(f"{base_url}/api/auth/login", json=login_data, headers={"Content-Type": "application/json"})
 
     if response.status_code == 200:
         result = response.json()
@@ -34,6 +28,7 @@ def login_and_get_token(base_url):
         print(f"   错误信息: {response.text}")
         return None
 
+
 def test_reports_api():
     """测试报告API功能"""
     base_url = "http://localhost:8000"
@@ -46,10 +41,7 @@ def test_reports_api():
         return False
 
     # 使用真实token
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}"
-    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
 
     try:
         print("🧪 测试分析报告API功能")
@@ -66,10 +58,7 @@ def test_reports_api():
 
         # 2. 获取报告列表
         print("\n2. 获取报告列表...")
-        reports_response = requests.get(
-            f"{base_url}/api/reports/list",
-            headers=headers
-        )
+        reports_response = requests.get(f"{base_url}/api/reports/list", headers=headers)
 
         if reports_response.status_code == 200:
             reports_data = reports_response.json()
@@ -80,11 +69,11 @@ def test_reports_api():
             print(f"   报告数量: {len(reports_data['data']['reports'])}")
 
             # 显示前几个报告
-            reports = reports_data['data']['reports']
+            reports = reports_data["data"]["reports"]
             if reports:
                 print("\n📋 前3个报告:")
                 for i, report in enumerate(reports[:3]):
-                    print(f"   {i+1}. {report['stock_code']} - {report['analysis_date']}")
+                    print(f"   {i + 1}. {report['stock_code']} - {report['analysis_date']}")
                     print(f"      ID: {report['id']}")
                     print(f"      状态: {report['status']}")
                     print(f"      分析师: {', '.join(report['analysts'])}")
@@ -96,22 +85,19 @@ def test_reports_api():
                     print("\n3. 获取报告详情...")
                     print(f"   测试报告ID: {test_report['id']}")
 
-                    detail_response = requests.get(
-                        f"{base_url}/api/reports/{test_report['id']}/detail",
-                        headers=headers
-                    )
+                    detail_response = requests.get(f"{base_url}/api/reports/{test_report['id']}/detail", headers=headers)
 
                     if detail_response.status_code == 200:
                         detail_data = detail_response.json()
                         print("✅ 报告详情获取成功")
 
-                        report_detail = detail_data['data']
+                        report_detail = detail_data["data"]
                         print(f"   股票代码: {report_detail['stock_symbol']}")
                         print(f"   分析日期: {report_detail['analysis_date']}")
                         print(f"   摘要长度: {len(report_detail.get('summary', ''))}")
 
                         # 检查报告模块
-                        reports_content = report_detail.get('reports', {})
+                        reports_content = report_detail.get("reports", {})
                         print(f"   报告模块数量: {len(reports_content)}")
                         for module_name, content in reports_content.items():
                             if isinstance(content, str):
@@ -122,8 +108,7 @@ def test_reports_api():
                         # 4. 测试下载报告
                         print("\n4. 测试下载报告...")
                         download_response = requests.get(
-                            f"{base_url}/api/reports/{test_report['id']}/download?format=markdown",
-                            headers=headers
+                            f"{base_url}/api/reports/{test_report['id']}/download?format=markdown", headers=headers
                         )
 
                         if download_response.status_code == 200:
@@ -133,7 +118,7 @@ def test_reports_api():
 
                             # 保存下载的文件用于检查
                             filename = f"test_download_{test_report['stock_code']}.md"
-                            with open(filename, 'wb') as f:
+                            with open(filename, "wb") as f:
                                 f.write(download_response.content)
                             print(f"   已保存到: {filename}")
                         else:
@@ -147,8 +132,7 @@ def test_reports_api():
                             print(f"   测试模块: {module_name}")
 
                             module_response = requests.get(
-                                f"{base_url}/api/reports/{test_report['id']}/content/{module_name}",
-                                headers=headers
+                                f"{base_url}/api/reports/{test_report['id']}/content/{module_name}", headers=headers
                             )
 
                             if module_response.status_code == 200:
@@ -171,10 +155,7 @@ def test_reports_api():
 
         # 6. 测试搜索功能
         print("\n6. 测试搜索功能...")
-        search_response = requests.get(
-            f"{base_url}/api/reports/list?search_keyword=000001",
-            headers=headers
-        )
+        search_response = requests.get(f"{base_url}/api/reports/list?search_keyword=000001", headers=headers)
 
         if search_response.status_code == 200:
             search_data = search_response.json()
@@ -189,8 +170,10 @@ def test_reports_api():
     except Exception as e:
         print(f"❌ 测试过程中出现异常: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_reports_with_filters():
     """测试带筛选条件的报告查询"""
@@ -202,10 +185,7 @@ def test_reports_with_filters():
         print("❌ 无法获取token，跳过筛选测试")
         return
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}"
-    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
 
     print("\n🔍 测试筛选功能...")
 
@@ -214,23 +194,21 @@ def test_reports_with_filters():
         {"status_filter": "completed"},
         {"start_date": "2025-08-01", "end_date": "2025-08-31"},
         {"stock_code": "000001"},
-        {"page": 1, "page_size": 5}
+        {"page": 1, "page_size": 5},
     ]
 
     for i, filter_params in enumerate(filters):
-        print(f"\n   测试筛选 {i+1}: {filter_params}")
+        print(f"\n   测试筛选 {i + 1}: {filter_params}")
 
         params = "&".join([f"{k}={v}" for k, v in filter_params.items()])
-        response = requests.get(
-            f"{base_url}/api/reports/list?{params}",
-            headers=headers
-        )
+        response = requests.get(f"{base_url}/api/reports/list?{params}", headers=headers)
 
         if response.status_code == 200:
             data = response.json()
             print(f"   ✅ 筛选成功，结果数量: {len(data['data']['reports'])}")
         else:
             print(f"   ❌ 筛选失败: {response.status_code}")
+
 
 if __name__ == "__main__":
     print(f"开始时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

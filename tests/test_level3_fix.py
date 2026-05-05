@@ -11,6 +11,7 @@ import time
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_level3_analysis():
     """测试级别3分析是否还会死循环"""
     print("🧪 测试级别3分析修复效果")
@@ -36,10 +37,7 @@ def test_level3_analysis():
         # 创建分析请求
         request = SingleAnalysisRequest(
             stock_code=test_ticker,
-            parameters=AnalysisParameters(
-                research_depth=research_depth,
-                selected_analysts=["market", "fundamentals"]
-            )
+            parameters=AnalysisParameters(research_depth=research_depth, selected_analysts=["market", "fundamentals"]),
         )
 
         # 设置超时时间（5分钟）
@@ -49,11 +47,7 @@ def test_level3_analysis():
         print("🚀 开始分析...")
 
         # 执行分析 - 使用同步方法
-        result = service._run_analysis_sync(
-            task_id="test_level3_fix",
-            user_id="test_user",
-            request=request
-        )
+        result = service._run_analysis_sync(task_id="test_level3_fix", user_id="test_user", request=request)
 
         end_time = time.time()
         elapsed = end_time - start_time
@@ -62,16 +56,16 @@ def test_level3_analysis():
         print(f"⏱️ 耗时: {elapsed:.1f}秒")
 
         # 检查结果
-        if result and 'decision' in result:
-            decision = result['decision']
+        if result and "decision" in result:
+            decision = result["decision"]
             print("📈 分析结果:")
             print(f"  动作: {decision.get('action', 'N/A')}")
             print(f"  置信度: {decision.get('confidence', 0):.1%}")
             print(f"  风险评分: {decision.get('risk_score', 0):.1%}")
 
             # 检查是否有基本面报告
-            if 'state' in result and 'fundamentals_report' in result['state']:
-                fundamentals_report = result['state']['fundamentals_report']
+            if "state" in result and "fundamentals_report" in result["state"]:
+                fundamentals_report = result["state"]["fundamentals_report"]
                 if fundamentals_report:
                     print(f"📊 基本面报告长度: {len(fundamentals_report)}字符")
                     print("✅ 基本面分析正常完成")
@@ -79,8 +73,8 @@ def test_level3_analysis():
                     print("⚠️ 基本面报告为空")
 
             # 检查工具调用次数
-            if 'state' in result:
-                tool_call_count = result['state'].get('fundamentals_tool_call_count', 0)
+            if "state" in result:
+                tool_call_count = result["state"].get("fundamentals_tool_call_count", 0)
                 print(f"🔧 基本面分析师工具调用次数: {tool_call_count}")
                 if tool_call_count >= 3:
                     print("⚠️ 达到最大工具调用次数限制，修复机制生效")
@@ -103,6 +97,7 @@ def test_level3_analysis():
             print("⚠️ 可能仍存在死循环问题（耗时超过1分钟）")
 
         return False
+
 
 if __name__ == "__main__":
     success = test_level3_analysis()

@@ -10,7 +10,7 @@ from pathlib import Path
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('default')
+logger = get_logger("default")
 
 
 def cleanup_directories():
@@ -30,13 +30,7 @@ def cleanup_directories():
     ]
 
     # 需要清理的文件模式
-    cleanup_patterns = [
-        "*.pyc",
-        "*.pyo",
-        "*.pyd",
-        ".DS_Store",
-        "Thumbs.db"
-    ]
+    cleanup_patterns = ["*.pyc", "*.pyo", "*.pyd", ".DS_Store", "Thumbs.db"]
 
     cleaned_count = 0
 
@@ -62,6 +56,7 @@ def cleanup_directories():
                 logger.error(f"❌ 删除失败 {file_path}: {e}")
 
     return cleaned_count
+
 
 def update_gitignore():
     """更新.gitignore文件"""
@@ -103,7 +98,7 @@ def update_gitignore():
         # 读取现有内容
         existing_content = ""
         if gitignore_path.exists():
-            with open(gitignore_path, encoding='utf-8') as f:
+            with open(gitignore_path, encoding="utf-8") as f:
                 existing_content = f.read()
 
         # 检查哪些规则需要添加
@@ -114,7 +109,7 @@ def update_gitignore():
 
         if new_rules:
             # 添加新规则
-            with open(gitignore_path, 'a', encoding='utf-8') as f:
+            with open(gitignore_path, "a", encoding="utf-8") as f:
                 f.write("\n# 自动清理脚本添加的规则\n")
                 for rule in new_rules:
                     f.write(f"{rule}\n")
@@ -125,6 +120,7 @@ def update_gitignore():
 
     except Exception as e:
         logger.error(f"❌ 更新.gitignore失败: {e}")
+
 
 def analyze_upstream_contribution():
     """分析upstream_contribution目录"""
@@ -155,6 +151,7 @@ def analyze_upstream_contribution():
     logger.info("   - 如果不计划向上游贡献，可以删除")
 
     return len(batch_dirs) + len(json_files)
+
 
 def main():
     """主函数"""
@@ -188,6 +185,7 @@ def main():
     logger.info("   1. 检查git状态: git status")
     logger.info("   2. 提交清理更改: git add . && git commit -m '清理不必要的目录和文件'")
     logger.info("   3. 如果不需要upstream_contribution，可以手动删除")
+
 
 if __name__ == "__main__":
     main()

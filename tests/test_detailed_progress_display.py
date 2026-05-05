@@ -12,6 +12,7 @@ import time
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_complete_analysis_flow():
     """测试完整的分析流程进度显示"""
     print("🔄 测试完整分析流程进度显示")
@@ -119,8 +120,10 @@ def test_complete_analysis_flow():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_problem_solving_effect():
     """测试问题解决效果"""
@@ -170,6 +173,7 @@ def test_problem_solving_effect():
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def test_analysis_stages():
     """测试分析阶段划分"""
     print("\n📈 测试分析阶段划分")
@@ -187,28 +191,20 @@ def test_analysis_stages():
             {
                 "name": "基础分析阶段",
                 "analysts": ["📈 市场分析师", "📊 基本面分析师", "🔍 技术分析师", "💭 情感分析师"],
-                "description": "获取和分析基础数据"
+                "description": "获取和分析基础数据",
             },
             {
                 "name": "研究团队阶段",
                 "analysts": ["🐂 Bull研究员", "🐻 Bear研究员", "⚖️ Neutral研究员", "👨‍💼 研究经理"],
-                "description": "多角度深度研究和辩论"
+                "description": "多角度深度研究和辩论",
             },
-            {
-                "name": "交易团队阶段",
-                "analysts": ["💼 交易员"],
-                "description": "制定具体投资计划"
-            },
+            {"name": "交易团队阶段", "analysts": ["💼 交易员"], "description": "制定具体投资计划"},
             {
                 "name": "风险管理阶段",
                 "analysts": ["⚠️ 风险分析师", "🛡️ 安全分析师", "⚖️ 中性分析师", "📊 投资组合经理"],
-                "description": "评估和管理投资风险"
+                "description": "评估和管理投资风险",
             },
-            {
-                "name": "决策生成阶段",
-                "analysts": ["🤖 信号处理器"],
-                "description": "生成最终投资决策"
-            }
+            {"name": "决策生成阶段", "analysts": ["🤖 信号处理器"], "description": "生成最终投资决策"},
         ]
 
         for i, stage in enumerate(stages, 1):
@@ -235,6 +231,7 @@ def test_analysis_stages():
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def main():
     """主测试函数"""
     print("🚀 开始测试详细进度显示效果")
@@ -259,15 +256,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "完整分析流程进度显示",
-        "问题解决效果验证",
-        "分析阶段划分测试"
-    ]
+    test_names = ["完整分析流程进度显示", "问题解决效果验证", "分析阶段划分测试"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -294,6 +287,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

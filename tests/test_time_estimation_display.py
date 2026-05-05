@@ -12,6 +12,7 @@ import time
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_time_estimation_display():
     """测试时间预估显示"""
     print("⏱️ 测试时间预估显示效果")
@@ -60,7 +61,7 @@ def test_time_estimation_display():
             ("💼 交易团队制定投资计划...", 0.8),
             ("💼 交易团队计划完成", 0.3),
             ("⚖️ 风险管理团队评估投资风险...", 1.0),
-            ("⚖️ 风险管理团队分析完成", 0.3)
+            ("⚖️ 风险管理团队分析完成", 0.3),
         ]
 
         total_time = 0
@@ -93,8 +94,10 @@ def test_time_estimation_display():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_user_expectation_management():
     """测试用户期望管理"""
@@ -131,6 +134,7 @@ def test_user_expectation_management():
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def test_time_estimation_scenarios():
     """测试不同时间预估场景"""
     print("\n⏰ 测试不同时间预估场景")
@@ -142,21 +146,13 @@ def test_time_estimation_scenarios():
         ui = CLIUserInterface()
 
         scenarios = [
-            {
-                "analysts": ["market"],
-                "estimated_time": "3-5分钟",
-                "description": "单个分析师，相对较快"
-            },
-            {
-                "analysts": ["market", "fundamentals"],
-                "estimated_time": "8-10分钟",
-                "description": "两个分析师，包含研究团队协作"
-            },
+            {"analysts": ["market"], "estimated_time": "3-5分钟", "description": "单个分析师，相对较快"},
+            {"analysts": ["market", "fundamentals"], "estimated_time": "8-10分钟", "description": "两个分析师，包含研究团队协作"},
             {
                 "analysts": ["market", "fundamentals", "technical", "sentiment"],
                 "estimated_time": "15-20分钟",
-                "description": "全套分析师，完整流程"
-            }
+                "description": "全套分析师，完整流程",
+            },
         ]
 
         print("📊 不同分析师组合的时间预估:")
@@ -171,9 +167,9 @@ def test_time_estimation_scenarios():
             header = f"智能分析阶段 | AI Analysis Phase (预计耗时约{scenario['estimated_time']})"
             ui.show_step_header(3, header)
 
-            if len(scenario['analysts']) > 2:
+            if len(scenario["analysts"]) > 2:
                 ui.show_user_message("💡 提示：完整分析包含多个团队深度协作，请耐心等待", "dim")
-            elif len(scenario['analysts']) > 1:
+            elif len(scenario["analysts"]) > 1:
                 ui.show_user_message("💡 提示：智能分析包含多个团队协作，请耐心等待", "dim")
             else:
                 ui.show_user_message("💡 提示：正在进行专业分析，请稍候", "dim")
@@ -186,6 +182,7 @@ def test_time_estimation_scenarios():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 def test_progress_communication():
     """测试进度沟通策略"""
@@ -217,7 +214,7 @@ def test_progress_communication():
             "✅ 📈 市场分析完成",
             "✅ 📊 基本面分析完成",
             "🔄 🔬 研究团队开始深度分析...",
-            "✅ 🔬 研究团队分析完成"
+            "✅ 🔬 研究团队分析完成",
         ]
 
         for update in progress_updates:
@@ -231,12 +228,7 @@ def test_progress_communication():
 
         # 策略4: 阶段性里程碑
         print("\n策略4: 阶段性里程碑")
-        milestones = [
-            "25% - 基础分析完成",
-            "50% - 研究团队分析完成",
-            "75% - 风险评估完成",
-            "100% - 投资决策生成完成"
-        ]
+        milestones = ["25% - 基础分析完成", "50% - 研究团队分析完成", "75% - 风险评估完成", "100% - 投资决策生成完成"]
 
         for milestone in milestones:
             print(f"   📊 {milestone}")
@@ -254,6 +246,7 @@ def test_progress_communication():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 def main():
     """主测试函数"""
@@ -282,16 +275,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "时间预估显示效果",
-        "用户期望管理",
-        "不同时间预估场景",
-        "进度沟通策略"
-    ]
+    test_names = ["时间预估显示效果", "用户期望管理", "不同时间预估场景", "进度沟通策略"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -318,6 +306,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

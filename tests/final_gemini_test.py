@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
 
+
 def test_recommended_model():
     """测试推荐的gemini-2.0-flash模型"""
     try:
@@ -26,8 +27,8 @@ def test_recommended_model():
         from tradingagents.graph.trading_graph import TradingAgentsGraph
 
         # 检查API密钥
-        google_key = os.getenv('GOOGLE_API_KEY')
-        dashscope_key = os.getenv('DASHSCOPE_API_KEY')
+        google_key = os.getenv("GOOGLE_API_KEY")
+        dashscope_key = os.getenv("DASHSCOPE_API_KEY")
 
         print("🔑 API密钥状态:")
         print(f"   Google API: {'✅ 已配置' if google_key else '❌ 未配置'}")
@@ -86,7 +87,7 @@ def test_recommended_model():
                     "market_report": "市场技术分析",
                     "fundamentals_report": "基本面分析",
                     "sentiment_report": "情绪分析",
-                    "news_report": "新闻分析"
+                    "news_report": "新闻分析",
                 }
 
                 for report_key, report_name in reports.items():
@@ -105,14 +106,17 @@ def test_recommended_model():
         except Exception as e:
             print(f"❌ 股票分析失败: {e}")
             import traceback
+
             print(traceback.format_exc())
             return False
 
     except Exception as e:
         print(f"❌ 最终验证失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def compare_models():
     """比较不同模型的建议"""
@@ -124,32 +128,28 @@ def compare_models():
             "状态": "❌ LangChain集成问题",
             "优势": "最新版本，理论性能最强",
             "劣势": "LangChain集成不稳定",
-            "推荐": "不推荐（集成问题）"
+            "推荐": "不推荐（集成问题）",
         },
         "gemini-2.5-flash": {
             "状态": "❌ LangChain集成问题",
             "优势": "最新版本，速度快",
             "劣势": "LangChain集成不稳定",
-            "推荐": "不推荐（集成问题）"
+            "推荐": "不推荐（集成问题）",
         },
         "gemini-2.0-flash": {
             "状态": "✅ 完全可用",
             "优势": "新版本，LangChain稳定，性能优秀",
             "劣势": "不是最新的2.5版本",
-            "推荐": "🏆 强烈推荐"
+            "推荐": "🏆 强烈推荐",
         },
-        "gemini-1.5-pro": {
-            "状态": "✅ 完全可用",
-            "优势": "稳定，功能强大",
-            "劣势": "版本较旧",
-            "推荐": "备选方案"
-        }
+        "gemini-1.5-pro": {"状态": "✅ 完全可用", "优势": "稳定，功能强大", "劣势": "版本较旧", "推荐": "备选方案"},
     }
 
     for model, info in models_comparison.items():
         print(f"\n🤖 {model}:")
         for key, value in info.items():
             print(f"   {key}: {value}")
+
 
 def main():
     """主函数"""
@@ -183,6 +183,7 @@ def main():
     else:
         print("❌ 验证失败")
         print("💡 建议使用gemini-1.5-pro作为备选方案")
+
 
 if __name__ == "__main__":
     main()

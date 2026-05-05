@@ -10,6 +10,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_002027_specifically():
     """专门测试002027股票代码"""
     print("🔍 002027 专项测试")
@@ -19,12 +20,14 @@ def test_002027_specifically():
 
     try:
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
         # 测试1: 数据获取
         print("\n📊 测试1: 数据获取")
         from tradingagents.dataflows.interface import get_china_stock_data_tushare
+
         data = get_china_stock_data_tushare(test_ticker, "2025-07-01", "2025-07-15")
 
         if "002021" in data:
@@ -36,6 +39,7 @@ def test_002027_specifically():
         # 测试2: 基本面分析
         print("\n💰 测试2: 基本面分析")
         from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
+
         analyzer = OptimizedChinaDataProvider()
         report = analyzer._generate_fundamentals_report(test_ticker, data)
 
@@ -74,6 +78,7 @@ def test_002027_specifically():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 if __name__ == "__main__":
     test_002027_specifically()

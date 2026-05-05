@@ -92,7 +92,7 @@ def create_research_manager(llm, memory):
         elapsed_time = time.time() - start_time
 
         # 📊 统计响应信息
-        response_length = len(response.content) if response and hasattr(response, 'content') else 0
+        response_length = len(response.content) if response and hasattr(response, "content") else 0
         estimated_output_tokens = int(response_length / 1.8)
 
         logger.info(f"⏱️ [Research Manager] LLM调用耗时: {elapsed_time:.2f}秒")

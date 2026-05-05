@@ -12,6 +12,7 @@ import time
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_cli_ui_manager():
     """测试CLI用户界面管理器"""
     print("🎨 测试CLI用户界面管理器")
@@ -55,8 +56,10 @@ def test_cli_ui_manager():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_analysis_flow_simulation():
     """模拟分析流程，测试进度显示"""
@@ -108,7 +111,7 @@ def test_analysis_flow_simulation():
             ("📈 市场分析师", "市场分析"),
             ("📊 基本面分析师", "基本面分析"),
             ("🔍 技术分析师", "技术分析"),
-            ("💭 情感分析师", "情感分析")
+            ("💭 情感分析师", "情感分析"),
         ]
 
         for analyst_name, analysis_type in analysts:
@@ -135,8 +138,10 @@ def test_analysis_flow_simulation():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_progress_vs_logging():
     """对比进度显示和日志记录"""
@@ -170,6 +175,7 @@ def test_progress_vs_logging():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         return False
+
 
 def test_user_experience():
     """测试用户体验"""
@@ -217,6 +223,7 @@ def test_user_experience():
         print(f"❌ 测试失败: {e}")
         return False
 
+
 def main():
     """主测试函数"""
     print("🚀 开始测试CLI进度显示效果")
@@ -244,16 +251,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "CLI用户界面管理器",
-        "分析流程进度显示",
-        "进度显示与日志分离",
-        "用户体验测试"
-    ]
+    test_names = ["CLI用户界面管理器", "分析流程进度显示", "进度显示与日志分离", "用户体验测试"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -275,6 +277,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

@@ -136,13 +136,6 @@ def get_model_options(provider: str, mode: str) -> list[ModelOption]:
 
 def get_known_models() -> dict[str, list[str]]:
     return {
-        provider: sorted(
-            {
-                value
-                for options in mode_options.values()
-                for _, value in options
-                if value != "custom"
-            }
-        )
+        provider: sorted({value for options in mode_options.values() for _, value in options if value != "custom"})
         for provider, mode_options in MODEL_OPTIONS.items()
     }

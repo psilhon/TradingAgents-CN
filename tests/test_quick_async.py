@@ -20,10 +20,7 @@ def test_api_non_blocking():
     # 1. 登录
     print("🔐 登录中...")
     try:
-        login_response = requests.post(f"{base_url}/api/auth/login", json={
-            "username": "admin",
-            "password": "admin123"
-        }, timeout=10)
+        login_response = requests.post(f"{base_url}/api/auth/login", json={"username": "admin", "password": "admin123"}, timeout=10)
 
         if login_response.status_code != 200:
             print(f"❌ 登录失败: {login_response.status_code}")
@@ -42,16 +39,18 @@ def test_api_non_blocking():
     start_time = time.time()
 
     try:
-        analysis_response = requests.post(f"{base_url}/api/analysis/single",
-                                        json={
-                                            "stock_code": "000001",
-                                            "parameters": {
-                                                "research_depth": 1,  # 快速分析
-                                                "selected_analysts": ["market"]
-                                            }
-                                        },
-                                        headers=headers,
-                                        timeout=10)  # 10秒超时
+        analysis_response = requests.post(
+            f"{base_url}/api/analysis/single",
+            json={
+                "stock_code": "000001",
+                "parameters": {
+                    "research_depth": 1,  # 快速分析
+                    "selected_analysts": ["market"],
+                },
+            },
+            headers=headers,
+            timeout=10,
+        )  # 10秒超时
 
         submit_time = time.time() - start_time
         print(f"⏱️ 任务提交耗时: {submit_time:.2f}秒")
@@ -102,15 +101,14 @@ def test_api_non_blocking():
     # 任务状态查询
     try:
         status_start = time.time()
-        status_response = requests.get(f"{base_url}/api/analysis/task/{task_id}",
-                                     headers=headers, timeout=5)
+        status_response = requests.get(f"{base_url}/api/analysis/task/{task_id}", headers=headers, timeout=5)
         status_time = time.time() - status_start
         print(f"📋 任务状态查询: {status_response.status_code} - {status_time:.2f}秒")
 
         if status_response.status_code == 200:
             status_data = status_response.json()
-            task_status = status_data['data']['status']
-            progress = status_data['data']['progress']
+            task_status = status_data["data"]["status"]
+            progress = status_data["data"]["progress"]
             print(f"📊 当前状态: {task_status} ({progress}%)")
 
         if status_time > 2.0:
@@ -133,6 +131,7 @@ def test_api_non_blocking():
         print("❌ 仍有阻塞问题，需要进一步优化")
 
     return success
+
 
 def test_multiple_concurrent_requests():
     """测试多个并发请求"""
@@ -181,6 +180,7 @@ def test_multiple_concurrent_requests():
             print("🎉 并发性能良好")
         else:
             print("⚠️ 并发性能需要优化")
+
 
 if __name__ == "__main__":
     print(f"🚀 开始测试: {time.strftime('%Y-%m-%d %H:%M:%S')}")

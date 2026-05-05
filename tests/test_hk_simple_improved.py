@@ -11,6 +11,7 @@ import time
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_hk_provider_direct():
     """直接测试港股提供器"""
     print("\n🇭🇰 直接测试港股提供器")
@@ -26,12 +27,12 @@ def test_hk_provider_direct():
         # 测试不同格式的港股代码
         test_symbols = [
             "0700.HK",  # 腾讯控股
-            "0700",     # 腾讯控股（无后缀）
-            "00700",    # 腾讯控股（5位）
+            "0700",  # 腾讯控股（无后缀）
+            "00700",  # 腾讯控股（5位）
             "0941.HK",  # 中国移动
-            "1299",     # 友邦保险
+            "1299",  # 友邦保险
             "9988.HK",  # 阿里巴巴
-            "3690",     # 美团
+            "3690",  # 美团
             "1234.HK",  # 不存在的股票
         ]
 
@@ -43,7 +44,7 @@ def test_hk_provider_direct():
                 print(f"   {symbol:10} -> {company_name}")
 
                 # 验证不是默认格式
-                if not company_name.startswith('港股'):
+                if not company_name.startswith("港股"):
                     print("      ✅ 成功获取具体公司名称")
                     success_count += 1
                 else:
@@ -58,8 +59,10 @@ def test_hk_provider_direct():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cache_direct():
     """直接测试缓存功能"""
@@ -72,9 +75,9 @@ def test_cache_direct():
         provider = ImprovedHKStockProvider()
 
         # 使用新的缓存路径
-        cache_dir = os.path.join('data', 'cache', 'hk')
+        cache_dir = os.path.join("data", "cache", "hk")
         os.makedirs(cache_dir, exist_ok=True)
-        cache_file = os.path.join(cache_dir, 'hk_stock_cache.json')
+        cache_file = os.path.join(cache_dir, "hk_stock_cache.json")
 
         # 清理可能存在的缓存文件
         if os.path.exists(cache_file):
@@ -111,7 +114,8 @@ def test_cache_direct():
 
             # 读取缓存内容
             import json
-            with open(cache_file, encoding='utf-8') as f:
+
+            with open(cache_file, encoding="utf-8") as f:
                 cache_data = json.load(f)
 
             print(f"📄 缓存条目数: {len(cache_data)}")
@@ -125,8 +129,10 @@ def test_cache_direct():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_normalization():
     """测试港股代码标准化"""
@@ -161,8 +167,10 @@ def test_normalization():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -188,15 +196,11 @@ def main():
     passed = sum(results)
     total = len(results)
 
-    test_names = [
-        "港股提供器直接测试",
-        "缓存功能直接测试",
-        "代码标准化测试"
-    ]
+    test_names = ["港股提供器直接测试", "缓存功能直接测试", "代码标准化测试"]
 
     for i, (name, result) in enumerate(zip(test_names, results, strict=False)):
         status = "✅ 通过" if result else "❌ 失败"
-        print(f"{i+1}. {name}: {status}")
+        print(f"{i + 1}. {name}: {status}")
 
     print(f"\n📊 总体结果: {passed}/{total} 测试通过")
 
@@ -218,6 +222,7 @@ def main():
         print("⚠️ 部分测试失败，需要进一步优化")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

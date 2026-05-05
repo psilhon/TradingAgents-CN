@@ -19,11 +19,14 @@ try:
     from tradingagents.config.database_manager import get_database_manager
 
     from .adaptive import AdaptiveCacheSystem
+
     ADAPTIVE_CACHE_AVAILABLE = True
 except ImportError as e:
     ADAPTIVE_CACHE_AVAILABLE = False
     import logging
+
     logging.getLogger(__name__).debug(f"自适应缓存不可用: {e}")
+
 
 class IntegratedCacheManager:
     """集成缓存管理器 - 智能选择缓存策略"""
@@ -68,8 +71,9 @@ class IntegratedCacheManager:
         else:
             self.logger.info("📁 使用传统文件缓存系统")
 
-    def save_stock_data(self, symbol: str, data: Any, start_date: str | None = None,
-                       end_date: str | None = None, data_source: str = "default") -> str:
+    def save_stock_data(
+        self, symbol: str, data: Any, start_date: str | None = None, end_date: str | None = None, data_source: str = "default"
+    ) -> str:
         """
         保存股票数据到缓存
 
@@ -91,16 +95,12 @@ class IntegratedCacheManager:
                 start_date=start_date or "",
                 end_date=end_date or "",
                 data_source=data_source,
-                data_type="stock_data"
+                data_type="stock_data",
             )
         else:
             # 使用传统缓存系统
             return self.legacy_cache.save_stock_data(
-                symbol=symbol,
-                data=data,
-                start_date=start_date,
-                end_date=end_date,
-                data_source=data_source
+                symbol=symbol, data=data, start_date=start_date, end_date=end_date, data_source=data_source
             )
 
     def load_stock_data(self, cache_key: str) -> Any | None:
@@ -120,8 +120,9 @@ class IntegratedCacheManager:
             # 使用传统缓存系统
             return self.legacy_cache.load_stock_data(cache_key)
 
-    def find_cached_stock_data(self, symbol: str, start_date: str | None = None,
-                              end_date: str | None = None, data_source: str = "default") -> str | None:
+    def find_cached_stock_data(
+        self, symbol: str, start_date: str | None = None, end_date: str | None = None, data_source: str = "default"
+    ) -> str | None:
         """
         查找缓存的股票数据
 
@@ -137,30 +138,18 @@ class IntegratedCacheManager:
         if self.use_adaptive:
             # 使用自适应缓存系统
             return self.adaptive_cache.find_cached_data(
-                symbol=symbol,
-                start_date=start_date or "",
-                end_date=end_date or "",
-                data_source=data_source,
-                data_type="stock_data"
+                symbol=symbol, start_date=start_date or "", end_date=end_date or "", data_source=data_source, data_type="stock_data"
             )
         else:
             # 使用传统缓存系统
             return self.legacy_cache.find_cached_stock_data(
-                symbol=symbol,
-                start_date=start_date,
-                end_date=end_date,
-                data_source=data_source
+                symbol=symbol, start_date=start_date, end_date=end_date, data_source=data_source
             )
 
     def save_news_data(self, symbol: str, data: Any, data_source: str = "default") -> str:
         """保存新闻数据"""
         if self.use_adaptive:
-            return self.adaptive_cache.save_data(
-                symbol=symbol,
-                data=data,
-                data_source=data_source,
-                data_type="news_data"
-            )
+            return self.adaptive_cache.save_data(symbol=symbol, data=data, data_source=data_source, data_type="news_data")
         else:
             return self.legacy_cache.save_news_data(symbol, data, data_source)
 
@@ -174,12 +163,7 @@ class IntegratedCacheManager:
     def save_fundamentals_data(self, symbol: str, data: Any, data_source: str = "default") -> str:
         """保存基本面数据"""
         if self.use_adaptive:
-            return self.adaptive_cache.save_data(
-                symbol=symbol,
-                data=data,
-                data_source=data_source,
-                data_type="fundamentals_data"
-            )
+            return self.adaptive_cache.save_data(symbol=symbol, data=data, data_source=data_source, data_type="fundamentals_data")
         else:
             return self.legacy_cache.save_fundamentals_data(symbol, data, data_source)
 
@@ -190,8 +174,7 @@ class IntegratedCacheManager:
         else:
             return self.legacy_cache.load_fundamentals_data(cache_key)
 
-    def find_cached_fundamentals_data(self, symbol: str, data_source: str | None = None,
-                                     max_age_hours: int | None = None) -> str | None:
+    def find_cached_fundamentals_data(self, symbol: str, data_source: str | None = None, max_age_hours: int | None = None) -> str | None:
         """
         查找匹配的基本面缓存数据
 
@@ -209,8 +192,7 @@ class IntegratedCacheManager:
         else:
             return self.legacy_cache.find_cached_fundamentals_data(symbol, data_source, max_age_hours)
 
-    def is_fundamentals_cache_valid(self, symbol: str, data_source: str | None = None,
-                                   max_age_hours: int | None = None) -> bool:
+    def is_fundamentals_cache_valid(self, symbol: str, data_source: str | None = None, max_age_hours: int | None = None) -> bool:
         """
         检查基本面缓存是否有效
 
@@ -232,15 +214,15 @@ class IntegratedCacheManager:
             stats = self.adaptive_cache.get_cache_stats()
 
             # 添加缓存系统信息
-            stats['cache_system'] = 'adaptive'
+            stats["cache_system"] = "adaptive"
 
             # 确保后端信息存在
-            if 'backend_info' not in stats:
-                stats['backend_info'] = {}
+            if "backend_info" not in stats:
+                stats["backend_info"] = {}
 
-            stats['backend_info']['database_available'] = self.db_manager.is_database_available()
-            stats['backend_info']['mongodb_available'] = self.db_manager.is_mongodb_available()
-            stats['backend_info']['redis_available'] = self.db_manager.is_redis_available()
+            stats["backend_info"]["database_available"] = self.db_manager.is_database_available()
+            stats["backend_info"]["mongodb_available"] = self.db_manager.is_mongodb_available()
+            stats["backend_info"]["redis_available"] = self.db_manager.is_redis_available()
 
             return stats
         else:
@@ -248,15 +230,15 @@ class IntegratedCacheManager:
             stats = self.legacy_cache.get_cache_stats()
 
             # 添加缓存系统信息
-            stats['cache_system'] = 'legacy'
+            stats["cache_system"] = "legacy"
 
             # 确保后端信息存在
-            if 'backend_info' not in stats:
-                stats['backend_info'] = {}
+            if "backend_info" not in stats:
+                stats["backend_info"] = {}
 
-            stats['backend_info']['database_available'] = False
-            stats['backend_info']['mongodb_available'] = False
-            stats['backend_info']['redis_available'] = False
+            stats["backend_info"]["database_available"] = False
+            stats["backend_info"]["mongodb_available"] = False
+            stats["backend_info"]["redis_available"] = False
 
             return stats
 
@@ -343,7 +325,7 @@ class IntegratedCacheManager:
                 "primary_backend": self.adaptive_cache.primary_backend,
                 "fallback_enabled": self.adaptive_cache.fallback_enabled,
                 "mongodb_available": self.db_manager.is_mongodb_available(),
-                "redis_available": self.db_manager.is_redis_available()
+                "redis_available": self.db_manager.is_redis_available(),
             }
         else:
             return {
@@ -351,7 +333,7 @@ class IntegratedCacheManager:
                 "primary_backend": "file",
                 "fallback_enabled": False,
                 "mongodb_available": False,
-                "redis_available": False
+                "redis_available": False,
             }
 
     def is_database_available(self) -> bool:
@@ -381,6 +363,7 @@ class IntegratedCacheManager:
 # 全局集成缓存管理器实例
 _integrated_cache = None
 
+
 def get_cache() -> IntegratedCacheManager:
     """获取全局集成缓存管理器实例"""
     global _integrated_cache
@@ -388,10 +371,12 @@ def get_cache() -> IntegratedCacheManager:
         _integrated_cache = IntegratedCacheManager()
     return _integrated_cache
 
+
 # 向后兼容的函数
 def get_stock_cache():
     """向后兼容：获取股票缓存"""
     return get_cache()
+
 
 def create_cache_manager(cache_dir: str | None = None):
     """向后兼容：创建缓存管理器"""

@@ -3,6 +3,7 @@
 Tushare数据初始化CLI工具
 用于首次部署时的数据初始化操作
 """
+
 import argparse
 import asyncio
 import sys
@@ -83,6 +84,7 @@ async def check_database_status():
 
     try:
         from app.core.database import get_mongo_db
+
         db = get_mongo_db()
 
         # 检查各集合状态
@@ -90,18 +92,11 @@ async def check_database_status():
         quotes_count = await db.market_quotes.count_documents({})
 
         # 检查扩展字段覆盖率
-        extended_count = await db.stock_basic_info.count_documents({
-            "full_symbol": {"$exists": True},
-            "market_info": {"$exists": True}
-        })
+        extended_count = await db.stock_basic_info.count_documents({"full_symbol": {"$exists": True}, "market_info": {"$exists": True}})
 
         # 检查最新更新时间
-        latest_basic = await db.stock_basic_info.find_one(
-            {}, sort=[("updated_at", -1)]
-        )
-        latest_quotes = await db.market_quotes.find_one(
-            {}, sort=[("updated_at", -1)]
-        )
+        latest_basic = await db.stock_basic_info.find_one({}, sort=[("updated_at", -1)])
+        latest_quotes = await db.market_quotes.find_one({}, sort=[("updated_at", -1)])
 
         print(f"  📋 股票基础信息: {basic_count:,}条")
         if basic_count > 0:
@@ -166,10 +161,7 @@ async def run_full_initialization(historical_days: int, force: bool, multi_perio
         service = await get_tushare_init_service()
 
         result = await service.run_full_initialization(
-            historical_days=historical_days,
-            skip_if_exists=not force,
-            enable_multi_period=multi_period,
-            sync_items=sync_items
+            historical_days=historical_days, skip_if_exists=not force, enable_multi_period=multi_period, sync_items=sync_items
         )
 
         # 显示结果
@@ -206,16 +198,15 @@ async def run_full_initialization(historical_days: int, force: bool, multi_perio
 
 async def main():
     """主函数"""
-    parser = argparse.ArgumentParser(
-        description="Tushare数据初始化工具",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
+    parser = argparse.ArgumentParser(description="Tushare数据初始化工具", formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("--full", action="store_true", help="运行完整初始化")
     parser.add_argument("--basic-only", action="store_true", help="仅初始化基础信息")
     parser.add_argument("--historical-days", type=int, default=365, help="历史数据天数")
     parser.add_argument("--multi-period", action="store_true", help="同步多周期数据（日线、周线、月线）")
-    parser.add_argument("--sync-items", type=str, help="指定要同步的数据类型（逗号分隔），可选: basic_info,historical,weekly,monthly,financial,quotes,news")  # noqa: E501
+    parser.add_argument(
+        "--sync-items", type=str, help="指定要同步的数据类型（逗号分隔），可选: basic_info,historical,weekly,monthly,financial,quotes,news"
+    )  # noqa: E501
     parser.add_argument("--force", action="store_true", help="强制初始化")
     parser.add_argument("--batch-size", type=int, default=100, help="批处理大小")
     parser.add_argument("--check-only", action="store_true", help="仅检查数据库状态")
@@ -257,9 +248,9 @@ async def main():
             # 解析sync_items参数
             sync_items = None
             if args.sync_items:
-                sync_items = [item.strip() for item in args.sync_items.split(',')]
+                sync_items = [item.strip() for item in args.sync_items.split(",")]
                 # 验证sync_items
-                valid_items = ['basic_info', 'historical', 'weekly', 'monthly', 'financial', 'quotes', 'news']
+                valid_items = ["basic_info", "historical", "weekly", "monthly", "financial", "quotes", "news"]
                 invalid_items = [item for item in sync_items if item not in valid_items]
                 if invalid_items:
                     print(f"❌ 无效的同步项目: {', '.join(invalid_items)}")

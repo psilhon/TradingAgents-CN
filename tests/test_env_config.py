@@ -20,17 +20,17 @@ def test_env_config():
         print(f"✅ .env文件存在: {env_file}")
 
         # 读取并显示相关配置
-        with open(env_file, encoding='utf-8') as f:
+        with open(env_file, encoding="utf-8") as f:
             lines = f.readlines()
 
         print("📊 数据库相关配置:")
         for line in lines:
             line = line.strip()
-            if line and not line.startswith('#'):
-                if any(keyword in line.upper() for keyword in ['MONGODB', 'REDIS']):
+            if line and not line.startswith("#"):
+                if any(keyword in line.upper() for keyword in ["MONGODB", "REDIS"]):
                     # 隐藏密码
-                    if 'PASSWORD' in line.upper():
-                        key, value = line.split('=', 1)
+                    if "PASSWORD" in line.upper():
+                        key, value = line.split("=", 1)
                         print(f"  {key}=***")
                     else:
                         print(f"  {line}")
@@ -52,11 +52,11 @@ def test_env_config():
         print("📊 数据库状态:")
         print(f"  数据库可用: {'✅ 是' if status['database_available'] else '❌ 否'}")
 
-        mongodb_info = status['mongodb']
+        mongodb_info = status["mongodb"]
         print(f"  MongoDB: {'✅ 可用' if mongodb_info['available'] else '❌ 不可用'}")
         print(f"    地址: {mongodb_info['host']}:{mongodb_info['port']}")
 
-        redis_info = status['redis']
+        redis_info = status["redis"]
         print(f"  Redis: {'✅ 可用' if redis_info['available'] else '❌ 不可用'}")
         print(f"    地址: {redis_info['host']}:{redis_info['port']}")
 
@@ -66,6 +66,7 @@ def test_env_config():
     except Exception as e:
         print(f"❌ 数据库管理器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -86,11 +87,7 @@ def test_env_config():
         # 测试基本功能
         test_data = "测试数据 - 使用.env配置"
         cache_key = cache.save_stock_data(
-            symbol="TEST_ENV",
-            data=test_data,
-            start_date="2024-01-01",
-            end_date="2024-12-31",
-            data_source="env_test"
+            symbol="TEST_ENV", data=test_data, start_date="2024-01-01", end_date="2024-12-31", data_source="env_test"
         )
         print(f"✅ 数据保存成功: {cache_key}")
 
@@ -105,21 +102,29 @@ def test_env_config():
     except Exception as e:
         print(f"❌ 缓存系统测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
     # 4. 显示环境变量
     print("\n🔍 检查环境变量...")
     env_vars = [
-        "MONGODB_HOST", "MONGODB_PORT", "MONGODB_USERNAME", "MONGODB_PASSWORD",
-        "MONGODB_DATABASE", "MONGODB_AUTH_SOURCE",
-        "REDIS_HOST", "REDIS_PORT", "REDIS_PASSWORD", "REDIS_DB"
+        "MONGODB_HOST",
+        "MONGODB_PORT",
+        "MONGODB_USERNAME",
+        "MONGODB_PASSWORD",
+        "MONGODB_DATABASE",
+        "MONGODB_AUTH_SOURCE",
+        "REDIS_HOST",
+        "REDIS_PORT",
+        "REDIS_PASSWORD",
+        "REDIS_DB",
     ]
 
     for var in env_vars:
         value = os.getenv(var)
         if value:
-            if 'PASSWORD' in var:
+            if "PASSWORD" in var:
                 print(f"  {var}=***")
             else:
                 print(f"  {var}={value}")
@@ -143,6 +148,7 @@ def test_env_config():
 
     return True
 
+
 def main():
     """主函数"""
     try:
@@ -162,8 +168,10 @@ def main():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = main()

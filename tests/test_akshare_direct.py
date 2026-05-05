@@ -12,7 +12,7 @@ def test_akshare_financial_apis():
     print("🧪 直接测试AKShare财务数据API")
     print("=" * 60)
 
-    symbol = '000001'
+    symbol = "000001"
     print(f"🔍 测试股票: {symbol}")
 
     # 测试资产负债表
@@ -65,13 +65,14 @@ def test_akshare_financial_apis():
     except Exception as e:
         print(f"❌ 主要财务指标获取失败: {e}")
 
+
 def test_akshare_stock_info():
     """测试AKShare股票基本信息"""
     print("\n" + "=" * 60)
     print("📋 测试AKShare股票基本信息")
     print("=" * 60)
 
-    symbol = '000001'
+    symbol = "000001"
     print(f"🔍 测试股票: {symbol}")
 
     try:
@@ -86,6 +87,7 @@ def test_akshare_stock_info():
     except Exception as e:
         print(f"❌ 股票信息获取失败: {e}")
 
+
 def main():
     """主测试函数"""
     print("🚀 开始直接测试AKShare财务数据API")
@@ -97,6 +99,7 @@ def main():
     print("\n" + "=" * 60)
     print("✅ 测试完成")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     main()

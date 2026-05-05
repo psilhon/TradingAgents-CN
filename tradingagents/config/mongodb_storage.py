@@ -17,11 +17,12 @@ from tradingagents.utils.logging_manager import get_logger
 
 from .usage_models import UsageRecord
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 try:
     from pymongo import MongoClient
     from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+
     MONGODB_AVAILABLE = True
 except ImportError:
     MONGODB_AVAILABLE = False
@@ -61,6 +62,7 @@ class MongoDBStorage:
         try:
             # 从环境变量读取超时配置，使用合理的默认值
             import os
+
             connect_timeout = int(os.getenv("MONGO_CONNECT_TIMEOUT_MS", "30000"))
             socket_timeout = int(os.getenv("MONGO_SOCKET_TIMEOUT_MS", "60000"))
             server_selection_timeout = int(os.getenv("MONGO_SERVER_SELECTION_TIMEOUT_MS", "5000"))
@@ -69,10 +71,10 @@ class MongoDBStorage:
                 self.connection_string,
                 serverSelectionTimeoutMS=server_selection_timeout,
                 connectTimeoutMS=connect_timeout,
-                socketTimeoutMS=socket_timeout
+                socketTimeoutMS=socket_timeout,
             )
             # 测试连接
-            self.client.admin.command('ping')
+            self.client.admin.command("ping")
 
             self.db = self.client[self.database_name]
             self.collection = self.db[self.collection_name]
@@ -95,11 +97,13 @@ class MongoDBStorage:
         """创建数据库索引"""
         try:
             # 创建复合索引
-            self.collection.create_index([
-                ("timestamp", -1),  # 按时间倒序
-                ("provider", 1),
-                ("model_name", 1)
-            ])
+            self.collection.create_index(
+                [
+                    ("timestamp", -1),  # 按时间倒序
+                    ("provider", 1),
+                    ("model_name", 1),
+                ]
+            )
 
             # 创建会话ID索引
             self.collection.create_index("session_id")
@@ -125,7 +129,7 @@ class MongoDBStorage:
             record_dict = asdict(record)
 
             # 添加MongoDB特有的字段
-            record_dict['_created_at'] = datetime.now(ZoneInfo(get_timezone_name()))
+            record_dict["_created_at"] = datetime.now(ZoneInfo(get_timezone_name()))
 
             # 🔍 详细日志
             logger.debug(f"📊 [MongoDB存储] 准备插入记录: {record.provider}/{record.model_name}, session={record.session_id}")
@@ -135,7 +139,9 @@ class MongoDBStorage:
             result = self.collection.insert_one(record_dict)
 
             if result.inserted_id:
-                logger.info(f"✅ [MongoDB存储] 记录已保存: ID={result.inserted_id}, {record.provider}/{record.model_name}, ¥{record.cost:.4f}")  # noqa: E501
+                logger.info(
+                    f"✅ [MongoDB存储] 记录已保存: ID={result.inserted_id}, {record.provider}/{record.model_name}, ¥{record.cost:.4f}"
+                )  # noqa: E501
                 return True
             else:
                 logger.error("❌ [MongoDB存储] 插入失败：未返回插入ID")
@@ -144,6 +150,7 @@ class MongoDBStorage:
         except Exception as e:
             logger.error(f"❌ [MongoDB存储] 保存记录失败: {e}")
             import traceback
+
             logger.error(f"   堆栈: {traceback.format_exc()}")
             return False
 
@@ -157,17 +164,18 @@ class MongoDBStorage:
             query = {}
             if days:
                 from datetime import timedelta
+
                 cutoff_date = datetime.now(ZoneInfo(get_timezone_name())) - timedelta(days=days)
-                query['timestamp'] = {'$gte': cutoff_date.isoformat()}
+                query["timestamp"] = {"$gte": cutoff_date.isoformat()}
 
             # 查询记录，按时间倒序
-            cursor = self.collection.find(query).sort('timestamp', -1).limit(limit)
+            cursor = self.collection.find(query).sort("timestamp", -1).limit(limit)
 
             records = []
             for doc in cursor:
                 # 移除MongoDB特有的字段
-                doc.pop('_id', None)
-                doc.pop('_created_at', None)
+                doc.pop("_id", None)
+                doc.pop("_created_at", None)
 
                 # 转换为UsageRecord对象
                 try:
@@ -190,24 +198,21 @@ class MongoDBStorage:
 
         try:
             from datetime import timedelta
+
             cutoff_date = datetime.now() - timedelta(days=days)
 
             # 聚合查询
             pipeline = [
+                {"$match": {"timestamp": {"$gte": cutoff_date.isoformat()}}},
                 {
-                    '$match': {
-                        'timestamp': {'$gte': cutoff_date.isoformat()}
+                    "$group": {
+                        "_id": None,
+                        "total_cost": {"$sum": "$cost"},
+                        "total_input_tokens": {"$sum": "$input_tokens"},
+                        "total_output_tokens": {"$sum": "$output_tokens"},
+                        "total_requests": {"$sum": 1},
                     }
                 },
-                {
-                    '$group': {
-                        '_id': None,
-                        'total_cost': {'$sum': '$cost'},
-                        'total_input_tokens': {'$sum': '$input_tokens'},
-                        'total_output_tokens': {'$sum': '$output_tokens'},
-                        'total_requests': {'$sum': 1}
-                    }
-                }
             ]
 
             result = list(self.collection.aggregate(pipeline))
@@ -215,20 +220,14 @@ class MongoDBStorage:
             if result:
                 stats = result[0]
                 return {
-                    'period_days': days,
-                    'total_cost': round(stats.get('total_cost', 0), 4),
-                    'total_input_tokens': stats.get('total_input_tokens', 0),
-                    'total_output_tokens': stats.get('total_output_tokens', 0),
-                    'total_requests': stats.get('total_requests', 0)
+                    "period_days": days,
+                    "total_cost": round(stats.get("total_cost", 0), 4),
+                    "total_input_tokens": stats.get("total_input_tokens", 0),
+                    "total_output_tokens": stats.get("total_output_tokens", 0),
+                    "total_requests": stats.get("total_requests", 0),
                 }
             else:
-                return {
-                    'period_days': days,
-                    'total_cost': 0,
-                    'total_input_tokens': 0,
-                    'total_output_tokens': 0,
-                    'total_requests': 0
-                }
+                return {"period_days": days, "total_cost": 0, "total_input_tokens": 0, "total_output_tokens": 0, "total_requests": 0}
 
         except Exception as e:
             logger.error(f"获取MongoDB统计失败: {e}")
@@ -241,36 +240,33 @@ class MongoDBStorage:
 
         try:
             from datetime import timedelta
+
             cutoff_date = datetime.now() - timedelta(days=days)
 
             # 按供应商聚合
             pipeline = [
+                {"$match": {"timestamp": {"$gte": cutoff_date.isoformat()}}},
                 {
-                    '$match': {
-                        'timestamp': {'$gte': cutoff_date.isoformat()}
+                    "$group": {
+                        "_id": "$provider",
+                        "cost": {"$sum": "$cost"},
+                        "input_tokens": {"$sum": "$input_tokens"},
+                        "output_tokens": {"$sum": "$output_tokens"},
+                        "requests": {"$sum": 1},
                     }
                 },
-                {
-                    '$group': {
-                        '_id': '$provider',
-                        'cost': {'$sum': '$cost'},
-                        'input_tokens': {'$sum': '$input_tokens'},
-                        'output_tokens': {'$sum': '$output_tokens'},
-                        'requests': {'$sum': 1}
-                    }
-                }
             ]
 
             results = list(self.collection.aggregate(pipeline))
 
             provider_stats = {}
             for result in results:
-                provider = result['_id']
+                provider = result["_id"]
                 provider_stats[provider] = {
-                    'cost': round(result.get('cost', 0), 4),
-                    'input_tokens': result.get('input_tokens', 0),
-                    'output_tokens': result.get('output_tokens', 0),
-                    'requests': result.get('requests', 0)
+                    "cost": round(result.get("cost", 0), 4),
+                    "input_tokens": result.get("input_tokens", 0),
+                    "output_tokens": result.get("output_tokens", 0),
+                    "requests": result.get("requests", 0),
                 }
 
             return provider_stats
@@ -289,9 +285,7 @@ class MongoDBStorage:
 
             cutoff_date = datetime.now() - timedelta(days=days)
 
-            result = self.collection.delete_many({
-                'timestamp': {'$lt': cutoff_date.isoformat()}
-            })
+            result = self.collection.delete_many({"timestamp": {"$lt": cutoff_date.isoformat()}})
 
             deleted_count = result.deleted_count
             if deleted_count > 0:

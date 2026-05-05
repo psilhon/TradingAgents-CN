@@ -23,15 +23,12 @@ def test_000002_valuation():
     toolkit = Toolkit(config)
 
     # 获取基本面数据
-    result = toolkit.get_stock_fundamentals_unified.invoke({
-        'ticker': '000002',
-        'start_date': '2025-06-01',
-        'end_date': '2025-07-15',
-        'curr_date': '2025-07-15'
-    })
+    result = toolkit.get_stock_fundamentals_unified.invoke(
+        {"ticker": "000002", "start_date": "2025-06-01", "end_date": "2025-07-15", "curr_date": "2025-07-15"}
+    )
 
     # 查找估值指标部分
-    lines = result.split('\n')
+    lines = result.split("\n")
 
     print("\n=== 000002股票基本信息 ===")
     for i, line in enumerate(lines):  # noqa: B007
@@ -45,7 +42,7 @@ def test_000002_valuation():
             found_valuation = True
             print("找到估值指标部分:")
             # 打印估值指标及其后面的几行
-            for j in range(i, min(len(lines), i+8)):
+            for j in range(i, min(len(lines), i + 8)):
                 if lines[j].strip() and not lines[j].startswith("###"):
                     print(f"  {lines[j]}")
                 elif lines[j].startswith("###") and j > i:
@@ -63,12 +60,13 @@ def test_000002_valuation():
     for i, line in enumerate(lines):
         if "财务健康度" in line:
             # 打印财务健康度及其后面的几行
-            for j in range(i, min(len(lines), i+8)):
+            for j in range(i, min(len(lines), i + 8)):
                 if lines[j].strip() and not lines[j].startswith("##"):
                     print(f"  {lines[j]}")
                 elif lines[j].startswith("##") and j > i:
                     break
             break
+
 
 if __name__ == "__main__":
     test_000002_valuation()

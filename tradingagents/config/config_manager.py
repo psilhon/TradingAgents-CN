@@ -27,7 +27,7 @@ warnings.warn(
     "Please use app.services.config_service.ConfigService instead. "
     "See docs/DEPRECATION_NOTICE.md for migration guide.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 # 导入统一日志系统
@@ -37,23 +37,26 @@ from tradingagents.config.runtime_settings import get_timezone_name  # noqa: E40
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger  # noqa: E402
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 # 导入数据模型（避免循环导入）
 from .usage_models import ModelConfig, PricingConfig, UsageRecord  # noqa: E402
 
 try:
     from .mongodb_storage import MongoDBStorage
+
     MONGODB_AVAILABLE = True
 except ImportError as e:
     logger.error(f"❌ [ConfigManager] 导入 MongoDBStorage 失败 (ImportError): {e}")
     import traceback
+
     logger.error(f"   堆栈: {traceback.format_exc()}")
     MONGODB_AVAILABLE = False
     MongoDBStorage = None
 except Exception as e:
     logger.error(f"❌ [ConfigManager] 导入 MongoDBStorage 失败 (Exception): {e}")
     import traceback
+
     logger.error(f"   堆栈: {traceback.format_exc()}")
     MONGODB_AVAILABLE = False
     MongoDBStorage = None
@@ -103,7 +106,7 @@ class ConfigManager:
             "openai": "OPENAI_API_KEY",
             "google": "GOOGLE_API_KEY",
             "anthropic": "ANTHROPIC_API_KEY",
-            "deepseek": "DEEPSEEK_API_KEY"
+            "deepseek": "DEEPSEEK_API_KEY",
         }
 
         env_key = env_key_map.get(provider.lower())
@@ -136,7 +139,7 @@ class ConfigManager:
             return False
 
         # 检查是否以 'sk-' 开头
-        if not api_key.startswith('sk-'):
+        if not api_key.startswith("sk-"):
             return False
 
         # 检查长度（OpenAI密钥通常为51个字符）
@@ -144,7 +147,7 @@ class ConfigManager:
             return False
 
         # 检查格式：sk- 后面应该是48个字符的字母数字组合
-        pattern = r'^sk-[A-Za-z0-9]{48}$'
+        pattern = r"^sk-[A-Za-z0-9]{48}$"
         if not re.match(pattern, api_key):
             return False
 
@@ -180,10 +183,7 @@ class ConfigManager:
                 return
 
             logger.info("🔄 [ConfigManager] 正在创建 MongoDBStorage 实例...")
-            self.mongodb_storage = MongoDBStorage(
-                connection_string=connection_string,
-                database_name=database_name
-            )
+            self.mongodb_storage = MongoDBStorage(connection_string=connection_string, database_name=database_name)
 
             if self.mongodb_storage.is_connected():
                 logger.info(f"✅ [ConfigManager] MongoDB存储已启用: {database_name}.token_usage")
@@ -200,52 +200,12 @@ class ConfigManager:
         # 默认模型配置
         if not self.models_file.exists():
             default_models = [
-                ModelConfig(
-                    provider="dashscope",
-                    model_name="qwen-turbo",
-                    api_key="",
-                    max_tokens=4000,
-                    temperature=0.7
-                ),
-                ModelConfig(
-                    provider="dashscope",
-                    model_name="qwen-plus-latest",
-                    api_key="",
-                    max_tokens=8000,
-                    temperature=0.7
-                ),
-                ModelConfig(
-                    provider="openai",
-                    model_name="gpt-3.5-turbo",
-                    api_key="",
-                    max_tokens=4000,
-                    temperature=0.7,
-                    enabled=False
-                ),
-                ModelConfig(
-                    provider="openai",
-                    model_name="gpt-4",
-                    api_key="",
-                    max_tokens=8000,
-                    temperature=0.7,
-                    enabled=False
-                ),
-                ModelConfig(
-                    provider="google",
-                    model_name="gemini-2.5-pro",
-                    api_key="",
-                    max_tokens=4000,
-                    temperature=0.7,
-                    enabled=False
-                ),
-                ModelConfig(
-                    provider="deepseek",
-                    model_name="deepseek-chat",
-                    api_key="",
-                    max_tokens=8000,
-                    temperature=0.7,
-                    enabled=False
-                )
+                ModelConfig(provider="dashscope", model_name="qwen-turbo", api_key="", max_tokens=4000, temperature=0.7),
+                ModelConfig(provider="dashscope", model_name="qwen-plus-latest", api_key="", max_tokens=8000, temperature=0.7),
+                ModelConfig(provider="openai", model_name="gpt-3.5-turbo", api_key="", max_tokens=4000, temperature=0.7, enabled=False),
+                ModelConfig(provider="openai", model_name="gpt-4", api_key="", max_tokens=8000, temperature=0.7, enabled=False),
+                ModelConfig(provider="google", model_name="gemini-2.5-pro", api_key="", max_tokens=4000, temperature=0.7, enabled=False),
+                ModelConfig(provider="deepseek", model_name="deepseek-chat", api_key="", max_tokens=8000, temperature=0.7, enabled=False),
             ]
             self.save_models(default_models)
 
@@ -256,16 +216,13 @@ class ConfigManager:
                 PricingConfig("dashscope", "qwen-turbo", 0.002, 0.006, "CNY"),
                 PricingConfig("dashscope", "qwen-plus-latest", 0.004, 0.012, "CNY"),
                 PricingConfig("dashscope", "qwen-max", 0.02, 0.06, "CNY"),
-
                 # DeepSeek定价 (人民币) - 2025年最新价格
                 PricingConfig("deepseek", "deepseek-chat", 0.0014, 0.0028, "CNY"),
                 PricingConfig("deepseek", "deepseek-coder", 0.0014, 0.0028, "CNY"),
-
                 # OpenAI定价 (美元)
                 PricingConfig("openai", "gpt-3.5-turbo", 0.0015, 0.002, "USD"),
                 PricingConfig("openai", "gpt-4", 0.03, 0.06, "USD"),
                 PricingConfig("openai", "gpt-4-turbo", 0.01, 0.03, "USD"),
-
                 # Google定价 (美元)
                 PricingConfig("google", "gemini-2.5-pro", 0.00025, 0.0005, "USD"),
                 PricingConfig("google", "gemini-2.5-flash", 0.00025, 0.0005, "USD"),
@@ -282,6 +239,7 @@ class ConfigManager:
         if not self.settings_file.exists():
             # 导入默认数据目录配置
             import os
+
             default_data_dir = os.path.join(os.path.expanduser("~"), "Documents", "TradingAgents", "data")
 
             default_settings = {
@@ -303,7 +261,7 @@ class ConfigManager:
     def load_models(self) -> list[ModelConfig]:
         """加载模型配置，优先使用.env中的API密钥"""
         try:
-            with open(self.models_file, encoding='utf-8') as f:
+            with open(self.models_file, encoding="utf-8") as f:
                 data = json.load(f)
                 models = [ModelConfig(**item) for item in data]
 
@@ -340,7 +298,7 @@ class ConfigManager:
         """保存模型配置"""
         try:
             data = [asdict(model) for model in models]
-            with open(self.models_file, 'w', encoding='utf-8') as f:
+            with open(self.models_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"保存模型配置失败: {e}")
@@ -348,7 +306,7 @@ class ConfigManager:
     def load_pricing(self) -> list[PricingConfig]:
         """加载定价配置"""
         try:
-            with open(self.pricing_file, encoding='utf-8') as f:
+            with open(self.pricing_file, encoding="utf-8") as f:
                 data = json.load(f)
             return [PricingConfig(**item) for item in data]
         except Exception as e:
@@ -359,7 +317,7 @@ class ConfigManager:
         """保存定价配置"""
         try:
             data = [asdict(price) for price in pricing]
-            with open(self.pricing_file, 'w', encoding='utf-8') as f:
+            with open(self.pricing_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"保存定价配置失败: {e}")
@@ -369,7 +327,7 @@ class ConfigManager:
         try:
             if not self.usage_file.exists():
                 return []
-            with open(self.usage_file, encoding='utf-8') as f:
+            with open(self.usage_file, encoding="utf-8") as f:
                 data = json.load(f)
                 return [UsageRecord(**item) for item in data]
         except Exception as e:
@@ -380,13 +338,14 @@ class ConfigManager:
         """保存使用记录"""
         try:
             data = [asdict(record) for record in records]
-            with open(self.usage_file, 'w', encoding='utf-8') as f:
+            with open(self.usage_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"保存使用记录失败: {e}")
 
-    def add_usage_record(self, provider: str, model_name: str, input_tokens: int,
-                        output_tokens: int, session_id: str, analysis_type: str = "stock_analysis"):
+    def add_usage_record(
+        self, provider: str, model_name: str, input_tokens: int, output_tokens: int, session_id: str, analysis_type: str = "stock_analysis"
+    ):
         """添加使用记录"""
         # 计算成本和货币单位
         cost, currency = self.calculate_cost(provider, model_name, input_tokens, output_tokens)
@@ -400,15 +359,19 @@ class ConfigManager:
             cost=cost,
             currency=currency,
             session_id=session_id,
-            analysis_type=analysis_type
+            analysis_type=analysis_type,
         )
 
         # 🔍 详细日志：记录保存位置
-        logger.info(f"💾 [Token记录] 准备保存: {provider}/{model_name}, 输入={input_tokens}, 输出={output_tokens}, 成本=¥{cost:.4f}, session={session_id}")  # noqa: E501
+        logger.info(
+            f"💾 [Token记录] 准备保存: {provider}/{model_name}, 输入={input_tokens}, 输出={output_tokens}, 成本=¥{cost:.4f}, session={session_id}"
+        )  # noqa: E501
 
         # 优先使用MongoDB存储
         if self.mongodb_storage and self.mongodb_storage.is_connected():
-            logger.info(f"📊 [Token记录] 使用 MongoDB 存储 (数据库: {self.mongodb_storage.database_name}, 集合: {self.mongodb_storage.collection_name})")  # noqa: E501
+            logger.info(
+                f"📊 [Token记录] 使用 MongoDB 存储 (数据库: {self.mongodb_storage.database_name}, 集合: {self.mongodb_storage.collection_name})"
+            )  # noqa: E501
             success = self.mongodb_storage.save_usage_record(record)
             if success:
                 logger.info(f"✅ [Token记录] MongoDB 保存成功: {provider}/{model_name}")
@@ -467,7 +430,7 @@ class ConfigManager:
         """加载设置，合并.env中的配置"""
         try:
             if self.settings_file.exists():
-                with open(self.settings_file, encoding='utf-8') as f:
+                with open(self.settings_file, encoding="utf-8") as f:
                     settings = json.load(f)
             else:
                 # 如果设置文件不存在，创建默认设置
@@ -533,13 +496,13 @@ class ConfigManager:
                 "reddit_configured": bool(os.getenv("REDDIT_CLIENT_ID") and os.getenv("REDDIT_CLIENT_SECRET")),
                 "results_dir": os.getenv("TRADINGAGENTS_RESULTS_DIR", "./results"),
                 "log_level": os.getenv("TRADINGAGENTS_LOG_LEVEL", "INFO"),
-            }
+            },
         }
 
     def save_settings(self, settings: dict[str, Any]):
         """保存设置"""
         try:
-            with open(self.settings_file, 'w', encoding='utf-8') as f:
+            with open(self.settings_file, "w", encoding="utf-8") as f:
                 json.dump(settings, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"保存设置失败: {e}")
@@ -600,12 +563,7 @@ class ConfigManager:
         provider_stats = {}
         for record in recent_records:
             if record.provider not in provider_stats:
-                provider_stats[record.provider] = {
-                    "cost": 0,
-                    "input_tokens": 0,
-                    "output_tokens": 0,
-                    "requests": 0
-                }
+                provider_stats[record.provider] = {"cost": 0, "input_tokens": 0, "output_tokens": 0, "requests": 0}
             provider_stats[record.provider]["cost"] += record.cost
             provider_stats[record.provider]["input_tokens"] += record.input_tokens
             provider_stats[record.provider]["output_tokens"] += record.output_tokens
@@ -618,7 +576,7 @@ class ConfigManager:
             "total_output_tokens": total_output_tokens,
             "total_requests": len(recent_records),
             "provider_stats": provider_stats,
-            "records_count": len(recent_records)
+            "records_count": len(recent_records),
         }
 
     def get_data_dir(self) -> str:
@@ -653,7 +611,7 @@ class ConfigManager:
             os.path.join(settings.get("data_dir", ""), "finnhub_data"),
             os.path.join(settings.get("data_dir", ""), "finnhub_data", "news_data"),
             os.path.join(settings.get("data_dir", ""), "finnhub_data", "insider_sentiment"),
-            os.path.join(settings.get("data_dir", ""), "finnhub_data", "insider_transactions")
+            os.path.join(settings.get("data_dir", ""), "finnhub_data", "insider_transactions"),
         ]
 
         for directory in directories:
@@ -686,7 +644,7 @@ class ConfigManager:
             "api_key_valid_format": key_valid,
             "enabled": self.is_openai_enabled(),
             "models_available": self.is_openai_enabled() and key_valid,
-            "api_key_preview": f"{openai_key[:10]}..." if openai_key else "未配置"
+            "api_key_preview": f"{openai_key[:10]}..." if openai_key else "未配置",
         }
 
 
@@ -696,8 +654,15 @@ class TokenTracker:
     def __init__(self, config_manager: ConfigManager):
         self.config_manager = config_manager
 
-    def track_usage(self, provider: str, model_name: str, input_tokens: int,
-                   output_tokens: int, session_id: str | None = None, analysis_type: str = "stock_analysis"):
+    def track_usage(
+        self,
+        provider: str,
+        model_name: str,
+        input_tokens: int,
+        output_tokens: int,
+        session_id: str | None = None,
+        analysis_type: str = "stock_analysis",
+    ):
         """跟踪Token使用"""
         if session_id is None:
             session_id = f"session_{datetime.now(ZoneInfo(get_timezone_name())).strftime('%Y%m%d_%H%M%S')}"
@@ -716,7 +681,7 @@ class TokenTracker:
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             session_id=session_id,
-            analysis_type=analysis_type
+            analysis_type=analysis_type,
         )
 
         # 检查成本警告
@@ -735,8 +700,10 @@ class TokenTracker:
         total_today = today_stats["total_cost"]
 
         if total_today >= threshold:
-            logger.warning(f"⚠️ 成本警告: 今日成本已达到 ¥{total_today:.4f}，超过阈值 ¥{threshold}",
-                          extra={'cost': total_today, 'threshold': threshold, 'event_type': 'cost_alert'})
+            logger.warning(
+                f"⚠️ 成本警告: 今日成本已达到 ¥{total_today:.4f}，超过阈值 ¥{threshold}",
+                extra={"cost": total_today, "threshold": threshold, "event_type": "cost_alert"},
+            )
 
     def get_session_cost(self, session_id: str) -> float:
         """获取会话成本"""
@@ -744,19 +711,14 @@ class TokenTracker:
         session_cost = sum(record.cost for record in records if record.session_id == session_id)
         return session_cost
 
-    def estimate_cost(self, provider: str, model_name: str, estimated_input_tokens: int,
-                     estimated_output_tokens: int) -> tuple[float, str]:
+    def estimate_cost(self, provider: str, model_name: str, estimated_input_tokens: int, estimated_output_tokens: int) -> tuple[float, str]:
         """
         估算成本
 
         Returns:
             tuple[float, str]: (成本, 货币单位)
         """
-        return self.config_manager.calculate_cost(
-            provider, model_name, estimated_input_tokens, estimated_output_tokens
-        )
-
-
+        return self.config_manager.calculate_cost(provider, model_name, estimated_input_tokens, estimated_output_tokens)
 
 
 # 全局配置管理器实例 - 使用项目根目录的配置
@@ -766,6 +728,7 @@ def _get_project_config_dir():
     current_file = Path(__file__)  # tradingagents/config/config_manager.py
     project_root = current_file.parent.parent.parent  # 向上三级到项目根目录
     return str(project_root / "config")
+
 
 config_manager = ConfigManager(_get_project_config_dir())
 token_tracker = TokenTracker(config_manager)

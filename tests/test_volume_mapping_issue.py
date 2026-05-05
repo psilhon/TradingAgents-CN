@@ -13,6 +13,7 @@ import pandas as pd
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
+
 def test_tushare_adapter_volume_mapping():
     """测试Tushare适配器的volume映射"""
     print("🧪 测试Tushare适配器volume映射")
@@ -25,18 +26,20 @@ def test_tushare_adapter_volume_mapping():
         adapter = get_tushare_adapter()
 
         # 创建模拟的Tushare原始数据（使用'vol'列名）
-        mock_tushare_data = pd.DataFrame({
-            'trade_date': ['20250726', '20250725', '20250724'],
-            'ts_code': ['000001.SZ', '000001.SZ', '000001.SZ'],
-            'open': [12.50, 12.40, 12.30],
-            'high': [12.60, 12.50, 12.40],
-            'low': [12.40, 12.30, 12.20],
-            'close': [12.55, 12.45, 12.35],
-            'vol': [1000000, 1200000, 1100000],  # 注意：这里使用'vol'而不是'volume'
-            'amount': [12550000, 14940000, 13585000],
-            'pct_chg': [0.8, 0.81, -0.4],
-            'change': [0.1, 0.1, -0.05]
-        })
+        mock_tushare_data = pd.DataFrame(
+            {
+                "trade_date": ["20250726", "20250725", "20250724"],
+                "ts_code": ["000001.SZ", "000001.SZ", "000001.SZ"],
+                "open": [12.50, 12.40, 12.30],
+                "high": [12.60, 12.50, 12.40],
+                "low": [12.40, 12.30, 12.20],
+                "close": [12.55, 12.45, 12.35],
+                "vol": [1000000, 1200000, 1100000],  # 注意：这里使用'vol'而不是'volume'
+                "amount": [12550000, 14940000, 13585000],
+                "pct_chg": [0.8, 0.81, -0.4],
+                "change": [0.1, 0.1, -0.05],
+            }
+        )
 
         print(f"📊 模拟原始数据列名: {list(mock_tushare_data.columns)}")
         print(f"📊 原始数据中的vol列: {mock_tushare_data['vol'].tolist()}")
@@ -48,13 +51,13 @@ def test_tushare_adapter_volume_mapping():
         print(f"📊 标准化后列名: {list(standardized_data.columns)}")
 
         # 检查volume列是否存在
-        if 'volume' in standardized_data.columns:
+        if "volume" in standardized_data.columns:
             print(f"✅ volume列存在: {standardized_data['volume'].tolist()}")
             print("✅ vol -> volume 映射成功")
 
             # 验证数据是否正确
-            original_vol_sum = mock_tushare_data['vol'].sum()
-            mapped_volume_sum = standardized_data['volume'].sum()
+            original_vol_sum = mock_tushare_data["vol"].sum()
+            mapped_volume_sum = standardized_data["volume"].sum()
 
             if original_vol_sum == mapped_volume_sum:
                 print(f"✅ 数据映射正确: 原始vol总和={original_vol_sum}, 映射后volume总和={mapped_volume_sum}")
@@ -70,8 +73,10 @@ def test_tushare_adapter_volume_mapping():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_data_source_manager_volume_access():
     """测试数据源管理器中的volume访问"""
@@ -85,22 +90,24 @@ def test_data_source_manager_volume_access():
         DataSourceManager()
 
         # 创建模拟数据（已经标准化的）
-        mock_standardized_data = pd.DataFrame({
-            'date': pd.to_datetime(['2025-07-26', '2025-07-25', '2025-07-24']),
-            'code': ['000001.SZ', '000001.SZ', '000001.SZ'],
-            'open': [12.50, 12.40, 12.30],
-            'high': [12.60, 12.50, 12.40],
-            'low': [12.40, 12.30, 12.20],
-            'close': [12.55, 12.45, 12.35],
-            'volume': [1000000, 1200000, 1100000],  # 标准化后的volume列
-            'amount': [12550000, 14940000, 13585000]
-        })
+        mock_standardized_data = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2025-07-26", "2025-07-25", "2025-07-24"]),
+                "code": ["000001.SZ", "000001.SZ", "000001.SZ"],
+                "open": [12.50, 12.40, 12.30],
+                "high": [12.60, 12.50, 12.40],
+                "low": [12.40, 12.30, 12.20],
+                "close": [12.55, 12.45, 12.35],
+                "volume": [1000000, 1200000, 1100000],  # 标准化后的volume列
+                "amount": [12550000, 14940000, 13585000],
+            }
+        )
 
         print(f"📊 模拟标准化数据列名: {list(mock_standardized_data.columns)}")
 
         # 测试直接访问volume列
         try:
-            volume_sum = mock_standardized_data['volume'].sum()
+            volume_sum = mock_standardized_data["volume"].sum()
             print(f"✅ 直接访问volume列成功: 总成交量={volume_sum:,.0f}")
 
             # 测试统计计算（模拟data_source_manager中的逻辑）
@@ -117,8 +124,10 @@ def test_data_source_manager_volume_access():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_real_tushare_data():
     """测试真实的Tushare数据获取"""
@@ -129,7 +138,7 @@ def test_real_tushare_data():
         from tradingagents.dataflows.data_source_manager import DataSourceManager
 
         # 检查Tushare是否可用
-        tushare_token = os.getenv('TUSHARE_TOKEN')
+        tushare_token = os.getenv("TUSHARE_TOKEN")
         if not tushare_token:
             print("⚠️ TUSHARE_TOKEN未设置，跳过真实数据测试")
             return True
@@ -138,6 +147,7 @@ def test_real_tushare_data():
 
         # 设置为Tushare数据源
         from tradingagents.dataflows.data_source_manager import ChinaDataSource
+
         if ChinaDataSource.TUSHARE in manager.available_sources:
             manager.set_current_source(ChinaDataSource.TUSHARE)
 
@@ -165,8 +175,10 @@ def test_real_tushare_data():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_column_mapping_logic():
     """测试列映射逻辑的详细过程"""
@@ -180,16 +192,18 @@ def test_column_mapping_logic():
         TushareAdapter()
 
         # 创建包含'vol'列的测试数据
-        test_data = pd.DataFrame({
-            'trade_date': ['20250726'],
-            'ts_code': ['000001.SZ'],
-            'open': [12.50],
-            'high': [12.60],
-            'low': [12.40],
-            'close': [12.55],
-            'vol': [1000000],  # 关键：使用'vol'列名
-            'amount': [12550000]
-        })
+        test_data = pd.DataFrame(
+            {
+                "trade_date": ["20250726"],
+                "ts_code": ["000001.SZ"],
+                "open": [12.50],
+                "high": [12.60],
+                "low": [12.40],
+                "close": [12.55],
+                "vol": [1000000],  # 关键：使用'vol'列名
+                "amount": [12550000],
+            }
+        )
 
         print(f"📊 测试数据原始列名: {list(test_data.columns)}")
         print(f"📊 vol列值: {test_data['vol'].iloc[0]}")
@@ -199,16 +213,16 @@ def test_column_mapping_logic():
 
         # 获取映射配置
         column_mapping = {
-            'trade_date': 'date',
-            'ts_code': 'code',
-            'open': 'open',
-            'high': 'high',
-            'low': 'low',
-            'close': 'close',
-            'vol': 'volume',  # 关键映射
-            'amount': 'amount',
-            'pct_chg': 'pct_change',
-            'change': 'change'
+            "trade_date": "date",
+            "ts_code": "code",
+            "open": "open",
+            "high": "high",
+            "low": "low",
+            "close": "close",
+            "vol": "volume",  # 关键映射
+            "amount": "amount",
+            "pct_chg": "pct_change",
+            "change": "change",
         }
 
         print(f"📊 映射配置: {column_mapping}")
@@ -222,12 +236,12 @@ def test_column_mapping_logic():
 
         print(f"📊 映射后列名: {list(mapped_data.columns)}")
 
-        if 'volume' in mapped_data.columns:
+        if "volume" in mapped_data.columns:
             print(f"✅ volume列存在，值: {mapped_data['volume'].iloc[0]}")
 
             # 测试访问
             try:
-                volume_value = mapped_data['volume'].iloc[0]
+                volume_value = mapped_data["volume"].iloc[0]
                 print(f"✅ 成功访问volume值: {volume_value}")
                 return True
             except KeyError as e:
@@ -240,8 +254,10 @@ def test_column_mapping_logic():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -303,6 +319,7 @@ def main():
         print("  2. 需要进一步优化修复方案")
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

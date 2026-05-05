@@ -9,6 +9,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_basic():
     """基本测试"""
     print("🧪 开始基本港股功能测试...")
@@ -22,8 +23,8 @@ def test_basic():
             "0700.HK",  # 腾讯
             "9988.HK",  # 阿里巴巴
             "3690.HK",  # 美团
-            "000001",   # 平安银行
-            "AAPL"      # 苹果
+            "000001",  # 平安银行
+            "AAPL",  # 苹果
         ]
 
         for ticker in test_cases:
@@ -36,8 +37,10 @@ def test_basic():
     except Exception as e:
         print(f"❌ 基本测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     test_basic()

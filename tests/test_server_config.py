@@ -25,22 +25,23 @@ def test_server_config():
     # 显示前5个服务器
     print("\n前5个服务器配置:")
     for i, server in enumerate(servers[:5]):
-        print(f"  {i+1}. {server.get('name', '未命名')} - {server['ip']}:{server['port']}")
+        print(f"  {i + 1}. {server.get('name', '未命名')} - {server['ip']}:{server['port']}")
 
     # 测试获取主市场IP
     print("\n2. 测试获取主市场IP:")
     for i in range(3):
         ip, port = get_mainmarket_ip()
-        print(f"  第{i+1}次随机选择: {ip}:{port}")
+        print(f"  第{i + 1}次随机选择: {ip}:{port}")
 
     # 测试指定IP和端口
     print("\n3. 测试指定IP和端口:")
-    ip, port = get_mainmarket_ip('192.168.1.1', 8888)
+    ip, port = get_mainmarket_ip("192.168.1.1", 8888)
     print(f"  指定IP和端口: {ip}:{port}")
 
     # 显示完整的服务器配置信息
     print("\n4. 完整服务器配置信息:")
     print(json.dumps(servers, indent=2, ensure_ascii=False))
+
 
 if __name__ == "__main__":
     test_server_config()

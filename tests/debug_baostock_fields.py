@@ -2,6 +2,7 @@
 """
 调试BaoStock返回的字段结构
 """
+
 import os
 import sys
 
@@ -13,10 +14,8 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 def debug_baostock_fields():
     """调试BaoStock返回的字段结构"""
@@ -29,7 +28,7 @@ def debug_baostock_fields():
 
         # 登录BaoStock
         lg = bs.login()
-        if lg.error_code != '0':
+        if lg.error_code != "0":
             print(f"❌ BaoStock登录失败: {lg.error_msg}")
             return
 
@@ -44,11 +43,11 @@ def debug_baostock_fields():
         print(f"返回消息: {rs.error_msg}")
         print(f"字段列表: {rs.fields}")
 
-        if rs.error_code == '0':
+        if rs.error_code == "0":
             # 解析数据
             data_list = []
             count = 0
-            while (rs.error_code == '0') & rs.next():
+            while (rs.error_code == "0") & rs.next():
                 row = rs.get_row_data()
                 data_list.append(row)
                 count += 1
@@ -69,8 +68,8 @@ def debug_baostock_fields():
 
                 # 分析A股股票
                 print("\n🔍 分析A股股票:")
-                a_stock_pattern = r'^(sh|sz)\.[0-9]{6}$'
-                a_stocks = df[df['code'].str.contains(a_stock_pattern, na=False)]
+                a_stock_pattern = r"^(sh|sz)\.[0-9]{6}$"
+                a_stocks = df[df["code"].str.contains(a_stock_pattern, na=False)]
                 print(f"匹配A股模式的股票数量: {len(a_stocks)}")
 
                 if len(a_stocks) > 0:
@@ -80,9 +79,9 @@ def debug_baostock_fields():
                     # 检查字段映射
                     print("\n📋 字段映射分析:")
                     print(f"code -> symbol: {a_stocks['code'].head(3).tolist()}")
-                    if 'code_name' in a_stocks.columns:
+                    if "code_name" in a_stocks.columns:
                         print(f"code_name -> name: {a_stocks['code_name'].head(3).tolist()}")
-                    if 'tradeStatus' in a_stocks.columns:
+                    if "tradeStatus" in a_stocks.columns:
                         print(f"tradeStatus: {a_stocks['tradeStatus'].head(3).tolist()}")
 
         bs.logout()
@@ -91,7 +90,9 @@ def debug_baostock_fields():
     except Exception as e:
         print(f"❌ 调试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     debug_baostock_fields()

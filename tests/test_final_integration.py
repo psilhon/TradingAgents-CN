@@ -9,6 +9,7 @@ import sys
 # 添加项目根目录到路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+
 def test_final_integration():
     """最终集成测试"""
 
@@ -51,15 +52,12 @@ def test_final_integration():
         test_cases = [
             {"code": "000001", "type": "A股", "name": "平安银行"},
             {"code": "00700", "type": "港股", "name": "腾讯控股"},
-            {"code": "AAPL", "type": "美股", "name": "苹果公司"}
+            {"code": "AAPL", "type": "美股", "name": "苹果公司"},
         ]
 
         for case in test_cases:
             print(f"\n🔍 测试 {case['type']}: {case['code']} ({case['name']})")
-            result = unified_tool({
-                "stock_code": case["code"],
-                "max_news": 10
-            })
+            result = unified_tool({"stock_code": case["code"], "max_news": 10})
 
             if result and len(result) > 100:
                 print(f"  ✅ 成功获取新闻 ({len(result)} 字符)")
@@ -89,9 +87,9 @@ def test_final_integration():
         checks = [
             ("统一新闻工具导入", "from tradingagents.tools.unified_news_tool import create_unified_news_tool"),
             ("统一工具创建", "unified_news_tool = create_unified_news_tool(toolkit)"),
-            ("工具名称设置", "unified_news_tool.name = \"get_stock_news_unified\""),
+            ("工具名称设置", 'unified_news_tool.name = "get_stock_news_unified"'),
             ("系统提示词更新", "get_stock_news_unified"),
-            ("补救机制更新", "unified_news_tool")
+            ("补救机制更新", "unified_news_tool"),
         ]
 
         for check_name, check_pattern in checks:
@@ -121,7 +119,9 @@ def test_final_integration():
     except Exception as e:
         print(f"❌ 测试过程中出现错误: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_final_integration()

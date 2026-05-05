@@ -41,7 +41,7 @@ def debug_full_flow():
     print("\n💰 模拟股价获取...")
     current_price = "1800.0"  # 模拟股价
     try:
-        price_value = float(current_price.replace('¥', '').replace(',', ''))
+        price_value = float(current_price.replace("¥", "").replace(",", ""))
         print(f"   解析股价: {price_value}")
     except Exception as e:
         print(f"   股价解析失败: {e}")
@@ -62,6 +62,7 @@ def debug_full_flow():
     except Exception as e:
         print(f"❌ 解析异常: {e}")
         import traceback
+
         traceback.print_exc()
 
     # 5. 测试_get_real_financial_metrics函数
@@ -81,6 +82,7 @@ def debug_full_flow():
     except Exception as e:
         print(f"❌ 真实财务指标获取异常: {e}")
         import traceback
+
         traceback.print_exc()
 
     # 6. 测试_estimate_financial_metrics函数
@@ -100,11 +102,13 @@ def debug_full_flow():
     except Exception as e:
         print(f"❌ 财务指标估算异常: {e}")
         import traceback
+
         traceback.print_exc()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("✅ 调试完成")
-    print("="*60)
+    print("=" * 60)
+
 
 if __name__ == "__main__":
     debug_full_flow()

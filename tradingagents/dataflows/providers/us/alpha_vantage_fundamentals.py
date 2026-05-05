@@ -17,12 +17,12 @@ from tradingagents.utils.logging_manager import get_logger
 
 from .alpha_vantage_common import _make_api_request, format_response_as_string
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 
 def get_fundamentals(
     ticker: Annotated[str, "Ticker symbol of the company"],
-    curr_date: Annotated[str | None, "Current date (not used for Alpha Vantage)"] = None
+    curr_date: Annotated[str | None, "Current date (not used for Alpha Vantage)"] = None,
 ) -> str:
     """
     获取公司综合基本面数据
@@ -70,7 +70,7 @@ def get_fundamentals(
             result += f"**Industry**: {data.get('Industry', 'N/A')}\n\n"
 
             # 公司描述
-            description = data.get('Description', 'N/A')
+            description = data.get("Description", "N/A")
             if len(description) > 500:
                 description = description[:500] + "..."
             result += f"**Description**: {description}\n\n"
@@ -146,7 +146,7 @@ def get_fundamentals(
 def get_balance_sheet(
     ticker: Annotated[str, "Ticker symbol of the company"],
     freq: Annotated[str, "Reporting frequency: annual/quarterly (not used)"] = "quarterly",
-    curr_date: Annotated[str | None, "Current date (not used)"] = None
+    curr_date: Annotated[str | None, "Current date (not used)"] = None,
 ) -> str:
     """
     获取资产负债表数据
@@ -175,7 +175,7 @@ def get_balance_sheet(
 def get_cashflow(
     ticker: Annotated[str, "Ticker symbol of the company"],
     freq: Annotated[str, "Reporting frequency: annual/quarterly (not used)"] = "quarterly",
-    curr_date: Annotated[str | None, "Current date (not used)"] = None
+    curr_date: Annotated[str | None, "Current date (not used)"] = None,
 ) -> str:
     """
     获取现金流量表数据
@@ -204,7 +204,7 @@ def get_cashflow(
 def get_income_statement(
     ticker: Annotated[str, "Ticker symbol of the company"],
     freq: Annotated[str, "Reporting frequency: annual/quarterly (not used)"] = "quarterly",
-    curr_date: Annotated[str | None, "Current date (not used)"] = None
+    curr_date: Annotated[str | None, "Current date (not used)"] = None,
 ) -> str:
     """
     获取利润表数据
@@ -228,4 +228,3 @@ def get_income_statement(
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取利润表失败 {ticker}: {e}")
         return f"Error retrieving income statement for {ticker}: {e!s}"
-

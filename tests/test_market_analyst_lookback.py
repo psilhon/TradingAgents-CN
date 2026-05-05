@@ -17,12 +17,12 @@ import sys
 from datetime import datetime
 
 # 添加项目根目录到路径
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 sys.path.insert(0, project_root)
 
 from tradingagents.utils.logging_manager import get_logger  # noqa: E402
 
-logger = get_logger('test')
+logger = get_logger("test")
 
 
 def test_config_loading():
@@ -33,6 +33,7 @@ def test_config_loading():
 
     try:
         from app.core.config import get_settings
+
         settings = get_settings()
         lookback_days = settings.MARKET_ANALYST_LOOKBACK_DAYS
 
@@ -90,6 +91,7 @@ def test_date_range_calculation(lookback_days):
     except Exception as e:
         print(f"❌ 日期范围计算失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None, None, None
 
@@ -111,11 +113,7 @@ def test_data_fetching(start_date, end_date):
         print("⏳ 正在获取数据...")
 
         # 调用统一接口获取数据
-        result = get_china_stock_data_unified(
-            ticker=test_ticker,
-            start_date=start_date,
-            end_date=end_date
-        )
+        result = get_china_stock_data_unified(ticker=test_ticker, start_date=start_date, end_date=end_date)
 
         # 检查结果
         if result and not result.startswith("❌"):
@@ -154,6 +152,7 @@ def test_data_fetching(start_date, end_date):
     except Exception as e:
         print(f"❌ 数据获取异常: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -254,4 +253,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

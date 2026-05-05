@@ -7,13 +7,11 @@ BASE_URL = "http://localhost:8000"
 USERNAME = "admin"
 PASSWORD = "admin123"
 
+
 def login():
     """登录获取 token"""
     url = f"{BASE_URL}/api/auth/login"
-    data = {
-        "username": USERNAME,
-        "password": PASSWORD
-    }
+    data = {"username": USERNAME, "password": PASSWORD}
     response = requests.post(url, json=data)
     if response.status_code == 200:
         result = response.json()
@@ -23,12 +21,11 @@ def login():
         print(response.text)
         return None
 
+
 def get_quote(token, code):
     """获取股票行情"""
     url = f"{BASE_URL}/api/stocks/{code}/quote"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
+    headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json()
@@ -36,6 +33,7 @@ def get_quote(token, code):
         print(f"❌ 获取行情失败: {response.status_code}")
         print(response.text)
         return None
+
 
 def main():
     print("=" * 60)
@@ -113,6 +111,6 @@ def main():
     else:
         print("  ⚠️ 数据不完整，无法验证")
 
+
 if __name__ == "__main__":
     main()
-

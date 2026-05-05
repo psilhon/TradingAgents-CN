@@ -9,10 +9,7 @@ async def test_login_api():
     url = "http://localhost:8001/api/auth/login"
 
     # 测试数据
-    login_data = {
-        "username": "admin",
-        "password": "admin123"
-    }
+    login_data = {"username": "admin", "password": "admin123"}
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -37,6 +34,7 @@ async def test_login_api():
     except Exception as e:
         print(f"请求异常: {e}")
         return False
+
 
 if __name__ == "__main__":
     print("🔐 测试登录API...")

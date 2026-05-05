@@ -42,8 +42,9 @@ class AdaptiveCacheSystem:
 
         self.logger.info(f"自适应缓存系统初始化 - 主要后端: {self.primary_backend}")
 
-    def _get_cache_key(self, symbol: str, start_date: str = "", end_date: str = "",
-                      data_source: str = "default", data_type: str = "stock_data") -> str:
+    def _get_cache_key(
+        self, symbol: str, start_date: str = "", end_date: str = "", data_source: str = "default", data_type: str = "stock_data"
+    ) -> str:
         """生成缓存键"""
         key_data = f"{symbol}_{start_date}_{end_date}_{data_source}_{data_type}"
         return hashlib.md5(key_data.encode()).hexdigest()
@@ -73,14 +74,9 @@ class AdaptiveCacheSystem:
         """保存到文件缓存"""
         try:
             cache_file = self.cache_dir / f"{cache_key}.pkl"
-            cache_data = {
-                'data': data,
-                'metadata': metadata,
-                'timestamp': datetime.now(),
-                'backend': 'file'
-            }
+            cache_data = {"data": data, "metadata": metadata, "timestamp": datetime.now(), "backend": "file"}
 
-            with open(cache_file, 'wb') as f:
+            with open(cache_file, "wb") as f:
                 pickle.dump(cache_data, f)
 
             self.logger.debug(f"文件缓存保存成功: {cache_key}")
@@ -97,7 +93,7 @@ class AdaptiveCacheSystem:
             if not cache_file.exists():
                 return None
 
-            with open(cache_file, 'rb') as f:
+            with open(cache_file, "rb") as f:
                 cache_data = pickle.load(f)
 
             self.logger.debug(f"文件缓存加载成功: {cache_key}")
@@ -114,12 +110,7 @@ class AdaptiveCacheSystem:
             return False
 
         try:
-            cache_data = {
-                'data': data,
-                'metadata': metadata,
-                'timestamp': datetime.now().isoformat(),
-                'backend': 'redis'
-            }
+            cache_data = {"data": data, "metadata": metadata, "timestamp": datetime.now().isoformat(), "backend": "redis"}
 
             serialized_data = pickle.dumps(cache_data)
             redis_client.setex(cache_key, ttl_seconds, serialized_data)
@@ -145,8 +136,8 @@ class AdaptiveCacheSystem:
             cache_data = pickle.loads(serialized_data)
 
             # 转换时间戳
-            if isinstance(cache_data['timestamp'], str):
-                cache_data['timestamp'] = datetime.fromisoformat(cache_data['timestamp'])
+            if isinstance(cache_data["timestamp"], str):
+                cache_data["timestamp"] = datetime.fromisoformat(cache_data["timestamp"])
 
             self.logger.debug(f"Redis缓存加载成功: {cache_key}")
             return cache_data
@@ -168,22 +159,22 @@ class AdaptiveCacheSystem:
             # 序列化数据
             if isinstance(data, pd.DataFrame):
                 serialized_data = data.to_json()
-                data_type = 'dataframe'
+                data_type = "dataframe"
             else:
                 serialized_data = pickle.dumps(data).hex()
-                data_type = 'pickle'
+                data_type = "pickle"
 
             cache_doc = {
-                '_id': cache_key,
-                'data': serialized_data,
-                'data_type': data_type,
-                'metadata': metadata,
-                'timestamp': datetime.now(),
-                'expires_at': datetime.now() + timedelta(seconds=ttl_seconds),
-                'backend': 'mongodb'
+                "_id": cache_key,
+                "data": serialized_data,
+                "data_type": data_type,
+                "metadata": metadata,
+                "timestamp": datetime.now(),
+                "expires_at": datetime.now() + timedelta(seconds=ttl_seconds),
+                "backend": "mongodb",
             }
 
-            collection.replace_one({'_id': cache_key}, cache_doc, upsert=True)
+            collection.replace_one({"_id": cache_key}, cache_doc, upsert=True)
 
             self.logger.debug(f"MongoDB缓存保存成功: {cache_key}")
             return True
@@ -202,27 +193,22 @@ class AdaptiveCacheSystem:
             db = mongodb_client.tradingagents
             collection = db.cache
 
-            doc = collection.find_one({'_id': cache_key})
+            doc = collection.find_one({"_id": cache_key})
             if not doc:
                 return None
 
             # 检查是否过期
-            if doc.get('expires_at') and doc['expires_at'] < datetime.now():
-                collection.delete_one({'_id': cache_key})
+            if doc.get("expires_at") and doc["expires_at"] < datetime.now():
+                collection.delete_one({"_id": cache_key})
                 return None
 
             # 反序列化数据
-            if doc['data_type'] == 'dataframe':
-                data = pd.read_json(doc['data'])
+            if doc["data_type"] == "dataframe":
+                data = pd.read_json(doc["data"])
             else:
-                data = pickle.loads(bytes.fromhex(doc['data']))
+                data = pickle.loads(bytes.fromhex(doc["data"]))
 
-            cache_data = {
-                'data': data,
-                'metadata': doc['metadata'],
-                'timestamp': doc['timestamp'],
-                'backend': 'mongodb'
-            }
+            cache_data = {"data": data, "metadata": doc["metadata"], "timestamp": doc["timestamp"], "backend": "mongodb"}
 
             self.logger.debug(f"MongoDB缓存加载成功: {cache_key}")
             return cache_data
@@ -231,20 +217,15 @@ class AdaptiveCacheSystem:
             self.logger.error(f"MongoDB缓存加载失败: {e}")
             return None
 
-    def save_data(self, symbol: str, data: Any, start_date: str = "", end_date: str = "",
-                  data_source: str = "default", data_type: str = "stock_data") -> str:
+    def save_data(
+        self, symbol: str, data: Any, start_date: str = "", end_date: str = "", data_source: str = "default", data_type: str = "stock_data"
+    ) -> str:
         """保存数据到缓存"""
         # 生成缓存键
         cache_key = self._get_cache_key(symbol, start_date, end_date, data_source, data_type)
 
         # 准备元数据
-        metadata = {
-            'symbol': symbol,
-            'start_date': start_date,
-            'end_date': end_date,
-            'data_source': data_source,
-            'data_type': data_type
-        }
+        metadata = {"symbol": symbol, "start_date": start_date, "end_date": end_date, "data_source": data_source, "data_type": data_type}
 
         # 获取TTL
         ttl_seconds = self._get_ttl_seconds(symbol, data_type)
@@ -292,19 +273,20 @@ class AdaptiveCacheSystem:
             return None
 
         # 检查缓存是否有效（仅对文件缓存，数据库缓存有自己的TTL机制）
-        if cache_data.get('backend') == 'file':
-            symbol = cache_data['metadata'].get('symbol', '')
-            data_type = cache_data['metadata'].get('data_type', 'stock_data')
+        if cache_data.get("backend") == "file":
+            symbol = cache_data["metadata"].get("symbol", "")
+            data_type = cache_data["metadata"].get("data_type", "stock_data")
             ttl_seconds = self._get_ttl_seconds(symbol, data_type)
 
-            if not self._is_cache_valid(cache_data['timestamp'], ttl_seconds):
+            if not self._is_cache_valid(cache_data["timestamp"], ttl_seconds):
                 self.logger.debug(f"文件缓存已过期: {cache_key}")
                 return None
 
-        return cache_data['data']
+        return cache_data["data"]
 
-    def find_cached_data(self, symbol: str, start_date: str = "", end_date: str = "",
-                        data_source: str = "default", data_type: str = "stock_data") -> str | None:
+    def find_cached_data(
+        self, symbol: str, start_date: str = "", end_date: str = "", data_source: str = "default", data_type: str = "stock_data"
+    ) -> str | None:
         """查找缓存的数据"""
         cache_key = self._get_cache_key(symbol, start_date, end_date, data_source, data_type)
 
@@ -318,24 +300,24 @@ class AdaptiveCacheSystem:
         """获取缓存统计信息"""
         # 标准统计格式
         stats = {
-            'total_files': 0,
-            'stock_data_count': 0,
-            'news_count': 0,
-            'fundamentals_count': 0,
-            'total_size': 0,  # 字节
-            'total_size_mb': 0,  # MB
-            'skipped_count': 0
+            "total_files": 0,
+            "stock_data_count": 0,
+            "news_count": 0,
+            "fundamentals_count": 0,
+            "total_size": 0,  # 字节
+            "total_size_mb": 0,  # MB
+            "skipped_count": 0,
         }
 
         # 后端信息
         backend_info = {
-            'primary_backend': self.primary_backend,
-            'fallback_enabled': self.fallback_enabled,
-            'database_available': self.db_manager.is_database_available(),
-            'mongodb_available': self.db_manager.is_mongodb_available(),
-            'redis_available': self.db_manager.is_redis_available(),
-            'file_cache_directory': str(self.cache_dir),
-            'file_cache_count': len(list(self.cache_dir.glob("*.pkl"))),
+            "primary_backend": self.primary_backend,
+            "fallback_enabled": self.fallback_enabled,
+            "database_available": self.db_manager.is_database_available(),
+            "mongodb_available": self.db_manager.is_mongodb_available(),
+            "redis_available": self.db_manager.is_redis_available(),
+            "file_cache_directory": str(self.cache_dir),
+            "file_cache_count": len(list(self.cache_dir.glob("*.pkl"))),
         }
 
         total_size_bytes = 0
@@ -360,32 +342,32 @@ class AdaptiveCacheSystem:
                         except Exception:
                             pass
 
-                        stats['total_files'] += count
+                        stats["total_files"] += count
 
                         # 按类型分类
                         if collection_name == "stock_data":
-                            stats['stock_data_count'] += count
+                            stats["stock_data_count"] += count
                         elif collection_name == "news_data":
-                            stats['news_count'] += count
+                            stats["news_count"] += count
                         elif collection_name == "fundamentals_data":
-                            stats['fundamentals_count'] += count
+                            stats["fundamentals_count"] += count
 
-                backend_info['mongodb_cache_count'] = stats['total_files']
+                backend_info["mongodb_cache_count"] = stats["total_files"]
             except Exception:
-                backend_info['mongodb_status'] = 'Error'
+                backend_info["mongodb_status"] = "Error"
 
         # Redis统计
         redis_client = self.db_manager.get_redis_client()
         if redis_client:
             try:
                 redis_info = redis_client.info()
-                backend_info['redis_memory_used'] = redis_info.get('used_memory_human', 'N/A')
-                backend_info['redis_keys'] = redis_client.dbsize()
+                backend_info["redis_memory_used"] = redis_info.get("used_memory_human", "N/A")
+                backend_info["redis_keys"] = redis_client.dbsize()
             except Exception:
-                backend_info['redis_status'] = 'Error'
+                backend_info["redis_status"] = "Error"
 
         # 文件缓存统计
-        if self.primary_backend == 'file' or self.fallback_enabled:
+        if self.primary_backend == "file" or self.fallback_enabled:
             for pkl_file in self.cache_dir.glob("*.pkl"):
                 try:
                     total_size_bytes += pkl_file.stat().st_size
@@ -393,11 +375,11 @@ class AdaptiveCacheSystem:
                     pass
 
         # 设置总大小
-        stats['total_size'] = total_size_bytes
-        stats['total_size_mb'] = round(total_size_bytes / (1024 * 1024), 2)
+        stats["total_size"] = total_size_bytes
+        stats["total_size_mb"] = round(total_size_bytes / (1024 * 1024), 2)
 
         # 添加后端详细信息
-        stats['backend_info'] = backend_info
+        stats["backend_info"] = backend_info
 
         return stats
 
@@ -409,14 +391,14 @@ class AdaptiveCacheSystem:
         cleared_files = 0
         for cache_file in self.cache_dir.glob("*.pkl"):
             try:
-                with open(cache_file, 'rb') as f:
+                with open(cache_file, "rb") as f:
                     cache_data = pickle.load(f)
 
-                symbol = cache_data['metadata'].get('symbol', '')
-                data_type = cache_data['metadata'].get('data_type', 'stock_data')
+                symbol = cache_data["metadata"].get("symbol", "")
+                data_type = cache_data["metadata"].get("data_type", "stock_data")
                 ttl_seconds = self._get_ttl_seconds(symbol, data_type)
 
-                if not self._is_cache_valid(cache_data['timestamp'], ttl_seconds):
+                if not self._is_cache_valid(cache_data["timestamp"], ttl_seconds):
                     cache_file.unlink()
                     cleared_files += 1
 
@@ -431,6 +413,7 @@ class AdaptiveCacheSystem:
 
 # 全局缓存系统实例
 _cache_system = None
+
 
 def get_cache_system() -> AdaptiveCacheSystem:
     """获取全局自适应缓存系统实例"""

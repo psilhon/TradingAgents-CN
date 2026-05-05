@@ -27,6 +27,7 @@ def test_openai_adapter_import():
     except Exception as e:
         print(f"❌ 导入失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -52,6 +53,7 @@ def test_openai_adapter_connection():
     except Exception as e:
         print(f"❌ 连接测试异常: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -77,6 +79,7 @@ def test_openai_adapter_function_calling():
     except Exception as e:
         print(f"❌ Function Calling 测试异常: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -93,11 +96,7 @@ def test_technical_analysis_with_new_adapter():
         from tradingagents.llm_adapters import ChatDashScopeOpenAI
 
         # 创建新的 OpenAI 兼容适配器
-        llm = ChatDashScopeOpenAI(
-            model="qwen-plus-latest",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        llm = ChatDashScopeOpenAI(model="qwen-plus-latest", temperature=0.1, max_tokens=2000)
 
         print("✅ 新适配器创建成功")
 
@@ -135,7 +134,9 @@ def test_technical_analysis_with_new_adapter():
         # 测试工具调用
         print("🔄 测试工具调用...")
 
-        messages = [HumanMessage(content="""请分析600036这只股票的技术面。
+        messages = [
+            HumanMessage(
+                content="""请分析600036这只股票的技术面。
 
 请先调用get_test_stock_data工具获取数据，参数：
 - ticker: "600036"
@@ -146,7 +147,9 @@ def test_technical_analysis_with_new_adapter():
 1. 报告长度不少于500字
 2. 包含具体的技术指标分析
 3. 提供明确的投资建议
-4. 使用中文撰写""")]
+4. 使用中文撰写"""
+            )
+        ]
 
         response = llm_with_tools.invoke(messages)
 
@@ -154,10 +157,10 @@ def test_technical_analysis_with_new_adapter():
         print(f"📊 响应长度: {len(response.content)}字符")
 
         # 检查是否有工具调用
-        if hasattr(response, 'tool_calls') and len(response.tool_calls) > 0:
+        if hasattr(response, "tool_calls") and len(response.tool_calls) > 0:
             print(f"✅ 工具调用成功: {len(response.tool_calls)}个工具调用")
             for i, tool_call in enumerate(response.tool_calls):
-                print(f"   工具{i+1}: {tool_call.get('name', 'unknown')}")
+                print(f"   工具{i + 1}: {tool_call.get('name', 'unknown')}")
 
             # 这里应该继续执行工具并生成最终分析
             # 但为了测试，我们只验证工具调用是否正常
@@ -177,6 +180,7 @@ def test_technical_analysis_with_new_adapter():
     except Exception as e:
         print(f"❌ 技术面分析测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -196,7 +200,7 @@ def test_trading_graph_integration():
             "quick_think_llm": "qwen-turbo",
             "max_debate_rounds": 1,
             "online_tools": True,
-            "selected_analysts": ["fundamentals_analyst", "market_analyst"]
+            "selected_analysts": ["fundamentals_analyst", "market_analyst"],
         }
 
         print("🔄 创建 TradingGraph...")
@@ -217,6 +221,7 @@ def test_trading_graph_integration():
     except Exception as e:
         print(f"❌ TradingGraph 集成测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -244,7 +249,7 @@ def main():
         ("OpenAI 兼容适配器连接", test_openai_adapter_connection),
         ("Function Calling", test_openai_adapter_function_calling),
         ("技术面分析工具调用", test_technical_analysis_with_new_adapter),
-        ("TradingGraph 集成", test_trading_graph_integration)
+        ("TradingGraph 集成", test_trading_graph_integration),
     ]
 
     results = []

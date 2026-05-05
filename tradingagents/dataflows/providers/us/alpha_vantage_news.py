@@ -14,13 +14,13 @@ from tradingagents.utils.logging_manager import get_logger
 
 from .alpha_vantage_common import _make_api_request, format_datetime_for_api, format_response_as_string
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 
 def get_news(
     ticker: Annotated[str, "Stock symbol for news articles"],
     start_date: Annotated[str, "Start date for news search, YYYY-MM-DD"],
-    end_date: Annotated[str, "End date for news search, YYYY-MM-DD"]
+    end_date: Annotated[str, "End date for news search, YYYY-MM-DD"],
 ) -> str:
     """
     获取股票相关的新闻和情感分析数据
@@ -77,20 +77,20 @@ def get_news(
                 result += f"**URL**: {article.get('url', 'N/A')}\n"
 
                 # 情感分析
-                sentiment = article.get('overall_sentiment_label', 'N/A')
-                sentiment_score = article.get('overall_sentiment_score', 'N/A')
+                sentiment = article.get("overall_sentiment_label", "N/A")
+                sentiment_score = article.get("overall_sentiment_score", "N/A")
                 result += f"**Sentiment**: {sentiment} (Score: {sentiment_score})\n"
 
                 # 摘要
-                summary = article.get('summary', 'N/A')
+                summary = article.get("summary", "N/A")
                 if len(summary) > 200:
                     summary = summary[:200] + "..."
                 result += f"**Summary**: {summary}\n"
 
                 # 相关股票的情感
-                ticker_sentiment = article.get('ticker_sentiment', [])
+                ticker_sentiment = article.get("ticker_sentiment", [])
                 for ts in ticker_sentiment:
-                    if ts.get('ticker', '').upper() == ticker.upper():
+                    if ts.get("ticker", "").upper() == ticker.upper():
                         result += f"**Ticker Sentiment**: {ts.get('ticker_sentiment_label', 'N/A')} "
                         result += f"(Score: {ts.get('ticker_sentiment_score', 'N/A')}, "
                         result += f"Relevance: {ts.get('relevance_score', 'N/A')})\n"
@@ -108,9 +108,7 @@ def get_news(
         return f"Error retrieving news for {ticker}: {e!s}"
 
 
-def get_insider_transactions(
-    symbol: Annotated[str, "Ticker symbol, e.g., IBM"]
-) -> str:
+def get_insider_transactions(symbol: Annotated[str, "Ticker symbol, e.g., IBM"]) -> str:
     """
     获取内部人交易数据
 
@@ -175,7 +173,7 @@ def get_market_news(
     topics: Annotated[str | None, "News topics, e.g., 'technology,earnings'"] = None,
     start_date: Annotated[str | None, "Start date, YYYY-MM-DD"] = None,
     end_date: Annotated[str | None, "End date, YYYY-MM-DD"] = None,
-    limit: Annotated[int, "Number of articles to return"] = 50
+    limit: Annotated[int, "Number of articles to return"] = 50,
 ) -> str:
     """
     获取市场整体新闻（不限定特定股票）
@@ -236,7 +234,7 @@ def get_market_news(
                 result += f"**Sentiment**: {article.get('overall_sentiment_label', 'N/A')} "
                 result += f"(Score: {article.get('overall_sentiment_score', 'N/A')})\n"
 
-                summary = article.get('summary', 'N/A')
+                summary = article.get("summary", "N/A")
                 if len(summary) > 200:
                     summary = summary[:200] + "..."
                 result += f"**Summary**: {summary}\n\n"
@@ -250,4 +248,3 @@ def get_market_news(
     except Exception as e:
         logger.error(f"❌ [Alpha Vantage] 获取市场新闻失败: {e}")
         return f"Error retrieving market news: {e!s}"
-

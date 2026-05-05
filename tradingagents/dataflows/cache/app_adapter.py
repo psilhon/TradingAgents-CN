@@ -6,6 +6,7 @@ App 缓存读取适配器（TradingAgents -> app MongoDB 集合）
 
 当启用 ta_use_app_cache 时，作为优先数据源；未命中部分由上层继续回退到直连数据源。
 """
+
 from __future__ import annotations
 
 import logging
@@ -13,7 +14,7 @@ from typing import Any
 
 import pandas as pd
 
-_logger = logging.getLogger('dataflows')
+_logger = logging.getLogger("dataflows")
 
 try:
     from tradingagents.config.database_manager import get_mongodb_client
@@ -38,6 +39,7 @@ def get_basics_from_cache(stock_code: str | None = None) -> dict[str, Any] | lis
         try:
             # 访问 DatabaseManager 暴露的配置
             from tradingagents.config.database_manager import get_database_manager  # type: ignore
+
             db_name = get_database_manager().mongodb_config.get("database", "tradingagents")
         except Exception:
             db_name = "tradingagents"
@@ -79,6 +81,7 @@ def get_market_quote_dataframe(symbol: str) -> pd.DataFrame | None:
     try:
         # 获取数据库
         from tradingagents.config.database_manager import get_database_manager  # type: ignore
+
         db_name = get_database_manager().mongodb_config.get("database", "tradingagents")
         db = client[db_name]
         coll = db[QUOTES_COLLECTION]
@@ -115,4 +118,3 @@ def get_market_quote_dataframe(symbol: str) -> pd.DataFrame | None:
         except Exception:
             pass
         return None
-

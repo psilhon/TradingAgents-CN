@@ -28,20 +28,22 @@ def test_stock_utils():
             ("600036", "中国A股"),
             ("AAPL", "美股"),
             ("TSLA", "美股"),
-            ("invalid", "未知市场")
+            ("invalid", "未知市场"),
         ]
 
         for ticker, expected in test_cases:
             market_info = StockUtils.get_market_info(ticker)
-            print(f"  {ticker}: {market_info['market_name']} ({market_info['currency_name']}) - {'✅' if expected in market_info['market_name'] else '❌'}")  # noqa: E501
+            print(
+                f"  {ticker}: {market_info['market_name']} ({market_info['currency_name']}) - {'✅' if expected in market_info['market_name'] else '❌'}"
+            )  # noqa: E501
 
-            if expected == "港股" and not market_info['is_hk']:
+            if expected == "港股" and not market_info["is_hk"]:
                 print(f"❌ {ticker} 应该被识别为港股")
                 return False
-            elif expected == "中国A股" and not market_info['is_china']:
+            elif expected == "中国A股" and not market_info["is_china"]:
                 print(f"❌ {ticker} 应该被识别为中国A股")
                 return False
-            elif expected == "美股" and not market_info['is_us']:
+            elif expected == "美股" and not market_info["is_us"]:
                 print(f"❌ {ticker} 应该被识别为美股")
                 return False
 
@@ -64,12 +66,7 @@ def test_hk_stock_provider():
         provider = get_hk_stock_provider()
 
         # 测试港股代码标准化
-        test_symbols = [
-            ("0700", "0700.HK"),
-            ("0700.HK", "0700.HK"),
-            ("9988", "9988.HK"),
-            ("3690.HK", "3690.HK")
-        ]
+        test_symbols = [("0700", "0700.HK"), ("0700.HK", "0700.HK"), ("9988", "9988.HK"), ("3690.HK", "3690.HK")]
 
         for input_symbol, expected in test_symbols:
             normalized = provider._normalize_hk_symbol(input_symbol)
@@ -101,7 +98,7 @@ def test_hk_stock_info():
 
         info = get_hk_stock_info(hk_symbol)
 
-        if info and 'symbol' in info:
+        if info and "symbol" in info:
             print(f"  ✅ 股票代码: {info['symbol']}")
             print(f"  ✅ 股票名称: {info['name']}")
             print(f"  ✅ 货币: {info['currency']}")
@@ -109,10 +106,10 @@ def test_hk_stock_info():
             print(f"  ✅ 数据源: {info['source']}")
 
             # 验证基本字段
-            if info['currency'] != 'HKD':
+            if info["currency"] != "HKD":
                 print(f"⚠️ 港股货币应为HKD，实际为: {info['currency']}")
 
-            if info['exchange'] != 'HKG':
+            if info["exchange"] != "HKG":
                 print(f"⚠️ 港股交易所应为HKG，实际为: {info['exchange']}")
 
             print("✅ 港股信息获取测试通过")
@@ -137,8 +134,8 @@ def test_hk_stock_data():
         from tradingagents.dataflows.hk_stock_utils import get_hk_stock_data
 
         # 设置测试日期范围（最近30天）
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
 
         # 测试腾讯港股数据
         hk_symbol = "0700.HK"
@@ -182,19 +179,14 @@ def test_optimized_us_data_hk_support():
         from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
 
         # 设置测试日期范围
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
 
         # 测试港股数据获取
         hk_symbol = "0700.HK"
         print(f"  通过优化模块获取 {hk_symbol} 数据...")
 
-        data_text = get_us_stock_data_cached(
-            symbol=hk_symbol,
-            start_date=start_date,
-            end_date=end_date,
-            force_refresh=True
-        )
+        data_text = get_us_stock_data_cached(symbol=hk_symbol, start_date=start_date, end_date=end_date, force_refresh=True)
 
         if data_text and "数据分析" in data_text:
             print("  ✅ 数据获取成功")
@@ -225,13 +217,7 @@ def main():
     print("🇭🇰 开始港股功能测试")
     print("=" * 50)
 
-    tests = [
-        test_stock_utils,
-        test_hk_stock_provider,
-        test_hk_stock_info,
-        test_hk_stock_data,
-        test_optimized_us_data_hk_support
-    ]
+    tests = [test_stock_utils, test_hk_stock_provider, test_hk_stock_info, test_hk_stock_data, test_optimized_us_data_hk_support]
 
     passed = 0
     total = len(tests)

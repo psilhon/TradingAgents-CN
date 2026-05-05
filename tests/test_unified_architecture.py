@@ -22,10 +22,10 @@ def test_unified_tools_availability():
 
         # 检查统一工具是否存在
         unified_tools = [
-            'get_stock_fundamentals_unified',
-            'get_stock_market_data_unified',
-            'get_stock_news_unified',
-            'get_stock_sentiment_unified'
+            "get_stock_fundamentals_unified",
+            "get_stock_market_data_unified",
+            "get_stock_news_unified",
+            "get_stock_sentiment_unified",
         ]
 
         for tool_name in unified_tools:
@@ -67,7 +67,7 @@ def test_market_analyst_unified():
                 print(f"🔧 [MockLLM] 市场分析师绑定工具: {[tool.name for tool in tools]}")
 
                 # 检查是否只绑定了统一工具
-                if len(tools) == 1 and tools[0].name == 'get_stock_market_data_unified':
+                if len(tools) == 1 and tools[0].name == "get_stock_market_data_unified":
                     print("  ✅ 正确绑定统一市场数据工具")
                     return self
                 else:
@@ -79,6 +79,7 @@ def test_market_analyst_unified():
                     def __init__(self):
                         self.tool_calls = []
                         self.content = "模拟市场分析结果"
+
                 return MockResult()
 
         llm = MockLLM()
@@ -87,11 +88,7 @@ def test_market_analyst_unified():
         analyst = create_market_analyst(llm, toolkit)
 
         # 模拟状态
-        state = {
-            "trade_date": "2025-07-14",
-            "company_of_interest": "0700.HK",
-            "messages": []
-        }
+        state = {"trade_date": "2025-07-14", "company_of_interest": "0700.HK", "messages": []}
 
         print(f"  测试港股市场分析: {state['company_of_interest']}")
 
@@ -104,6 +101,7 @@ def test_market_analyst_unified():
     except Exception as e:
         print(f"❌ 市场分析师统一工具测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -130,7 +128,7 @@ def test_fundamentals_analyst_unified():
                 print(f"🔧 [MockLLM] 基本面分析师绑定工具: {[tool.name for tool in tools]}")
 
                 # 检查是否只绑定了统一工具
-                if len(tools) == 1 and tools[0].name == 'get_stock_fundamentals_unified':
+                if len(tools) == 1 and tools[0].name == "get_stock_fundamentals_unified":
                     print("  ✅ 正确绑定统一基本面分析工具")
                     return self
                 else:
@@ -142,6 +140,7 @@ def test_fundamentals_analyst_unified():
                     def __init__(self):
                         self.tool_calls = []
                         self.content = "模拟基本面分析结果"
+
                 return MockResult()
 
         llm = MockLLM()
@@ -150,11 +149,7 @@ def test_fundamentals_analyst_unified():
         analyst = create_fundamentals_analyst(llm, toolkit)
 
         # 模拟状态
-        state = {
-            "trade_date": "2025-07-14",
-            "company_of_interest": "0700.HK",
-            "messages": []
-        }
+        state = {"trade_date": "2025-07-14", "company_of_interest": "0700.HK", "messages": []}
 
         print(f"  测试港股基本面分析: {state['company_of_interest']}")
 
@@ -167,6 +162,7 @@ def test_fundamentals_analyst_unified():
     except Exception as e:
         print(f"❌ 基本面分析师统一工具测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -196,12 +192,9 @@ def test_stock_type_routing():
 
             # 测试基本面分析工具
             try:
-                result = toolkit.get_stock_fundamentals_unified.invoke({
-                    'ticker': ticker,
-                    'start_date': '2025-06-14',
-                    'end_date': '2025-07-14',
-                    'curr_date': '2025-07-14'
-                })
+                result = toolkit.get_stock_fundamentals_unified.invoke(
+                    {"ticker": ticker, "start_date": "2025-06-14", "end_date": "2025-07-14", "curr_date": "2025-07-14"}
+                )
 
                 if expected_market in result and expected_currency in result:
                     print("  ✅ 基本面工具路由正确")
@@ -214,11 +207,9 @@ def test_stock_type_routing():
 
             # 测试市场数据工具
             try:
-                result = toolkit.get_stock_market_data_unified.invoke({
-                    'ticker': ticker,
-                    'start_date': '2025-07-10',
-                    'end_date': '2025-07-14'
-                })
+                result = toolkit.get_stock_market_data_unified.invoke(
+                    {"ticker": ticker, "start_date": "2025-07-10", "end_date": "2025-07-14"}
+                )
 
                 if expected_market in result and expected_currency in result:
                     print("  ✅ 市场数据工具路由正确")

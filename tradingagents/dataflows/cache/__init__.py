@@ -21,11 +21,12 @@ from typing import Union  # noqa: F401
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 # 导入文件缓存
 try:
     from .file_cache import StockDataCache
+
     FILE_CACHE_AVAILABLE = True
 except ImportError:
     StockDataCache = None
@@ -34,6 +35,7 @@ except ImportError:
 # 导入数据库缓存
 try:
     from .db_cache import DatabaseCacheManager
+
     DB_CACHE_AVAILABLE = True
 except ImportError:
     DatabaseCacheManager = None
@@ -42,6 +44,7 @@ except ImportError:
 # 导入自适应缓存
 try:
     from .adaptive import AdaptiveCacheSystem
+
     ADAPTIVE_CACHE_AVAILABLE = True
 except ImportError:
     AdaptiveCacheSystem = None
@@ -50,6 +53,7 @@ except ImportError:
 # 导入集成缓存
 try:
     from .integrated import IntegratedCacheManager
+
     INTEGRATED_CACHE_AVAILABLE = True
 except ImportError:
     IntegratedCacheManager = None
@@ -58,6 +62,7 @@ except ImportError:
 # 导入应用缓存适配器（函数，非类）
 try:
     from .app_adapter import get_basics_from_cache, get_market_quote_dataframe
+
     APP_CACHE_AVAILABLE = True
 except ImportError:
     get_basics_from_cache = None
@@ -67,6 +72,7 @@ except ImportError:
 # 导入 MongoDB 缓存适配器
 try:
     from .mongodb_cache_adapter import MongoDBCacheAdapter
+
     MONGODB_CACHE_ADAPTER_AVAILABLE = True
 except ImportError:
     MongoDBCacheAdapter = None
@@ -77,6 +83,7 @@ _cache_instance = None
 
 # 默认缓存策略（改为 integrated，优先使用 MongoDB/Redis 缓存）
 DEFAULT_CACHE_STRATEGY = os.getenv("TA_CACHE_STRATEGY", "integrated")
+
 
 def get_cache() -> StockDataCache | IntegratedCacheManager:
     """
@@ -114,25 +121,25 @@ def get_cache() -> StockDataCache | IntegratedCacheManager:
 
     return _cache_instance
 
-__all__ = [
-    'ADAPTIVE_CACHE_AVAILABLE',
-    'APP_CACHE_AVAILABLE',
-    'DB_CACHE_AVAILABLE',
-    # 可用性标志
-    'FILE_CACHE_AVAILABLE',
-    'INTEGRATED_CACHE_AVAILABLE',
-    'MONGODB_CACHE_ADAPTER_AVAILABLE',
-    'AdaptiveCacheSystem',
-    'DatabaseCacheManager',
-    'IntegratedCacheManager',
-    # MongoDB 缓存适配器
-    'MongoDBCacheAdapter',
-    # 缓存类（供高级用户直接使用）
-    'StockDataCache',
-    # 应用缓存适配器
-    'get_basics_from_cache',
-    # 统一入口（推荐使用）
-    'get_cache',
-    'get_market_quote_dataframe',
-]
 
+__all__ = [
+    "ADAPTIVE_CACHE_AVAILABLE",
+    "APP_CACHE_AVAILABLE",
+    "DB_CACHE_AVAILABLE",
+    # 可用性标志
+    "FILE_CACHE_AVAILABLE",
+    "INTEGRATED_CACHE_AVAILABLE",
+    "MONGODB_CACHE_ADAPTER_AVAILABLE",
+    "AdaptiveCacheSystem",
+    "DatabaseCacheManager",
+    "IntegratedCacheManager",
+    # MongoDB 缓存适配器
+    "MongoDBCacheAdapter",
+    # 缓存类（供高级用户直接使用）
+    "StockDataCache",
+    # 应用缓存适配器
+    "get_basics_from_cache",
+    # 统一入口（推荐使用）
+    "get_cache",
+    "get_market_quote_dataframe",
+]

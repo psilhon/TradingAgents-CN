@@ -15,6 +15,7 @@ def test_legacy_env_aliases_map_to_new(monkeypatch):
 
     # Reload module under warning capture to assert deprecation warnings
     import app.core.config as cfg
+
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always", DeprecationWarning)
         importlib.reload(cfg)
@@ -27,4 +28,3 @@ def test_legacy_env_aliases_map_to_new(monkeypatch):
     assert s.HOST == "127.0.0.1"
     assert s.PORT == 8123
     assert s.DEBUG is False
-

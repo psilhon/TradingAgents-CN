@@ -10,6 +10,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_fundamentals_generation():
     """测试基本面报告生成过程"""
     print("\n🔍 基本面报告生成测试")
@@ -22,6 +23,7 @@ def test_fundamentals_generation():
     try:
         # 设置日志级别
         from tradingagents.utils.logging_init import get_logger
+
         logger = get_logger("default")
         logger.setLevel("INFO")
 
@@ -29,6 +31,7 @@ def test_fundamentals_generation():
 
         # 获取股票数据
         from tradingagents.dataflows.interface import get_china_stock_data_tushare
+
         stock_data = get_china_stock_data_tushare(test_ticker, "2025-07-01", "2025-07-15")
 
         print(f"✅ 股票数据获取完成，长度: {len(stock_data) if stock_data else 0}")
@@ -38,6 +41,7 @@ def test_fundamentals_generation():
 
         # 生成基本面报告
         from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
+
         analyzer = OptimizedChinaDataProvider()
 
         fundamentals_report = analyzer._generate_fundamentals_report(test_ticker, stock_data)
@@ -64,6 +68,7 @@ def test_fundamentals_generation():
 
                 # 找出错误代码的位置
                 import re
+
                 positions = [m.start() for m in re.finditer("002021", fundamentals_report)]
                 print(f"   002021 出现位置: {positions}")
 
@@ -87,8 +92,10 @@ def test_fundamentals_generation():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_industry_info():
     """测试行业信息获取"""
@@ -99,6 +106,7 @@ def test_industry_info():
 
     try:
         from tradingagents.dataflows.optimized_china_data import OptimizedChinaDataProvider
+
         analyzer = OptimizedChinaDataProvider()
 
         print("🔧 测试 _get_industry_info...")
@@ -114,8 +122,10 @@ def test_industry_info():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 开始基本面报告生成测试")

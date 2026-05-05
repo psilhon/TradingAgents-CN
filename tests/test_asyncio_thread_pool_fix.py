@@ -51,12 +51,7 @@ def test_data_source_manager_in_thread_pool():
         # 这应该不会抛出 RuntimeError
         # 注意：实际数据获取可能失败（如果没有配置API key），但不应该是事件循环错误
         try:
-            result = manager.get_stock_data(
-                symbol="000001",
-                start_date="2025-01-01",
-                end_date="2025-01-10",
-                period="daily"
-            )
+            result = manager.get_stock_data(symbol="000001", start_date="2025-01-01", end_date="2025-01-10", period="daily")
             return result
         except Exception as e:
             # 如果是事件循环错误，测试失败
@@ -120,4 +115,3 @@ if __name__ == "__main__":
     print("✅ 测试3通过\n")
 
     print("🎉 所有测试通过！")
-

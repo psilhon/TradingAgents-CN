@@ -2,6 +2,7 @@
 """
 测试修复后的BaoStock功能
 """
+
 import os
 import sys
 
@@ -11,10 +12,8 @@ import logging
 from datetime import datetime, timedelta
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)-8s | %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(message)s")
+
 
 def test_baostock_query_all_stock_with_date():
     """测试带日期参数的query_all_stock"""
@@ -27,7 +26,7 @@ def test_baostock_query_all_stock_with_date():
 
         # 登录BaoStock
         lg = bs.login()
-        if lg.error_code != '0':
+        if lg.error_code != "0":
             print(f"❌ BaoStock登录失败: {lg.error_msg}")
             return
 
@@ -47,11 +46,11 @@ def test_baostock_query_all_stock_with_date():
                 print(f"   返回码: {rs.error_code}")
                 print(f"   返回消息: {rs.error_msg}")
 
-                if rs.error_code == '0':
+                if rs.error_code == "0":
                     # 解析数据
                     data_list = []
                     count = 0
-                    while (rs.error_code == '0') & rs.next():
+                    while (rs.error_code == "0") & rs.next():
                         row = rs.get_row_data()
                         data_list.append(row)
                         count += 1
@@ -63,7 +62,7 @@ def test_baostock_query_all_stock_with_date():
                     print(f"   ✅ 获取到 {len(data_list)} 条记录")
 
                     # 分析A股股票
-                    a_stocks = [row for row in data_list if row[0].startswith(('sh.', 'sz.')) and len(row[0]) == 9]
+                    a_stocks = [row for row in data_list if row[0].startswith(("sh.", "sz.")) and len(row[0]) == 9]
                     print(f"   📊 A股股票数量: {len(a_stocks)}")
 
                     if len(a_stocks) > 0:
@@ -82,6 +81,7 @@ def test_baostock_query_all_stock_with_date():
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
+
 
 def test_baostock_adapter_fixed():
     """测试修复后的BaoStock适配器"""
@@ -133,9 +133,9 @@ def test_baostock_adapter_fixed():
                 print(f"       收盘价: {row.get('close', 'N/A')}")
 
             # 统计有效数据
-            pe_count = basic_df['pe'].notna().sum() if 'pe' in basic_df.columns else 0
-            pb_count = basic_df['pb'].notna().sum() if 'pb' in basic_df.columns else 0
-            close_count = basic_df['close'].notna().sum() if 'close' in basic_df.columns else 0
+            pe_count = basic_df["pe"].notna().sum() if "pe" in basic_df.columns else 0
+            pb_count = basic_df["pb"].notna().sum() if "pb" in basic_df.columns else 0
+            close_count = basic_df["close"].notna().sum() if "close" in basic_df.columns else 0
 
             print("\n   📈 数据统计:")
             print(f"     有PE数据的股票: {pe_count}只")
@@ -148,7 +148,9 @@ def test_baostock_adapter_fixed():
     except Exception as e:
         print(f"❌ 适配器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 def test_data_source_manager_baostock():
     """测试数据源管理器中的BaoStock"""
@@ -167,7 +169,7 @@ def test_data_source_manager_baostock():
         # 查找BaoStock适配器
         baostock_adapter = None
         for adapter in available_adapters:
-            if adapter.name == 'baostock':
+            if adapter.name == "baostock":
                 baostock_adapter = adapter
                 break
 
@@ -181,7 +183,7 @@ def test_data_source_manager_baostock():
             if stock_df is not None and not stock_df.empty:
                 print(f"✅ 股票列表获取成功: {len(stock_df)}条记录，来源: {source}")
 
-                if source == 'baostock':
+                if source == "baostock":
                     print("🎯 使用了BaoStock数据源!")
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
@@ -197,14 +199,14 @@ def test_data_source_manager_baostock():
             if basic_df is not None and not basic_df.empty:
                 print(f"✅ daily_basic获取成功: {len(basic_df)}条记录，来源: {source}")
 
-                if source == 'baostock':
+                if source == "baostock":
                     print("🎯 使用了BaoStock数据源!")
                     # 检查BaoStock特有的估值指标
-                    if 'ps' in basic_df.columns:
-                        ps_count = basic_df['ps'].notna().sum()
+                    if "ps" in basic_df.columns:
+                        ps_count = basic_df["ps"].notna().sum()
                         print(f"   市销率(PS)数据: {ps_count}只股票")
-                    if 'pcf' in basic_df.columns:
-                        pcf_count = basic_df['pcf'].notna().sum()
+                    if "pcf" in basic_df.columns:
+                        pcf_count = basic_df["pcf"].notna().sum()
                         print(f"   市现率(PCF)数据: {pcf_count}只股票")
                 else:
                     print(f"ℹ️ 使用了其他数据源: {source}")
@@ -216,7 +218,9 @@ def test_data_source_manager_baostock():
     except Exception as e:
         print(f"❌ 数据源管理器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_baostock_query_all_stock_with_date()

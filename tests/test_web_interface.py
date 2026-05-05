@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
 
+
 def test_web_interface_config():
     """测试Web界面配置功能"""
     print("🧪 测试Web界面Google模型配置")
@@ -38,17 +39,17 @@ def test_web_interface_config():
 
         # 模拟Google配置
         test_config = {
-            'llm_provider': 'google',
-            'llm_model': 'gemini-2.0-flash',
-            'enable_memory': True,
-            'enable_debug': False,
-            'max_tokens': 4000
+            "llm_provider": "google",
+            "llm_model": "gemini-2.0-flash",
+            "enable_memory": True,
+            "enable_debug": False,
+            "max_tokens": 4000,
         }
 
         print(f"✅ 测试配置创建成功: {test_config}")
 
         # 验证配置参数
-        required_params = ['llm_provider', 'llm_model']
+        required_params = ["llm_provider", "llm_model"]
         for param in required_params:
             if param in test_config:
                 print(f"   ✅ {param}: {test_config[param]}")
@@ -60,8 +61,10 @@ def test_web_interface_config():
     except Exception as e:
         print(f"❌ Web界面配置测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def test_model_options():
     """测试模型选项配置"""
@@ -89,6 +92,7 @@ def test_model_options():
 
     return True
 
+
 def test_api_requirements():
     """测试API密钥要求"""
     print("\n🧪 测试API密钥要求")
@@ -96,9 +100,9 @@ def test_api_requirements():
 
     # 检查必需的API密钥
     api_keys = {
-        'GOOGLE_API_KEY': 'Google AI API密钥',
-        'DASHSCOPE_API_KEY': '阿里百炼API密钥（用于嵌入）',
-        'FINNHUB_API_KEY': '金融数据API密钥'
+        "GOOGLE_API_KEY": "Google AI API密钥",
+        "DASHSCOPE_API_KEY": "阿里百炼API密钥（用于嵌入）",
+        "FINNHUB_API_KEY": "金融数据API密钥",
     }
 
     all_configured = True
@@ -120,6 +124,7 @@ def test_api_requirements():
 
     return all_configured
 
+
 def main():
     """主测试函数"""
     print("🧪 Web界面Google模型功能测试")
@@ -128,9 +133,9 @@ def main():
     # 运行测试
     results = {}
 
-    results['Web界面配置'] = test_web_interface_config()
-    results['模型选项'] = test_model_options()
-    results['API密钥'] = test_api_requirements()
+    results["Web界面配置"] = test_web_interface_config()
+    results["模型选项"] = test_model_options()
+    results["API密钥"] = test_api_requirements()
 
     # 总结结果
     print("\n📊 测试结果总结:")
@@ -156,6 +161,7 @@ def main():
         print("\n🚀 现在您可以享受Google AI的强大分析能力！")
     else:
         print("⚠️ 部分功能需要进一步配置")
+
 
 if __name__ == "__main__":
     main()

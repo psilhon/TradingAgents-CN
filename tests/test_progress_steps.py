@@ -1,6 +1,7 @@
 """
 测试进度跟踪和步骤状态更新
 """
+
 import asyncio
 import json
 from datetime import datetime
@@ -12,13 +13,11 @@ BASE_URL = "http://localhost:8000"
 USERNAME = "admin"
 PASSWORD = "admin123"
 
+
 async def login() -> str:
     """登录并获取token"""
     async with aiohttp.ClientSession() as session:
-        login_data = {
-            "username": USERNAME,
-            "password": PASSWORD
-        }
+        login_data = {"username": USERNAME, "password": PASSWORD}
 
         async with session.post(f"{BASE_URL}/api/auth/login", json=login_data) as response:
             if response.status == 200:
@@ -45,28 +44,18 @@ async def login() -> str:
                 print(f"❌ 登录失败: {error}")
                 return None
 
+
 async def start_analysis(token: str) -> str:
     """发起分析任务"""
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
     analysis_data = {
         "stock_code": "601398",
-        "parameters": {
-            "analysts": ["market", "fundamentals"],
-            "research_depth": "快速",
-            "custom_requirements": "测试步骤状态更新"
-        }
+        "parameters": {"analysts": ["market", "fundamentals"], "research_depth": "快速", "custom_requirements": "测试步骤状态更新"},
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(
-            f"{BASE_URL}/api/analysis/single",
-            headers=headers,
-            json=analysis_data
-        ) as response:
+        async with session.post(f"{BASE_URL}/api/analysis/single", headers=headers, json=analysis_data) as response:
             if response.status == 200:
                 result = await response.json()
                 print(f"📋 分析响应: {json.dumps(result, indent=2, ensure_ascii=False)}")
@@ -78,18 +67,13 @@ async def start_analysis(token: str) -> str:
                 print(f"❌ 提交分析失败 (状态码: {response.status}): {error}")
                 return None
 
+
 async def get_task_status(token: str, task_id: str) -> dict:
     """获取任务状态"""
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"{BASE_URL}/api/analysis/tasks/{task_id}/status",
-            headers=headers
-        ) as response:
+        async with session.get(f"{BASE_URL}/api/analysis/tasks/{task_id}/status", headers=headers) as response:
             if response.status == 200:
                 result = await response.json()
                 return result["data"]
@@ -98,11 +82,12 @@ async def get_task_status(token: str, task_id: str) -> dict:
                 print(f"❌ 获取状态失败: {error}")
                 return None
 
+
 def print_progress_info(status_data: dict, iteration: int):
     """打印进度信息"""
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"📊 第 {iteration} 次查询 - {datetime.now().strftime('%H:%M:%S')}")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     # 基本信息
     print(f"📋 任务ID: {status_data.get('task_id', 'N/A')}")
@@ -111,9 +96,9 @@ def print_progress_info(status_data: dict, iteration: int):
     print(f"💬 消息: {status_data.get('message', 'N/A')}")
 
     # 当前步骤信息
-    current_step = status_data.get('current_step')
-    current_step_name = status_data.get('current_step_name', 'N/A')
-    current_step_description = status_data.get('current_step_description', 'N/A')
+    current_step = status_data.get("current_step")
+    current_step_name = status_data.get("current_step_name", "N/A")
+    current_step_description = status_data.get("current_step_description", "N/A")
 
     print("\n🎯 当前步骤:")
     print(f"   索引: {current_step}")
@@ -121,9 +106,9 @@ def print_progress_info(status_data: dict, iteration: int):
     print(f"   描述: {current_step_description}")
 
     # 时间信息
-    elapsed = status_data.get('elapsed_time', 0)
-    remaining = status_data.get('remaining_time', 0)
-    estimated = status_data.get('estimated_total_time', 0)
+    elapsed = status_data.get("elapsed_time", 0)
+    remaining = status_data.get("remaining_time", 0)
+    estimated = status_data.get("estimated_total_time", 0)
 
     print("\n⏱️ 时间信息:")
     print(f"   已用时间: {elapsed:.1f}秒")
@@ -131,26 +116,21 @@ def print_progress_info(status_data: dict, iteration: int):
     print(f"   预计总时长: {estimated:.1f}秒")
 
     # 步骤详情
-    steps = status_data.get('steps', [])
+    steps = status_data.get("steps", [])
     if steps:
         print(f"\n📝 步骤详情 (共 {len(steps)} 个):")
         print(f"{'序号':<6} {'状态':<12} {'名称':<30} {'权重':<8}")
-        print(f"{'-'*80}")
+        print(f"{'-' * 80}")
 
         for i, step in enumerate(steps):
-            status_icon = {
-                'pending': '⏳',
-                'current': '🔄',
-                'completed': '✅',
-                'failed': '❌'
-            }.get(step.get('status', 'pending'), '❓')
+            status_icon = {"pending": "⏳", "current": "🔄", "completed": "✅", "failed": "❌"}.get(step.get("status", "pending"), "❓")
 
             print(f"{i:<6} {status_icon} {step.get('status', 'N/A'):<10} {step.get('name', 'N/A'):<30} {step.get('weight', 0):.2%}")
 
         # 统计步骤状态
         status_count = {}
         for step in steps:
-            s = step.get('status', 'pending')
+            s = step.get("status", "pending")
             status_count[s] = status_count.get(s, 0) + 1
 
         print("\n📊 步骤状态统计:")
@@ -159,7 +139,8 @@ def print_progress_info(status_data: dict, iteration: int):
     else:
         print("\n⚠️ 没有步骤信息")
 
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
+
 
 async def monitor_task_progress(token: str, task_id: str, max_iterations: int = 60, interval: int = 3):
     """监控任务进度"""
@@ -184,11 +165,11 @@ async def monitor_task_progress(token: str, task_id: str, max_iterations: int = 
         print_progress_info(status_data, iteration)
 
         # 检查是否完成
-        status = status_data.get('status')
-        if status == 'completed':
+        status = status_data.get("status")
+        if status == "completed":
             print("✅ 任务已完成！")
             break
-        elif status == 'failed':
+        elif status == "failed":
             print("❌ 任务失败！")
             break
 
@@ -198,11 +179,12 @@ async def monitor_task_progress(token: str, task_id: str, max_iterations: int = 
     if iteration >= max_iterations:
         print("⏰ 达到最大查询次数，停止监控")
 
+
 async def main():
     """主函数"""
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print("🧪 测试进度跟踪和步骤状态更新")
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
 
     # 1. 登录
     print("1️⃣ 登录系统...")
@@ -222,10 +204,10 @@ async def main():
     print("\n3️⃣ 监控任务进度...")
     await monitor_task_progress(token, task_id, max_iterations=100, interval=3)
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("✅ 测试完成")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
-

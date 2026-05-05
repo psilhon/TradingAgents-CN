@@ -46,6 +46,7 @@ def test_pickle_compatibility():
         # 检查是否错误安装了pickle5
         try:
             import pickle5  # noqa: F401
+
             print("  ⚠️ 检测到pickle5包，建议卸载")
             return False
         except ImportError:
@@ -68,7 +69,7 @@ def test_requirements_file_syntax():
         return False
 
     try:
-        with open(requirements_file, encoding='utf-8') as f:
+        with open(requirements_file, encoding="utf-8") as f:
             lines = f.readlines()
 
         print(f"  文件行数: {len(lines)}")
@@ -79,10 +80,10 @@ def test_requirements_file_syntax():
 
         for line_num, line in enumerate(lines, 1):
             line = line.strip()
-            if not line or line.startswith('#'):
+            if not line or line.startswith("#"):
                 continue
 
-            if 'pickle5' in line and not line.startswith('#'):
+            if "pickle5" in line and not line.startswith("#"):
                 print(f"  ❌ 第{line_num}行仍包含pickle5: {line}")
                 pickle5_found = True
             else:
@@ -106,14 +107,7 @@ def test_package_installation_simulation():
     print("🔧 模拟包安装测试...")
 
     # 模拟检查每个包的可用性
-    packages_to_check = [
-        "pymongo",
-        "motor",
-        "redis",
-        "hiredis",
-        "pandas",
-        "numpy"
-    ]
+    packages_to_check = ["pymongo", "motor", "redis", "hiredis", "pandas", "numpy"]
 
     available_packages = []
     missing_packages = []
@@ -148,13 +142,7 @@ def test_compatibility_checker_tool():
 
     try:
         # 运行兼容性检查工具
-        result = subprocess.run(
-            [sys.executable, checker_file],
-            cwd=project_root,
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
+        result = subprocess.run([sys.executable, checker_file], cwd=project_root, capture_output=True, text=True, timeout=30)
 
         print(f"  返回码: {result.returncode}")
 
@@ -185,10 +173,7 @@ def test_documentation_completeness():
     """测试文档完整性"""
     print("🔧 测试文档完整性...")
 
-    docs_to_check = [
-        "docs/DATABASE_SETUP_GUIDE.md",
-        "REQUIREMENTS_DB_UPDATE.md"
-    ]
+    docs_to_check = ["docs/DATABASE_SETUP_GUIDE.md", "REQUIREMENTS_DB_UPDATE.md"]
 
     all_exist = True
 

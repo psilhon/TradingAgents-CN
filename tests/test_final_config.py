@@ -14,7 +14,7 @@ def test_final_config():
 
     # 1. 检查.env文件
     print("\n📁 检查.env文件...")
-    if os.path.exists('.env'):
+    if os.path.exists(".env"):
         print("✅ .env文件存在")
     else:
         print("❌ .env文件不存在")
@@ -61,10 +61,10 @@ def test_final_config():
         print("📊 检测结果:")
         print(f"  数据库可用: {'✅ 是' if status['database_available'] else '❌ 否'}")
 
-        mongodb_info = status['mongodb']
+        mongodb_info = status["mongodb"]
         print(f"  MongoDB: {'✅ 可用' if mongodb_info['available'] else '❌ 不可用'}")
 
-        redis_info = status['redis']
+        redis_info = status["redis"]
         print(f"  Redis: {'✅ 可用' if redis_info['available'] else '❌ 不可用'}")
 
         print(f"  缓存后端: {status['cache_backend']}")
@@ -72,6 +72,7 @@ def test_final_config():
     except Exception as e:
         print(f"❌ 数据库管理器测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -90,11 +91,7 @@ def test_final_config():
         # 测试基本功能
         test_data = "测试数据 - 最终配置"
         cache_key = cache.save_stock_data(
-            symbol="TEST_FINAL",
-            data=test_data,
-            start_date="2024-01-01",
-            end_date="2024-12-31",
-            data_source="final_test"
+            symbol="TEST_FINAL", data=test_data, start_date="2024-01-01", end_date="2024-12-31", data_source="final_test"
         )
         print(f"✅ 数据保存成功: {cache_key}")
 
@@ -109,6 +106,7 @@ def test_final_config():
     except Exception as e:
         print(f"❌ 缓存系统测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -129,6 +127,7 @@ def test_final_config():
 
     return True
 
+
 def main():
     """主函数"""
     try:
@@ -148,8 +147,10 @@ def main():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = main()

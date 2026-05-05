@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
+
 def test_complete_unified_architecture():
     """测试完整的统一工具架构"""
     print("🔧 测试完整的统一工具架构...")
@@ -42,14 +43,14 @@ def test_complete_unified_architecture():
         print(f"  基本面分析工具: {fundamentals_tool_names}")
 
         # 检查是否包含统一工具
-        if 'get_stock_fundamentals_unified' in fundamentals_tool_names:
+        if "get_stock_fundamentals_unified" in fundamentals_tool_names:
             print("    ✅ 包含统一基本面工具")
         else:
             print("    ❌ 缺少统一基本面工具")
             return False
 
         # 检查是否还有旧工具
-        old_tools = ['get_china_stock_data', 'get_china_fundamentals', 'get_fundamentals_openai']
+        old_tools = ["get_china_stock_data", "get_china_fundamentals", "get_fundamentals_openai"]
         for old_tool in old_tools:
             if old_tool in fundamentals_tool_names:
                 print(f"    ❌ 仍包含旧工具: {old_tool}")
@@ -62,7 +63,7 @@ def test_complete_unified_architecture():
         print(f"  市场分析工具: {market_tool_names}")
 
         # 检查是否包含统一工具
-        if 'get_stock_market_data_unified' in market_tool_names:
+        if "get_stock_market_data_unified" in market_tool_names:
             print("    ✅ 包含统一市场数据工具")
         else:
             print("    ❌ 缺少统一市场数据工具")
@@ -74,6 +75,7 @@ def test_complete_unified_architecture():
     except Exception as e:
         print(f"❌ 完整统一工具架构测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -106,7 +108,7 @@ def test_llm_tool_calling_simulation():
                 print(f"    🔧 LLM绑定工具: {[tool.name for tool in tools]}")
 
                 # 验证只绑定了统一工具
-                if len(tools) == 1 and tools[0].name == 'get_stock_fundamentals_unified':
+                if len(tools) == 1 and tools[0].name == "get_stock_fundamentals_unified":
                     print("    ✅ 正确绑定统一基本面工具")
                     return self
                 else:
@@ -117,18 +119,21 @@ def test_llm_tool_calling_simulation():
                 # 模拟正确的工具调用
                 class MockResult:
                     def __init__(self):
-                        self.tool_calls = [{
-                            'name': 'get_stock_fundamentals_unified',
-                            'args': {
-                                'ticker': '0700.HK',
-                                'start_date': '2025-05-28',
-                                'end_date': '2025-07-14',
-                                'curr_date': '2025-07-14'
-                            },
-                            'id': 'mock_call_id',
-                            'type': 'tool_call'
-                        }]
+                        self.tool_calls = [
+                            {
+                                "name": "get_stock_fundamentals_unified",
+                                "args": {
+                                    "ticker": "0700.HK",
+                                    "start_date": "2025-05-28",
+                                    "end_date": "2025-07-14",
+                                    "curr_date": "2025-07-14",
+                                },
+                                "id": "mock_call_id",
+                                "type": "tool_call",
+                            }
+                        ]
                         self.content = ""
+
                 return MockResult()
 
         # 创建模拟LLM
@@ -138,11 +143,7 @@ def test_llm_tool_calling_simulation():
         analyst = create_fundamentals_analyst(llm, toolkit)
 
         # 模拟状态
-        state = {
-            "trade_date": "2025-07-14",
-            "company_of_interest": "0700.HK",
-            "messages": [("human", "分析0700.HK")]
-        }
+        state = {"trade_date": "2025-07-14", "company_of_interest": "0700.HK", "messages": [("human", "分析0700.HK")]}
 
         print(f"  测试港股基本面分析: {state['company_of_interest']}")
 
@@ -153,7 +154,7 @@ def test_llm_tool_calling_simulation():
         print(f"  返回结果类型: {type(result)}")
 
         # 验证结果
-        if isinstance(result, dict) and 'messages' in result:
+        if isinstance(result, dict) and "messages" in result:
             print("  ✅ 返回了正确的消息格式")
             return True
         else:
@@ -163,6 +164,7 @@ def test_llm_tool_calling_simulation():
     except Exception as e:
         print(f"❌ LLM工具调用模拟测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -190,12 +192,9 @@ def test_unified_tools_functionality():
             print(f"\n  测试 {ticker} ({expected_market}):")
 
             try:
-                result = toolkit.get_stock_fundamentals_unified.invoke({
-                    'ticker': ticker,
-                    'start_date': '2025-06-14',
-                    'end_date': '2025-07-14',
-                    'curr_date': '2025-07-14'
-                })
+                result = toolkit.get_stock_fundamentals_unified.invoke(
+                    {"ticker": ticker, "start_date": "2025-06-14", "end_date": "2025-07-14", "curr_date": "2025-07-14"}
+                )
 
                 if expected_market in result and expected_currency in result:
                     print(f"    ✅ 统一基本面工具正确处理{expected_market}")

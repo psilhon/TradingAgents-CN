@@ -23,15 +23,12 @@ def test_valuation_indicators():
     toolkit = Toolkit(config)
 
     # 获取基本面数据
-    result = toolkit.get_stock_fundamentals_unified.invoke({
-        'ticker': '300750',
-        'start_date': '2025-06-01',
-        'end_date': '2025-07-15',
-        'curr_date': '2025-07-15'
-    })
+    result = toolkit.get_stock_fundamentals_unified.invoke(
+        {"ticker": "300750", "start_date": "2025-06-01", "end_date": "2025-07-15", "curr_date": "2025-07-15"}
+    )
 
     # 查找估值指标部分
-    lines = result.split('\n')
+    lines = result.split("\n")
 
     print("\n=== 估值指标部分 ===")
     in_valuation_section = False
@@ -52,6 +49,7 @@ def test_valuation_indicators():
     print(result[:2000])
     if len(result) > 2000:
         print("...(结果已截断)")
+
 
 if __name__ == "__main__":
     test_valuation_indicators()

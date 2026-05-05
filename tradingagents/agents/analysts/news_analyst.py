@@ -44,9 +44,10 @@ def create_news_analyst(llm, toolkit):
         def _get_company_name(ticker: str, market_info: dict) -> str:
             """根据股票代码获取公司名称"""
             try:
-                if market_info['is_china']:
+                if market_info["is_china"]:
                     # 中国A股：使用统一接口获取股票信息
                     from tradingagents.dataflows.interface import get_china_stock_info_unified
+
                     stock_info = get_china_stock_info_unified(ticker)
 
                     # 解析股票名称
@@ -58,30 +59,31 @@ def create_news_analyst(llm, toolkit):
                         logger.warning(f"⚠️ [DEBUG] 无法从统一接口解析股票名称: {ticker}")
                         return f"股票代码{ticker}"
 
-                elif market_info['is_hk']:
+                elif market_info["is_hk"]:
                     # 港股：使用改进的港股工具
                     try:
                         from tradingagents.dataflows.providers.hk.improved_hk import get_hk_company_name_improved
+
                         company_name = get_hk_company_name_improved(ticker)
                         logger.debug(f"📊 [DEBUG] 使用改进港股工具获取名称: {ticker} -> {company_name}")
                         return company_name
                     except Exception as e:
                         logger.debug(f"📊 [DEBUG] 改进港股工具获取名称失败: {e}")
                         # 降级方案：生成友好的默认名称
-                        clean_ticker = ticker.replace('.HK', '').replace('.hk', '')
+                        clean_ticker = ticker.replace(".HK", "").replace(".hk", "")
                         return f"港股{clean_ticker}"
 
-                elif market_info['is_us']:
+                elif market_info["is_us"]:
                     # 美股：使用简单映射或返回代码
                     us_stock_names = {
-                        'AAPL': '苹果公司',
-                        'TSLA': '特斯拉',
-                        'NVDA': '英伟达',
-                        'MSFT': '微软',
-                        'GOOGL': '谷歌',
-                        'AMZN': '亚马逊',
-                        'META': 'Meta',
-                        'NFLX': '奈飞'
+                        "AAPL": "苹果公司",
+                        "TSLA": "特斯拉",
+                        "NVDA": "英伟达",
+                        "MSFT": "微软",
+                        "GOOGL": "谷歌",
+                        "AMZN": "亚马逊",
+                        "META": "Meta",
+                        "NFLX": "奈飞",
                     }
 
                     company_name = us_stock_names.get(ticker.upper(), f"美股{ticker}")
@@ -101,15 +103,14 @@ def create_news_analyst(llm, toolkit):
 
         # 🔧 使用统一新闻工具，简化工具调用
         logger.info("[新闻分析师] 使用统一新闻工具，自动识别股票类型并获取相应新闻")
-   # 创建统一新闻工具
+        # 创建统一新闻工具
         unified_news_tool = create_unified_news_tool(toolkit)
         unified_news_tool.name = "get_stock_news_unified"
 
         tools = [unified_news_tool]
         logger.info("[新闻分析师] 已加载统一新闻工具: get_stock_news_unified")
 
-        system_message = (
-            """您是一位专业的财经新闻分析师，负责分析最新的市场新闻和事件对股票价格的潜在影响。
+        system_message = """您是一位专业的财经新闻分析师，负责分析最新的市场新闻和事件对股票价格的潜在影响。
 
 您的主要职责包括：
 1. 获取和分析最新的实时新闻（优先15-30分钟内的新闻）
@@ -149,7 +150,6 @@ def create_news_analyst(llm, toolkit):
 🎯 聚焦新闻内容本身的解读，不涉及技术指标分析
 
 请撰写详细的中文分析报告，并在报告末尾附上Markdown表格总结关键发现。"""
-        )
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -196,7 +196,7 @@ def create_news_analyst(llm, toolkit):
         # 获取模型信息用于统一新闻工具的特殊处理
         model_info = ""
         try:
-            if hasattr(llm, 'model_name'):
+            if hasattr(llm, "model_name"):
                 model_info = f"{llm.__class__.__name__}:{llm.model_name}"
             else:
                 model_info = llm.__class__.__name__
@@ -207,10 +207,7 @@ def create_news_analyst(llm, toolkit):
 
         # 🚨 DashScope/DeepSeek/Zhipu预处理：强制获取新闻数据
         pre_fetched_news = None
-        if ('DashScope' in llm.__class__.__name__
-            or 'DeepSeek' in llm.__class__.__name__
-            or 'Zhipu' in llm.__class__.__name__
-            ):
+        if "DashScope" in llm.__class__.__name__ or "DeepSeek" in llm.__class__.__name__ or "Zhipu" in llm.__class__.__name__:
             logger.warning(f"[新闻分析师] 🚨 检测到{llm.__class__.__name__}模型，启动预处理强制新闻获取...")
             try:
                 # 强制预先获取新闻数据
@@ -256,45 +253,44 @@ def create_news_analyst(llm, toolkit):
 
                     llm_start_time = datetime.now()
                     # 🔧 重要：传递系统消息和用户消息，不包含工具调用
-                    result = llm.invoke([
-                        {"role": "system", "content": analysis_system_prompt},
-                        {"role": "user", "content": enhanced_prompt}
-                    ])
+                    result = llm.invoke(
+                        [{"role": "system", "content": analysis_system_prompt}, {"role": "user", "content": enhanced_prompt}]
+                    )
 
                     llm_end_time = datetime.now()
                     llm_time_taken = (llm_end_time - llm_start_time).total_seconds()
                     logger.info(f"[新闻分析师] LLM调用完成（预处理模式），耗时: {llm_time_taken:.2f}秒")
 
                     # 直接返回结果，跳过后续的工具调用检测
-                    if hasattr(result, 'content') and result.content:
+                    if hasattr(result, "content") and result.content:
                         report = result.content
                         logger.info(f"[新闻分析师] ✅ 预处理模式成功，报告长度: {len(report)} 字符")
                         logger.info(f"[新闻分析师] 📄 报告预览 (前300字符): {report[:300]}")
 
                         # 跳转到最终处理
                         from langchain_core.messages import AIMessage
+
                         clean_message = AIMessage(content=report)
 
                         end_time = datetime.now()
                         time_taken = (end_time - start_time).total_seconds()
                         logger.info(f"[新闻分析师] 新闻分析完成（预处理模式），总耗时: {time_taken:.2f}秒")
                         # 🔧 更新工具调用计数器
-                        return {
-                            "messages": [clean_message],
-                            "news_report": report,
-                            "news_tool_call_count": tool_call_count + 1
-                        }
+                        return {"messages": [clean_message], "news_report": report, "news_tool_call_count": tool_call_count + 1}
                     else:
                         logger.warning("[新闻分析师] ⚠️ LLM返回结果为空，回退到标准模式")
 
                 else:
-                    logger.warning(f"[新闻分析师] ⚠️ 预处理获取新闻失败或内容过短（{len(pre_fetched_news) if pre_fetched_news else 0}字符），回退到标准模式")  # noqa: E501
+                    logger.warning(
+                        f"[新闻分析师] ⚠️ 预处理获取新闻失败或内容过短（{len(pre_fetched_news) if pre_fetched_news else 0}字符），回退到标准模式"
+                    )  # noqa: E501
                     if pre_fetched_news:
                         logger.warning(f"[新闻分析师] 📄 失败的新闻内容: {pre_fetched_news}")
 
             except Exception as e:
                 logger.error(f"[新闻分析师] ❌ 预处理失败: {e}，回退到标准模式")
                 import traceback
+
                 logger.error(f"[新闻分析师] 📋 异常堆栈: {traceback.format_exc()}")
 
         # 使用统一的Google工具调用处理器
@@ -317,7 +313,7 @@ def create_news_analyst(llm, toolkit):
                 ticker=ticker,
                 company_name=company_name,
                 analyst_type="新闻分析",
-                specific_requirements="重点关注新闻事件对股价的影响、市场情绪变化、政策影响等。"
+                specific_requirements="重点关注新闻事件对股价的影响、市场情绪变化、政策影响等。",
             )
 
             # 处理Google模型工具调用
@@ -327,20 +323,22 @@ def create_news_analyst(llm, toolkit):
                 tools=tools,
                 state=state,
                 analysis_prompt_template=analysis_prompt_template,
-                analyst_name="新闻分析师"
+                analyst_name="新闻分析师",
             )
         else:
             # 非Google模型的处理逻辑
             logger.info(f"[新闻分析师] 非Google模型 ({llm.__class__.__name__})，使用标准处理逻辑")
 
             # 检查工具调用情况
-            current_tool_calls = len(result.tool_calls) if hasattr(result, 'tool_calls') else 0
+            current_tool_calls = len(result.tool_calls) if hasattr(result, "tool_calls") else 0
             logger.info(f"[新闻分析师] LLM调用了 {current_tool_calls} 个工具")
             logger.debug(f"📊 [DEBUG] 累计工具调用次数: {tool_call_count}/{max_tool_calls}")
 
             if current_tool_calls == 0:
                 logger.warning(f"[新闻分析师] ⚠️ {llm.__class__.__name__} 没有调用任何工具，启动补救机制...")
-                logger.warning(f"[新闻分析师] 📄 LLM原始响应内容 (前500字符): {result.content[:500] if hasattr(result, 'content') else 'No content'}")  # noqa: E501
+                logger.warning(
+                    f"[新闻分析师] 📄 LLM原始响应内容 (前500字符): {result.content[:500] if hasattr(result, 'content') else 'No content'}"
+                )  # noqa: E501
 
                 try:
                     # 强制获取新闻数据
@@ -373,24 +371,27 @@ def create_news_analyst(llm, toolkit):
 
                         forced_result = llm.invoke([{"role": "user", "content": forced_prompt}])
 
-                        if hasattr(forced_result, 'content') and forced_result.content:
+                        if hasattr(forced_result, "content") and forced_result.content:
                             report = forced_result.content
                             logger.info(f"[新闻分析师] ✅ 强制补救成功，生成基于真实数据的报告，长度: {len(report)} 字符")
                             logger.info(f"[新闻分析师] 📄 报告预览 (前300字符): {report[:300]}")
                         else:
                             logger.warning("[新闻分析师] ⚠️ 强制补救LLM返回为空，使用原始结果")
-                            report = result.content if hasattr(result, 'content') else ""
+                            report = result.content if hasattr(result, "content") else ""
                     else:
-                        logger.warning(f"[新闻分析师] ⚠️ 统一新闻工具获取失败或内容过短（{len(forced_news) if forced_news else 0}字符），使用原始结果")  # noqa: E501
+                        logger.warning(
+                            f"[新闻分析师] ⚠️ 统一新闻工具获取失败或内容过短（{len(forced_news) if forced_news else 0}字符），使用原始结果"
+                        )  # noqa: E501
                         if forced_news:
                             logger.warning(f"[新闻分析师] 📄 失败的新闻内容: {forced_news}")
-                        report = result.content if hasattr(result, 'content') else ""
+                        report = result.content if hasattr(result, "content") else ""
 
                 except Exception as e:
                     logger.error(f"[新闻分析师] ❌ 强制补救过程失败: {e}")
                     import traceback
+
                     logger.error(f"[新闻分析师] 📋 异常堆栈: {traceback.format_exc()}")
-                    report = result.content if hasattr(result, 'content') else ""
+                    report = result.content if hasattr(result, "content") else ""
             else:
                 # 有工具调用，直接使用结果
                 report = result.content
@@ -401,15 +402,12 @@ def create_news_analyst(llm, toolkit):
         # 🔧 修复死循环问题：返回清洁的AIMessage，不包含tool_calls
         # 这确保工作流图能正确判断分析已完成，避免重复调用
         from langchain_core.messages import AIMessage
+
         clean_message = AIMessage(content=report)
 
         logger.info(f"[新闻分析师] ✅ 返回清洁消息，报告长度: {len(report)} 字符")
 
         # 🔧 更新工具调用计数器
-        return {
-            "messages": [clean_message],
-            "news_report": report,
-            "news_tool_call_count": tool_call_count + 1
-        }
+        return {"messages": [clean_message], "news_report": report, "news_tool_call_count": tool_call_count + 1}
 
     return news_analyst_node

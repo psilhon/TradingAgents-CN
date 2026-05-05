@@ -42,16 +42,10 @@ def parse_bool_env(env_var: str, default: bool = False) -> bool:
     value_lower = value_str.lower()
 
     # 真值列表
-    true_values = {
-        'true', '1', 'yes', 'on', 'enable', 'enabled',
-        't', 'y', 'ok', 'okay'
-    }
+    true_values = {"true", "1", "yes", "on", "enable", "enabled", "t", "y", "ok", "okay"}
 
     # 假值列表
-    false_values = {
-        'false', '0', 'no', 'off', 'disable', 'disabled',
-        'f', 'n', 'none', 'null', 'nil'
-    }
+    false_values = {"false", "0", "no", "off", "disable", "disabled", "f", "n", "none", "null", "nil"}
 
     if value_lower in true_values:
         return True
@@ -171,12 +165,12 @@ def get_env_info(env_var: str) -> dict:
     value = os.getenv(env_var)
 
     return {
-        'name': env_var,
-        'value': value,
-        'exists': value is not None,
-        'empty': value is None or str(value).strip() == '',
-        'type': type(value).__name__ if value is not None else 'None',
-        'length': len(str(value)) if value is not None else 0
+        "name": env_var,
+        "value": value,
+        "exists": value is not None,
+        "empty": value is None or str(value).strip() == "",
+        "type": type(value).__name__ if value is not None else "None",
+        "length": len(str(value)) if value is not None else 0,
     }
 
 
@@ -190,24 +184,19 @@ def validate_required_env_vars(required_vars: list) -> dict:
     Returns:
         dict: 验证结果
     """
-    results = {
-        'all_set': True,
-        'missing': [],
-        'empty': [],
-        'valid': []
-    }
+    results = {"all_set": True, "missing": [], "empty": [], "valid": []}
 
     for var in required_vars:
         info = get_env_info(var)
 
-        if not info['exists']:
-            results['missing'].append(var)
-            results['all_set'] = False
-        elif info['empty']:
-            results['empty'].append(var)
-            results['all_set'] = False
+        if not info["exists"]:
+            results["missing"].append(var)
+            results["all_set"] = False
+        elif info["empty"]:
+            results["empty"].append(var)
+            results["all_set"] = False
         else:
-            results['valid'].append(var)
+            results["valid"].append(var)
 
     return results
 
@@ -230,14 +219,14 @@ def get_str_env(env_var: str, default: str = "") -> str:
 
 # 导出主要函数
 __all__ = [
-    'get_bool_env',  # 向后兼容
-    'get_env_info',
-    'get_int_env',   # 向后兼容
-    'get_str_env',    # 向后兼容
-    'parse_bool_env',
-    'parse_float_env',
-    'parse_int_env',
-    'parse_list_env',
-    'parse_str_env',
-    'validate_required_env_vars'
+    "get_bool_env",  # 向后兼容
+    "get_env_info",
+    "get_int_env",  # 向后兼容
+    "get_str_env",  # 向后兼容
+    "parse_bool_env",
+    "parse_float_env",
+    "parse_int_env",
+    "parse_list_env",
+    "parse_str_env",
+    "validate_required_env_vars",
 ]

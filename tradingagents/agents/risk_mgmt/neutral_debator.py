@@ -24,21 +24,27 @@ def create_neutral_debator(llm):
 
         # 📊 记录所有输入数据的长度，用于性能分析
         logger.info("📊 [Neutral Analyst] 输入数据长度统计:")
-        logger.info(f"  - market_report: {len(market_research_report):,} 字符 (~{len(market_research_report)//4:,} tokens)")
-        logger.info(f"  - sentiment_report: {len(sentiment_report):,} 字符 (~{len(sentiment_report)//4:,} tokens)")
-        logger.info(f"  - news_report: {len(news_report):,} 字符 (~{len(news_report)//4:,} tokens)")
-        logger.info(f"  - fundamentals_report: {len(fundamentals_report):,} 字符 (~{len(fundamentals_report)//4:,} tokens)")
-        logger.info(f"  - trader_decision: {len(trader_decision):,} 字符 (~{len(trader_decision)//4:,} tokens)")
-        logger.info(f"  - history: {len(history):,} 字符 (~{len(history)//4:,} tokens)")
-        logger.info(f"  - current_risky_response: {len(current_risky_response):,} 字符 (~{len(current_risky_response)//4:,} tokens)")
-        logger.info(f"  - current_safe_response: {len(current_safe_response):,} 字符 (~{len(current_safe_response)//4:,} tokens)")
+        logger.info(f"  - market_report: {len(market_research_report):,} 字符 (~{len(market_research_report) // 4:,} tokens)")
+        logger.info(f"  - sentiment_report: {len(sentiment_report):,} 字符 (~{len(sentiment_report) // 4:,} tokens)")
+        logger.info(f"  - news_report: {len(news_report):,} 字符 (~{len(news_report) // 4:,} tokens)")
+        logger.info(f"  - fundamentals_report: {len(fundamentals_report):,} 字符 (~{len(fundamentals_report) // 4:,} tokens)")
+        logger.info(f"  - trader_decision: {len(trader_decision):,} 字符 (~{len(trader_decision) // 4:,} tokens)")
+        logger.info(f"  - history: {len(history):,} 字符 (~{len(history) // 4:,} tokens)")
+        logger.info(f"  - current_risky_response: {len(current_risky_response):,} 字符 (~{len(current_risky_response) // 4:,} tokens)")
+        logger.info(f"  - current_safe_response: {len(current_safe_response):,} 字符 (~{len(current_safe_response) // 4:,} tokens)")
 
         # 计算总prompt长度
-        total_prompt_length = (len(market_research_report) + len(sentiment_report) +
-                              len(news_report) + len(fundamentals_report) +
-                              len(trader_decision) + len(history) +
-                              len(current_risky_response) + len(current_safe_response))
-        logger.info(f"  - 🚨 总Prompt长度: {total_prompt_length:,} 字符 (~{total_prompt_length//4:,} tokens)")
+        total_prompt_length = (
+            len(market_research_report)
+            + len(sentiment_report)
+            + len(news_report)
+            + len(fundamentals_report)
+            + len(trader_decision)
+            + len(history)
+            + len(current_risky_response)
+            + len(current_safe_response)
+        )
+        logger.info(f"  - 🚨 总Prompt长度: {total_prompt_length:,} 字符 (~{total_prompt_length // 4:,} tokens)")
 
         prompt = f"""作为中性风险分析师，您的角色是提供平衡的视角，权衡交易员决策或计划的潜在收益和风险。您优先考虑全面的方法，评估上行和下行风险，同时考虑更广泛的市场趋势、潜在的经济变化和多元化策略。以下是交易员的决策：
 
@@ -74,9 +80,7 @@ def create_neutral_debator(llm):
             "safe_history": risk_debate_state.get("safe_history", ""),
             "neutral_history": neutral_history + "\n" + argument,
             "latest_speaker": "Neutral",
-            "current_risky_response": risk_debate_state.get(
-                "current_risky_response", ""
-            ),
+            "current_risky_response": risk_debate_state.get("current_risky_response", ""),
             "current_safe_response": risk_debate_state.get("current_safe_response", ""),
             "current_neutral_response": argument,
             "count": new_count,

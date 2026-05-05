@@ -13,9 +13,9 @@ print("=" * 40)
 # 测试1：检查文件是否存在
 print("\n📁 检查复制的文件...")
 files_to_check = [
-    'tradingagents/dataflows/cache_manager.py',
-    'tradingagents/dataflows/optimized_us_data.py',
-    'tradingagents/dataflows/config.py'
+    "tradingagents/dataflows/cache_manager.py",
+    "tradingagents/dataflows/optimized_us_data.py",
+    "tradingagents/dataflows/config.py",
 ]
 
 for file_path in files_to_check:
@@ -30,8 +30,8 @@ print("\n🐍 检查Python语法...")
 for file_path in files_to_check:
     if os.path.exists(file_path):
         try:
-            with open(file_path, encoding='utf-8') as f:
-                compile(f.read(), file_path, 'exec')
+            with open(file_path, encoding="utf-8") as f:
+                compile(f.read(), file_path, "exec")
             print(f"✅ {file_path} 语法正确")
         except SyntaxError as e:
             print(f"❌ {file_path} 语法错误: {e}")
@@ -44,6 +44,7 @@ print("\n📦 测试模块导入...")
 # 测试缓存管理器
 try:
     from tradingagents.dataflows.cache_manager import get_cache
+
     print("✅ cache_manager 导入成功")
 
     # 创建缓存实例
@@ -51,7 +52,7 @@ try:
     print(f"✅ 缓存实例创建成功: {type(cache).__name__}")
 
     # 检查缓存目录
-    if hasattr(cache, 'cache_dir'):
+    if hasattr(cache, "cache_dir"):
         print(f"📁 缓存目录: {cache.cache_dir}")
         if cache.cache_dir.exists():
             print("✅ 缓存目录已创建")
@@ -65,6 +66,7 @@ except Exception as e:
 # 测试优化美股数据
 try:
     from tradingagents.dataflows.optimized_us_data import get_optimized_us_data_provider
+
     print("✅ optimized_us_data 导入成功")
 
     # 创建数据提供器
@@ -78,6 +80,7 @@ except Exception as e:
 # 测试配置模块
 try:
     from tradingagents.dataflows.config import get_config
+
     print("✅ config 导入成功")
 
     # 获取配置
@@ -96,11 +99,7 @@ try:
     # 测试数据保存
     test_data = f"测试数据 - {datetime.now()}"
     cache_key = cache.save_stock_data(
-        symbol="TEST",
-        data=test_data,
-        start_date="2024-01-01",
-        end_date="2024-12-31",
-        data_source="integration_test"
+        symbol="TEST", data=test_data, start_date="2024-01-01", end_date="2024-12-31", data_source="integration_test"
     )
     print(f"✅ 数据保存成功: {cache_key}")
 
@@ -114,12 +113,7 @@ try:
         print(f"  实际: {loaded_data}")
 
     # 测试缓存查找
-    found_key = cache.find_cached_stock_data(
-        symbol="TEST",
-        start_date="2024-01-01",
-        end_date="2024-12-31",
-        data_source="integration_test"
-    )
+    found_key = cache.find_cached_stock_data(symbol="TEST", start_date="2024-01-01", end_date="2024-12-31", data_source="integration_test")
 
     if found_key:
         print(f"✅ 缓存查找成功: {found_key}")
@@ -140,11 +134,7 @@ try:
     # 保存测试
     start_time = time.time()
     cache_key = cache.save_stock_data(
-        symbol="PERF",
-        data="性能测试数据",
-        start_date="2024-01-01",
-        end_date="2024-12-31",
-        data_source="perf_test"
+        symbol="PERF", data="性能测试数据", start_date="2024-01-01", end_date="2024-12-31", data_source="perf_test"
     )
     save_time = time.time() - start_time
 

@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_full_stock_analysis():
     """运行完整的股票分析"""
     print("🔬 完整股票分析 - DeepSeek成本计算调试")
@@ -34,15 +35,17 @@ def test_full_stock_analysis():
 
         # 配置DeepSeek
         config = DEFAULT_CONFIG.copy()
-        config.update({
-            "llm_provider": "deepseek",
-            "deep_think_llm": "deepseek-chat",
-            "quick_think_llm": "deepseek-chat",
-            "max_debate_rounds": 1,  # 减少轮次，节省时间
-            "max_risk_discuss_rounds": 1,
-            "online_tools": True,
-            "memory_enabled": False
-        })
+        config.update(
+            {
+                "llm_provider": "deepseek",
+                "deep_think_llm": "deepseek-chat",
+                "quick_think_llm": "deepseek-chat",
+                "max_debate_rounds": 1,  # 减少轮次，节省时间
+                "max_risk_discuss_rounds": 1,
+                "online_tools": True,
+                "memory_enabled": False,
+            }
+        )
 
         print("📊 配置信息:")
         print(f"   LLM提供商: {config['llm_provider']}")
@@ -61,21 +64,21 @@ def test_full_stock_analysis():
         # 准备输入
         input_data = {
             "company_of_interest": "300059",  # 东方财富
-            "trade_date": "2025-07-08"
+            "trade_date": "2025-07-08",
         }
 
         print(f"\n📊 开始分析股票: {input_data['company_of_interest']}")
         print(f"📅 交易日期: {input_data['trade_date']}")
-        print("\n" + "="*100)
+        print("\n" + "=" * 100)
         print("开始完整分析流程，请观察DeepSeek成本计算的详细日志：")
-        print("="*100)
+        print("=" * 100)
 
         # 运行分析
         result = graph.run(input_data)
 
-        print("="*100)
+        print("=" * 100)
         print("分析完成！")
-        print("="*100)
+        print("=" * 100)
 
         # 输出结果摘要
         if result and "decision" in result:
@@ -94,8 +97,10 @@ def test_full_stock_analysis():
     except Exception as e:
         print(f"❌ 完整分析测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -115,6 +120,7 @@ def main():
         print("\n❌ 完整分析测试失败")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()

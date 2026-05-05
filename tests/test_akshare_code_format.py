@@ -1,6 +1,7 @@
 """
 测试 AKShare 两个实时行情接口返回的股票代码格式
 """
+
 import sys
 from pathlib import Path
 
@@ -11,9 +12,9 @@ sys.path.insert(0, str(project_root))
 
 def test_akshare_interfaces():
     """测试 AKShare 的两个实时行情接口"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🧪 测试 AKShare 实时行情接口的股票代码格式")
-    print("="*60)
+    print("=" * 60)
 
     try:
         import akshare as ak
@@ -23,9 +24,9 @@ def test_akshare_interfaces():
         return
 
     # 测试 1: 新浪财经接口
-    print("\n" + "-"*60)
+    print("\n" + "-" * 60)
     print("测试 1: stock_zh_a_spot() - 新浪财经接口")
-    print("-"*60)
+    print("-" * 60)
 
     try:
         print("📡 正在获取数据...")
@@ -75,12 +76,13 @@ def test_akshare_interfaces():
     except Exception as e:
         print(f"❌ 新浪接口测试失败: {e}")
         import traceback
+
         traceback.print_exc()
 
     # 测试 2: 东方财富接口
-    print("\n" + "-"*60)
+    print("\n" + "-" * 60)
     print("测试 2: stock_zh_a_spot_em() - 东方财富接口")
-    print("-"*60)
+    print("-" * 60)
 
     try:
         print("📡 正在获取数据...")
@@ -130,12 +132,13 @@ def test_akshare_interfaces():
     except Exception as e:
         print(f"❌ 东方财富接口测试失败: {e}")
         import traceback
+
         traceback.print_exc()
 
     # 对比总结
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("📊 测试总结")
-    print("="*60)
+    print("=" * 60)
     print("✅ 新浪接口 (stock_zh_a_spot): 代码可能带有交易所前缀（如 sz000001）")
     print("✅ 东方财富接口 (stock_zh_a_spot_em): 需要验证代码格式")
     print("\n💡 建议: 两个接口都应该使用统一的代码标准化逻辑")
@@ -143,4 +146,3 @@ def test_akshare_interfaces():
 
 if __name__ == "__main__":
     test_akshare_interfaces()
-

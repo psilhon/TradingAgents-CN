@@ -18,12 +18,13 @@ from tradingagents.config.runtime_settings import get_timezone_name
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 # MongoDB
 try:
     from pymongo import MongoClient
     from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError  # noqa: F401
+
     MONGODB_AVAILABLE = True
 except ImportError:
     MONGODB_AVAILABLE = False
@@ -33,6 +34,7 @@ except ImportError:
 try:
     import redis
     from redis.exceptions import ConnectionError as RedisConnectionError  # noqa: F401
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
@@ -42,11 +44,7 @@ except ImportError:
 class DatabaseCacheManager:
     """MongoDB + Redis 数据库缓存管理器"""
 
-    def __init__(self,
-                 mongodb_url: str | None = None,
-                 redis_url: str | None = None,
-                 mongodb_db: str = "tradingagents",
-                 redis_db: int = 0):
+    def __init__(self, mongodb_url: str | None = None, redis_url: str | None = None, mongodb_db: str = "tradingagents", redis_db: int = 0):
         """
         初始化数据库缓存管理器
 
@@ -87,6 +85,7 @@ class DatabaseCacheManager:
         try:
             # 从环境变量读取超时配置，使用合理的默认值
             import os
+
             connect_timeout = int(os.getenv("MONGO_CONNECT_TIMEOUT_MS", "30000"))
             socket_timeout = int(os.getenv("MONGO_SOCKET_TIMEOUT_MS", "60000"))
             server_selection_timeout = int(os.getenv("MONGO_SERVER_SELECTION_TIMEOUT_MS", "5000"))
@@ -95,10 +94,10 @@ class DatabaseCacheManager:
                 self.mongodb_url,
                 serverSelectionTimeoutMS=server_selection_timeout,
                 connectTimeoutMS=connect_timeout,
-                socketTimeoutMS=socket_timeout
+                socketTimeoutMS=socket_timeout,
             )
             # 测试连接
-            self.mongodb_client.admin.command('ping')
+            self.mongodb_client.admin.command("ping")
             self.mongodb_db = self.mongodb_client[self.mongodb_db_name]
 
             # 创建索引
@@ -119,11 +118,7 @@ class DatabaseCacheManager:
 
         try:
             self.redis_client = redis.from_url(
-                self.redis_url,
-                db=self.redis_db,
-                socket_timeout=5,
-                socket_connect_timeout=5,
-                decode_responses=True
+                self.redis_url, db=self.redis_db, socket_timeout=5, socket_connect_timeout=5, decode_responses=True
             )
             # 测试连接
             self.redis_client.ping()
@@ -142,30 +137,17 @@ class DatabaseCacheManager:
         try:
             # 股票数据集合索引
             stock_collection = self.mongodb_db.stock_data
-            stock_collection.create_index([
-                ("symbol", 1),
-                ("data_source", 1),
-                ("start_date", 1),
-                ("end_date", 1)
-            ])
+            stock_collection.create_index([("symbol", 1), ("data_source", 1), ("start_date", 1), ("end_date", 1)])
             stock_collection.create_index([("created_at", 1)])
 
             # 新闻数据集合索引
             news_collection = self.mongodb_db.news_data
-            news_collection.create_index([
-                ("symbol", 1),
-                ("data_source", 1),
-                ("date_range", 1)
-            ])
+            news_collection.create_index([("symbol", 1), ("data_source", 1), ("date_range", 1)])
             news_collection.create_index([("created_at", 1)])
 
             # 基本面数据集合索引
             fundamentals_collection = self.mongodb_db.fundamentals_data
-            fundamentals_collection.create_index([
-                ("symbol", 1),
-                ("data_source", 1),
-                ("analysis_date", 1)
-            ])
+            fundamentals_collection.create_index([("symbol", 1), ("data_source", 1), ("analysis_date", 1)])
             fundamentals_collection.create_index([("created_at", 1)])
 
             logger.info("✅ MongoDB索引创建完成")
@@ -182,9 +164,15 @@ class DatabaseCacheManager:
         cache_key = hashlib.md5(params_str.encode()).hexdigest()[:16]
         return f"{data_type}:{symbol}:{cache_key}"
 
-    def save_stock_data(self, symbol: str, data: pd.DataFrame | str,
-                       start_date: str | None = None, end_date: str | None = None,
-                       data_source: str = "unknown", market_type: str | None = None) -> str:
+    def save_stock_data(
+        self,
+        symbol: str,
+        data: pd.DataFrame | str,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        data_source: str = "unknown",
+        market_type: str | None = None,
+    ) -> str:
         """
         保存股票数据到MongoDB和Redis
 
@@ -199,17 +187,14 @@ class DatabaseCacheManager:
         Returns:
             cache_key: 缓存键
         """
-        cache_key = self._generate_cache_key("stock", symbol,
-                                           start_date=start_date,
-                                           end_date=end_date,
-                                           source=data_source)
+        cache_key = self._generate_cache_key("stock", symbol, start_date=start_date, end_date=end_date, source=data_source)
 
         # 自动推断市场类型
         if market_type is None:
             # 根据股票代码格式推断市场类型
             import re
 
-            if re.match(r'^\d{6}$', symbol):  # 6位数字为A股
+            if re.match(r"^\d{6}$", symbol):  # 6位数字为A股
                 market_type = "china"
             else:  # 其他格式为美股
                 market_type = "us"
@@ -224,12 +209,12 @@ class DatabaseCacheManager:
             "end_date": end_date,
             "data_source": data_source,
             "created_at": datetime.now(ZoneInfo(get_timezone_name())),
-            "updated_at": datetime.now(ZoneInfo(get_timezone_name()))
+            "updated_at": datetime.now(ZoneInfo(get_timezone_name())),
         }
 
         # 处理数据格式
         if isinstance(data, pd.DataFrame):
-            doc["data"] = data.to_json(orient='records', date_format='iso')
+            doc["data"] = data.to_json(orient="records", date_format="iso")
             doc["data_format"] = "dataframe_json"
         else:
             doc["data"] = str(data)
@@ -252,12 +237,12 @@ class DatabaseCacheManager:
                     "data_format": doc["data_format"],
                     "symbol": symbol,
                     "data_source": data_source,
-                    "created_at": doc["created_at"].isoformat()
+                    "created_at": doc["created_at"].isoformat(),
                 }
                 self.redis_client.setex(
                     cache_key,
                     6 * 3600,  # 6小时过期
-                    json.dumps(redis_data, ensure_ascii=False)
+                    json.dumps(redis_data, ensure_ascii=False),
                 )
                 logger.info(f"⚡ 股票数据已缓存到Redis: {symbol} -> {cache_key}")
             except Exception as e:
@@ -277,7 +262,7 @@ class DatabaseCacheManager:
                     logger.info(f"⚡ 从Redis加载数据: {cache_key}")
 
                     if data_dict["data_format"] == "dataframe_json":
-                        return pd.read_json(data_dict["data"], orient='records')
+                        return pd.read_json(data_dict["data"], orient="records")
                     else:
                         return data_dict["data"]
             except Exception as e:
@@ -300,19 +285,15 @@ class DatabaseCacheManager:
                                 "data_format": doc["data_format"],
                                 "symbol": doc["symbol"],
                                 "data_source": doc["data_source"],
-                                "created_at": doc["created_at"].isoformat()
+                                "created_at": doc["created_at"].isoformat(),
                             }
-                            self.redis_client.setex(
-                                cache_key,
-                                6 * 3600,
-                                json.dumps(redis_data, ensure_ascii=False)
-                            )
+                            self.redis_client.setex(cache_key, 6 * 3600, json.dumps(redis_data, ensure_ascii=False))
                             logger.info("⚡ 数据已同步到Redis缓存")
                         except Exception as e:
                             logger.error(f"⚠️ Redis同步失败: {e}")
 
                     if doc["data_format"] == "dataframe_json":
-                        return pd.read_json(doc["data"], orient='records')
+                        return pd.read_json(doc["data"], orient="records")
                     else:
                         return doc["data"]
 
@@ -321,16 +302,18 @@ class DatabaseCacheManager:
 
         return None
 
-    def find_cached_stock_data(self, symbol: str, start_date: str | None = None,
-                              end_date: str | None = None, data_source: str | None = None,
-                              max_age_hours: int = 6) -> str | None:
+    def find_cached_stock_data(
+        self,
+        symbol: str,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        data_source: str | None = None,
+        max_age_hours: int = 6,
+    ) -> str | None:
         """查找匹配的缓存数据"""
 
         # 生成精确匹配的缓存键
-        exact_key = self._generate_cache_key("stock", symbol,
-                                           start_date=start_date,
-                                           end_date=end_date,
-                                           source=data_source)
+        exact_key = self._generate_cache_key("stock", symbol, start_date=start_date, end_date=end_date, source=data_source)
 
         # 检查Redis中是否有精确匹配
         if self.redis_client and self.redis_client.exists(exact_key):
@@ -343,10 +326,7 @@ class DatabaseCacheManager:
                 collection = self.mongodb_db.stock_data
                 cutoff_time = datetime.now(ZoneInfo(get_timezone_name())) - timedelta(hours=max_age_hours)
 
-                query = {
-                    "symbol": symbol,
-                    "created_at": {"$gte": cutoff_time}
-                }
+                query = {"symbol": symbol, "created_at": {"$gte": cutoff_time}}
 
                 if data_source:
                     query["data_source"] = data_source
@@ -368,14 +348,11 @@ class DatabaseCacheManager:
         logger.error(f"❌ 未找到有效缓存: {symbol}")
         return None
 
-    def save_news_data(self, symbol: str, news_data: str,
-                      start_date: str | None = None, end_date: str | None = None,
-                      data_source: str = "unknown") -> str:
+    def save_news_data(
+        self, symbol: str, news_data: str, start_date: str | None = None, end_date: str | None = None, data_source: str = "unknown"
+    ) -> str:
         """保存新闻数据到MongoDB和Redis"""
-        cache_key = self._generate_cache_key("news", symbol,
-                                           start_date=start_date,
-                                           end_date=end_date,
-                                           source=data_source)
+        cache_key = self._generate_cache_key("news", symbol, start_date=start_date, end_date=end_date, source=data_source)
 
         doc = {
             "_id": cache_key,
@@ -387,7 +364,7 @@ class DatabaseCacheManager:
             "data_source": data_source,
             "data": news_data,
             "created_at": datetime.now(ZoneInfo(get_timezone_name())),
-            "updated_at": datetime.now(ZoneInfo(get_timezone_name()))
+            "updated_at": datetime.now(ZoneInfo(get_timezone_name())),
         }
 
         # 保存到MongoDB
@@ -402,16 +379,11 @@ class DatabaseCacheManager:
         # 保存到Redis（24小时过期）
         if self.redis_client:
             try:
-                redis_data = {
-                    "data": news_data,
-                    "symbol": symbol,
-                    "data_source": data_source,
-                    "created_at": doc["created_at"].isoformat()
-                }
+                redis_data = {"data": news_data, "symbol": symbol, "data_source": data_source, "created_at": doc["created_at"].isoformat()}
                 self.redis_client.setex(
                     cache_key,
                     24 * 3600,  # 24小时过期
-                    json.dumps(redis_data, ensure_ascii=False)
+                    json.dumps(redis_data, ensure_ascii=False),
                 )
                 logger.info(f"⚡ 新闻数据已缓存到Redis: {symbol} -> {cache_key}")
             except Exception as e:
@@ -419,16 +391,14 @@ class DatabaseCacheManager:
 
         return cache_key
 
-    def save_fundamentals_data(self, symbol: str, fundamentals_data: str,
-                              analysis_date: str | None = None,
-                              data_source: str = "unknown") -> str:
+    def save_fundamentals_data(
+        self, symbol: str, fundamentals_data: str, analysis_date: str | None = None, data_source: str = "unknown"
+    ) -> str:
         """保存基本面数据到MongoDB和Redis"""
         if not analysis_date:
             analysis_date = datetime.now(ZoneInfo(get_timezone_name())).strftime("%Y-%m-%d")
 
-        cache_key = self._generate_cache_key("fundamentals", symbol,
-                                           date=analysis_date,
-                                           source=data_source)
+        cache_key = self._generate_cache_key("fundamentals", symbol, date=analysis_date, source=data_source)
 
         doc = {
             "_id": cache_key,
@@ -438,7 +408,7 @@ class DatabaseCacheManager:
             "data_source": data_source,
             "data": fundamentals_data,
             "created_at": datetime.now(ZoneInfo(get_timezone_name())),
-            "updated_at": datetime.now(ZoneInfo(get_timezone_name()))
+            "updated_at": datetime.now(ZoneInfo(get_timezone_name())),
         }
 
         # 保存到MongoDB
@@ -458,12 +428,12 @@ class DatabaseCacheManager:
                     "symbol": symbol,
                     "data_source": data_source,
                     "analysis_date": analysis_date,
-                    "created_at": doc["created_at"].isoformat()
+                    "created_at": doc["created_at"].isoformat(),
                 }
                 self.redis_client.setex(
                     cache_key,
                     24 * 3600,  # 24小时过期
-                    json.dumps(redis_data, ensure_ascii=False)
+                    json.dumps(redis_data, ensure_ascii=False),
                 )
                 logger.info(f"⚡ 基本面数据已缓存到Redis: {symbol} -> {cache_key}")
             except Exception as e:
@@ -475,19 +445,19 @@ class DatabaseCacheManager:
         """获取缓存统计信息"""
         # 标准统计格式（与 file_cache 保持一致）
         stats = {
-            'total_files': 0,
-            'stock_data_count': 0,
-            'news_count': 0,
-            'fundamentals_count': 0,
-            'total_size': 0,  # 字节
-            'total_size_mb': 0,  # MB
-            'skipped_count': 0
+            "total_files": 0,
+            "stock_data_count": 0,
+            "news_count": 0,
+            "fundamentals_count": 0,
+            "total_size": 0,  # 字节
+            "total_size_mb": 0,  # MB
+            "skipped_count": 0,
         }
 
         # 详细的后端信息
         backend_info = {
             "mongodb": {"available": self.mongodb_db is not None, "collections": {}},
-            "redis": {"available": self.redis_client is not None, "keys": 0, "memory_usage": "N/A"}
+            "redis": {"available": self.redis_client is not None, "keys": 0, "memory_usage": "N/A"},
         }
 
         # MongoDB统计
@@ -498,22 +468,19 @@ class DatabaseCacheManager:
                     collection = self.mongodb_db[collection_name]
                     count = collection.count_documents({})
                     size = self.mongodb_db.command("collStats", collection_name).get("size", 0)
-                    backend_info["mongodb"]["collections"][collection_name] = {
-                        "count": count,
-                        "size_mb": round(size / (1024 * 1024), 2)
-                    }
+                    backend_info["mongodb"]["collections"][collection_name] = {"count": count, "size_mb": round(size / (1024 * 1024), 2)}
 
                     # 累加到标准统计
                     total_size_bytes += size
-                    stats['total_files'] += count
+                    stats["total_files"] += count
 
                     # 按类型分类
                     if collection_name == "stock_data":
-                        stats['stock_data_count'] += count
+                        stats["stock_data_count"] += count
                     elif collection_name == "news_data":
-                        stats['news_count'] += count
+                        stats["news_count"] += count
                     elif collection_name == "fundamentals_data":
-                        stats['fundamentals_count'] += count
+                        stats["fundamentals_count"] += count
 
             except Exception as e:
                 logger.error(f"⚠️ MongoDB统计获取失败: {e}")
@@ -528,11 +495,11 @@ class DatabaseCacheManager:
                 logger.error(f"⚠️ Redis统计获取失败: {e}")
 
         # 设置总大小
-        stats['total_size'] = total_size_bytes
-        stats['total_size_mb'] = round(total_size_bytes / (1024 * 1024), 2)
+        stats["total_size"] = total_size_bytes
+        stats["total_size_mb"] = round(total_size_bytes / (1024 * 1024), 2)
 
         # 添加后端详细信息
-        stats['backend_info'] = backend_info
+        stats["backend_info"] = backend_info
 
         return stats
 
@@ -569,6 +536,7 @@ class DatabaseCacheManager:
 
 # 全局数据库缓存实例
 _db_cache_instance = None
+
 
 def get_db_cache() -> DatabaseCacheManager:
     """获取全局数据库缓存实例"""

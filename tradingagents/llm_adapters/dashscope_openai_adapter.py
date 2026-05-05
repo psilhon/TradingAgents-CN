@@ -14,7 +14,7 @@ from tradingagents.utils.logging_manager import get_logger
 
 from ..config.config_manager import token_tracker
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 
 class ChatDashScopeOpenAI(ChatOpenAI):
@@ -45,11 +45,11 @@ class ChatDashScopeOpenAI(ChatOpenAI):
                 def is_valid_api_key(key):
                     if not key or len(key) <= 10:
                         return False
-                    if key.startswith('your_') or key.startswith('your-'):
+                    if key.startswith("your_") or key.startswith("your-"):
                         return False
-                    if key.endswith('_here') or key.endswith('-here'):
+                    if key.endswith("_here") or key.endswith("-here"):
                         return False
-                    if '...' in key:
+                    if "..." in key:
                         return False
                     return True
 
@@ -97,7 +97,7 @@ class ChatDashScopeOpenAI(ChatOpenAI):
         logger.info(f"   模型: {kwargs.get('model', 'qwen-turbo')}")
 
         # 兼容不同版本的属性名
-        api_base = getattr(self, 'base_url', None) or getattr(self, 'openai_api_base', None) or kwargs.get('base_url', 'unknown')
+        api_base = getattr(self, "base_url", None) or getattr(self, "openai_api_base", None) or kwargs.get("base_url", "unknown")
         logger.info(f"   API Base: {api_base}")
 
     def _generate(self, *args, **kwargs):
@@ -109,16 +109,16 @@ class ChatDashScopeOpenAI(ChatOpenAI):
         # 追踪 token 使用量
         try:
             # 从结果中提取 token 使用信息
-            if hasattr(result, 'llm_output') and result.llm_output:
-                token_usage = result.llm_output.get('token_usage', {})
+            if hasattr(result, "llm_output") and result.llm_output:
+                token_usage = result.llm_output.get("token_usage", {})
 
-                input_tokens = token_usage.get('prompt_tokens', 0)
-                output_tokens = token_usage.get('completion_tokens', 0)
+                input_tokens = token_usage.get("prompt_tokens", 0)
+                output_tokens = token_usage.get("completion_tokens", 0)
 
                 if input_tokens > 0 or output_tokens > 0:
                     # 生成会话ID
-                    session_id = kwargs.get('session_id', f"dashscope_openai_{hash(str(args))%10000}")
-                    analysis_type = kwargs.get('analysis_type', 'stock_analysis')
+                    session_id = kwargs.get("session_id", f"dashscope_openai_{hash(str(args)) % 10000}")
+                    analysis_type = kwargs.get("analysis_type", "stock_analysis")
 
                     # 使用 TokenTracker 记录使用量
                     token_tracker.track_usage(
@@ -127,7 +127,7 @@ class ChatDashScopeOpenAI(ChatOpenAI):
                         input_tokens=input_tokens,
                         output_tokens=output_tokens,
                         session_id=session_id,
-                        analysis_type=analysis_type
+                        analysis_type=analysis_type,
                     )
 
         except Exception as track_error:
@@ -144,38 +144,38 @@ DASHSCOPE_OPENAI_MODELS = {
         "description": "通义千问 Turbo - 快速响应，适合日常对话",
         "context_length": 8192,
         "supports_function_calling": True,
-        "recommended_for": ["快速任务", "日常对话", "简单分析"]
+        "recommended_for": ["快速任务", "日常对话", "简单分析"],
     },
     "qwen-plus": {
         "description": "通义千问 Plus - 平衡性能和成本",
         "context_length": 32768,
         "supports_function_calling": True,
-        "recommended_for": ["复杂分析", "专业任务", "深度思考"]
+        "recommended_for": ["复杂分析", "专业任务", "深度思考"],
     },
     "qwen-plus-latest": {
         "description": "通义千问 Plus 最新版 - 最新功能和性能",
         "context_length": 32768,
         "supports_function_calling": True,
-        "recommended_for": ["最新功能", "复杂分析", "专业任务"]
+        "recommended_for": ["最新功能", "复杂分析", "专业任务"],
     },
     "qwen-max": {
         "description": "通义千问 Max - 最强性能，适合复杂任务",
         "context_length": 32768,
         "supports_function_calling": True,
-        "recommended_for": ["复杂推理", "专业分析", "高质量输出"]
+        "recommended_for": ["复杂推理", "专业分析", "高质量输出"],
     },
     "qwen-max-latest": {
         "description": "通义千问 Max 最新版 - 最强性能和最新功能",
         "context_length": 32768,
         "supports_function_calling": True,
-        "recommended_for": ["最新功能", "复杂推理", "专业分析"]
+        "recommended_for": ["最新功能", "复杂推理", "专业分析"],
     },
     "qwen-long": {
         "description": "通义千问 Long - 超长上下文，适合长文档处理",
         "context_length": 1000000,
         "supports_function_calling": True,
-        "recommended_for": ["长文档分析", "大量数据处理", "复杂上下文"]
-    }
+        "recommended_for": ["长文档分析", "大量数据处理", "复杂上下文"],
+    },
 }
 
 
@@ -185,27 +185,14 @@ def get_available_openai_models() -> dict[str, dict[str, Any]]:
 
 
 def create_dashscope_openai_llm(
-    model: str = "qwen-plus-latest",
-    api_key: str | None = None,
-    temperature: float = 0.1,
-    max_tokens: int = 2000,
-    **kwargs
+    model: str = "qwen-plus-latest", api_key: str | None = None, temperature: float = 0.1, max_tokens: int = 2000, **kwargs
 ) -> ChatDashScopeOpenAI:
     """创建 DashScope OpenAI 兼容 LLM 实例的便捷函数"""
 
-    return ChatDashScopeOpenAI(
-        model=model,
-        api_key=api_key,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        **kwargs
-    )
+    return ChatDashScopeOpenAI(model=model, api_key=api_key, temperature=temperature, max_tokens=max_tokens, **kwargs)
 
 
-def test_dashscope_openai_connection(
-    model: str = "qwen-turbo",
-    api_key: str | None = None
-) -> bool:
+def test_dashscope_openai_connection(model: str = "qwen-turbo", api_key: str | None = None) -> bool:
     """测试 DashScope OpenAI 兼容接口连接"""
 
     try:
@@ -213,16 +200,12 @@ def test_dashscope_openai_connection(
         logger.info(f"   模型: {model}")
 
         # 创建客户端
-        llm = create_dashscope_openai_llm(
-            model=model,
-            api_key=api_key,
-            max_tokens=50
-        )
+        llm = create_dashscope_openai_llm(model=model, api_key=api_key, max_tokens=50)
 
         # 发送测试消息
         response = llm.invoke("你好，请简单介绍一下你自己。")
 
-        if response and hasattr(response, 'content') and response.content:
+        if response and hasattr(response, "content") and response.content:
             logger.info("✅ DashScope OpenAI 兼容接口连接成功")
             logger.info(f"   响应: {response.content[:100]}...")
             return True
@@ -235,10 +218,7 @@ def test_dashscope_openai_connection(
         return False
 
 
-def test_dashscope_openai_function_calling(
-    model: str = "qwen-plus-latest",
-    api_key: str | None = None
-) -> bool:
+def test_dashscope_openai_function_calling(model: str = "qwen-plus-latest", api_key: str | None = None) -> bool:
     """测试 DashScope OpenAI 兼容接口的 Function Calling"""
 
     try:
@@ -246,16 +226,13 @@ def test_dashscope_openai_function_calling(
         logger.info(f"   模型: {model}")
 
         # 创建客户端
-        llm = create_dashscope_openai_llm(
-            model=model,
-            api_key=api_key,
-            max_tokens=200
-        )
+        llm = create_dashscope_openai_llm(model=model, api_key=api_key, max_tokens=200)
 
         # 定义测试工具
         def get_current_time() -> str:
             """获取当前时间"""
             import datetime
+
             return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # 创建 LangChain 工具
@@ -275,7 +252,7 @@ def test_dashscope_openai_function_calling(
         logger.info("✅ DashScope OpenAI Function Calling 测试完成")
         logger.info(f"   响应类型: {type(response)}")
 
-        if hasattr(response, 'tool_calls') and response.tool_calls:
+        if hasattr(response, "tool_calls") and response.tool_calls:
             logger.info(f"   工具调用数量: {len(response.tool_calls)}")
             return True
         else:

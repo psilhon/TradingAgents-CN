@@ -25,8 +25,8 @@ def test_get_china_stock_data_fix():
 
         # 测试股票数据获取
         print("🔄 测试股票数据获取...")
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d')
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d")
 
         result = Toolkit.get_china_stock_data("600036", start_date, end_date)
 
@@ -53,6 +53,7 @@ def test_get_china_stock_data_fix():
     except Exception as e:
         print(f"❌ get_china_stock_data测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -69,7 +70,7 @@ def test_get_china_market_overview_fix():
 
         # 测试市场概览获取
         print("🔄 测试市场概览获取...")
-        curr_date = datetime.now().strftime('%Y-%m-%d')
+        curr_date = datetime.now().strftime("%Y-%m-%d")
 
         result = Toolkit.get_china_market_overview(curr_date)
 
@@ -96,6 +97,7 @@ def test_get_china_market_overview_fix():
     except Exception as e:
         print(f"❌ get_china_market_overview测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -112,7 +114,7 @@ def test_stock_name_mapping_fix():
 
         # 测试基本面数据获取（会触发股票名称映射）
         print("🔄 测试基本面数据获取（包含股票名称映射）...")
-        curr_date = datetime.now().strftime('%Y-%m-%d')
+        curr_date = datetime.now().strftime("%Y-%m-%d")
 
         result = Toolkit.get_fundamentals_openai("600036", curr_date)
 
@@ -137,6 +139,7 @@ def test_stock_name_mapping_fix():
     except Exception as e:
         print(f"❌ 股票名称映射测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -150,8 +153,8 @@ def check_debug_output():
         from tradingagents.agents.utils.agent_utils import Toolkit
 
         print("🔄 运行股票数据获取并检查调试输出...")
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d')
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d")
 
         # 这应该会产生调试输出
         Toolkit.get_china_stock_data("000001", start_date, end_date)
@@ -185,7 +188,7 @@ def main():
         ("get_china_stock_data修复", test_get_china_stock_data_fix),
         ("get_china_market_overview修复", test_get_china_market_overview_fix),
         ("股票名称映射修复", test_stock_name_mapping_fix),
-        ("调试输出检查", check_debug_output)
+        ("调试输出检查", check_debug_output),
     ]
 
     results = []

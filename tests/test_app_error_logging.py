@@ -31,18 +31,17 @@ def test_error_logging_toml_config():
     print("\n✅ webapi 日志器处理器:")
     for handler in webapi_logger.handlers:
         print(f"  - {handler.__class__.__name__}: {getattr(handler, 'baseFilename', 'N/A')}")
-        if hasattr(handler, 'level'):
+        if hasattr(handler, "level"):
             print(f"    级别: {logging.getLevelName(handler.level)}")
 
     print("\n✅ worker 日志器处理器:")
     for handler in worker_logger.handlers:
         print(f"  - {handler.__class__.__name__}: {getattr(handler, 'baseFilename', 'N/A')}")
-        if hasattr(handler, 'level'):
+        if hasattr(handler, "level"):
             print(f"    级别: {logging.getLevelName(handler.level)}")
 
     # 验证错误日志处理器存在
-    error_handlers = [h for h in webapi_logger.handlers
-                     if hasattr(h, 'baseFilename') and 'error.log' in h.baseFilename]
+    error_handlers = [h for h in webapi_logger.handlers if hasattr(h, "baseFilename") and "error.log" in h.baseFilename]
 
     if error_handlers:
         print("\n✅ 错误日志处理器已正确配置！")
@@ -90,7 +89,7 @@ def test_error_logging_functionality():
         print(f"\n✅ error.log 文件已创建: {error_log_path.absolute()}")
 
         # 读取文件内容
-        with open(error_log_path, encoding='utf-8') as f:
+        with open(error_log_path, encoding="utf-8") as f:
             content = f.read()
 
         # 检查内容
@@ -129,8 +128,7 @@ def test_webapi_and_worker_loggers():
 
     for logger_name in loggers_to_check:
         logger = logging.getLogger(logger_name)
-        error_handlers = [h for h in logger.handlers
-                         if hasattr(h, 'baseFilename') and 'error.log' in h.baseFilename]
+        error_handlers = [h for h in logger.handlers if hasattr(h, "baseFilename") and "error.log" in h.baseFilename]
 
         if error_handlers:
             print(f"✅ {logger_name:10s} - 有错误日志处理器")
@@ -183,4 +181,3 @@ if __name__ == "__main__":
         print("\n❌ 部分测试失败，请检查配置。")
 
     sys.exit(0 if all_passed else 1)
-

@@ -2,6 +2,7 @@
 测试 AKShare 港股相关接口
 验证哪些接口可用，以及它们的功能和返回数据
 """
+
 from datetime import datetime
 
 import akshare as ak
@@ -10,9 +11,10 @@ import pandas as pd
 
 def print_separator(title):
     """打印分隔线"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(f"  {title}")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
+
 
 def test_api(api_name, api_func, *args, **kwargs):
     """测试单个API接口"""
@@ -37,6 +39,7 @@ def test_api(api_name, api_func, *args, **kwargs):
         print(f"   ❌ 失败: {e}")
         return False, None
 
+
 def main():
     """主测试函数"""
 
@@ -53,37 +56,28 @@ def main():
     print_separator("1. 实时行情接口")
 
     # 1.1 东方财富 - 港股实时行情
-    success, df = test_api(
-        "stock_hk_spot_em",
-        ak.stock_hk_spot_em
-    )
+    success, df = test_api("stock_hk_spot_em", ak.stock_hk_spot_em)
     if success and df is not None:
         # 查找腾讯控股
-        matched = df[df['代码'] == test_symbol]
+        matched = df[df["代码"] == test_symbol]
         if not matched.empty:
             print(f"\n   🎯 找到 {test_symbol}:")
             print(matched.to_string())
 
     # 1.2 东方财富 - 港股主板实时行情
-    success, df = test_api(
-        "stock_hk_main_board_spot_em",
-        ak.stock_hk_main_board_spot_em
-    )
+    success, df = test_api("stock_hk_main_board_spot_em", ak.stock_hk_main_board_spot_em)
     if success and df is not None:
-        matched = df[df['代码'] == test_symbol]
+        matched = df[df["代码"] == test_symbol]
         if not matched.empty:
             print(f"\n   🎯 找到 {test_symbol}:")
             print(matched.to_string())
 
     # 1.3 新浪财经 - 港股实时行情
     try:
-        success, df = test_api(
-            "stock_hk_spot",
-            ak.stock_hk_spot
-        )
+        success, df = test_api("stock_hk_spot", ak.stock_hk_spot)
         if success and df is not None:
             # 新浪接口的列名是 '代码'，不是 'symbol'
-            matched = df[df['代码'] == test_symbol]
+            matched = df[df["代码"] == test_symbol]
             if not matched.empty:
                 print(f"\n   🎯 找到 {test_symbol}:")
                 print(matched.to_string())
@@ -100,7 +94,7 @@ def main():
         "stock_hk_daily",
         ak.stock_hk_daily,
         symbol=test_symbol,
-        adjust="qfq"  # 前复权
+        adjust="qfq",  # 前复权
     )
     if success and df is not None:
         print("\n   📅 最近5个交易日:")
@@ -113,11 +107,7 @@ def main():
 
     # 3.1 雪球 - 港股个股信息
     try:
-        success, _result = test_api(
-            "stock_individual_basic_info_hk_xq",
-            ak.stock_individual_basic_info_hk_xq,
-            symbol=test_symbol
-        )
+        success, _result = test_api("stock_individual_basic_info_hk_xq", ak.stock_individual_basic_info_hk_xq, symbol=test_symbol)
     except AttributeError:
         print("   ⚠️ 接口 stock_individual_basic_info_hk_xq 不存在")
     except Exception as e:
@@ -130,10 +120,7 @@ def main():
 
     # 4.1 港股股票列表
     try:
-        success, df = test_api(
-            "stock_hk_list",
-            ak.stock_hk_list
-        )
+        success, df = test_api("stock_hk_list", ak.stock_hk_list)
     except AttributeError:
         print("   ⚠️ 接口 stock_hk_list 不存在")
 
@@ -145,7 +132,7 @@ def main():
             print(f"   ✅ 共 {len(df)} 只港股")
             print(f"   📋 列名: {list(df.columns)}")
             print("\n   前10只股票:")
-            print(df.head(10)[['代码', '名称', '最新价', '涨跌幅']].to_string())
+            print(df.head(10)[["代码", "名称", "最新价", "涨跌幅"]].to_string())
     except Exception as e:
         print(f"   ❌ 失败: {e}")
 
@@ -156,19 +143,13 @@ def main():
 
     # 5.1 港股通成分股
     try:
-        success, df = test_api(
-            "stock_hk_ggt_components_em",
-            ak.stock_hk_ggt_components_em
-        )
+        success, df = test_api("stock_hk_ggt_components_em", ak.stock_hk_ggt_components_em)
     except AttributeError:
         print("   ⚠️ 接口 stock_hk_ggt_components_em 不存在")
 
     # 5.2 港股通资金流向
     try:
-        success, df = test_api(
-            "stock_hk_ggt_hist_em",
-            ak.stock_hk_ggt_hist_em
-        )
+        success, df = test_api("stock_hk_ggt_hist_em", ak.stock_hk_ggt_hist_em)
     except AttributeError:
         print("   ⚠️ 接口 stock_hk_ggt_hist_em 不存在")
 
@@ -201,6 +182,6 @@ def main():
     - 历史数据使用 stock_hk_daily
     """)
 
+
 if __name__ == "__main__":
     main()
-

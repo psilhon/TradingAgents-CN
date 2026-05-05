@@ -9,6 +9,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_finnhub_connection():
     """测试FINNHUB连接"""
     print("🧪 测试FINNHUB连接...")
@@ -16,7 +17,7 @@ def test_finnhub_connection():
     try:
         import finnhub
 
-        api_key = os.getenv('FINNHUB_API_KEY')
+        api_key = os.getenv("FINNHUB_API_KEY")
         if not api_key:
             print("❌ 未配置FINNHUB_API_KEY环境变量")
             return False
@@ -25,8 +26,8 @@ def test_finnhub_connection():
 
         # 测试美股连接
         print("  测试美股连接 (AAPL)...")
-        quote = client.quote('AAPL')
-        if quote and 'c' in quote:
+        quote = client.quote("AAPL")
+        if quote and "c" in quote:
             print(f"    ✅ 美股连接成功: AAPL = ${quote['c']:.2f}")
         else:
             print("    ❌ 美股连接失败")
@@ -39,6 +40,7 @@ def test_finnhub_connection():
         print(f"❌ FINNHUB连接测试失败: {e}")
         return False
 
+
 def test_finnhub_hk_symbols():
     """测试FINNHUB港股代码格式"""
     print("\n🧪 测试FINNHUB港股代码格式...")
@@ -46,7 +48,7 @@ def test_finnhub_hk_symbols():
     try:
         import finnhub
 
-        api_key = os.getenv('FINNHUB_API_KEY')
+        api_key = os.getenv("FINNHUB_API_KEY")
         if not api_key:
             print("❌ 未配置FINNHUB_API_KEY环境变量")
             return False
@@ -68,7 +70,7 @@ def test_finnhub_hk_symbols():
                 print(f"  测试港股: {symbol}...")
                 quote = client.quote(symbol)
 
-                if quote and 'c' in quote and quote['c'] > 0:
+                if quote and "c" in quote and quote["c"] > 0:
                     print(f"    ✅ {symbol} = HK${quote['c']:.2f}")
                     success_count += 1
                 else:
@@ -88,6 +90,7 @@ def test_finnhub_hk_symbols():
         print(f"❌ FINNHUB港股支持测试失败: {e}")
         return False
 
+
 def test_finnhub_hk_company_info():
     """测试FINNHUB港股公司信息"""
     print("\n🧪 测试FINNHUB港股公司信息...")
@@ -95,7 +98,7 @@ def test_finnhub_hk_company_info():
     try:
         import finnhub
 
-        api_key = os.getenv('FINNHUB_API_KEY')
+        api_key = os.getenv("FINNHUB_API_KEY")
         if not api_key:
             print("❌ 未配置FINNHUB_API_KEY环境变量")
             return False
@@ -108,7 +111,7 @@ def test_finnhub_hk_company_info():
         try:
             profile = client.company_profile2(symbol=symbol)
 
-            if profile and 'name' in profile:
+            if profile and "name" in profile:
                 print(f"    ✅ 公司名称: {profile['name']}")
                 print(f"    ✅ 国家: {profile.get('country', 'N/A')}")
                 print(f"    ✅ 货币: {profile.get('currency', 'N/A')}")
@@ -127,6 +130,7 @@ def test_finnhub_hk_company_info():
         print(f"❌ FINNHUB港股公司信息测试失败: {e}")
         return False
 
+
 def test_optimized_us_data_finnhub_hk():
     """测试优化数据模块的FINNHUB港股支持"""
     print("\n🧪 测试优化数据模块的FINNHUB港股支持...")
@@ -136,8 +140,8 @@ def test_optimized_us_data_finnhub_hk():
 
         from tradingagents.dataflows.optimized_us_data import get_us_stock_data_cached
 
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
 
         symbol = "0700.HK"  # 腾讯
         print(f"  通过优化模块获取 {symbol} 数据...")
@@ -148,12 +152,7 @@ def test_optimized_us_data_finnhub_hk():
             print("    ✅ 数据获取成功")
 
             # 检查关键信息
-            checks = [
-                ("港股", "识别为港股"),
-                ("HK$", "使用港币符号"),
-                ("FINNHUB", "使用FINNHUB数据源"),
-                (symbol, "包含股票代码")
-            ]
+            checks = [("港股", "识别为港股"), ("HK$", "使用港币符号"), ("FINNHUB", "使用FINNHUB数据源"), (symbol, "包含股票代码")]
 
             for check_text, description in checks:
                 if check_text in data:
@@ -172,6 +171,7 @@ def test_optimized_us_data_finnhub_hk():
         print(f"❌ 优化数据模块FINNHUB港股支持测试失败: {e}")
         return False
 
+
 def test_unified_interface_finnhub_priority():
     """测试统一接口的FINNHUB优先级"""
     print("\n🧪 测试统一接口的FINNHUB优先级...")
@@ -181,8 +181,8 @@ def test_unified_interface_finnhub_priority():
 
         from tradingagents.dataflows.interface import get_hk_stock_data_unified
 
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
 
         symbol = "0700.HK"
         print(f"  通过统一接口获取 {symbol} 数据...")
@@ -212,6 +212,7 @@ def test_unified_interface_finnhub_priority():
         print(f"❌ 统一接口FINNHUB优先级测试失败: {e}")
         return False
 
+
 def main():
     """运行所有FINNHUB港股测试"""
     print("🇭🇰 开始FINNHUB港股支持测试")
@@ -222,7 +223,7 @@ def main():
         test_finnhub_hk_symbols,
         test_finnhub_hk_company_info,
         test_optimized_us_data_finnhub_hk,
-        test_unified_interface_finnhub_priority
+        test_unified_interface_finnhub_priority,
     ]
 
     passed = 0
@@ -248,6 +249,7 @@ def main():
         print("  - 集成到统一数据接口")
     else:
         print("⚠️ FINNHUB港股支持可能有问题，请检查API配置")
+
 
 if __name__ == "__main__":
     main()

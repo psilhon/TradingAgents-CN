@@ -3,6 +3,7 @@
 
 从 tradingagents/dataflows/utils.py 迁移而来
 """
+
 from datetime import date, datetime, timedelta
 from typing import Annotated
 
@@ -11,10 +12,11 @@ import pandas as pd
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 
 SavePathType = Annotated[str, "File path to save data. If None, data is not saved."]
+
 
 def save_output(data: pd.DataFrame, tag: str, save_path: SavePathType = None) -> None:
     """
@@ -56,6 +58,7 @@ def decorate_all_methods(decorator):
         >>>     def method1(self):
         >>>         pass
     """
+
     def class_decorator(cls):
         for attr_name, attr_value in cls.__dict__.items():
             if callable(attr_value):
@@ -129,4 +132,3 @@ def get_trading_date_range(target_date=None, lookback_days=10):
 
     # 返回日期范围
     return start_date.strftime("%Y-%m-%d"), target_date.strftime("%Y-%m-%d")
-

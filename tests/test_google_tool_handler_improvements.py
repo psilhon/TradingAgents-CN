@@ -1,6 +1,7 @@
 """
 测试Google工具处理器的改进
 """
+
 import logging
 import os
 import sys
@@ -16,16 +17,17 @@ from tradingagents.agents.utils.agent_utils import Toolkit
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 
 # 配置日志
-os.makedirs(os.path.join('data', 'logs'), exist_ok=True)
+os.makedirs(os.path.join("data", "logs"), exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(os.path.join('data', 'logs', f"google_tool_handler_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"))
-    ]
+        logging.FileHandler(os.path.join("data", "logs", f"google_tool_handler_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")),
+    ],
 )
 logger = logging.getLogger("test_google_tool_handler")
+
 
 def test_google_tool_handler_improvements():
     """测试Google工具处理器的改进"""
@@ -55,7 +57,7 @@ def test_google_tool_handler_improvements():
             "messages": [HumanMessage(content="请分析贵州茅台(600519)的市场情况")],
             "trade_date": "2023-12-31",
             "company_of_interest": "贵州茅台",
-            "ticker": "600519"
+            "ticker": "600519",
         }
 
         result, messages = GoogleToolCallHandler.handle_google_tool_calls(  # noqa: RUF059
@@ -64,7 +66,7 @@ def test_google_tool_handler_improvements():
             tools=tools,
             state=state,
             analysis_prompt_template="请基于以上数据生成详细的市场分析报告",
-            analyst_name="市场分析师"
+            analyst_name="市场分析师",
         )
         logger.info(f"场景2结果: {result[:100]}...")
     except Exception as e:
@@ -76,22 +78,20 @@ def test_google_tool_handler_improvements():
         # 创建一个有工具调用的AIMessage
         ai_message = AIMessage(
             content="我需要获取股票数据",
-            tool_calls=[{
-                'id': 'test_tool_call_1',
-                'name': 'get_stock_market_data_unified',
-                'args': {
-                    'ticker': '600519',
-                    'start_date': '2023-01-01',
-                    'end_date': '2023-12-31'
+            tool_calls=[
+                {
+                    "id": "test_tool_call_1",
+                    "name": "get_stock_market_data_unified",
+                    "args": {"ticker": "600519", "start_date": "2023-01-01", "end_date": "2023-12-31"},
                 }
-            }]
+            ],
         )
 
         state = {
             "messages": [HumanMessage(content="请分析贵州茅台(600519)的市场情况")],
             "trade_date": "2023-12-31",
             "company_of_interest": "贵州茅台",
-            "ticker": "600519"
+            "ticker": "600519",
         }
 
         result, _messages = GoogleToolCallHandler.handle_google_tool_calls(
@@ -100,13 +100,14 @@ def test_google_tool_handler_improvements():
             tools=tools,
             state=state,
             analysis_prompt_template="请基于以上数据生成详细的市场分析报告",
-            analyst_name="市场分析师"
+            analyst_name="市场分析师",
         )
         logger.info(f"场景3结果: {result[:100]}...")
     except Exception as e:
         logger.error(f"场景3异常: {e}")
 
     logger.info("Google工具处理器改进测试完成")
+
 
 if __name__ == "__main__":
     test_google_tool_handler_improvements()

@@ -9,6 +9,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_toolkit_hk_method():
     """测试工具包港股方法"""
     print("🧪 测试工具包港股方法...")
@@ -23,7 +24,7 @@ def test_toolkit_hk_method():
         toolkit = Toolkit(config)
 
         # 检查是否有港股方法
-        has_hk_method = hasattr(toolkit, 'get_hk_stock_data_unified')
+        has_hk_method = hasattr(toolkit, "get_hk_stock_data_unified")
         print(f"  工具包是否有港股方法: {has_hk_method}")
 
         if has_hk_method:
@@ -36,8 +37,10 @@ def test_toolkit_hk_method():
     except Exception as e:
         print(f"❌ 工具包港股方法测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_market_analyst_tools():
     """测试市场分析师工具配置"""
@@ -62,7 +65,7 @@ def test_market_analyst_tools():
         print(f"    是否港股: {market_info['is_hk']}")
         print(f"    货币: {market_info['currency_name']}")
 
-        if market_info['is_hk']:
+        if market_info["is_hk"]:
             print("  ✅ 港股识别正确")
         else:
             print("  ❌ 港股识别失败")
@@ -77,8 +80,10 @@ def test_market_analyst_tools():
     except Exception as e:
         print(f"❌ 市场分析师工具配置测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_akshare_hk_availability():
     """测试AKShare港股可用性"""
@@ -112,8 +117,10 @@ def test_akshare_hk_availability():
     except Exception as e:
         print(f"❌ AKShare港股可用性测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_data_source_priority():
     """测试数据源优先级"""
@@ -122,10 +129,9 @@ def test_data_source_priority():
     try:
         from datetime import datetime, timedelta
 
-
         # 设置测试日期
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
 
         symbol = "0700.HK"
         print(f"  测试获取 {symbol} 数据...")
@@ -143,8 +149,10 @@ def test_data_source_priority():
     except Exception as e:
         print(f"❌ 数据源优先级测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_market_analyst_modification():
     """测试市场分析师修改"""
@@ -152,12 +160,12 @@ def test_market_analyst_modification():
 
     try:
         # 读取市场分析师文件内容
-        with open('tradingagents/agents/analysts/market_analyst.py', encoding='utf-8') as f:
+        with open("tradingagents/agents/analysts/market_analyst.py", encoding="utf-8") as f:
             content = f.read()
 
         # 检查是否包含港股配置
-        has_hk_config = 'elif is_hk:' in content
-        has_unified_tool = 'get_hk_stock_data_unified' in content
+        has_hk_config = "elif is_hk:" in content
+        has_unified_tool = "get_hk_stock_data_unified" in content
 
         print(f"  包含港股配置: {has_hk_config}")
         print(f"  包含统一工具: {has_unified_tool}")
@@ -173,6 +181,7 @@ def test_market_analyst_modification():
         print(f"❌ 市场分析师修改测试失败: {e}")
         return False
 
+
 def main():
     """运行所有测试"""
     print("🔧 港股数据源修复测试")
@@ -183,7 +192,7 @@ def main():
         test_toolkit_hk_method,
         test_market_analyst_tools,
         test_data_source_priority,
-        test_market_analyst_modification
+        test_market_analyst_modification,
     ]
 
     passed = 0
@@ -205,6 +214,7 @@ def main():
         print("而不是Yahoo Finance，避免了Rate Limit问题")
     else:
         print("⚠️ 部分测试失败，请检查失败的测试")
+
 
 if __name__ == "__main__":
     main()

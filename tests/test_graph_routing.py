@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_graph_routing():
     """测试图路由是否正常工作"""
     print("🔬 测试图路由修复")
@@ -34,15 +35,17 @@ def test_graph_routing():
 
         # 配置DeepSeek
         config = DEFAULT_CONFIG.copy()
-        config.update({
-            "llm_provider": "deepseek",
-            "deep_think_llm": "deepseek-chat",
-            "quick_think_llm": "deepseek-chat",
-            "max_debate_rounds": 1,  # 减少轮次，快速测试
-            "max_risk_discuss_rounds": 1,
-            "online_tools": False,  # 关闭在线工具，减少复杂度
-            "memory_enabled": False
-        })
+        config.update(
+            {
+                "llm_provider": "deepseek",
+                "deep_think_llm": "deepseek-chat",
+                "quick_think_llm": "deepseek-chat",
+                "max_debate_rounds": 1,  # 减少轮次，快速测试
+                "max_risk_discuss_rounds": 1,
+                "online_tools": False,  # 关闭在线工具，减少复杂度
+                "memory_enabled": False,
+            }
+        )
 
         print("📊 配置信息:")
         print(f"   LLM提供商: {config['llm_provider']}")
@@ -61,21 +64,21 @@ def test_graph_routing():
         # 准备输入
         input_data = {
             "company_of_interest": "AAPL",  # 使用美股，减少复杂度
-            "trade_date": "2025-07-08"
+            "trade_date": "2025-07-08",
         }
 
         print(f"\n📊 开始测试分析: {input_data['company_of_interest']}")
         print(f"📅 交易日期: {input_data['trade_date']}")
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("开始图路由测试，观察是否有KeyError...")
-        print("="*60)
+        print("=" * 60)
 
         # 运行分析
         result = graph.run(input_data)
 
-        print("="*60)
+        print("=" * 60)
         print("图路由测试完成！")
-        print("="*60)
+        print("=" * 60)
 
         # 输出结果摘要
         if result and "decision" in result:
@@ -97,8 +100,10 @@ def test_graph_routing():
     except Exception as e:
         print(f"❌ 其他错误: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -118,6 +123,7 @@ def main():
         print("   需要进一步调试")
 
     return success
+
 
 if __name__ == "__main__":
     success = main()

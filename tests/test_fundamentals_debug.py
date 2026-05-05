@@ -32,6 +32,7 @@ def test_fundamentals_analyst_directly():
                     def __init__(self):
                         self.tool_calls = []
                         self.content = "模拟分析结果"
+
                 return MockResult()
 
         llm = MockLLM()
@@ -40,11 +41,7 @@ def test_fundamentals_analyst_directly():
         analyst = create_fundamentals_analyst(llm, toolkit)
 
         # 模拟状态
-        state = {
-            "trade_date": "2025-07-14",
-            "company_of_interest": "0700.HK",
-            "messages": []
-        }
+        state = {"trade_date": "2025-07-14", "company_of_interest": "0700.HK", "messages": []}
 
         print(f"  测试港股: {state['company_of_interest']}")
         print("  调用基本面分析师...")
@@ -60,6 +57,7 @@ def test_fundamentals_analyst_directly():
     except Exception as e:
         print(f"❌ 直接测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -81,7 +79,7 @@ def test_stock_utils_import():
         print(f"  是否A股: {market_info['is_china']}")
         print(f"  是否美股: {market_info['is_us']}")
 
-        if market_info['is_hk']:
+        if market_info["is_hk"]:
             print("  ✅ StockUtils正确识别港股")
             return True
         else:
@@ -106,11 +104,7 @@ def test_toolkit_hk_tools():
         toolkit = Toolkit(config)
 
         # 检查港股工具是否存在
-        hk_tools = [
-            'get_hk_stock_data_unified',
-            'get_china_stock_data',
-            'get_fundamentals_openai'
-        ]
+        hk_tools = ["get_hk_stock_data_unified", "get_china_stock_data", "get_fundamentals_openai"]
 
         for tool_name in hk_tools:
             has_tool = hasattr(toolkit, tool_name)
@@ -136,7 +130,7 @@ def test_import_paths():
         "tradingagents.agents.analysts.fundamentals_analyst",
         "tradingagents.utils.stock_utils",
         "tradingagents.agents.utils.agent_utils",
-        "tradingagents.default_config"
+        "tradingagents.default_config",
     ]
 
     for import_path in imports_to_test:

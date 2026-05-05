@@ -16,6 +16,7 @@ load_dotenv()
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+
 async def test_field_config_api():
     """测试筛选字段配置API"""
     print("🧪 测试筛选字段配置API...")
@@ -39,7 +40,7 @@ async def test_field_config_api():
             "financial": ["pe", "pb", "pe_ttm", "pb_mrq"],
             "trading": ["turnover_rate", "volume_ratio"],
             "price": ["close", "pct_chg", "amount"],
-            "technical": ["ma20", "rsi14", "kdj_k", "kdj_d", "kdj_j", "dif", "dea", "macd_hist"]
+            "technical": ["ma20", "rsi14", "kdj_k", "kdj_d", "kdj_j", "dif", "dea", "macd_hist"],
         }
 
         for category, fields in categories.items():
@@ -55,15 +56,18 @@ async def test_field_config_api():
 
         # 测试API响应格式
         response_data = {
-            "fields": {name: {
-                "name": info.name,
-                "display_name": info.display_name,
-                "field_type": info.field_type.value,
-                "data_type": info.data_type,
-                "description": info.description,
-                "supported_operators": [op.value for op in info.supported_operators]
-            } for name, info in BASIC_FIELDS_INFO.items()},
-            "categories": categories
+            "fields": {
+                name: {
+                    "name": info.name,
+                    "display_name": info.display_name,
+                    "field_type": info.field_type.value,
+                    "data_type": info.data_type,
+                    "description": info.description,
+                    "supported_operators": [op.value for op in info.supported_operators],
+                }
+                for name, info in BASIC_FIELDS_INFO.items()
+            },
+            "categories": categories,
         }
 
         print("\n📄 API响应示例:")
@@ -74,7 +78,9 @@ async def test_field_config_api():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(test_field_config_api())

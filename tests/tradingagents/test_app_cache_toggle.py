@@ -34,6 +34,7 @@ def test_basics_prefers_app_cache_when_enabled(monkeypatch):
 
     # Ensure API branch is reachable in case of fallback
     import tradingagents.dataflows.stock_data_service as sds_mod
+
     monkeypatch.setattr(sds_mod, "ENHANCED_FETCHER_AVAILABLE", True, raising=False)
 
     from tradingagents.dataflows.stock_data_service import StockDataService
@@ -65,6 +66,7 @@ def test_basics_fallback_to_api_when_cache_miss(monkeypatch):
 
     # Ensure API branch enabled
     import tradingagents.dataflows.stock_data_service as sds_mod
+
     monkeypatch.setattr(sds_mod, "ENHANCED_FETCHER_AVAILABLE", True, raising=False)
 
     from tradingagents.dataflows.stock_data_service import StockDataService
@@ -97,6 +99,7 @@ def test_basics_direct_first_when_disabled(monkeypatch):
 
     # Ensure API branch enabled
     import tradingagents.dataflows.stock_data_service as sds_mod
+
     monkeypatch.setattr(sds_mod, "ENHANCED_FETCHER_AVAILABLE", True, raising=False)
 
     from tradingagents.dataflows.stock_data_service import StockDataService
@@ -133,20 +136,22 @@ def test_realtime_quotes_prefers_app_market_quotes(monkeypatch):
 
     def fake_get_market_quote_dataframe(symbol: str):
         # Return a minimal dataframe resembling the adapter output
-        return pd.DataFrame([
-            {
-                "code": symbol,
-                "date": "20250101",
-                "open": 10.0,
-                "high": 11.0,
-                "low": 9.5,
-                "close": 10.5,
-                "volume": 1000000,
-                "amount": 5000000,
-                "pct_chg": 1.2,
-                "change": 0.12,
-            }
-        ])
+        return pd.DataFrame(
+            [
+                {
+                    "code": symbol,
+                    "date": "20250101",
+                    "open": 10.0,
+                    "high": 11.0,
+                    "low": 9.5,
+                    "close": 10.5,
+                    "volume": 1000000,
+                    "amount": 5000000,
+                    "pct_chg": 1.2,
+                    "change": 0.12,
+                }
+            ]
+        )
 
     monkeypatch.setattr(app_cache_adapter, "get_market_quote_dataframe", fake_get_market_quote_dataframe)
 
@@ -154,10 +159,12 @@ def test_realtime_quotes_prefers_app_market_quotes(monkeypatch):
 
     # Create adapter and stub provider to avoid real Tushare calls
     ada = TushareDataAdapter(enable_cache=False)
+
     class DummyProvider:
         def get_stock_daily(self, symbol, start_date, end_date):
             # Should not be called because cache will be used
             return pd.DataFrame()
+
     ada.provider = DummyProvider()
 
     # Also make standardizer identity to simplify assertion
@@ -167,4 +174,3 @@ def test_realtime_quotes_prefers_app_market_quotes(monkeypatch):
     assert isinstance(df, pd.DataFrame)
     assert not df.empty
     assert set(["open", "high", "low", "close"]).issubset(df.columns)
-

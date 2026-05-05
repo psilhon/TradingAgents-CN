@@ -14,8 +14,9 @@ import logging
 from datetime import datetime
 
 # 设置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
+
 
 def test_dashscope_tool_call_detection():
     """测试DashScope工具调用失败检测机制"""
@@ -43,8 +44,8 @@ def test_dashscope_tool_call_detection():
         def get_realtime_stock_news():
             class MockTool:
                 def invoke(self, params):
-                    ticker = params.get('ticker', 'UNKNOWN')
-                    curr_date = params.get('curr_date', 'UNKNOWN')
+                    ticker = params.get("ticker", "UNKNOWN")
+                    curr_date = params.get("curr_date", "UNKNOWN")
                     # 返回足够长的新闻数据（>100字符）
                     return f"""【东方财富新闻】{ticker} 股票最新消息：
 
@@ -56,14 +57,15 @@ def test_dashscope_tool_call_detection():
 
 发布时间：{curr_date}
 数据来源：东方财富网"""
+
             return MockTool()
 
         @staticmethod
         def get_google_news():
             class MockTool:
                 def invoke(self, params):
-                    query = params.get('query', 'UNKNOWN')
-                    curr_date = params.get('curr_date', 'UNKNOWN')
+                    query = params.get("query", "UNKNOWN")
+                    curr_date = params.get("curr_date", "UNKNOWN")
                     # 返回足够长的新闻数据（>100字符）
                     return f"""【Google新闻】{query} 相关新闻汇总：
 
@@ -75,6 +77,7 @@ def test_dashscope_tool_call_detection():
 
 时间：{curr_date}
 数据来源：Google News"""
+
             return MockTool()
 
     # 测试参数
@@ -107,7 +110,7 @@ def test_dashscope_tool_call_detection():
     # 应用增强的检测逻辑
     report = ""
 
-    if 'DashScope' in llm.__class__.__name__:
+    if "DashScope" in llm.__class__.__name__:
         if tool_call_count == 0:
             print("🚨 检测到DashScope没有调用任何工具，启动强制补救...")
 
@@ -157,7 +160,7 @@ def test_dashscope_tool_call_detection():
 
     print()
     print("🎯 测试结论:")
-    if '东方财富新闻' in report or 'Google新闻' in report:
+    if "东方财富新闻" in report or "Google新闻" in report:
         print("✅ 增强的DashScope工具调用失败检测和补救机制工作正常")
         print("✅ 成功检测到工具调用失败并强制获取了真实新闻数据")
         print("✅ 基于真实新闻数据重新生成了分析报告")
@@ -165,6 +168,7 @@ def test_dashscope_tool_call_detection():
         print("❌ 补救机制可能存在问题")
 
     return True
+
 
 if __name__ == "__main__":
     try:

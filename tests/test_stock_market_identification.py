@@ -15,14 +15,14 @@ from tradingagents.utils.stock_utils import StockUtils
 def test_stock_identification():
     """测试股票代码识别"""
     test_cases = [
-        "300750",      # 纯A股代码
-        "300750.SZ",   # 带后缀的A股代码
-        "000001",      # 另一个A股代码
-        "000001.SZ",   # 带后缀的A股代码
-        "600000",      # 上海A股代码
-        "600000.SH",   # 带后缀的上海A股代码
-        "0700.HK",     # 港股代码
-        "AAPL",        # 美股代码
+        "300750",  # 纯A股代码
+        "300750.SZ",  # 带后缀的A股代码
+        "000001",  # 另一个A股代码
+        "000001.SZ",  # 带后缀的A股代码
+        "600000",  # 上海A股代码
+        "600000.SH",  # 带后缀的上海A股代码
+        "0700.HK",  # 港股代码
+        "AAPL",  # 美股代码
     ]
 
     print("🔍 股票市场识别测试")
@@ -44,6 +44,7 @@ def test_stock_identification():
         print(f"   是否A股: {market_info['is_china']}")
         print(f"   数据源: {market_info['data_source']}")
         print(f"   货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
+
 
 if __name__ == "__main__":
     test_stock_identification()

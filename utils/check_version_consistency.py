@@ -10,64 +10,62 @@ from pathlib import Path
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('default')
+logger = get_logger("default")
 
 
 def get_target_version():
     """从VERSION文件获取目标版本号"""
     version_file = Path("VERSION")
     if version_file.exists():
-        with open(version_file, encoding='utf-8') as f:
+        with open(version_file, encoding="utf-8") as f:
             return f.read().strip()
     return None
 
+
 # 低噪声版本规范辅助函数与专用检查
+
 
 def normalize_version(v: str) -> str:
     """标准化版本字符串用于比较（去掉前缀与修饰）"""
-    return (
-        v.lower()
-         .replace('version-', '')
-         .replace('版本', '')
-         .lstrip('v')
-         .strip()
-    )
+    return v.lower().replace("version-", "").replace("版本", "").lstrip("v").strip()
 
 
 def check_special_files(file_path: Path, content: str, target_version: str):
     """对特定文件做精准校验，减少误报"""
     issues = []
     target_norm = normalize_version(target_version)
-    target_numeric = target_norm.replace('cn-', '')  # pyproject.toml 使用纯数字版本
+    target_numeric = target_norm.replace("cn-", "")  # pyproject.toml 使用纯数字版本
 
     # 1) pyproject.toml: version 字段应与目标数字版本一致
-    if file_path.name == 'pyproject.toml':
+    if file_path.name == "pyproject.toml":
         m = re.search(r'(?m)^\s*version\s*=\s*"([^"]+)"', content)
         if m:
             found = m.group(1).strip()
             if found != target_numeric:
-                issues.append({
-                    'line': content[:m.start()].count('\n') + 1,
-                    'found': found,
-                    'expected': target_numeric,
-                    'context': content[max(0, m.start()-20):m.end()+20]
-                })
+                issues.append(
+                    {
+                        "line": content[: m.start()].count("\n") + 1,
+                        "found": found,
+                        "expected": target_numeric,
+                        "context": content[max(0, m.start() - 20) : m.end() + 20],
+                    }
+                )
         else:
-            issues.append({'line': 1, 'found': '(missing version)', 'expected': target_numeric, 'context': ''})
+            issues.append({"line": 1, "found": "(missing version)", "expected": target_numeric, "context": ""})
         return issues
 
     # 2) README.md: 徽章与“最新版本”提示
-    if file_path.name == 'README.md':
+    if file_path.name == "README.md":
         # shields 徽章会把单个 - 显示为 --
-        badge_text = normalize_version(target_version).replace('cn-', 'cn-').replace('-', '--')
+        badge_text = normalize_version(target_version).replace("cn-", "cn-").replace("-", "--")
         if badge_text not in content:
-            issues.append({'line': 1, 'found': '(missing/old badge)', 'expected': badge_text, 'context': 'badge'})
+            issues.append({"line": 1, "found": "(missing/old badge)", "expected": badge_text, "context": "badge"})
         if target_version not in content:
-            issues.append({'line': 1, 'found': '(missing latest tip)', 'expected': target_version, 'context': 'latest-tip'})
+            issues.append({"line": 1, "found": "(missing latest tip)", "expected": target_version, "context": "latest-tip"})
         return issues
 
     # 3) CHANGELOG: 允许历史版本存在，无需校验
-    if file_path.name.upper() == 'CHANGELOG.MD':
+    if file_path.name.upper() == "CHANGELOG.MD":
         return []
 
     return []
@@ -76,7 +74,7 @@ def check_special_files(file_path: Path, content: str, target_version: str):
 def check_file_versions(file_path: Path, target_version: str):
     """检查文件中的版本号（低噪声策略）"""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # 对特定文件做精准检查
@@ -85,13 +83,14 @@ def check_file_versions(file_path: Path, target_version: str):
             return special_issues
 
         # CHANGELOG 与其他文档默认忽略（允许历史版本与依赖版本存在）
-        if file_path.name.upper() == 'CHANGELOG.MD':
+        if file_path.name.upper() == "CHANGELOG.MD":
             return []
 
         return []  # 其余文件不做泛化扫描，避免误报
 
     except Exception as e:
-        return [{'error': str(e)}]
+        return [{"error": str(e)}]
+
 
 def main():
     """主检查函数"""
@@ -128,7 +127,7 @@ def main():
             logger.info("   ✅ 版本号一致")
         else:
             for issue in issues:
-                if 'error' in issue:
+                if "error" in issue:
                     logger.error(f"   ❌ 检查错误: {issue['error']}")
                 else:
                     logger.error(f"   ❌ 第{issue['line']}行: 发现 '{issue['found']}', 期望 '{issue['expected']}'")
@@ -152,6 +151,7 @@ def main():
     logger.info(f"   - 当前版本: {target_version}")
     logger.info("   - 格式要求: v0.1.x")
     logger.info("   - 历史版本: 可以保留在CHANGELOG中")
+
 
 if __name__ == "__main__":
     main()

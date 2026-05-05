@@ -15,6 +15,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_logging_fix():
     """测试日志修复效果"""
     print("🔍 测试日志修复效果")
@@ -23,10 +24,11 @@ def test_logging_fix():
     try:
         # 初始化TradingAgents日志系统
         from tradingagents.utils.logging_init import get_logger, init_logging
+
         init_logging()
 
         # 获取日志器
-        logger = get_logger('test')
+        logger = get_logger("test")
         logger.info("🧪 测试日志系统初始化成功")
 
         # 导入TradingAgents
@@ -48,7 +50,7 @@ def test_logging_fix():
         TradingAgentsGraph(
             selected_analysts=["market"],  # 只使用市场分析师进行快速测试
             debug=True,
-            config=config
+            config=config,
         )
 
         logger.info("✅ TradingAgentsGraph创建成功")
@@ -62,7 +64,7 @@ def test_logging_fix():
             print(f"✅ 日志文件存在: {log_file}")
 
             # 读取最后几行日志
-            with open(log_file, encoding='utf-8') as f:
+            with open(log_file, encoding="utf-8") as f:
                 lines = f.readlines()
                 if len(lines) > 0:
                     print("📊 日志文件最后5行:")
@@ -78,8 +80,10 @@ def test_logging_fix():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     test_logging_fix()

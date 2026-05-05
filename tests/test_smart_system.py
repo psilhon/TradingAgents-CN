@@ -31,6 +31,7 @@ def test_smart_config():
         print(f"❌ 智能配置测试失败: {e}")
         return False, None
 
+
 def test_adaptive_cache():
     """测试自适应缓存系统"""
     print("\n💾 测试自适应缓存系统")
@@ -53,11 +54,7 @@ def test_adaptive_cache():
 
         test_data = f"测试数据 - {datetime.now()}"
         cache_key = cache.save_stock_data(
-            symbol="AAPL",
-            data=test_data,
-            start_date="2024-01-01",
-            end_date="2024-12-31",
-            data_source="smart_test"
+            symbol="AAPL", data=test_data, start_date="2024-01-01", end_date="2024-12-31", data_source="smart_test"
         )
         print(f"✅ 数据保存成功: {cache_key}")
 
@@ -70,12 +67,7 @@ def test_adaptive_cache():
             return False
 
         # 测试查找
-        found_key = cache.find_cached_stock_data(
-            symbol="AAPL",
-            start_date="2024-01-01",
-            end_date="2024-12-31",
-            data_source="smart_test"
-        )
+        found_key = cache.find_cached_stock_data(symbol="AAPL", start_date="2024-01-01", end_date="2024-12-31", data_source="smart_test")
 
         if found_key:
             print(f"✅ 缓存查找成功: {found_key}")
@@ -88,8 +80,10 @@ def test_adaptive_cache():
     except Exception as e:
         print(f"❌ 自适应缓存测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False, None
+
 
 def test_performance():
     """测试性能"""
@@ -115,11 +109,7 @@ def test_performance():
             # 测试保存性能
             start_time = time.time()
             cache_key = cache.save_stock_data(
-                symbol=symbol,
-                data=test_data,
-                start_date="2024-01-01",
-                end_date="2024-12-31",
-                data_source="perf_test"
+                symbol=symbol, data=test_data, start_date="2024-01-01", end_date="2024-12-31", data_source="perf_test"
             )
             save_time = time.time() - start_time
             total_save_time += save_time
@@ -159,6 +149,7 @@ def test_performance():
         print(f"❌ 性能测试失败: {e}")
         return False
 
+
 def test_fallback_mechanism():
     """测试降级机制"""
     print("\n🔄 测试降级机制")
@@ -193,6 +184,7 @@ def test_fallback_mechanism():
         print(f"❌ 降级机制测试失败: {e}")
         return False
 
+
 def generate_test_report(results):
     """生成测试报告"""
     print("\n📋 测试报告")
@@ -204,7 +196,7 @@ def generate_test_report(results):
     print(f"总测试数: {total_tests}")
     print(f"通过测试: {passed_tests}")
     print(f"失败测试: {total_tests - passed_tests}")
-    print(f"通过率: {(passed_tests/total_tests)*100:.1f}%")
+    print(f"通过率: {(passed_tests / total_tests) * 100:.1f}%")
 
     print("\n详细结果:")
     for test_name, result in results.items():
@@ -228,6 +220,7 @@ def generate_test_report(results):
             print("  - 优化缓存性能")
         if not results.get("降级机制", True):
             print("  - 检查降级机制配置")
+
 
 def main():
     """主测试函数"""
@@ -270,6 +263,7 @@ def main():
 
     # 返回总体结果
     return all(results.values())
+
 
 if __name__ == "__main__":
     success = main()

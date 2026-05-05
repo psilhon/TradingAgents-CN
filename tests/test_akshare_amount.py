@@ -2,6 +2,7 @@
 测试 AKShare 成交额单位
 检查 AKShare 返回的成交额数据单位是否正确
 """
+
 import os
 import sys
 
@@ -37,8 +38,8 @@ async def test_akshare_amount():
         print("   ✅ 获取成功")
         print(f"   最新价: {quotes.get('close')}")
         print(f"   成交额原始值: {quotes.get('amount')}")
-        if quotes.get('amount'):
-            amount = quotes.get('amount')
+        if quotes.get("amount"):
+            amount = quotes.get("amount")
             print(f"   成交额(元): {amount:,.0f}")
             print(f"   成交额(亿元): {amount / 1e8:.2f}")
             print(f"   成交额(万元): {amount / 1e4:.2f}")
@@ -49,15 +50,11 @@ async def test_akshare_amount():
 
     # 获取历史数据（最近5天）
     from datetime import datetime, timedelta
+
     end_date = datetime.now()
     start_date = end_date - timedelta(days=5)
 
-    hist_df = await provider.get_historical_data(
-        symbol=test_code,
-        start_date=start_date,
-        end_date=end_date,
-        period="daily"
-    )
+    hist_df = await provider.get_historical_data(symbol=test_code, start_date=start_date, end_date=end_date, period="daily")
 
     if hist_df is not None and not hist_df.empty:
         print(f"   ✅ 获取到 {len(hist_df)} 条记录")
@@ -68,8 +65,8 @@ async def test_akshare_amount():
         print(f"   日期: {latest.name if hasattr(latest, 'name') else latest.get('date')}")
         print(f"   收盘价: {latest.get('close')}")
         print(f"   成交额原始值: {latest.get('amount')}")
-        if latest.get('amount'):
-            amount = latest.get('amount')
+        if latest.get("amount"):
+            amount = latest.get("amount")
             print(f"   成交额(元): {amount:,.0f}")
             print(f"   成交额(亿元): {amount / 1e8:.2f}")
             print(f"   成交额(万元): {amount / 1e4:.2f}")
@@ -86,6 +83,6 @@ async def test_akshare_amount():
     print("   如果成交额显示为 909.18万 或 0.0091亿，说明有问题 ❌")
     print("=" * 80)
 
+
 if __name__ == "__main__":
     asyncio.run(test_akshare_amount())
-

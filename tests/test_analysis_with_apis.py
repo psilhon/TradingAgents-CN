@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
 
+
 def test_news_analyst_with_google():
     """测试新闻分析师使用Google工具"""
     try:
@@ -46,12 +47,7 @@ def test_news_analyst_with_google():
         # 创建测试状态
         from langchain_core.messages import HumanMessage
 
-
-        test_state = {
-            "messages": [HumanMessage(content="分析AAPL的新闻情况")],
-            "company_of_interest": "AAPL",
-            "trade_date": "2025-06-27"
-        }
+        test_state = {"messages": [HumanMessage(content="分析AAPL的新闻情况")], "company_of_interest": "AAPL", "trade_date": "2025-06-27"}
 
         print("📰 开始新闻分析...")
 
@@ -75,8 +71,10 @@ def test_news_analyst_with_google():
     except Exception as e:
         print(f"❌ 新闻分析师测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def test_social_analyst_with_reddit():
     """测试社交媒体分析师使用Reddit工具"""
@@ -111,7 +109,7 @@ def test_social_analyst_with_reddit():
         test_state = {
             "messages": [HumanMessage(content="分析AAPL的社交媒体情绪")],
             "company_of_interest": "AAPL",
-            "trade_date": "2025-06-27"
+            "trade_date": "2025-06-27",
         }
 
         print("💭 开始社交媒体分析...")
@@ -136,8 +134,10 @@ def test_social_analyst_with_reddit():
     except Exception as e:
         print(f"❌ 社交媒体分析师测试失败: {e}")
         import traceback
+
         print(traceback.format_exc())
         return False
+
 
 def main():
     """主测试函数"""
@@ -161,11 +161,11 @@ def main():
     # 运行测试
     results = {}
 
-    print("\n" + "="*70)
-    results['新闻分析师+Google'] = test_news_analyst_with_google()
+    print("\n" + "=" * 70)
+    results["新闻分析师+Google"] = test_news_analyst_with_google()
 
-    print("\n" + "="*70)
-    results['社交媒体分析师+Reddit'] = test_social_analyst_with_reddit()
+    print("\n" + "=" * 70)
+    results["社交媒体分析师+Reddit"] = test_social_analyst_with_reddit()
 
     # 总结结果
     print("\n📊 测试结果总结:")
@@ -188,6 +188,7 @@ def main():
         print("   3. 同时选择多个分析师可以获得更全面的分析")
     else:
         print("⚠️ 部分API工具需要进一步配置")
+
 
 if __name__ == "__main__":
     main()

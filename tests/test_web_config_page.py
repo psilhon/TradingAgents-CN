@@ -10,6 +10,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+
 def test_config_page_import():
     """测试配置页面导入"""
     print("🧪 测试配置管理页面导入")
@@ -21,8 +22,10 @@ def test_config_page_import():
     except Exception as e:
         print(f"❌ 配置管理页面导入失败: {e}")
         import traceback
+
         print(f"错误详情: {traceback.format_exc()}")
         return False
+
 
 def test_config_manager_import():
     """测试配置管理器导入"""
@@ -31,6 +34,7 @@ def test_config_manager_import():
 
     try:
         from tradingagents.config.config_manager import config_manager
+
         print("✅ 配置管理器导入成功")
 
         # 测试基本功能
@@ -47,8 +51,10 @@ def test_config_manager_import():
     except Exception as e:
         print(f"❌ 配置管理器导入失败: {e}")
         import traceback
+
         print(f"错误详情: {traceback.format_exc()}")
         return False
+
 
 def test_streamlit_components():
     """测试Streamlit组件"""
@@ -56,7 +62,6 @@ def test_streamlit_components():
     print("=" * 50)
 
     try:
-
         print("✅ Streamlit导入成功")
         print("✅ Pandas导入成功")
         print("✅ Plotly导入成功")
@@ -65,6 +70,7 @@ def test_streamlit_components():
     except Exception as e:
         print(f"❌ Streamlit组件导入失败: {e}")
         return False
+
 
 def main():
     """主测试函数"""
@@ -103,6 +109,7 @@ def main():
     else:
         print("❌ 部分测试失败，请检查配置")
         return False
+
 
 if __name__ == "__main__":
     success = main()

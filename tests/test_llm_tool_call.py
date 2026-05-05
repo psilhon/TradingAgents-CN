@@ -16,8 +16,9 @@ from tradingagents.agents.utils.agent_utils import Toolkit
 from tradingagents.dataflows.realtime_news_utils import get_realtime_stock_news
 
 # 设置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(name)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
+
 
 def test_function_exists():
     """测试函数是否存在"""
@@ -29,21 +30,22 @@ def test_function_exists():
 
     # 检查Toolkit中的函数
     try:
-        toolkit_func = getattr(Toolkit, 'get_realtime_stock_news', None)
+        toolkit_func = getattr(Toolkit, "get_realtime_stock_news", None)
         logger.info(f"Toolkit.get_realtime_stock_news: {toolkit_func}")
         logger.info(f"Toolkit函数类型: {type(toolkit_func)}")
     except Exception as e:
         logger.error(f"获取Toolkit函数失败: {e}")
 
+
 def test_direct_call():
     """测试直接函数调用"""
     logger.info("========== 测试2: 直接函数调用 ==========")
     try:
-        curr_date = datetime.now().strftime('%Y-%m-%d')
+        curr_date = datetime.now().strftime("%Y-%m-%d")
         logger.info(f"调用参数: ticker='000858', date='{curr_date}'")
 
         start_time = datetime.now()
-        result = get_realtime_stock_news('000858', curr_date)
+        result = get_realtime_stock_news("000858", curr_date)
         end_time = datetime.now()
 
         logger.info(f"调用成功，耗时: {(end_time - start_time).total_seconds():.2f}秒")
@@ -54,18 +56,20 @@ def test_direct_call():
     except Exception as e:
         logger.error(f"直接调用失败: {e}")
         import traceback
+
         logger.error(f"错误详情: {traceback.format_exc()}")
         return False, None
+
 
 def test_toolkit_call():
     """测试Toolkit调用"""
     logger.info("========== 测试3: Toolkit调用 ==========")
     try:
-        curr_date = datetime.now().strftime('%Y-%m-%d')
+        curr_date = datetime.now().strftime("%Y-%m-%d")
         logger.info(f"调用参数: ticker='000858', date='{curr_date}'")
 
         start_time = datetime.now()
-        result = Toolkit.get_realtime_stock_news('000858', curr_date)
+        result = Toolkit.get_realtime_stock_news("000858", curr_date)
         end_time = datetime.now()
 
         logger.info(f"Toolkit调用成功，耗时: {(end_time - start_time).total_seconds():.2f}秒")
@@ -76,19 +80,21 @@ def test_toolkit_call():
     except Exception as e:
         logger.error(f"Toolkit调用失败: {e}")
         import traceback
+
         logger.error(f"错误详情: {traceback.format_exc()}")
         return False, None
+
 
 def test_toolkit_attributes():
     """测试Toolkit的属性和方法"""
     logger.info("========== 测试4: Toolkit属性检查 ==========")
 
     # 列出Toolkit的所有属性
-    toolkit_attrs = [attr for attr in dir(Toolkit) if not attr.startswith('_')]
+    toolkit_attrs = [attr for attr in dir(Toolkit) if not attr.startswith("_")]
     logger.info(f"Toolkit可用属性: {toolkit_attrs}")
 
     # 检查是否有get_realtime_stock_news
-    if 'get_realtime_stock_news' in toolkit_attrs:
+    if "get_realtime_stock_news" in toolkit_attrs:
         logger.info("✓ get_realtime_stock_news 在Toolkit中存在")
     else:
         logger.warning("✗ get_realtime_stock_news 不在Toolkit中")
@@ -97,18 +103,13 @@ def test_toolkit_attributes():
     logger.info(f"Toolkit类型: {type(Toolkit)}")
     logger.info(f"Toolkit模块: {Toolkit.__module__ if hasattr(Toolkit, '__module__') else 'N/A'}")
 
+
 def simulate_llm_tool_call():
     """模拟LLM工具调用过程"""
     logger.info("========== 测试5: 模拟LLM工具调用 ==========")
 
     # 模拟LLM工具调用的参数格式
-    tool_call_params = {
-        "name": "get_realtime_stock_news",
-        "arguments": {
-            "ticker": "000858",
-            "date": datetime.now().strftime('%Y-%m-%d')
-        }
-    }
+    tool_call_params = {"name": "get_realtime_stock_news", "arguments": {"ticker": "000858", "date": datetime.now().strftime("%Y-%m-%d")}}
 
     logger.info(f"模拟工具调用参数: {tool_call_params}")
 
@@ -135,8 +136,10 @@ def simulate_llm_tool_call():
     except Exception as e:
         logger.error(f"模拟LLM调用失败: {e}")
         import traceback
+
         logger.error(f"错误详情: {traceback.format_exc()}")
         return False, None
+
 
 def main():
     """主测试函数"""
@@ -183,6 +186,7 @@ def main():
             logger.warning("⚠ 直接调用和Toolkit调用结果不一致")
             logger.info(f"直接调用结果长度: {len(direct_result)}")
             logger.info(f"Toolkit调用结果长度: {len(toolkit_result)}")
+
 
 if __name__ == "__main__":
     main()

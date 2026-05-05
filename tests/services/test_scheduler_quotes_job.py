@@ -95,4 +95,3 @@ def test_scheduler_adds_quotes_job(monkeypatch):
     job_func()  # should call asyncio.create_task(...) with our fake
 
     assert state.create_task_called is True
-

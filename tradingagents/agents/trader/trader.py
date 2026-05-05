@@ -20,14 +20,15 @@ def create_trader(llm, memory):
 
         # 使用统一的股票类型检测
         from tradingagents.utils.stock_utils import StockUtils
+
         market_info = StockUtils.get_market_info(company_name)
-        is_china = market_info['is_china']
-        is_hk = market_info['is_hk']
-        is_us = market_info['is_us']
+        is_china = market_info["is_china"]
+        is_hk = market_info["is_hk"]
+        is_us = market_info["is_us"]
 
         # 根据股票类型确定货币单位
-        currency = market_info['currency_name']
-        currency_symbol = market_info['currency_symbol']
+        currency = market_info["currency_name"]
+        currency_symbol = market_info["currency_symbol"]
 
         logger.debug("💰 [DEBUG] ===== 交易员节点开始 =====")
         logger.debug(f"💰 [DEBUG] 交易员检测股票类型: {company_name} -> {market_info['market_name']}, 货币: {currency}")

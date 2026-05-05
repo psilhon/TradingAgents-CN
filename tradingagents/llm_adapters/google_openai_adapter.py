@@ -16,7 +16,7 @@ from tradingagents.utils.logging_manager import get_logger
 
 from ..config.config_manager import token_tracker
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 
 class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
@@ -58,14 +58,15 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
             try:
                 from app.utils.api_key_utils import is_valid_api_key
             except ImportError:
+
                 def is_valid_api_key(key):
                     if not key or len(key) <= 10:
                         return False
-                    if key.startswith('your_') or key.startswith('your-'):
+                    if key.startswith("your_") or key.startswith("your-"):
                         return False
-                    if key.endswith('_here') or key.endswith('-here'):
+                    if key.endswith("_here") or key.endswith("-here"):
                         return False
-                    if '...' in key:
+                    if "..." in key:
                         return False
                     return True
 
@@ -100,20 +101,20 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
         # 🔧 处理自定义 base_url
         if base_url:
             # 移除末尾的斜杠
-            base_url = base_url.rstrip('/')
+            base_url = base_url.rstrip("/")
             logger.info(f"🔍 [Google初始化] 处理 base_url: {base_url}")
 
             # 🔍 检测是否是 Google 官方域名
-            is_google_official = 'generativelanguage.googleapis.com' in base_url
+            is_google_official = "generativelanguage.googleapis.com" in base_url
 
             if is_google_official:
                 # ✅ Google 官方域名：提取域名部分，SDK 会自动添加 /v1beta
                 # 例如：https://generativelanguage.googleapis.com/v1beta -> https://generativelanguage.googleapis.com
                 #      https://generativelanguage.googleapis.com/v1 -> https://generativelanguage.googleapis.com
-                if base_url.endswith('/v1beta'):
+                if base_url.endswith("/v1beta"):
                     api_endpoint = base_url[:-7]  # 移除 /v1beta (7个字符)
                     logger.info(f"🔍 [Google官方] 从 base_url 提取域名: {api_endpoint}")
-                elif base_url.endswith('/v1'):
+                elif base_url.endswith("/v1"):
                     api_endpoint = base_url[:-3]  # 移除 /v1 (3个字符)
                     logger.info(f"🔍 [Google官方] 从 base_url 提取域名: {api_endpoint}")
                 else:
@@ -170,12 +171,12 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
                 for generation_list in result.generations:
                     if isinstance(generation_list, list):
                         for generation in generation_list:
-                            if hasattr(generation, 'message') and generation.message:
+                            if hasattr(generation, "message") and generation.message:
                                 # 优化消息内容格式
                                 self._optimize_message_content(generation.message)
                     else:
                         # 兼容性处理：如果不是列表，直接处理
-                        if hasattr(generation_list, 'message') and generation_list.message:
+                        if hasattr(generation_list, "message") and generation_list.message:
                             self._optimize_message_content(generation_list.message)
 
             # 追踪 token 使用量
@@ -189,15 +190,16 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
 
             # 检查是否为 API Key 无效错误
             error_str = str(e)
-            if 'API_KEY_INVALID' in error_str or 'API key not valid' in error_str:
+            if "API_KEY_INVALID" in error_str or "API key not valid" in error_str:
                 error_content = "Google AI API Key 无效或未配置。\n\n请检查：\n1. GOOGLE_API_KEY 环境变量是否正确配置\n2. API Key 是否有效（访问 https://ai.google.dev/ 获取）\n3. 是否启用了 Gemini API\n\n建议：使用其他 AI 模型（如阿里百炼、DeepSeek）"  # noqa: E501
-            elif 'Connection' in error_str or 'Network' in error_str:
+            elif "Connection" in error_str or "Network" in error_str:
                 error_content = f"Google AI 网络连接失败: {error_str}\n\n请检查：\n1. 网络连接是否正常\n2. 是否需要科学上网\n3. 防火墙设置"
             else:
                 error_content = f"Google AI 调用失败: {error_str}\n\n请检查配置或使用其他 AI 模型"
 
             # 返回一个包含错误信息的结果，而不是抛出异常
             from langchain_core.outputs import ChatGeneration
+
             error_message = AIMessage(content=error_content)
             error_generation = ChatGeneration(message=error_message)
             return LLMResult(generations=[[error_generation]])
@@ -224,10 +226,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
         """判断内容是否为新闻内容"""
 
         # 检查是否包含新闻相关的关键词
-        news_indicators = [
-            "股票", "公司", "市场", "投资", "财经", "证券", "交易",
-            "涨跌", "业绩", "财报", "分析", "预测", "消息", "公告"
-        ]
+        news_indicators = ["股票", "公司", "市场", "投资", "财经", "证券", "交易", "涨跌", "业绩", "财报", "分析", "预测", "消息", "公告"]
 
         return any(indicator in content for indicator in news_indicators) and len(content) > 200
 
@@ -235,6 +234,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
         """增强新闻内容，添加必要的格式化信息"""
 
         import datetime
+
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # 如果内容缺少必要的新闻特征，添加它们
@@ -247,7 +247,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
         # 添加新闻标题标识（如果缺少）
         if "新闻标题" not in content and "标题" not in content:
             # 尝试从内容中提取第一行作为标题
-            lines = enhanced_content.split('\n')
+            lines = enhanced_content.split("\n")
             if lines:
                 first_line = lines[0].strip()
                 if len(first_line) < 100:  # 可能是标题
@@ -264,16 +264,16 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
 
         try:
             # 从结果中提取 token 使用信息
-            if hasattr(result, 'llm_output') and result.llm_output:
-                token_usage = result.llm_output.get('token_usage', {})
+            if hasattr(result, "llm_output") and result.llm_output:
+                token_usage = result.llm_output.get("token_usage", {})
 
-                input_tokens = token_usage.get('prompt_tokens', 0)
-                output_tokens = token_usage.get('completion_tokens', 0)
+                input_tokens = token_usage.get("prompt_tokens", 0)
+                output_tokens = token_usage.get("completion_tokens", 0)
 
                 if input_tokens > 0 or output_tokens > 0:
                     # 生成会话ID
-                    session_id = kwargs.get('session_id', f"google_openai_{hash(str(kwargs))%10000}")
-                    analysis_type = kwargs.get('analysis_type', 'stock_analysis')
+                    session_id = kwargs.get("session_id", f"google_openai_{hash(str(kwargs)) % 10000}")
+                    analysis_type = kwargs.get("analysis_type", "stock_analysis")
 
                     # 使用 TokenTracker 记录使用量
                     token_tracker.track_usage(
@@ -282,7 +282,7 @@ class ChatGoogleOpenAI(ChatGoogleGenerativeAI):
                         input_tokens=input_tokens,
                         output_tokens=output_tokens,
                         session_id=session_id,
-                        analysis_type=analysis_type
+                        analysis_type=analysis_type,
                     )
 
                     logger.debug(f"📊 [Google适配器] Token使用量: 输入={input_tokens}, 输出={output_tokens}")
@@ -300,21 +300,21 @@ GOOGLE_OPENAI_MODELS = {
         "context_length": 32768,
         "supports_function_calling": True,
         "recommended_for": ["复杂推理", "专业分析", "高质量输出"],
-        "avg_response_time": 16.68
+        "avg_response_time": 16.68,
     },
     "gemini-2.5-flash": {
         "description": "Gemini 2.5 Flash - 最新快速模型 (2.73s)",
         "context_length": 32768,
         "supports_function_calling": True,
         "recommended_for": ["快速响应", "实时分析", "高频使用"],
-        "avg_response_time": 2.73
+        "avg_response_time": 2.73,
     },
     "gemini-2.5-flash-lite-preview-06-17": {
         "description": "Gemini 2.5 Flash Lite Preview - 超快响应 (1.45s)",
         "context_length": 32768,
         "supports_function_calling": True,
         "recommended_for": ["超快响应", "实时交互", "高频调用"],
-        "avg_response_time": 1.45
+        "avg_response_time": 1.45,
     },
     # Gemini 2.0 系列
     "gemini-2.0-flash": {
@@ -322,7 +322,7 @@ GOOGLE_OPENAI_MODELS = {
         "context_length": 32768,
         "supports_function_calling": True,
         "recommended_for": ["快速响应", "实时分析"],
-        "avg_response_time": 1.87
+        "avg_response_time": 1.87,
     },
     # Gemini 1.5 系列
     "gemini-1.5-pro": {
@@ -330,22 +330,22 @@ GOOGLE_OPENAI_MODELS = {
         "context_length": 32768,
         "supports_function_calling": True,
         "recommended_for": ["复杂分析", "专业任务", "深度思考"],
-        "avg_response_time": 2.25
+        "avg_response_time": 2.25,
     },
     "gemini-1.5-flash": {
         "description": "Gemini 1.5 Flash - 快速响应，备用选择 (2.87s)",
         "context_length": 32768,
         "supports_function_calling": True,
         "recommended_for": ["快速任务", "日常对话", "简单分析"],
-        "avg_response_time": 2.87
+        "avg_response_time": 2.87,
     },
     # 经典模型
     "gemini-pro": {
         "description": "Gemini Pro - 经典模型，稳定可靠",
         "context_length": 32768,
         "supports_function_calling": True,
-        "recommended_for": ["通用任务", "稳定性要求高的场景"]
-    }
+        "recommended_for": ["通用任务", "稳定性要求高的场景"],
+    },
 }
 
 
@@ -360,7 +360,7 @@ def create_google_openai_llm(
     base_url: str | None = None,
     temperature: float = 0.1,
     max_tokens: int = 2000,
-    **kwargs
+    **kwargs,
 ) -> ChatGoogleOpenAI:
     """
     创建 Google AI OpenAI 兼容 LLM 实例的便捷函数
@@ -378,19 +378,11 @@ def create_google_openai_llm(
     """
 
     return ChatGoogleOpenAI(
-        model=model,
-        google_api_key=google_api_key,
-        base_url=base_url,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        **kwargs
+        model=model, google_api_key=google_api_key, base_url=base_url, temperature=temperature, max_tokens=max_tokens, **kwargs
     )
 
 
-def test_google_openai_connection(
-    model: str = "gemini-2.0-flash",
-    google_api_key: str | None = None
-) -> bool:
+def test_google_openai_connection(model: str = "gemini-2.0-flash", google_api_key: str | None = None) -> bool:
     """测试 Google AI OpenAI 兼容接口连接"""
 
     try:
@@ -398,16 +390,12 @@ def test_google_openai_connection(
         logger.info(f"   模型: {model}")
 
         # 创建客户端
-        llm = create_google_openai_llm(
-            model=model,
-            google_api_key=google_api_key,
-            max_tokens=50
-        )
+        llm = create_google_openai_llm(model=model, google_api_key=google_api_key, max_tokens=50)
 
         # 发送测试消息
         response = llm.invoke("你好，请简单介绍一下你自己。")
 
-        if response and hasattr(response, 'content') and response.content:
+        if response and hasattr(response, "content") and response.content:
             logger.info("✅ Google AI OpenAI 兼容接口连接成功")
             logger.info(f"   响应: {response.content[:100]}...")
             return True
@@ -420,10 +408,7 @@ def test_google_openai_connection(
         return False
 
 
-def test_google_openai_function_calling(
-    model: str = "gemini-2.5-flash-lite-preview-06-17",
-    google_api_key: str | None = None
-) -> bool:
+def test_google_openai_function_calling(model: str = "gemini-2.5-flash-lite-preview-06-17", google_api_key: str | None = None) -> bool:
     """测试 Google AI OpenAI 兼容接口的 Function Calling"""
 
     try:
@@ -431,11 +416,7 @@ def test_google_openai_function_calling(
         logger.info(f"   模型: {model}")
 
         # 创建客户端
-        llm = create_google_openai_llm(
-            model=model,
-            google_api_key=google_api_key,
-            max_tokens=200
-        )
+        llm = create_google_openai_llm(model=model, google_api_key=google_api_key, max_tokens=200)
 
         # 定义测试工具
         from langchain_core.tools import tool
@@ -459,7 +440,7 @@ def test_google_openai_function_calling(
         logger.info("✅ Google AI Function Calling 测试完成")
         logger.info(f"   响应类型: {type(response)}")
 
-        if hasattr(response, 'tool_calls') and response.tool_calls:
+        if hasattr(response, "tool_calls") and response.tool_calls:
             logger.info(f"   工具调用数量: {len(response.tool_calls)}")
             return True
         else:

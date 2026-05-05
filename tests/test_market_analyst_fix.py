@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def test_deepseek_market_analyst():
     """测试DeepSeek的市场分析师"""
     print("🤖 测试DeepSeek市场分析师修复效果")
@@ -28,11 +29,7 @@ def test_deepseek_market_analyst():
         from tradingagents.llm_adapters.deepseek_adapter import ChatDeepSeek
 
         # 创建DeepSeek LLM
-        deepseek_llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        deepseek_llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=2000)
 
         # 创建工具包
         config = DEFAULT_CONFIG.copy()
@@ -43,11 +40,7 @@ def test_deepseek_market_analyst():
         market_analyst = create_market_analyst(deepseek_llm, toolkit)
 
         # 模拟状态
-        state = {
-            "company_of_interest": "000002",
-            "trade_date": "2025-07-08",
-            "messages": []
-        }
+        state = {"company_of_interest": "000002", "trade_date": "2025-07-08", "messages": []}
 
         print(f"📊 开始分析股票: {state['company_of_interest']}")
 
@@ -57,7 +50,7 @@ def test_deepseek_market_analyst():
         print("📊 分析结果:")
         print(f"   消息数量: {len(result.get('messages', []))}")
 
-        market_report = result.get('market_report', '')
+        market_report = result.get("market_report", "")
         print(f"   市场报告长度: {len(market_report)}")
         print("   市场报告前500字符:")
         print("-" * 50)
@@ -82,8 +75,10 @@ def test_deepseek_market_analyst():
     except Exception as e:
         print(f"❌ DeepSeek市场分析师测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_dashscope_market_analyst():
     """测试百炼的市场分析师（ReAct模式）"""
@@ -103,11 +98,7 @@ def test_dashscope_market_analyst():
         from tradingagents.default_config import DEFAULT_CONFIG
 
         # 创建百炼LLM
-        dashscope_llm = ChatDashScope(
-            model="qwen-plus",
-            temperature=0.1,
-            max_tokens=2000
-        )
+        dashscope_llm = ChatDashScope(model="qwen-plus", temperature=0.1, max_tokens=2000)
 
         # 创建工具包
         config = DEFAULT_CONFIG.copy()
@@ -118,11 +109,7 @@ def test_dashscope_market_analyst():
         market_analyst = create_market_analyst_react(dashscope_llm, toolkit)
 
         # 模拟状态
-        state = {
-            "company_of_interest": "000002",
-            "trade_date": "2025-07-08",
-            "messages": []
-        }
+        state = {"company_of_interest": "000002", "trade_date": "2025-07-08", "messages": []}
 
         print(f"📊 开始分析股票: {state['company_of_interest']}")
 
@@ -132,7 +119,7 @@ def test_dashscope_market_analyst():
         print("📊 分析结果:")
         print(f"   消息数量: {len(result.get('messages', []))}")
 
-        market_report = result.get('market_report', '')
+        market_report = result.get("market_report", "")
         print(f"   市场报告长度: {len(market_report)}")
         print("   市场报告前500字符:")
         print("-" * 50)
@@ -157,8 +144,10 @@ def test_dashscope_market_analyst():
     except Exception as e:
         print(f"❌ 百炼市场分析师测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -201,6 +190,7 @@ def main():
 
     print("\n🎯 测试完成！")
     return overall_success
+
 
 if __name__ == "__main__":
     success = main()

@@ -19,7 +19,7 @@ def test_300750_fundamentals():
 
     # 设置研究深度
     config = DEFAULT_CONFIG.copy()
-    config['research_depth'] = '标准'
+    config["research_depth"] = "标准"
 
     # 创建Toolkit实例
     toolkit = Toolkit(config=config)
@@ -44,16 +44,18 @@ def test_300750_fundamentals():
             print("❌ 未发现PB估值指标")
 
         # 打印完整的分析结果
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("📋 完整分析结果:")
-        print("="*80)
+        print("=" * 80)
         print(result)
-        print("="*80)
+        print("=" * 80)
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_300750_fundamentals()

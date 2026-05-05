@@ -34,10 +34,12 @@ def test_hk_fundamentals_complete():
 
             def invoke(self, messages):
                 print("🔧 [MockLLM] 收到调用请求")
+
                 class MockResult:
                     def __init__(self):
                         self.tool_calls = []  # 模拟没有工具调用，触发强制调用
                         self.content = "模拟分析结果"
+
                 return MockResult()
 
         llm = MockLLM()
@@ -46,21 +48,17 @@ def test_hk_fundamentals_complete():
         analyst = create_fundamentals_analyst(llm, toolkit)
 
         # 模拟状态
-        state = {
-            "trade_date": "2025-07-14",
-            "company_of_interest": "0700.HK",
-            "messages": []
-        }
+        state = {"trade_date": "2025-07-14", "company_of_interest": "0700.HK", "messages": []}
 
         print(f"\n📊 测试港股基本面分析: {state['company_of_interest']}")
 
         # 验证股票类型识别
-        market_info = StockUtils.get_market_info(state['company_of_interest'])
+        market_info = StockUtils.get_market_info(state["company_of_interest"])
         print(f"  市场类型: {market_info['market_name']}")
         print(f"  货币: {market_info['currency_name']} ({market_info['currency_symbol']})")
         print(f"  是否港股: {market_info['is_hk']}")
 
-        if not market_info['is_hk']:
+        if not market_info["is_hk"]:
             print("❌ 股票类型识别错误")
             return False
 
@@ -73,8 +71,8 @@ def test_hk_fundamentals_complete():
         print(f"  结果类型: {type(result)}")
         print(f"  包含的键: {list(result.keys()) if isinstance(result, dict) else 'N/A'}")
 
-        if 'fundamentals_report' in result:
-            report = result['fundamentals_report']
+        if "fundamentals_report" in result:
+            report = result["fundamentals_report"]
             print(f"  报告长度: {len(report)}")
             print(f"  报告前200字符: {report[:200]}...")
 
@@ -83,6 +81,7 @@ def test_hk_fundamentals_complete():
     except Exception as e:
         print(f"❌ 港股基本面分析测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -108,9 +107,9 @@ def test_tool_selection_verification():
 
         for ticker, expected_market, expected_tools in test_cases:
             market_info = StockUtils.get_market_info(ticker)
-            is_china = market_info['is_china']
-            is_hk = market_info['is_hk']
-            market_info['is_us']
+            is_china = market_info["is_china"]
+            is_hk = market_info["is_hk"]
+            market_info["is_us"]
 
             print(f"\n📊 {ticker} ({expected_market}):")
             print(f"  识别结果: {market_info['market_name']}")

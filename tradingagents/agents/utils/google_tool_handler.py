@@ -15,22 +15,18 @@ from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
 logger = logging.getLogger(__name__)
 
+
 class GoogleToolCallHandler:
     """Google模型工具调用统一处理器"""
 
     @staticmethod
     def is_google_model(llm) -> bool:
         """检查是否为Google模型"""
-        return 'Google' in llm.__class__.__name__ or 'ChatGoogleOpenAI' in llm.__class__.__name__
+        return "Google" in llm.__class__.__name__ or "ChatGoogleOpenAI" in llm.__class__.__name__
 
     @staticmethod
     def handle_google_tool_calls(
-        result: AIMessage,
-        llm: Any,
-        tools: list[Any],
-        state: dict[str, Any],
-        analysis_prompt_template: str,
-        analyst_name: str = "分析师"
+        result: AIMessage, llm: Any, tools: list[Any], state: dict[str, Any], analysis_prompt_template: str, analyst_name: str = "分析师"
     ) -> tuple[str, list[Any]]:
         """
         统一处理Google模型的工具调用
@@ -64,13 +60,13 @@ class GoogleToolCallHandler:
         logger.debug(f"[{analyst_name}] 🔍 结果属性: {[attr for attr in dir(result) if not attr.startswith('_')]}")
 
         # 检查API调用是否成功
-        if not hasattr(result, 'content'):
+        if not hasattr(result, "content"):
             logger.error(f"[{analyst_name}] ❌ Google模型API调用失败，无返回内容")
             logger.debug(f"[{analyst_name}] 🔍 结果对象缺少content属性")
             return "Google模型API调用失败", []
 
         # 检查是否有工具调用
-        if not hasattr(result, 'tool_calls'):
+        if not hasattr(result, "tool_calls"):
             logger.warning(f"[{analyst_name}] ⚠️ 结果对象没有tool_calls属性")
             logger.debug(f"[{analyst_name}] 🔍 可用属性: {[attr for attr in dir(result) if not attr.startswith('_')]}")
             return result.content, [result]
@@ -91,8 +87,8 @@ class GoogleToolCallHandler:
                     logger.info(f"[{analyst_name}] 📝 输入消息数量: {len(messages)}")
                     for i, msg in enumerate(messages):
                         msg_type = type(msg).__name__
-                        content_preview = str(msg.content)[:100] if hasattr(msg, 'content') else "无内容"
-                        logger.info(f"[{analyst_name}]   消息 {i+1}: {msg_type} - {content_preview}...")
+                        content_preview = str(msg.content)[:100] if hasattr(msg, "content") else "无内容"
+                        logger.info(f"[{analyst_name}]   消息 {i + 1}: {msg_type} - {content_preview}...")
 
             # 检查内容是否为分析报告
             content = result.content
@@ -123,7 +119,7 @@ class GoogleToolCallHandler:
 
         # 记录工具调用详情
         for i, tool_call in enumerate(result.tool_calls):
-            logger.info(f"[{analyst_name}] 工具 {i+1}:")
+            logger.info(f"[{analyst_name}] 工具 {i + 1}:")
             logger.info(f"[{analyst_name}]   ID: {tool_call.get('id', 'N/A')}")
             logger.info(f"[{analyst_name}]   名称: {tool_call.get('name', 'N/A')}")
             logger.info(f"[{analyst_name}]   参数: {tool_call.get('args', {})}")
@@ -150,9 +146,9 @@ class GoogleToolCallHandler:
             logger.info(f"[{analyst_name}] 🔧 有效工具调用: {len(valid_tool_calls)}/{len(result.tool_calls)}")
 
             for i, tool_call in enumerate(valid_tool_calls):
-                tool_name = tool_call.get('name')
-                tool_args = tool_call.get('args', {})
-                tool_id = tool_call.get('id')
+                tool_name = tool_call.get("name")
+                tool_args = tool_call.get("args", {})
+                tool_id = tool_call.get("id")
 
                 # 防止重复调用同一工具（特别是统一市场数据工具）
                 tool_signature = f"{tool_name}_{hash(str(tool_args))}"
@@ -161,7 +157,7 @@ class GoogleToolCallHandler:
                     continue
                 executed_tools.add(tool_signature)
 
-                logger.info(f"[{analyst_name}] 🛠️ 执行工具 {i+1}/{len(valid_tool_calls)}: {tool_name}")
+                logger.info(f"[{analyst_name}] 🛠️ 执行工具 {i + 1}/{len(valid_tool_calls)}: {tool_name}")
                 logger.info(f"[{analyst_name}] 参数: {tool_args}")
                 logger.debug(f"[{analyst_name}] 🔧 工具调用详情: {tool_call}")
 
@@ -179,7 +175,7 @@ class GoogleToolCallHandler:
                             logger.debug(f"[{analyst_name}] 🔧 工具类型检查...")
 
                             # 检查工具类型并相应调用
-                            if hasattr(tool, 'invoke'):
+                            if hasattr(tool, "invoke"):
                                 # LangChain工具，使用invoke方法
                                 logger.info(f"[{analyst_name}] 🚀 正在调用LangChain工具.invoke()...")
                                 tool_result = tool.invoke(tool_args)
@@ -202,6 +198,7 @@ class GoogleToolCallHandler:
 
                             # 记录详细的异常堆栈
                             import traceback
+
                             error_traceback = traceback.format_exc()
                             logger.error(f"[{analyst_name}] ❌ 工具执行异常堆栈:\n{error_traceback}")
 
@@ -215,10 +212,7 @@ class GoogleToolCallHandler:
                     logger.debug(f"[{analyst_name}] ⚠️ 工具名称不匹配，期望: {tool_name}, 可用: {available_tools}")
 
                 # 创建工具消息
-                tool_message = ToolMessage(
-                    content=str(tool_result),
-                    tool_call_id=tool_id
-                )
+                tool_message = ToolMessage(content=str(tool_result), tool_call_id=tool_id)
                 tool_messages.append(tool_message)
                 tool_results.append(tool_result)
                 logger.debug(f"[{analyst_name}] 🔧 创建工具消息，ID: {tool_message.tool_call_id}")
@@ -246,7 +240,7 @@ class GoogleToolCallHandler:
                         break
 
             # 添加当前结果（AI 的工具调用）
-            if hasattr(result, 'content'):
+            if hasattr(result, "content"):
                 safe_messages.append(result)
                 logger.debug(f"[{analyst_name}] 📝 添加 AI 工具调用消息")
 
@@ -259,13 +253,13 @@ class GoogleToolCallHandler:
             logger.debug(f"[{analyst_name}] 📝 添加分析提示")
 
             # 记录消息序列信息
-            total_length = sum(len(str(msg.content)) for msg in safe_messages if hasattr(msg, 'content'))
+            total_length = sum(len(str(msg.content)) for msg in safe_messages if hasattr(msg, "content"))
             logger.info(f"[{analyst_name}] 📊 消息序列: {len(safe_messages)} 条消息, 总长度: {total_length:,} 字符")
 
             # 检查消息序列是否为空
             if not safe_messages:
                 logger.error(f"[{analyst_name}] ❌ 消息序列为空，无法生成分析报告")
-                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
+                tool_summary = "\n\n".join([f"工具结果 {i + 1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 return report, [result, *tool_messages]
 
@@ -278,13 +272,15 @@ class GoogleToolCallHandler:
                 # 记录每个消息的类型和长度
                 for i, msg in enumerate(safe_messages):
                     msg_type = msg.__class__.__name__
-                    msg_length = len(str(msg.content)) if hasattr(msg, 'content') else 0
-                    logger.debug(f"[{analyst_name}] 📋 消息 {i+1}: {msg_type}, 长度: {msg_length}")
+                    msg_length = len(str(msg.content)) if hasattr(msg, "content") else 0
+                    logger.debug(f"[{analyst_name}] 📋 消息 {i + 1}: {msg_type}, 长度: {msg_length}")
 
                 # 记录分析提示的内容（前200字符）
                 analysis_msg = safe_messages[-1] if safe_messages else None
-                if analysis_msg and hasattr(analysis_msg, 'content'):
-                    prompt_preview = str(analysis_msg.content)[:200] + "..." if len(str(analysis_msg.content)) > 200 else str(analysis_msg.content)  # noqa: E501
+                if analysis_msg and hasattr(analysis_msg, "content"):
+                    prompt_preview = (
+                        str(analysis_msg.content)[:200] + "..." if len(str(analysis_msg.content)) > 200 else str(analysis_msg.content)
+                    )  # noqa: E501
                     logger.debug(f"[{analyst_name}] 📋 分析提示预览: {prompt_preview}")
 
                 logger.info(f"[{analyst_name}] 🚀 正在调用LLM.invoke()...")
@@ -296,7 +292,7 @@ class GoogleToolCallHandler:
                 logger.debug(f"[{analyst_name}] 🔍 返回结果类型: {type(final_result)}")
                 logger.debug(f"[{analyst_name}] 🔍 返回结果属性: {dir(final_result)}")
 
-                if hasattr(final_result, 'content'):
+                if hasattr(final_result, "content"):
                     content = final_result.content
                     logger.debug(f"[{analyst_name}] 🔍 内容类型: {type(content)}")
                     logger.debug(f"[{analyst_name}] 🔍 内容长度: {len(content) if content else 0}")
@@ -322,7 +318,7 @@ class GoogleToolCallHandler:
                 # 如果到这里，说明内容为空或没有content属性
                 logger.warning(f"[{analyst_name}] ⚠️ Google模型最终分析报告生成失败 - 内容为空")
                 # 降级处理：基于工具结果生成简单报告
-                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
+                tool_summary = "\n\n".join([f"工具结果 {i + 1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 logger.info(f"[{analyst_name}] 🔄 使用降级报告，长度: {len(report)} 字符")
                 return report, [result, *tool_messages]
@@ -334,11 +330,12 @@ class GoogleToolCallHandler:
 
                 # 记录详细的异常堆栈
                 import traceback
+
                 error_traceback = traceback.format_exc()
                 logger.error(f"[{analyst_name}] ❌ 异常堆栈:\n{error_traceback}")
 
                 # 降级处理：基于工具结果生成简单报告
-                tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result!s}" for i, result in enumerate(tool_results)])
+                tool_summary = "\n\n".join([f"工具结果 {i + 1}:\n{result!s}" for i, result in enumerate(tool_results)])
                 report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}"
                 logger.info(f"[{analyst_name}] 🔄 异常后使用降级报告，长度: {len(report)} 字符")
                 return report, [result, *tool_messages]
@@ -346,19 +343,20 @@ class GoogleToolCallHandler:
         except Exception as e:
             logger.error(f"[{analyst_name}] ❌ Google模型工具调用处理失败: {e}")
             import traceback
+
             traceback.print_exc()
 
             # 降级处理：返回工具调用信息
-            tool_names = [tc.get('name', 'unknown') for tc in result.tool_calls]
+            tool_names = [tc.get("name", "unknown") for tc in result.tool_calls]
             report = f"{analyst_name}调用了工具 {tool_names} 但处理失败: {e!s}"
             return report, [result]
 
     @staticmethod
     def _get_tool_name(tool):
         """获取工具名称"""
-        if hasattr(tool, 'name'):
+        if hasattr(tool, "name"):
             return tool.name
-        elif hasattr(tool, '__name__'):
+        elif hasattr(tool, "__name__"):
             return tool.__name__
         else:
             return str(tool)
@@ -372,26 +370,26 @@ class GoogleToolCallHandler:
                 return False
 
             # 检查必需字段
-            required_fields = ['name', 'args', 'id']
+            required_fields = ["name", "args", "id"]
             for field in required_fields:
                 if field not in tool_call:
                     logger.warning(f"[{analyst_name}] ⚠️ 工具调用 {index} 缺少字段 '{field}': {tool_call}")
                     return False
 
             # 检查工具名称
-            tool_name = tool_call.get('name')
+            tool_name = tool_call.get("name")
             if not isinstance(tool_name, str) or not tool_name.strip():
                 logger.warning(f"[{analyst_name}] ⚠️ 工具调用 {index} 工具名称无效: {tool_name}")
                 return False
 
             # 检查参数
-            tool_args = tool_call.get('args')
+            tool_args = tool_call.get("args")
             if not isinstance(tool_args, dict):
                 logger.warning(f"[{analyst_name}] ⚠️ 工具调用 {index} 参数不是字典格式: {type(tool_args)}")
                 return False
 
             # 检查ID
-            tool_id = tool_call.get('id')
+            tool_id = tool_call.get("id")
             if not isinstance(tool_id, str) or not tool_id.strip():
                 logger.warning(f"[{analyst_name}] ⚠️ 工具调用 {index} ID无效: {tool_id}")
                 return False
@@ -416,42 +414,45 @@ class GoogleToolCallHandler:
             fixed_tool_call = tool_call.copy()
 
             # 修复工具名称
-            if 'name' not in fixed_tool_call or not isinstance(fixed_tool_call['name'], str):
-                if 'function' in fixed_tool_call and isinstance(fixed_tool_call['function'], dict):
+            if "name" not in fixed_tool_call or not isinstance(fixed_tool_call["name"], str):
+                if "function" in fixed_tool_call and isinstance(fixed_tool_call["function"], dict):
                     # OpenAI格式转换
-                    function_data = fixed_tool_call['function']
-                    if 'name' in function_data:
-                        fixed_tool_call['name'] = function_data['name']
-                        if 'arguments' in function_data:
+                    function_data = fixed_tool_call["function"]
+                    if "name" in function_data:
+                        fixed_tool_call["name"] = function_data["name"]
+                        if "arguments" in function_data:
                             import json
+
                             try:
-                                if isinstance(function_data['arguments'], str):
-                                    fixed_tool_call['args'] = json.loads(function_data['arguments'])
+                                if isinstance(function_data["arguments"], str):
+                                    fixed_tool_call["args"] = json.loads(function_data["arguments"])
                                 else:
-                                    fixed_tool_call['args'] = function_data['arguments']
+                                    fixed_tool_call["args"] = function_data["arguments"]
                             except json.JSONDecodeError:
-                                fixed_tool_call['args'] = {}
+                                fixed_tool_call["args"] = {}
                 else:
                     logger.warning(f"[{analyst_name}] ❌ 无法确定工具名称")
                     return None
 
             # 修复参数
-            if 'args' not in fixed_tool_call:
-                fixed_tool_call['args'] = {}
-            elif not isinstance(fixed_tool_call['args'], dict):
+            if "args" not in fixed_tool_call:
+                fixed_tool_call["args"] = {}
+            elif not isinstance(fixed_tool_call["args"], dict):
                 try:
                     import json
-                    if isinstance(fixed_tool_call['args'], str):
-                        fixed_tool_call['args'] = json.loads(fixed_tool_call['args'])
+
+                    if isinstance(fixed_tool_call["args"], str):
+                        fixed_tool_call["args"] = json.loads(fixed_tool_call["args"])
                     else:
-                        fixed_tool_call['args'] = {}
+                        fixed_tool_call["args"] = {}
                 except Exception:
-                    fixed_tool_call['args'] = {}
+                    fixed_tool_call["args"] = {}
 
             # 修复ID
-            if 'id' not in fixed_tool_call or not isinstance(fixed_tool_call['id'], str):
+            if "id" not in fixed_tool_call or not isinstance(fixed_tool_call["id"], str):
                 import uuid
-                fixed_tool_call['id'] = f"call_{uuid.uuid4().hex[:8]}"
+
+                fixed_tool_call["id"] = f"call_{uuid.uuid4().hex[:8]}"
 
             # 验证修复后的工具调用
             if GoogleToolCallHandler._validate_tool_call(fixed_tool_call, index, analyst_name):
@@ -466,11 +467,7 @@ class GoogleToolCallHandler:
             return None
 
     @staticmethod
-    def handle_simple_google_response(
-        result: AIMessage,
-        llm: Any,
-        analyst_name: str = "分析师"
-    ) -> str:
+    def handle_simple_google_response(result: AIMessage, llm: Any, analyst_name: str = "分析师") -> str:
         """
         处理简单的Google模型响应（无工具调用）
 
@@ -526,11 +523,11 @@ class GoogleToolCallHandler:
                 # 记录消息类型和长度
                 for i, msg in enumerate(messages):
                     msg_type = type(msg).__name__
-                    if hasattr(msg, 'content'):
+                    if hasattr(msg, "content"):
                         content_length = len(str(msg.content)) if msg.content else 0
-                        logger.debug(f"🔍 [{analyst_name}] 消息{i+1}: {msg_type}, 长度: {content_length}")
+                        logger.debug(f"🔍 [{analyst_name}] 消息{i + 1}: {msg_type}, 长度: {content_length}")
                     else:
-                        logger.debug(f"🔍 [{analyst_name}] 消息{i+1}: {msg_type}, 无content属性")
+                        logger.debug(f"🔍 [{analyst_name}] 消息{i + 1}: {msg_type}, 无content属性")
 
                 # 构建分析提示 - 根据尝试次数调整
                 if attempt == 0:
@@ -564,6 +561,7 @@ class GoogleToolCallHandler:
 
                 # 调用LLM生成报告
                 import time
+
                 start_time = time.time()
                 result = llm.invoke(optimized_messages)
                 end_time = time.time()
@@ -574,7 +572,7 @@ class GoogleToolCallHandler:
                 logger.debug(f"🔍 [{analyst_name}] 返回结果类型: {type(result).__name__}")
                 logger.debug(f"🔍 [{analyst_name}] 返回结果属性: {dir(result)}")
 
-                if hasattr(result, 'content'):
+                if hasattr(result, "content"):
                     content = result.content
                     logger.debug(f"🔍 [{analyst_name}] 内容类型: {type(content)}")
                     logger.debug(f"🔍 [{analyst_name}] 内容长度: {len(content) if content else 0}")
@@ -642,7 +640,7 @@ class GoogleToolCallHandler:
         from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
         # 计算总长度
-        total_length = sum(len(str(msg.content)) for msg in messages if hasattr(msg, 'content'))
+        total_length = sum(len(str(msg.content)) for msg in messages if hasattr(msg, "content"))
         total_length += len(analysis_prompt)
 
         if total_length <= 50000:
@@ -661,16 +659,13 @@ class GoogleToolCallHandler:
         # 保留AI消息和工具消息，但截断过长内容
         for msg in messages:
             if isinstance(msg, (AIMessage, ToolMessage)):
-                if hasattr(msg, 'content') and len(str(msg.content)) > 5000:
+                if hasattr(msg, "content") and len(str(msg.content)) > 5000:
                     # 截断过长内容
                     truncated_content = str(msg.content)[:5000] + "\n\n[注：数据已截断以确保处理效率]"
                     if isinstance(msg, AIMessage):
                         optimized_msg = AIMessage(content=truncated_content)
                     else:
-                        optimized_msg = ToolMessage(
-                            content=truncated_content,
-                            tool_call_id=getattr(msg, 'tool_call_id', 'unknown')
-                        )
+                        optimized_msg = ToolMessage(content=truncated_content, tool_call_id=getattr(msg, "tool_call_id", "unknown"))
                     optimized_messages.append(optimized_msg)
                 else:
                     optimized_messages.append(msg)
@@ -697,14 +692,14 @@ class GoogleToolCallHandler:
         # 提取工具结果
         tool_results = []
         for msg in messages:
-            if isinstance(msg, ToolMessage) and hasattr(msg, 'content'):
+            if isinstance(msg, ToolMessage) and hasattr(msg, "content"):
                 content = str(msg.content)
                 if len(content) > 1000:
                     content = content[:1000] + "\n\n[注：数据已截断]"
                 tool_results.append(content)
 
         if tool_results:
-            tool_summary = "\n\n".join([f"工具结果 {i+1}:\n{result}" for i, result in enumerate(tool_results)])
+            tool_summary = "\n\n".join([f"工具结果 {i + 1}:\n{result}" for i, result in enumerate(tool_results)])
             report = f"{analyst_name}工具调用完成，获得以下数据：\n\n{tool_summary}\n\n注：由于模型响应异常，此为基于工具数据的简化报告。"
         else:
             report = f"{analyst_name}分析完成，但未能获取到有效的工具数据。建议检查数据源或重新尝试分析。"
@@ -712,12 +707,7 @@ class GoogleToolCallHandler:
         return report
 
     @staticmethod
-    def create_analysis_prompt(
-        ticker: str,
-        company_name: str,
-        analyst_type: str,
-        specific_requirements: str = ""
-    ) -> str:
+    def create_analysis_prompt(ticker: str, company_name: str, analyst_type: str, specific_requirements: str = "") -> str:
         """
         创建标准的分析提示词
 

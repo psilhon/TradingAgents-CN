@@ -6,7 +6,8 @@
 import os
 import sys
 
-sys.path.append('..')
+sys.path.append("..")
+
 
 def test_us_stock_market_analysis():
     """测试美股市场分析"""
@@ -21,7 +22,7 @@ def test_us_stock_market_analysis():
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()
-        config['online_tools'] = True
+        config["online_tools"] = True
 
         # 创建工具包
         toolkit = Toolkit()
@@ -34,18 +35,13 @@ def test_us_stock_market_analysis():
 
         # 创建Tongyi LLM
         llm = Tongyi()
-        llm.model_name = 'qwen-turbo'
+        llm.model_name = "qwen-turbo"
 
         # 创建ReAct市场分析师
         analyst = create_market_analyst_react(llm, toolkit)
 
         # 测试美股
-        test_state = {
-            'trade_date': '2025-06-29',
-            'company_of_interest': 'AAPL',
-            'messages': [('human', '分析AAPL')],
-            'market_report': ''
-        }
+        test_state = {"trade_date": "2025-06-29", "company_of_interest": "AAPL", "messages": [("human", "分析AAPL")], "market_report": ""}
 
         print("\n🔄 开始美股市场分析...")
         result = analyst(test_state)
@@ -53,25 +49,27 @@ def test_us_stock_market_analysis():
         print("✅ 美股市场分析完成")
         print(f"市场报告长度: {len(result['market_report'])}")
 
-        if len(result['market_report']) > 100:
+        if len(result["market_report"]) > 100:
             print("✅ 报告内容正常")
             print("报告前300字符:")
-            print(result['market_report'][:300])
+            print(result["market_report"][:300])
         else:
             print("❌ 报告内容异常:")
-            print(result['market_report'])
+            print(result["market_report"])
 
         return result
 
     except Exception as e:
         print(f"❌ 美股市场分析失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
+
 def test_us_stock_fundamentals_analysis():
     """测试美股基本面分析"""
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("🔍 测试美股基本面分析...")
 
     try:
@@ -83,7 +81,7 @@ def test_us_stock_fundamentals_analysis():
 
         # 创建配置
         config = DEFAULT_CONFIG.copy()
-        config['online_tools'] = True
+        config["online_tools"] = True
 
         # 创建工具包
         toolkit = Toolkit()
@@ -96,17 +94,17 @@ def test_us_stock_fundamentals_analysis():
 
         # 创建Tongyi LLM
         llm = Tongyi()
-        llm.model_name = 'qwen-turbo'
+        llm.model_name = "qwen-turbo"
 
         # 创建ReAct基本面分析师
         analyst = create_fundamentals_analyst_react(llm, toolkit)
 
         # 测试美股
         test_state = {
-            'trade_date': '2025-06-29',
-            'company_of_interest': 'AAPL',
-            'messages': [('human', '分析AAPL')],
-            'fundamentals_report': ''
+            "trade_date": "2025-06-29",
+            "company_of_interest": "AAPL",
+            "messages": [("human", "分析AAPL")],
+            "fundamentals_report": "",
         }
 
         print("\n🔄 开始美股基本面分析...")
@@ -115,25 +113,27 @@ def test_us_stock_fundamentals_analysis():
         print("✅ 美股基本面分析完成")
         print(f"基本面报告长度: {len(result['fundamentals_report'])}")
 
-        if len(result['fundamentals_report']) > 100:
+        if len(result["fundamentals_report"]) > 100:
             print("✅ 报告内容正常")
             print("报告前300字符:")
-            print(result['fundamentals_report'][:300])
+            print(result["fundamentals_report"][:300])
         else:
             print("❌ 报告内容异常:")
-            print(result['fundamentals_report'])
+            print(result["fundamentals_report"])
 
         return result
 
     except Exception as e:
         print(f"❌ 美股基本面分析失败: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
+
 if __name__ == "__main__":
     print("🚀 开始美股分析测试")
-    print("="*50)
+    print("=" * 50)
 
     # 检查API密钥
     api_key = os.getenv("DASHSCOPE_API_KEY")
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     # 测试基本面分析
     result2 = test_us_stock_fundamentals_analysis()
 
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("🎯 测试总结:")
     print(f"市场分析测试: {'✅ 成功' if result1 else '❌ 失败'}")
     print(f"基本面分析测试: {'✅ 成功' if result2 else '❌ 失败'}")

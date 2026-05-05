@@ -1,6 +1,7 @@
 """
 测试行情入库服务的股票代码标准化和历史数据导入功能
 """
+
 import asyncio
 import sys
 from pathlib import Path
@@ -17,9 +18,9 @@ from app.services.quotes_ingestion_service import QuotesIngestionService  # noqa
 
 async def test_normalize_stock_code():
     """测试股票代码标准化功能"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("测试 1: 股票代码标准化功能")
-    print("="*60)
+    print("=" * 60)
 
     test_cases = [
         ("sz000001", "000001", "深圳平安银行"),
@@ -56,9 +57,9 @@ async def test_normalize_stock_code():
 
 async def test_market_quotes_status():
     """测试 market_quotes 集合状态"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("测试 2: market_quotes 集合状态检查")
-    print("="*60)
+    print("=" * 60)
 
     await init_db()
     db = get_mongo_db()
@@ -77,27 +78,18 @@ async def test_market_quotes_status():
         sample_docs = await db.market_quotes.find().limit(5).to_list(length=5)
         print("\n📋 样本数据 (前5条):")
         for i, doc in enumerate(sample_docs, 1):
-            code = doc.get('code') or doc.get('symbol')
-            close = doc.get('close')
-            trade_date = doc.get('trade_date')
-            updated_at = doc.get('updated_at')
+            code = doc.get("code") or doc.get("symbol")
+            close = doc.get("close")
+            trade_date = doc.get("trade_date")
+            updated_at = doc.get("updated_at")
             print(f"   {i}. 代码: {code}, 收盘价: {close}, 交易日: {trade_date}, 更新时间: {updated_at}")
 
         # 检查是否有带前缀的代码
         print("\n🔍 检查是否有异常代码（长度不是6位）:")
         pipeline = [
-            {
-                "$project": {
-                    "code": 1,
-                    "code_length": {"$strLenCP": {"$toString": "$code"}}
-                }
-            },
-            {
-                "$match": {
-                    "code_length": {"$ne": 6}
-                }
-            },
-            {"$limit": 10}
+            {"$project": {"code": 1, "code_length": {"$strLenCP": {"$toString": "$code"}}}},
+            {"$match": {"code_length": {"$ne": 6}}},
+            {"$limit": 10},
         ]
 
         abnormal_docs = await db.market_quotes.aggregate(pipeline).to_list(length=10)
@@ -115,9 +107,9 @@ async def test_market_quotes_status():
 
 async def test_historical_data_import():
     """测试从历史数据导入功能"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("测试 3: 从历史数据导入到 market_quotes")
-    print("="*60)
+    print("=" * 60)
 
     await init_db()
     db = get_mongo_db()
@@ -134,19 +126,14 @@ async def test_historical_data_import():
         return False
 
     # 获取最新交易日
-    latest_doc = await db.stock_daily_quotes.find(
-        {"period": "daily"}
-    ).sort("trade_date", -1).limit(1).to_list(length=1)
+    latest_doc = await db.stock_daily_quotes.find({"period": "daily"}).sort("trade_date", -1).limit(1).to_list(length=1)
 
     if latest_doc:
-        latest_trade_date = latest_doc[0].get('trade_date')
+        latest_trade_date = latest_doc[0].get("trade_date")
         print(f"   - 最新交易日: {latest_trade_date}")
 
         # 统计该交易日的数据量
-        date_count = await db.stock_daily_quotes.count_documents({
-            "trade_date": latest_trade_date,
-            "period": "daily"
-        })
+        date_count = await db.stock_daily_quotes.count_documents({"trade_date": latest_trade_date, "period": "daily"})
         print(f"   - 该日数据量: {date_count}")
     else:
         print("   ⚠️ 无法获取最新交易日")
@@ -186,6 +173,7 @@ async def test_historical_data_import():
     except Exception as e:
         print(f"   ❌ 导入失败: {e}")
         import traceback
+
         traceback.print_exc()
         await close_db()
         return False
@@ -196,9 +184,9 @@ async def test_historical_data_import():
 
 async def test_akshare_realtime_quotes():
     """测试 AKShare 实时行情获取（检查代码标准化）"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("测试 4: AKShare 实时行情代码标准化")
-    print("="*60)
+    print("=" * 60)
 
     try:
         from app.services.data_sources.akshare_adapter import AKShareAdapter
@@ -242,15 +230,16 @@ async def test_akshare_realtime_quotes():
     except Exception as e:
         print(f"   ❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 async def main():
     """主测试函数"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🧪 行情入库服务测试程序")
-    print("="*60)
+    print("=" * 60)
     print(f"测试时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     results = []
@@ -272,9 +261,9 @@ async def main():
     results.append(("AKShare 实时行情", result4))
 
     # 汇总结果
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("📊 测试结果汇总")
-    print("="*60)
+    print("=" * 60)
 
     for test_name, result in results:
         status = "✅ 通过" if result else "❌ 失败"
@@ -293,4 +282,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

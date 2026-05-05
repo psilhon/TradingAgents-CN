@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # 加载环境变量
 load_dotenv()
 
+
 def debug_config_manager():
     """调试配置管理器"""
     print("🔧 调试配置管理器")
@@ -48,12 +49,7 @@ def debug_config_manager():
 
         # 测试成本计算
         print("\n💰 测试成本计算:")
-        cost = config_manager.calculate_cost(
-            provider="deepseek",
-            model_name="deepseek-chat",
-            input_tokens=2272,
-            output_tokens=1215
-        )
+        cost = config_manager.calculate_cost(provider="deepseek", model_name="deepseek-chat", input_tokens=2272, output_tokens=1215)
         print(f"   计算结果: ¥{cost:.6f}")
 
         if cost == 0.0:
@@ -79,8 +75,10 @@ def debug_config_manager():
     except Exception as e:
         print(f"❌ 配置管理器调试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def debug_token_tracker():
     """调试Token跟踪器"""
@@ -109,7 +107,7 @@ def debug_token_tracker():
             input_tokens=2272,
             output_tokens=1215,
             session_id="debug_session",
-            analysis_type="debug_analysis"
+            analysis_type="debug_analysis",
         )
 
         if usage_record:
@@ -133,8 +131,10 @@ def debug_token_tracker():
     except Exception as e:
         print(f"❌ Token跟踪器调试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def debug_deepseek_adapter():
     """调试DeepSeek适配器"""
@@ -152,16 +152,13 @@ def debug_deepseek_adapter():
         print("🔧 创建DeepSeek适配器...")
 
         # 创建DeepSeek实例
-        deepseek_llm = ChatDeepSeek(
-            model="deepseek-chat",
-            temperature=0.1,
-            max_tokens=100
-        )
+        deepseek_llm = ChatDeepSeek(model="deepseek-chat", temperature=0.1, max_tokens=100)
 
         print(f"📊 模型名称: {deepseek_llm.model_name}")
 
         # 检查TOKEN_TRACKING_ENABLED
         from tradingagents.llm_adapters.deepseek_adapter import TOKEN_TRACKING_ENABLED
+
         print(f"📊 Token跟踪启用: {TOKEN_TRACKING_ENABLED}")
 
         # 测试调用
@@ -176,8 +173,10 @@ def debug_deepseek_adapter():
     except Exception as e:
         print(f"❌ DeepSeek适配器调试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def debug_model_name_issue():
     """调试模型名称匹配问题"""
@@ -207,20 +206,10 @@ def debug_model_name_issue():
 
         # 手动测试匹配
         print("\n💰 手动测试成本计算:")
-        cost = config_manager.calculate_cost(
-            provider="deepseek",
-            model_name=deepseek_llm.model_name,
-            input_tokens=100,
-            output_tokens=50
-        )
+        cost = config_manager.calculate_cost(provider="deepseek", model_name=deepseek_llm.model_name, input_tokens=100, output_tokens=50)
         print(f"   使用适配器模型名称: ¥{cost:.6f}")
 
-        cost2 = config_manager.calculate_cost(
-            provider="deepseek",
-            model_name="deepseek-chat",
-            input_tokens=100,
-            output_tokens=50
-        )
+        cost2 = config_manager.calculate_cost(provider="deepseek", model_name="deepseek-chat", input_tokens=100, output_tokens=50)
         print(f"   使用硬编码模型名称: ¥{cost2:.6f}")
 
         return True
@@ -228,8 +217,10 @@ def debug_model_name_issue():
     except Exception as e:
         print(f"❌ 模型名称调试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主函数"""
@@ -271,6 +262,7 @@ def main():
 
     print("\n🎯 调试完成！")
     return overall_success
+
 
 if __name__ == "__main__":
     success = main()

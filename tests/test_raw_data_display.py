@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+
 def test_raw_data_display():
     """测试并显示原始的基本面数据"""
 
@@ -38,11 +39,7 @@ def test_raw_data_display():
         print("-" * 60)
 
         # 调用底层数据接口
-        raw_data = get_china_stock_data_unified(
-            ticker,
-            start_date.strftime('%Y-%m-%d'),
-            end_date.strftime('%Y-%m-%d')
-        )
+        raw_data = get_china_stock_data_unified(ticker, start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
 
         print("✅ 原始数据获取成功！")
         print()
@@ -66,7 +63,7 @@ def test_raw_data_display():
         elif isinstance(raw_data, list):
             print("📝 列表格式原始数据:")
             for i, item in enumerate(raw_data):
-                print(f"📌 项目 {i+1}:")
+                print(f"📌 项目 {i + 1}:")
                 if isinstance(item, (dict, list)):
                     print(json.dumps(item, ensure_ascii=False, indent=2))
                 else:
@@ -84,7 +81,7 @@ def test_raw_data_display():
 
         # 如果是字符串，显示详细信息
         if isinstance(raw_data, str):
-            lines = raw_data.split('\n')
+            lines = raw_data.split("\n")
             print(f"   - 总行数: {len(lines)}")
             print(f"   - 首行: {lines[0]}")
             if len(lines) > 1:
@@ -142,14 +139,17 @@ def test_raw_data_display():
         except Exception as e:
             print(f"❌ 财务基本面数据获取失败: {e!s}")
             import traceback
+
             print("🔍 详细错误信息:")
             traceback.print_exc()
 
     except Exception as e:
         print(f"❌ 测试失败: {e!s}")
         import traceback
+
         print("🔍 详细错误信息:")
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     test_raw_data_display()

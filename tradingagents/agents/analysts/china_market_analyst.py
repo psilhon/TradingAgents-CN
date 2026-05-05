@@ -1,4 +1,3 @@
-
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # 导入统一日志系统
@@ -22,9 +21,10 @@ def _get_company_name_for_china_market(ticker: str, market_info: dict) -> str:
         str: 公司名称
     """
     try:
-        if market_info['is_china']:
+        if market_info["is_china"]:
             # 中国A股：使用统一接口获取股票信息
             from tradingagents.dataflows.interface import get_china_stock_info_unified
+
             stock_info = get_china_stock_info_unified(ticker)
 
             logger.debug(f"📊 [中国市场分析师] 获取股票信息返回: {stock_info[:200] if stock_info else 'None'}...")
@@ -39,9 +39,10 @@ def _get_company_name_for_china_market(ticker: str, market_info: dict) -> str:
                 logger.warning(f"⚠️ [中国市场分析师] 无法从统一接口解析股票名称: {ticker}，尝试降级方案")
                 try:
                     from tradingagents.dataflows.data_source_manager import get_china_stock_info_unified as get_info_dict
+
                     info_dict = get_info_dict(ticker)
-                    if info_dict and info_dict.get('name'):
-                        company_name = info_dict['name']
+                    if info_dict and info_dict.get("name"):
+                        company_name = info_dict["name"]
                         logger.info(f"✅ [中国市场分析师] 降级方案成功获取股票名称: {ticker} -> {company_name}")
                         return company_name
                 except Exception as e:
@@ -50,30 +51,31 @@ def _get_company_name_for_china_market(ticker: str, market_info: dict) -> str:
                 logger.error(f"❌ [中国市场分析师] 所有方案都无法获取股票名称: {ticker}")
                 return f"股票代码{ticker}"
 
-        elif market_info['is_hk']:
+        elif market_info["is_hk"]:
             # 港股：使用改进的港股工具
             try:
                 from tradingagents.dataflows.providers.hk.improved_hk import get_hk_company_name_improved
+
                 company_name = get_hk_company_name_improved(ticker)
                 logger.debug(f"📊 [中国市场分析师] 使用改进港股工具获取名称: {ticker} -> {company_name}")
                 return company_name
             except Exception as e:
                 logger.debug(f"📊 [中国市场分析师] 改进港股工具获取名称失败: {e}")
                 # 降级方案：生成友好的默认名称
-                clean_ticker = ticker.replace('.HK', '').replace('.hk', '')
+                clean_ticker = ticker.replace(".HK", "").replace(".hk", "")
                 return f"港股{clean_ticker}"
 
-        elif market_info['is_us']:
+        elif market_info["is_us"]:
             # 美股：使用简单映射或返回代码
             us_stock_names = {
-                'AAPL': '苹果公司',
-                'TSLA': '特斯拉',
-                'NVDA': '英伟达',
-                'MSFT': '微软',
-                'GOOGL': '谷歌',
-                'AMZN': '亚马逊',
-                'META': 'Meta',
-                'NFLX': '奈飞'
+                "AAPL": "苹果公司",
+                "TSLA": "特斯拉",
+                "NVDA": "英伟达",
+                "MSFT": "微软",
+                "GOOGL": "谷歌",
+                "AMZN": "亚马逊",
+                "META": "Meta",
+                "NFLX": "奈飞",
             }
 
             company_name = us_stock_names.get(ticker.upper(), f"美股{ticker}")
@@ -97,6 +99,7 @@ def create_china_market_analyst(llm, toolkit):
 
         # 获取股票市场信息
         from tradingagents.utils.stock_utils import StockUtils
+
         market_info = StockUtils.get_market_info(ticker)
 
         # 获取公司名称
@@ -110,8 +113,7 @@ def create_china_market_analyst(llm, toolkit):
             toolkit.get_YFin_data,  # 备用数据源
         ]
 
-        system_message = (
-            """您是一位专业的中国股市分析师，专门分析A股、港股等中国资本市场。您具备深厚的中国股市知识和丰富的本土投资经验。
+        system_message = """您是一位专业的中国股市分析师，专门分析A股、港股等中国资本市场。您具备深厚的中国股市知识和丰富的本土投资经验。
 
 您的专业领域包括：
 1. **A股市场分析**: 深度理解A股的独特性，包括涨跌停制度、T+1交易、融资融券等
@@ -136,7 +138,6 @@ def create_china_market_analyst(llm, toolkit):
 
 请基于Tushare数据接口提供的实时数据和技术指标，结合中国股市的特殊性，撰写专业的中文分析报告。
 确保在报告末尾附上Markdown表格总结关键发现和投资建议。"""
-        )
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -157,9 +158,9 @@ def create_china_market_analyst(llm, toolkit):
         # 安全地获取工具名称，处理函数和工具对象
         tool_names = []
         for tool in tools:
-            if hasattr(tool, 'name'):
+            if hasattr(tool, "name"):
                 tool_names.append(tool.name)
-            elif hasattr(tool, '__name__'):
+            elif hasattr(tool, "__name__"):
                 tool_names.append(tool.__name__)
             else:
                 tool_names.append(str(tool))
@@ -180,7 +181,7 @@ def create_china_market_analyst(llm, toolkit):
                 ticker=ticker,
                 company_name=company_name,
                 analyst_type="中国市场分析",
-                specific_requirements="重点关注中国A股市场特点、政策影响、行业发展趋势等。"
+                specific_requirements="重点关注中国A股市场特点、政策影响、行业发展趋势等。",
             )
 
             # 处理Google模型工具调用
@@ -190,7 +191,7 @@ def create_china_market_analyst(llm, toolkit):
                 tools=tools,
                 state=state,
                 analysis_prompt_template=analysis_prompt_template,
-                analyst_name="中国市场分析师"
+                analyst_name="中国市场分析师",
             )
         else:
             # 非Google模型的处理逻辑
@@ -219,8 +220,7 @@ def create_china_stock_screener(llm, toolkit):
             toolkit.get_china_market_overview,
         ]
 
-        system_message = (
-            """您是一位专业的中国股票筛选专家，负责从A股市场中筛选出具有投资价值的股票。
+        system_message = """您是一位专业的中国股票筛选专家，负责从A股市场中筛选出具有投资价值的股票。
 
 筛选维度包括：
 1. **基本面筛选**:
@@ -250,7 +250,6 @@ def create_china_stock_screener(llm, toolkit):
 - **周期投资**: 经济周期、行业周期、季节性
 
 请基于当前市场环境和政策背景，提供专业的股票筛选建议。"""
-        )
 
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -269,9 +268,9 @@ def create_china_stock_screener(llm, toolkit):
         # 安全地获取工具名称，处理函数和工具对象
         tool_names = []
         for tool in tools:
-            if hasattr(tool, 'name'):
+            if hasattr(tool, "name"):
                 tool_names.append(tool.name)
-            elif hasattr(tool, '__name__'):
+            elif hasattr(tool, "__name__"):
                 tool_names.append(tool.__name__)
             else:
                 tool_names.append(str(tool))

@@ -1,6 +1,7 @@
 """
 测试真实导出数据的脱敏功能
 """
+
 import json
 
 from app.services.database.backups import _sanitize_document
@@ -37,10 +38,7 @@ def test_sanitize_real_export_file():
     print(f"- users 数量: {len(sanitized_data.get('users', []))}")
 
     # 保存脱敏后的文件用于对比
-    sanitized_export = {
-        "export_info": export_data["export_info"],
-        "data": sanitized_data
-    }
+    sanitized_export = {"export_info": export_data["export_info"], "data": sanitized_data}
 
     with open("install/database_export_config_2025-10-25_SANITIZED.json", "w", encoding="utf-8") as f:
         json.dump(sanitized_export, f, ensure_ascii=False, indent=2)
@@ -50,4 +48,3 @@ def test_sanitize_real_export_file():
 
 if __name__ == "__main__":
     test_sanitize_real_export_file()
-

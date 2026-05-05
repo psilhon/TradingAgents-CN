@@ -11,6 +11,7 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+
 def test_default_data_source():
     """测试默认数据源设置"""
     print("🔧 测试默认数据源设置")
@@ -37,8 +38,10 @@ def test_default_data_source():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_fallback_priority():
     """测试备用数据源优先级"""
@@ -56,6 +59,7 @@ def test_fallback_priority():
         # 检查_try_fallback_sources方法中的fallback_order
         # 这里我们通过检查源代码来验证
         import inspect
+
         source_code = inspect.getsource(manager._try_fallback_sources)
 
         if "ChinaDataSource.AKSHARE" in source_code:
@@ -76,8 +80,10 @@ def test_fallback_priority():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_environment_variable_override():
     """测试环境变量覆盖"""
@@ -86,16 +92,17 @@ def test_environment_variable_override():
 
     try:
         # 保存原始环境变量
-        original_env = os.getenv('DEFAULT_CHINA_DATA_SOURCE')
+        original_env = os.getenv("DEFAULT_CHINA_DATA_SOURCE")
 
         # 测试设置为tushare
-        os.environ['DEFAULT_CHINA_DATA_SOURCE'] = 'tushare'
+        os.environ["DEFAULT_CHINA_DATA_SOURCE"] = "tushare"
 
         # 重新导入以获取新的环境变量
         import importlib
 
         import tradingagents.dataflows.data_source_manager as dsm
         from tradingagents.dataflows.data_source_manager import ChinaDataSource
+
         importlib.reload(dsm)
 
         manager = dsm.DataSourceManager()
@@ -109,17 +116,19 @@ def test_environment_variable_override():
 
         # 恢复原始环境变量
         if original_env:
-            os.environ['DEFAULT_CHINA_DATA_SOURCE'] = original_env
+            os.environ["DEFAULT_CHINA_DATA_SOURCE"] = original_env
         else:
-            os.environ.pop('DEFAULT_CHINA_DATA_SOURCE', None)
+            os.environ.pop("DEFAULT_CHINA_DATA_SOURCE", None)
 
         return result
 
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_akshare_availability():
     """测试AKShare可用性"""
@@ -128,6 +137,7 @@ def test_akshare_availability():
 
     try:
         import akshare as ak
+
         print(f"✅ AKShare库已安装: v{ak.__version__}")
 
         # 简单测试AKShare功能
@@ -135,6 +145,7 @@ def test_akshare_availability():
 
         # 这里不实际调用API，只测试导入
         from tradingagents.dataflows.akshare_utils import get_china_stock_data_akshare  # noqa: F401
+
         print("✅ AKShare工具函数导入成功")
 
         return True
@@ -145,6 +156,7 @@ def test_akshare_availability():
     except Exception as e:
         print(f"❌ AKShare测试失败: {e}")
         return False
+
 
 def test_data_source_switching():
     """测试数据源切换功能"""
@@ -188,8 +200,10 @@ def test_data_source_switching():
     except Exception as e:
         print(f"❌ 测试失败: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """主测试函数"""
@@ -235,6 +249,7 @@ def main():
     else:
         print("⚠️ 部分测试失败，需要进一步检查。")
         return False
+
 
 if __name__ == "__main__":
     success = main()

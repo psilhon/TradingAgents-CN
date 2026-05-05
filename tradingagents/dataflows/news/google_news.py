@@ -17,7 +17,7 @@ from tradingagents.config.runtime_settings import get_float
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
-logger = get_logger('agents')
+logger = get_logger("agents")
 
 SLEEP_MIN = get_float("TA_GOOGLE_NEWS_SLEEP_MIN_SECONDS", "ta_google_news_sleep_min_seconds", 2.0)
 SLEEP_MAX = get_float("TA_GOOGLE_NEWS_SLEEP_MAX_SECONDS", "ta_google_news_sleep_max_seconds", 6.0)
@@ -29,7 +29,11 @@ def is_rate_limited(response):
 
 
 @retry(
-    retry=(retry_if_result(is_rate_limited) | retry_if_exception_type(requests.exceptions.ConnectionError) | retry_if_exception_type(requests.exceptions.Timeout)),  # noqa: E501
+    retry=(
+        retry_if_result(is_rate_limited)
+        | retry_if_exception_type(requests.exceptions.ConnectionError)
+        | retry_if_exception_type(requests.exceptions.Timeout)
+    ),  # noqa: E501
     wait=wait_exponential(multiplier=1, min=4, max=60),
     stop=stop_after_attempt(5),
 )
@@ -58,9 +62,7 @@ def getNewsData(query, start_date, end_date):
 
     headers = {
         "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/101.0.4951.54 Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36"
         )
     }
 
@@ -68,11 +70,7 @@ def getNewsData(query, start_date, end_date):
     page = 0
     while True:
         offset = page * 10
-        url = (
-            f"https://www.google.com/search?q={query}"
-            f"&tbs=cdr:1,cd_min:{start_date},cd_max:{end_date}"
-            f"&tbm=nws&start={offset}"
-        )
+        url = f"https://www.google.com/search?q={query}&tbs=cdr:1,cd_min:{start_date},cd_max:{end_date}&tbm=nws&start={offset}"
 
         try:
             response = make_request(url, headers)
