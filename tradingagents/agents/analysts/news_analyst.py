@@ -283,7 +283,7 @@ def create_news_analyst(llm, toolkit):
                 else:
                     logger.warning(
                         f"[新闻分析师] ⚠️ 预处理获取新闻失败或内容过短（{len(pre_fetched_news) if pre_fetched_news else 0}字符），回退到标准模式"
-                    )  # noqa: E501
+                    )
                     if pre_fetched_news:
                         logger.warning(f"[新闻分析师] 📄 失败的新闻内容: {pre_fetched_news}")
 
@@ -338,7 +338,7 @@ def create_news_analyst(llm, toolkit):
                 logger.warning(f"[新闻分析师] ⚠️ {llm.__class__.__name__} 没有调用任何工具，启动补救机制...")
                 logger.warning(
                     f"[新闻分析师] 📄 LLM原始响应内容 (前500字符): {result.content[:500] if hasattr(result, 'content') else 'No content'}"
-                )  # noqa: E501
+                )
 
                 try:
                     # 强制获取新闻数据
@@ -381,7 +381,7 @@ def create_news_analyst(llm, toolkit):
                     else:
                         logger.warning(
                             f"[新闻分析师] ⚠️ 统一新闻工具获取失败或内容过短（{len(forced_news) if forced_news else 0}字符），使用原始结果"
-                        )  # noqa: E501
+                        )
                         if forced_news:
                             logger.warning(f"[新闻分析师] 📄 失败的新闻内容: {forced_news}")
                         report = result.content if hasattr(result, "content") else ""

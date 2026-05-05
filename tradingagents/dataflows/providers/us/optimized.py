@@ -560,7 +560,7 @@ def get_us_stock_data_cached(symbol: str, start_date: str, end_date: str, force_
     logger.info(f"📅 [美股智能日期] 计算结果: {start_date} 至 {end_date}")
     logger.info(
         f"📅 [美股智能日期] 实际天数: {(datetime.strptime(end_date, '%Y-%m-%d') - datetime.strptime(start_date, '%Y-%m-%d')).days}天"
-    )  # noqa: E501
+    )
 
     provider = get_optimized_us_data_provider()
     return provider.get_stock_data(symbol, start_date, end_date, force_refresh)

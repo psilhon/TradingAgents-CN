@@ -99,7 +99,7 @@ class OpenAICompatibleBase(ChatOpenAI):
             if env_api_key and is_valid_api_key(env_api_key):
                 logger.info(
                     f"✅ [{provider_name}初始化] 环境变量中的 API Key 有效，长度: {len(env_api_key)}, 前10位: {env_api_key[:10]}..."
-                )  # noqa: E501
+                )
                 api_key = env_api_key
             elif env_api_key:
                 logger.warning(f"⚠️ [{provider_name}初始化] 环境变量中的 API Key 无效（可能是占位符），将被忽略")

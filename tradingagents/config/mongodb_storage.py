@@ -141,7 +141,7 @@ class MongoDBStorage:
             if result.inserted_id:
                 logger.info(
                     f"✅ [MongoDB存储] 记录已保存: ID={result.inserted_id}, {record.provider}/{record.model_name}, ¥{record.cost:.4f}"
-                )  # noqa: E501
+                )
                 return True
             else:
                 logger.error("❌ [MongoDB存储] 插入失败：未返回插入ID")
