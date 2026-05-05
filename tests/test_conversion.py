@@ -16,7 +16,7 @@ def test_markdown_content():
     # 模拟真实的分析结果数据
     test_content = """# 605499 股票分析报告
 
-**生成时间**: 2025-01-12 16:20:00  
+**生成时间**: 2025-01-12 16:20:00
 **分析状态**: 正式分析
 
 ## 🎯 投资决策摘要
@@ -34,7 +34,7 @@ def test_markdown_content():
 ## 📋 分析配置信息
 
 - **LLM提供商**: qwen
-- **LLM模型**: qwen-turbo  
+- **LLM模型**: qwen-turbo
 - **分析师**: market, fundamentals
 - **研究深度**: 标准分析
 

@@ -31,17 +31,15 @@ except ImportError:
 DefaultUSProvider = OptimizedUSDataProvider
 
 __all__ = [
-    # Finnhub
-    'get_data_in_range',
     'FINNHUB_AVAILABLE',
-
-    # Yahoo Finance
-    'YFinanceUtils',
+    'OPTIMIZED_US_AVAILABLE',
     'YFINANCE_AVAILABLE',
-
+    'DefaultUSProvider',
     # 优化的提供器
     'OptimizedUSDataProvider',
-    'OPTIMIZED_US_AVAILABLE',
-    'DefaultUSProvider',
+    # Yahoo Finance
+    'YFinanceUtils',
+    # Finnhub
+    'get_data_in_range',
 ]
 
