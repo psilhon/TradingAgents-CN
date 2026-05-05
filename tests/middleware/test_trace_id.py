@@ -2,12 +2,15 @@ import io
 import logging
 import re
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.core.logging_config import setup_logging
 from app.core.logging_context import LoggingContextFilter
 from app.middleware.request_id import RequestIDMiddleware
+
+pytestmark = pytest.mark.unit
 
 UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 
