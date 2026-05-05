@@ -50,7 +50,7 @@ class BaseStockDataProvider(ABC):
     # ==================== 核心数据接口 ====================
 
     @abstractmethod
-    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[Dict[str, Any], List[Dict[str, Any]]]]:
+    async def get_stock_basic_info(self, symbol: str = None) -> Optional[Union[dict[str, Any], list[dict[str, Any]]]]:
         """
         获取股票基础信息
         
@@ -63,7 +63,7 @@ class BaseStockDataProvider(ABC):
         pass
 
     @abstractmethod
-    async def get_stock_quotes(self, symbol: str) -> Optional[Dict[str, Any]]:
+    async def get_stock_quotes(self, symbol: str) -> Optional[dict[str, Any]]:
         """
         获取实时行情
         
@@ -97,7 +97,7 @@ class BaseStockDataProvider(ABC):
 
     # ==================== 扩展接口 ====================
 
-    async def get_stock_list(self, market: str = None) -> Optional[List[Dict[str, Any]]]:
+    async def get_stock_list(self, market: str = None) -> Optional[list[dict[str, Any]]]:
         """
         获取股票列表
         
@@ -109,7 +109,7 @@ class BaseStockDataProvider(ABC):
         """
         return await self.get_stock_basic_info()
 
-    async def get_financial_data(self, symbol: str, report_type: str = "annual") -> Optional[Dict[str, Any]]:
+    async def get_financial_data(self, symbol: str, report_type: str = "annual") -> Optional[dict[str, Any]]:
         """
         获取财务数据
         
@@ -125,7 +125,7 @@ class BaseStockDataProvider(ABC):
 
     # ==================== 数据标准化方法 ====================
 
-    def standardize_basic_info(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def standardize_basic_info(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """
         标准化股票基础信息
         
@@ -156,7 +156,7 @@ class BaseStockDataProvider(ABC):
             "updated_at": datetime.utcnow()
         }
 
-    def standardize_quotes(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def standardize_quotes(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """
         标准化实时行情数据
         
@@ -203,7 +203,7 @@ class BaseStockDataProvider(ABC):
 
     # ==================== 辅助方法 ====================
 
-    def _determine_market_info(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _determine_market_info(self, raw_data: dict[str, Any]) -> dict[str, Any]:
         """确定市场信息"""
         # 默认实现，子类可以重写
         return {
@@ -214,7 +214,7 @@ class BaseStockDataProvider(ABC):
             "timezone": "Asia/Shanghai"
         }
 
-    def _determine_market(self, raw_data: Dict[str, Any]) -> str:
+    def _determine_market(self, raw_data: dict[str, Any]) -> str:
         """确定市场代码"""
         market_info = self._determine_market_info(raw_data)
         return market_info.get("market", "CN")

@@ -8,7 +8,7 @@ def test_enhanced_screening_enriches_from_db(monkeypatch):
 
     # Fake DB layer
     class FakeCursor:
-        def __init__(self, docs: List[Dict[str, Any]]):
+        def __init__(self, docs: list[dict[str, Any]]):
             self._docs = docs
 
         async def to_list(self, length: int):

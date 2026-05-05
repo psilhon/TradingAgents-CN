@@ -10,7 +10,7 @@ import pandas as pd
 @dataclass(frozen=True)
 class IndicatorSpec:
     name: str
-    params: Optional[Dict[str, Any]] = None
+    params: Optional[dict[str, Any]] = None
 
 
 SUPPORTED = {"ma", "ema", "macd", "rsi", "boll", "atr", "kdj"}
@@ -246,7 +246,7 @@ def compute_indicator(df: pd.DataFrame, spec: IndicatorSpec) -> pd.DataFrame:
     raise ValueError(f"不支持的指标: {name}")
 
 
-def compute_many(df: pd.DataFrame, specs: List[IndicatorSpec]) -> pd.DataFrame:
+def compute_many(df: pd.DataFrame, specs: list[IndicatorSpec]) -> pd.DataFrame:
     if not specs:
         return df.copy()
     # 粗略去重（按 name+sorted(params)）
@@ -255,7 +255,7 @@ def compute_many(df: pd.DataFrame, specs: List[IndicatorSpec]) -> pd.DataFrame:
         items = tuple(sorted(p.items()))
         return (s.name.lower(), items)
 
-    unique_specs: List[IndicatorSpec] = []
+    unique_specs: list[IndicatorSpec] = []
     seen = set()
     for s in specs:
         k = key(s)
@@ -269,7 +269,7 @@ def compute_many(df: pd.DataFrame, specs: List[IndicatorSpec]) -> pd.DataFrame:
     return out
 
 
-def last_values(df: pd.DataFrame, columns: List[str]) -> Dict[str, Any]:
+def last_values(df: pd.DataFrame, columns: list[str]) -> dict[str, Any]:
     if df.empty:
         return {c: None for c in columns}
     last = df.iloc[-1]

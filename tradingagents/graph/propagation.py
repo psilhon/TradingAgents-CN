@@ -21,7 +21,7 @@ class Propagator:
 
     def create_initial_state(
         self, company_name: str, trade_date: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create the initial state for the agent graph."""
         from langchain_core.messages import HumanMessage
 
@@ -51,7 +51,7 @@ class Propagator:
             "news_report": "",
         }
 
-    def get_graph_args(self, use_progress_callback: bool = False) -> Dict[str, Any]:
+    def get_graph_args(self, use_progress_callback: bool = False) -> dict[str, Any]:
         """Get arguments for the graph invocation.
 
         Args:

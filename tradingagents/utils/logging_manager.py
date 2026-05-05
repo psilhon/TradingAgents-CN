@@ -73,12 +73,12 @@ class StructuredFormatter(logging.Formatter):
 class TradingAgentsLogger:
     """TradingAgents统一日志管理器"""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None):
         self.config = config or self._load_default_config()
-        self.loggers: Dict[str, logging.Logger] = {}
+        self.loggers: dict[str, logging.Logger] = {}
         self._setup_logging()
 
-    def _load_default_config(self) -> Dict[str, Any]:
+    def _load_default_config(self) -> dict[str, Any]:
         """加载默认日志配置"""
         # 尝试从配置文件加载
         config = self._load_config_file()
@@ -137,7 +137,7 @@ class TradingAgentsLogger:
             }
         }
 
-    def _load_config_file(self) -> Optional[Dict[str, Any]]:
+    def _load_config_file(self) -> Optional[dict[str, Any]]:
         """从配置文件加载日志配置"""
         # 确定配置文件路径
         config_paths = [
@@ -160,7 +160,7 @@ class TradingAgentsLogger:
 
         return None
 
-    def _convert_toml_config(self, toml_config: Dict[str, Any]) -> Dict[str, Any]:
+    def _convert_toml_config(self, toml_config: dict[str, Any]) -> dict[str, Any]:
         """将TOML配置转换为内部配置格式"""
         logging_config = toml_config.get('logging', {})
 
@@ -442,7 +442,7 @@ def get_logger(name: str) -> logging.Logger:
     return get_logger_manager().get_logger(name)
 
 
-def setup_logging(config: Optional[Dict[str, Any]] = None):
+def setup_logging(config: Optional[dict[str, Any]] = None):
     """设置项目日志系统（便捷函数）"""
     global _logger_manager
     _logger_manager = TradingAgentsLogger(config)

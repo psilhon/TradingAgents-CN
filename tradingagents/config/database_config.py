@@ -12,7 +12,7 @@ class DatabaseConfig:
     """数据库配置管理类"""
 
     @staticmethod
-    def get_mongodb_config() -> Dict[str, Any]:
+    def get_mongodb_config() -> dict[str, Any]:
         """
         获取MongoDB配置
         
@@ -36,7 +36,7 @@ class DatabaseConfig:
         }
 
     @staticmethod
-    def get_redis_config() -> Dict[str, Any]:
+    def get_redis_config() -> dict[str, Any]:
         """
         获取Redis配置
         
@@ -73,7 +73,7 @@ class DatabaseConfig:
         }
 
     @staticmethod
-    def validate_config() -> Dict[str, bool]:
+    def validate_config() -> dict[str, bool]:
         """
         验证数据库配置是否完整
         

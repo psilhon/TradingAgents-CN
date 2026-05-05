@@ -179,7 +179,7 @@ DASHSCOPE_OPENAI_MODELS = {
 }
 
 
-def get_available_openai_models() -> Dict[str, Dict[str, Any]]:
+def get_available_openai_models() -> dict[str, dict[str, Any]]:
     """获取可用的 DashScope OpenAI 兼容模型列表"""
     return DASHSCOPE_OPENAI_MODELS
 

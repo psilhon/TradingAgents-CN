@@ -310,7 +310,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.error(f"❌ AKShare获取股票列表失败: {e}")
             return None
 
-    async def get_stock_list(self) -> List[Dict[str, Any]]:
+    async def get_stock_list(self) -> list[dict[str, Any]]:
         """
         获取股票列表
 
@@ -349,7 +349,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.error(f"❌ AKShare获取股票列表失败: {e}")
             return []
 
-    async def get_stock_basic_info(self, code: str) -> Optional[Dict[str, Any]]:
+    async def get_stock_basic_info(self, code: str) -> Optional[dict[str, Any]]:
         """
         获取股票基础信息
         
@@ -420,7 +420,7 @@ class AKShareProvider(BaseStockDataProvider):
 
         return None
 
-    async def _get_stock_info_detail(self, code: str) -> Dict[str, Any]:
+    async def _get_stock_info_detail(self, code: str) -> dict[str, Any]:
         """获取股票详细信息"""
         try:
             # 方法1: 尝试获取个股详细信息（包含行业、地区等详细信息）
@@ -519,7 +519,7 @@ class AKShareProvider(BaseStockDataProvider):
             # 无法识别的代码，返回原始代码（确保不为空）
             return code if code else ""
 
-    def _get_market_info(self, code: str) -> Dict[str, Any]:
+    def _get_market_info(self, code: str) -> dict[str, Any]:
         """获取市场信息"""
         if code.startswith(('60', '68')):
             return {
@@ -554,7 +554,7 @@ class AKShareProvider(BaseStockDataProvider):
                 "timezone": "Asia/Shanghai"
             }
 
-    async def get_batch_stock_quotes(self, codes: List[str]) -> Dict[str, Dict[str, Any]]:
+    async def get_batch_stock_quotes(self, codes: list[str]) -> dict[str, dict[str, Any]]:
         """
         批量获取股票实时行情（优化版：一次获取全市场快照）
 
@@ -701,7 +701,7 @@ class AKShareProvider(BaseStockDataProvider):
                     logger.error(f"❌ 批量获取实时行情失败，已达最大重试次数: {e}")
                     return {}
 
-    async def get_stock_quotes(self, code: str) -> Optional[Dict[str, Any]]:
+    async def get_stock_quotes(self, code: str) -> Optional[dict[str, Any]]:
         """
         获取单个股票实时行情
 
@@ -762,7 +762,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.error(f"❌ 获取{code}实时行情失败: {e}", exc_info=True)
             return None
 
-    async def _get_realtime_quotes_data(self, code: str) -> Dict[str, Any]:
+    async def _get_realtime_quotes_data(self, code: str) -> dict[str, Any]:
         """获取实时行情数据"""
         try:
             # 方法1: 使用新浪全市场快照
@@ -868,7 +868,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.debug(f"获取{code}实时行情数据失败: {e}")
             return {}
 
-    def _build_bid_ask_quotes(self, code: str, data_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_bid_ask_quotes(self, code: str, data_dict: dict[str, Any]) -> dict[str, Any]:
         """将 stock_bid_ask_em 数据转换为标准行情结构"""
         cn_tz = timezone(timedelta(hours=8))
         now_cn = datetime.now(cn_tz)
@@ -910,7 +910,7 @@ class AKShareProvider(BaseStockDataProvider):
             "sync_status": "success"
         }
 
-    def _build_standard_quotes(self, code: str, quote_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_standard_quotes(self, code: str, quote_data: dict[str, Any]) -> dict[str, Any]:
         """将备份接口返回的数据转换为统一行情结构"""
         cn_tz = timezone(timedelta(hours=8))
         now_cn = datetime.now(cn_tz)
@@ -1080,7 +1080,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.error(f"标准化{code}历史数据列名失败: {e}")
             return df
 
-    async def get_financial_data(self, code: str) -> Dict[str, Any]:
+    async def get_financial_data(self, code: str) -> dict[str, Any]:
         """
         获取财务数据
 
@@ -1157,7 +1157,7 @@ class AKShareProvider(BaseStockDataProvider):
             logger.error(f"❌ 获取{code}财务数据失败: {e}")
             return {}
 
-    async def get_market_status(self) -> Dict[str, Any]:
+    async def get_market_status(self) -> dict[str, Any]:
         """
         获取市场状态信息
 
@@ -1264,7 +1264,7 @@ class AKShareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ AKShare新闻获取失败: {e}")
             return None
 
-    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> Optional[List[Dict[str, Any]]]:
+    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> Optional[list[dict[str, Any]]]:
         """
         获取股票新闻（异步版本，返回结构化列表）
 
@@ -1566,7 +1566,7 @@ class AKShareProvider(BaseStockDataProvider):
         # 归一化到 [-1.0, 1.0]
         return max(-1.0, min(1.0, score / 3.0))
 
-    def _extract_keywords(self, content: str, title: str) -> List[str]:
+    def _extract_keywords(self, content: str, title: str) -> list[str]:
         """
         提取关键词
 

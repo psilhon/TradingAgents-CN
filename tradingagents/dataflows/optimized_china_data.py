@@ -46,7 +46,7 @@ class OptimizedChinaDataProvider:
 
         self.last_api_call = time.time()
 
-    def _format_financial_data_to_fundamentals(self, financial_data: Dict[str, Any], symbol: str) -> str:
+    def _format_financial_data_to_fundamentals(self, financial_data: dict[str, Any], symbol: str) -> str:
         """将MongoDB财务数据转换为基本面分析格式"""
         try:
             # 提取关键财务指标

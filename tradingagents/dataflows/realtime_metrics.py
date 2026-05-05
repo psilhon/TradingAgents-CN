@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def calculate_realtime_pe_pb(
     symbol: str,
     db_client=None
-) -> Optional[Dict[str, Any]]:
+) -> Optional[dict[str, Any]]:
     """
     基于实时行情和 Tushare TTM 数据计算动态 PE/PB
 
@@ -324,7 +324,7 @@ def validate_pe_pb(pe: Optional[float], pb: Optional[float]) -> bool:
 def get_pe_pb_with_fallback(
     symbol: str,
     db_client=None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     获取PE/PB，智能降级策略
 
