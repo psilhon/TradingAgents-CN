@@ -183,8 +183,8 @@ class DatabaseCacheManager:
         return f"{data_type}:{symbol}:{cache_key}"
 
     def save_stock_data(self, symbol: str, data: pd.DataFrame | str,
-                       start_date: str = None, end_date: str = None,
-                       data_source: str = "unknown", market_type: str = None) -> str:
+                       start_date: str | None = None, end_date: str | None = None,
+                       data_source: str = "unknown", market_type: str | None = None) -> str:
         """
         保存股票数据到MongoDB和Redis
 
@@ -321,8 +321,8 @@ class DatabaseCacheManager:
 
         return None
 
-    def find_cached_stock_data(self, symbol: str, start_date: str = None,
-                              end_date: str = None, data_source: str = None,
+    def find_cached_stock_data(self, symbol: str, start_date: str | None = None,
+                              end_date: str | None = None, data_source: str | None = None,
                               max_age_hours: int = 6) -> str | None:
         """查找匹配的缓存数据"""
 
@@ -369,7 +369,7 @@ class DatabaseCacheManager:
         return None
 
     def save_news_data(self, symbol: str, news_data: str,
-                      start_date: str = None, end_date: str = None,
+                      start_date: str | None = None, end_date: str | None = None,
                       data_source: str = "unknown") -> str:
         """保存新闻数据到MongoDB和Redis"""
         cache_key = self._generate_cache_key("news", symbol,
@@ -420,7 +420,7 @@ class DatabaseCacheManager:
         return cache_key
 
     def save_fundamentals_data(self, symbol: str, fundamentals_data: str,
-                              analysis_date: str = None,
+                              analysis_date: str | None = None,
                               data_source: str = "unknown") -> str:
         """保存基本面数据到MongoDB和Redis"""
         if not analysis_date:

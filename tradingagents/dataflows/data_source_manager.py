@@ -331,7 +331,7 @@ class DataSourceManager:
         # 重定向到统一接口
         return self._get_tushare_fundamentals(symbol)
 
-    def get_news_data(self, symbol: str = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]]:
+    def get_news_data(self, symbol: str | None = None, hours_back: int = 24, limit: int = 20) -> list[dict[str, Any]]:
         """
         获取新闻数据的统一接口，支持多数据源和自动降级
         优先级：MongoDB → Tushare → AKShare
@@ -610,7 +610,7 @@ class DataSourceManager:
     #     logger.error(f"❌ TDX数据源已不再支持")
     #     return None
 
-    def _get_cached_data(self, symbol: str, start_date: str = None, end_date: str = None, max_age_hours: int = 24) -> pd.DataFrame | None:
+    def _get_cached_data(self, symbol: str, start_date: str | None = None, end_date: str | None = None, max_age_hours: int = 24) -> pd.DataFrame | None:
         """
         从缓存获取数据
 
@@ -644,7 +644,7 @@ class DataSourceManager:
 
         return None
 
-    def _save_to_cache(self, symbol: str, data: pd.DataFrame, start_date: str = None, end_date: str = None):
+    def _save_to_cache(self, symbol: str, data: pd.DataFrame, start_date: str | None = None, end_date: str | None = None):
         """
         保存数据到缓存
 
@@ -913,7 +913,7 @@ class DataSourceManager:
             logger.error(f"❌ 格式化数据响应失败: {e}", exc_info=True)
             return f"❌ 格式化{symbol}数据失败: {e}"
 
-    def get_stock_dataframe(self, symbol: str, start_date: str = None, end_date: str = None, period: str = "daily") -> pd.DataFrame:
+    def get_stock_dataframe(self, symbol: str, start_date: str | None = None, end_date: str | None = None, period: str = "daily") -> pd.DataFrame:
         """
         获取股票数据的 DataFrame 接口，支持多数据源和自动降级
 
@@ -1033,7 +1033,7 @@ class DataSourceManager:
 
         return out
 
-    def get_stock_data(self, symbol: str, start_date: str = None, end_date: str = None, period: str = "daily") -> str:
+    def get_stock_data(self, symbol: str, start_date: str | None = None, end_date: str | None = None, period: str = "daily") -> str:
         """
         获取股票数据的统一接口，支持多周期数据
 
@@ -1537,7 +1537,7 @@ class DataSourceManager:
             logger.error(f"❌ [数据来源: {self.current_source.value}异常] 获取股票信息失败: {e}", exc_info=True)
             return self._try_fallback_stock_info(symbol)
 
-    def get_stock_basic_info(self, stock_code: str = None) -> dict[str, Any] | None:
+    def get_stock_basic_info(self, stock_code: str | None = None) -> dict[str, Any] | None:
         """
         获取股票基础信息（兼容 stock_data_service 接口）
 

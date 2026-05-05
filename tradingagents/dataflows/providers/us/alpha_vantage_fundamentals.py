@@ -22,7 +22,7 @@ logger = get_logger('agents')
 
 def get_fundamentals(
     ticker: Annotated[str, "Ticker symbol of the company"],
-    curr_date: Annotated[str, "Current date (not used for Alpha Vantage)"] = None
+    curr_date: Annotated[str | None, "Current date (not used for Alpha Vantage)"] = None
 ) -> str:
     """
     获取公司综合基本面数据
@@ -146,7 +146,7 @@ def get_fundamentals(
 def get_balance_sheet(
     ticker: Annotated[str, "Ticker symbol of the company"],
     freq: Annotated[str, "Reporting frequency: annual/quarterly (not used)"] = "quarterly",
-    curr_date: Annotated[str, "Current date (not used)"] = None
+    curr_date: Annotated[str | None, "Current date (not used)"] = None
 ) -> str:
     """
     获取资产负债表数据
@@ -175,7 +175,7 @@ def get_balance_sheet(
 def get_cashflow(
     ticker: Annotated[str, "Ticker symbol of the company"],
     freq: Annotated[str, "Reporting frequency: annual/quarterly (not used)"] = "quarterly",
-    curr_date: Annotated[str, "Current date (not used)"] = None
+    curr_date: Annotated[str | None, "Current date (not used)"] = None
 ) -> str:
     """
     获取现金流量表数据
@@ -204,7 +204,7 @@ def get_cashflow(
 def get_income_statement(
     ticker: Annotated[str, "Ticker symbol of the company"],
     freq: Annotated[str, "Reporting frequency: annual/quarterly (not used)"] = "quarterly",
-    curr_date: Annotated[str, "Current date (not used)"] = None
+    curr_date: Annotated[str | None, "Current date (not used)"] = None
 ) -> str:
     """
     获取利润表数据

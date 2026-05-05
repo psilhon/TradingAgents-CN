@@ -112,7 +112,7 @@ def test_logging_extraction():
 
         # 创建一个测试函数来验证日志装饰器
         @log_graph_module("signal_processing")
-        def mock_process_signal(self, full_signal: str, stock_symbol: str = None) -> dict:
+        def mock_process_signal(self, full_signal: str, stock_symbol: str | None = None) -> dict:
             """模拟信号处理函数"""
             print("🔍 [模拟函数] 接收到的参数:")
             print(f"   full_signal 长度: {len(full_signal) if full_signal else 0}")

@@ -35,7 +35,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
     - 由app层的同步服务调用
     """
 
-    def __init__(self, api_key: str = None, base_url: str = None, **kwargs):
+    def __init__(self, api_key: str | None = None, base_url: str | None = None, **kwargs):
         super().__init__("ExampleSDK")
 
         # 配置参数
@@ -99,7 +99,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         self.connected = False
         self.logger.info("ExampleSDK连接已断开")
 
-    async def get_stock_basic_info(self, symbol: str = None) -> dict[str, Any] | list[dict[str, Any]] | None:
+    async def get_stock_basic_info(self, symbol: str | None = None) -> dict[str, Any] | list[dict[str, Any]] | None:
         """获取股票基础信息"""
         if not self.connected:
             await self.connect()
@@ -130,7 +130,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取股票基础信息失败 symbol={symbol}")
             return None
 
-    async def get_stock_list(self, market: str = None) -> list[dict[str, Any]] | None:
+    async def get_stock_list(self, market: str | None = None) -> list[dict[str, Any]] | None:
         """获取股票列表"""
         if not self.connected:
             await self.connect()
@@ -176,7 +176,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
         self,
         symbol: str,
         start_date: str | date,
-        end_date: str | date = None,
+        end_date: str | date | None = None,
         period: str = "daily"
     ) -> pd.DataFrame | None:
         """获取历史数据"""
@@ -226,7 +226,7 @@ class ExampleSDKProvider(BaseStockDataProvider):
             self._handle_error(e, f"获取财务数据失败 symbol={symbol}")
             return None
 
-    async def get_stock_news(self, symbol: str = None, limit: int = 10) -> list[dict[str, Any]] | None:
+    async def get_stock_news(self, symbol: str | None = None, limit: int = 10) -> list[dict[str, Any]] | None:
         """获取股票新闻"""
         if not self.connected:
             await self.connect()

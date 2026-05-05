@@ -172,9 +172,9 @@ def get_insider_transactions(
 
 
 def get_market_news(
-    topics: Annotated[str, "News topics, e.g., 'technology,earnings'"] = None,
-    start_date: Annotated[str, "Start date, YYYY-MM-DD"] = None,
-    end_date: Annotated[str, "End date, YYYY-MM-DD"] = None,
+    topics: Annotated[str | None, "News topics, e.g., 'technology,earnings'"] = None,
+    start_date: Annotated[str | None, "Start date, YYYY-MM-DD"] = None,
+    end_date: Annotated[str | None, "End date, YYYY-MM-DD"] = None,
     limit: Annotated[int, "Number of articles to return"] = 50
 ) -> str:
     """

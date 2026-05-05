@@ -1740,7 +1740,7 @@ def get_current_china_data_source() -> str:
 
 # ==================== 港股数据接口 ====================
 
-def get_hk_stock_data_unified(symbol: str, start_date: str = None, end_date: str = None) -> str:
+def get_hk_stock_data_unified(symbol: str, start_date: str | None = None, end_date: str | None = None) -> str:
     """
     获取港股数据的统一接口（根据用户配置选择数据源）
 
@@ -1901,7 +1901,7 @@ def get_hk_stock_info_unified(symbol: str) -> dict:
         }
 
 
-def get_stock_data_by_market(symbol: str, start_date: str = None, end_date: str = None) -> str:
+def get_stock_data_by_market(symbol: str, start_date: str | None = None, end_date: str | None = None) -> str:
     """
     根据股票市场类型自动选择数据源获取数据
 

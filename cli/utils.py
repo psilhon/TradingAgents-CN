@@ -130,7 +130,7 @@ def get_analysis_date() -> str:
     return date.strip()
 
 
-def select_analysts(ticker: str = None) -> list[AnalystType]:
+def select_analysts(ticker: str | None = None) -> list[AnalystType]:
     """Select analysts using an interactive checkbox."""
     available_analysts = ANALYST_ORDER.copy()
 

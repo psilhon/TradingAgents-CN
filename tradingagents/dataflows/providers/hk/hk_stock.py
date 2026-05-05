@@ -45,7 +45,7 @@ class HKStockProvider:
 
         self.last_request_time = time.time()
 
-    def get_stock_data(self, symbol: str, start_date: str = None, end_date: str = None) -> pd.DataFrame | None:
+    def get_stock_data(self, symbol: str, start_date: str | None = None, end_date: str | None = None) -> pd.DataFrame | None:
         """
         获取港股历史数据
 
@@ -486,7 +486,7 @@ def get_hk_stock_provider() -> HKStockProvider:
     return _hk_provider
 
 
-def get_hk_stock_data(symbol: str, start_date: str = None, end_date: str = None) -> str:
+def get_hk_stock_data(symbol: str, start_date: str | None = None, end_date: str | None = None) -> str:
     """
     获取港股数据的便捷函数
 

@@ -19,7 +19,7 @@ from tradingagents.config.database_manager import get_database_manager
 class AdaptiveCacheSystem:
     """自适应缓存系统"""
 
-    def __init__(self, cache_dir: str = None):
+    def __init__(self, cache_dir: str | None = None):
         self.logger = logging.getLogger(__name__)
 
         # 获取数据库管理器

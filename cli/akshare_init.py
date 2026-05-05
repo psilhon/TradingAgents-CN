@@ -89,7 +89,7 @@ async def run_full_initialization(
     historical_days: int,
     force: bool = False,
     multi_period: bool = False,
-    sync_items: list = None
+    sync_items: list | None = None
 ):
     """运行完整初始化"""
     print("=" * 50)

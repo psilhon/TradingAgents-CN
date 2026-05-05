@@ -264,7 +264,7 @@ class TushareProvider(BaseStockDataProvider):
 
     # ==================== 基础数据接口 ====================
 
-    def get_stock_list_sync(self, market: str = None) -> pd.DataFrame | None:
+    def get_stock_list_sync(self, market: str | None = None) -> pd.DataFrame | None:
         """获取股票列表（同步版本）"""
         if not self.is_available():
             return None
@@ -284,7 +284,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票列表失败: {e}")
             return None
 
-    async def get_stock_list(self, market: str = None) -> list[dict[str, Any]] | None:
+    async def get_stock_list(self, market: str | None = None) -> list[dict[str, Any]] | None:
         """获取股票列表（异步版本）"""
         if not self.is_available():
             return None
@@ -324,7 +324,7 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取股票列表失败: {e}")
             return None
 
-    async def get_stock_basic_info(self, symbol: str = None) -> dict[str, Any] | list[dict[str, Any]] | None:
+    async def get_stock_basic_info(self, symbol: str | None = None) -> dict[str, Any] | list[dict[str, Any]] | None:
         """获取股票基础信息"""
         if not self.is_available():
             return None
@@ -514,7 +514,7 @@ class TushareProvider(BaseStockDataProvider):
         self,
         symbol: str,
         start_date: str | date,
-        end_date: str | date = None,
+        end_date: str | date | None = None,
         period: str = "daily"
     ) -> pd.DataFrame | None:
         """
@@ -652,7 +652,7 @@ class TushareProvider(BaseStockDataProvider):
             return None
 
     async def get_financial_data(self, symbol: str, report_type: str = "quarterly",
-                                period: str = None, limit: int = 4) -> dict[str, Any] | None:
+                                period: str | None = None, limit: int = 4) -> dict[str, Any] | None:
         """
         获取财务数据
 
@@ -767,8 +767,8 @@ class TushareProvider(BaseStockDataProvider):
             self.logger.error(f"❌ 获取Tushare财务数据失败 symbol={symbol}: {e}")
             return None
 
-    async def get_stock_news(self, symbol: str = None, limit: int = 10,
-                           hours_back: int = 24, src: str = None) -> list[dict[str, Any]] | None:
+    async def get_stock_news(self, symbol: str | None = None, limit: int = 10,
+                           hours_back: int = 24, src: str | None = None) -> list[dict[str, Any]] | None:
         """
         获取股票新闻（需要Tushare新闻权限）
 
@@ -874,7 +874,7 @@ class TushareProvider(BaseStockDataProvider):
             return None
 
     def _process_tushare_news(self, news_df: pd.DataFrame, source: str,
-                            symbol: str = None, limit: int = 10) -> list[dict[str, Any]]:
+                            symbol: str | None = None, limit: int = 10) -> list[dict[str, Any]]:
         """处理Tushare新闻数据"""
         news_list = []
 
@@ -1037,8 +1037,8 @@ class TushareProvider(BaseStockDataProvider):
         else:
             return 'other'
 
-    async def get_financial_data_by_period(self, symbol: str, start_period: str = None,
-                                         end_period: str = None, report_type: str = "quarterly") -> list[dict[str, Any]] | None:
+    async def get_financial_data_by_period(self, symbol: str, start_period: str | None = None,
+                                         end_period: str | None = None, report_type: str = "quarterly") -> list[dict[str, Any]] | None:
         """
         按时间范围获取财务数据
 

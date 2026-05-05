@@ -153,7 +153,7 @@ async def run_basic_initialization():
         return False
 
 
-async def run_full_initialization(historical_days: int, force: bool, multi_period: bool = False, sync_items: list = None):
+async def run_full_initialization(historical_days: int, force: bool, multi_period: bool = False, sync_items: list | None = None):
     """运行完整初始化"""
     if sync_items:
         print(f"🚀 开始数据初始化（历史数据: {historical_days}天）...")

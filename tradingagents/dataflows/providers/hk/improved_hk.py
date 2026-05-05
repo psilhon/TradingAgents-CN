@@ -487,7 +487,7 @@ def get_hk_financial_indicators(symbol: str) -> dict[str, Any]:
 
 
 # 兼容性函数：为了兼容旧的 akshare_utils 导入
-def get_hk_stock_data_akshare(symbol: str, start_date: str = None, end_date: str = None):
+def get_hk_stock_data_akshare(symbol: str, start_date: str | None = None, end_date: str | None = None):
     """
     兼容性函数：使用 AKShare 新浪财经接口获取港股历史数据
 

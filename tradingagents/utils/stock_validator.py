@@ -59,7 +59,7 @@ class StockDataPreparer:
         self.default_period_days = default_period_days  # 默认历史数据时长（天）
 
     def prepare_stock_data(self, stock_code: str, market_type: str = "auto",
-                          period_days: int = None, analysis_date: str = None) -> StockDataPreparationResult:
+                          period_days: int | None = None, analysis_date: str | None = None) -> StockDataPreparationResult:
         """
         预获取和验证股票数据
 
@@ -1232,7 +1232,7 @@ def get_stock_preparer(default_period_days: int = 30) -> StockDataPreparer:
 
 
 def prepare_stock_data(stock_code: str, market_type: str = "auto",
-                      period_days: int = None, analysis_date: str = None) -> StockDataPreparationResult:
+                      period_days: int | None = None, analysis_date: str | None = None) -> StockDataPreparationResult:
     """
     便捷函数：预获取和验证股票数据
 
@@ -1250,7 +1250,7 @@ def prepare_stock_data(stock_code: str, market_type: str = "auto",
 
 
 def is_stock_data_ready(stock_code: str, market_type: str = "auto",
-                       period_days: int = None, analysis_date: str = None) -> bool:
+                       period_days: int | None = None, analysis_date: str | None = None) -> bool:
     """
     便捷函数：检查股票数据是否准备就绪
 
@@ -1268,7 +1268,7 @@ def is_stock_data_ready(stock_code: str, market_type: str = "auto",
 
 
 def get_stock_preparation_message(stock_code: str, market_type: str = "auto",
-                                 period_days: int = None, analysis_date: str = None) -> str:
+                                 period_days: int | None = None, analysis_date: str | None = None) -> str:
     """
     便捷函数：获取股票数据准备消息
 
@@ -1290,7 +1290,7 @@ def get_stock_preparation_message(stock_code: str, market_type: str = "auto",
 
 
 async def prepare_stock_data_async(stock_code: str, market_type: str = "auto",
-                                   period_days: int = None, analysis_date: str = None) -> StockDataPreparationResult:
+                                   period_days: int | None = None, analysis_date: str | None = None) -> StockDataPreparationResult:
     """
     异步版本：预获取和验证股票数据
 
