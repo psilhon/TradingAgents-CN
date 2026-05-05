@@ -29,7 +29,7 @@
 ## 5. 文档与收口
 
 - [x] 5.1 更新 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Fixed` 段
-- [ ] 5.2 commit + push（用户 1-click HARD-GATE 守门）
+- [x] 5.2 commit + push（用户 1-click HARD-GATE 守门）
 - [ ] 5.3 `openspec archive fix-theme-persistence` 归档本 change
 
 ## 延后扩展项（不在本 change 范围）
