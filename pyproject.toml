@@ -156,7 +156,7 @@ reportRedeclaration = "none"            # 重复声明
 testpaths = ["tests"]
 # 上游 tests/ 含一些非测试脚本（debug_*.py / fast_tdx_test.py 等），collect 时忽略
 addopts = "-ra --strict-markers"
-norecursedirs = ["config"]
+norecursedirs = ["config", "_legacy"]
 # OpenSpec change `pytest-marker-strict` 沉淀的 marker 体系
 markers = [
     "unit: 纯 Python 逻辑，无外部依赖（pre-commit hook 跑这一类）",
