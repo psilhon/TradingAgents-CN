@@ -46,7 +46,6 @@ dependencies = [
     "stockstats>=0.6.5",
 
     # AI和LLM
-    "chainlit>=2.5.5",
     "chromadb>=1.0.12",
     "dashscope>=1.20.0",
     "langchain-anthropic>=0.3.15",
@@ -81,7 +80,6 @@ dependencies = [
     "questionary>=2.1.0",
     "rich>=14.0.0",
     "setuptools>=80.9.0",
-    "streamlit>=1.28.0",
     "toml>=0.10.2",
     "tqdm>=4.67.1",
     "typing-extensions>=4.14.0",
@@ -107,7 +105,7 @@ exclude = ["tests*", "docs*", "scripts*", "data*", "logs*", "reports*", "results
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-exclude = ["app", "frontend", "web", "scripts", "examples", ".venv", ".chainlit"]
+exclude = ["app", "frontend", "scripts", ".venv"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "RUF"]
@@ -119,7 +117,7 @@ quote-style = "double"
 [tool.pyright]
 include = ["tradingagents", "tests"]
 strict = ["tradingagents"]
-exclude = ["app", "frontend", "web", "scripts", "examples", ".venv", ".chainlit", "**/node_modules"]
+exclude = ["app", "frontend", "scripts", ".venv", "**/node_modules"]
 typeCheckingMode = "standard"
 
 [tool.pytest.ini_options]
