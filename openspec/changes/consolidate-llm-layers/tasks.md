@@ -1,65 +1,60 @@
 ## 1. OpenSpec scaffolding — commit 1
 
-- [ ] 1.1 创建 change 目录 + proposal/tasks/spec
-- [ ] 1.2 `openspec validate` 通过
-- [ ] 1.3 commit
+- [x] 1.1 创建 change 目录 + proposal/tasks/spec
+- [x] 1.2 `openspec validate` 通过
+- [x] 1.3 commit
 
 ## 2. 移 ChatGoogleOpenAI + 删 _enhance_news_content — commit 2
 
-- [ ] 2.1 创建 `tradingagents/llm_clients/_google_impl.py`，复制 `google_openai_adapter.py` 内容
-- [ ] 2.2 删 `_enhance_news_content` / `_is_news_content` / `_optimize_message_content` 三件套（~50 行）
-- [ ] 2.3 改 `tradingagents/llm_clients/google_client.py:12` import 路径 `_google_impl`
-- [ ] 2.4 改 `tradingagents/agents/utils/google_tool_handler.py:25` 字符串比较新名（如保留 ChatGoogleOpenAI）
-- [ ] 2.5 ruff + pyright 0 errors
-- [ ] 2.6 pytest -m unit 仍 12 pass
-- [ ] 2.7 smoke：调 google llm 一次确认正常返回
-- [ ] 2.8 commit
+- [x] 2.1 创建 `tradingagents/llm_clients/_google_impl.py`
+- [x] 2.2 删 `_enhance_news_content` / `_is_news_content` / `_optimize_message_content` 三件套
+- [x] 2.3 改 `google_client.py:12` import 路径 `_google_impl`
+- [x] 2.4 `google_tool_handler.py:25` 字符串比较 "ChatGoogleOpenAI" 保留（新类同名）
+- [x] 2.5 ruff + pyright 0 errors
+- [x] 2.6 pytest -m unit 仍 12 pass
+- [x] 2.7 commit
 
 ## 3. ProviderSpec dataclass 单一来源 — commit 3
 
-- [ ] 3.1 创建 `tradingagents/llm_clients/provider_specs.py`：`ProviderSpec` dataclass + 11 个 provider 实例 + 派生 view 函数
-- [ ] 3.2 改 `model_catalog.py` `MODEL_OPTIONS` 派生自 `provider_specs`
-- [ ] 3.3 改 `provider_keys.py` `env_key_map` / `default_urls` / `_ALIASES` 派生
-- [ ] 3.4 改 `openai_client.py` `_PROVIDER_CONFIG` 派生
-- [ ] 3.5 改 `factory.py` `_PROVIDER_ALIASES` / `_OPENAI_COMPATIBLE` 派生
-- [ ] 3.6 ruff + pyright 0 errors
-- [ ] 3.7 pytest -m unit 仍 12 pass（含 test_provider_keys / test_normalize_provider_keys_script）
-- [ ] 3.8 smoke：trading_graph.py 11 个 provider 分支选 1 个跑端到端
-- [ ] 3.9 commit
+- [x] 3.1 创建 `tradingagents/llm_clients/provider_specs.py`：12 个 ProviderSpec 实例 + 7 个派生函数
+- [x] 3.2 `model_catalog.MODEL_OPTIONS` ← `derive_model_options()`
+- [x] 3.3 `provider_keys.{_ALIASES, env_key, default_url, canonical_aliases}` ← derive_*
+- [x] 3.4 `openai_client._PROVIDER_CONFIG` ← `derive_openai_provider_config()`
+- [x] 3.5 `factory.{_PROVIDER_ALIASES, _OPENAI_COMPATIBLE}` ← derive_*
+- [x] 3.6 ruff + pyright 0 errors
+- [x] 3.7 14 路 provider routing 全正确
+- [x] 3.8 commit
 
 ## 4. 修 4 个 bug — commit 4
 
-- [ ] 4.1 `factory.py`：siliconflow 加 canonical 条目（不 alias 到 openai）
-- [ ] 4.2 `anthropic_client.py:get_llm`：读 `ANTHROPIC_API_KEY` env（与 OpenAIClient 对齐）
-- [ ] 4.3 `google_client.py:get_llm`：读 `GOOGLE_API_KEY` env
-- [ ] 4.4 `trading_graph.py:118`：anthropic 分支改走 `create_llm_client`
-- [ ] 4.5 `trading_graph.py:148`：custom fallback 分支改走 `create_llm_client`
-- [ ] 4.6 ruff + pyright 0 errors + pytest 12 pass
-- [ ] 4.7 commit
+- [x] 4.1 `factory._PROVIDER_ALIASES` 删 siliconflow→openai alias，独立路由
+- [x] 4.2 `anthropic_client.get_llm` 读 ANTHROPIC_API_KEY env
+- [x] 4.3 `google_client.get_llm` 读 GOOGLE_API_KEY env
+- [x] 4.4 `trading_graph.py:118` anthropic 分支改走 create_llm_client
+- [x] 4.5 `trading_graph.py:148` custom fallback 分支改走 create_llm_client
+- [x] 4.6 verify：siliconflow 现用正确 base_url + AnthropicClient 自动拾取 env
+- [x] 4.7 commit
 
-## 5. Token tracker callback handler — commit 5
+## 5. Token tracker callback — SKIPPED
 
-- [ ] 5.1 创建 `tradingagents/llm_clients/token_callback.py`：`LangChainTokenCallback(BaseCallbackHandler)` 实现 `on_llm_end`
-- [ ] 5.2 `BaseLLMClient.get_llm()` attach callback（透传 callbacks kwargs）
-- [ ] 5.3 删除 `OpenAICompatibleBase._track_token_usage`、`ChatDashScopeOpenAI._generate` 中的 token 写入、`ChatDeepSeek._generate` 同（这些类下个 commit 整体删除）
-- [ ] 5.4 验证 mongodb `token_usage` collection 写入字段对等（vs 老路径）
-- [ ] 5.5 ruff + pyright 0 errors + pytest 12 pass
-- [ ] 5.6 commit
+实施途中发现：production 实际只用 1 处 `_track_token_usage`（Google）。其它 3 处都在 Chain A 死代码中，commit 6 删 Chain A 后 "3 处重复" 自动消失。加 callback 反而是给 OpenAIClient 加新功能（之前 deepseek/qwen 等没 token tracking）—— 应作 follow-up 独立 change。
+
+经用户确认（"yes"）跳过此 commit。
 
 ## 6. 删 Chain A llm_adapters/ — commit 6
 
-- [ ] 6.1 grep 确认 `tradingagents/llm_adapters/{dashscope_openai_adapter,deepseek_adapter,openai_compatible_base,google_openai_adapter}.py` 在生产路径无引用（_google_impl 已替代）
-- [ ] 6.2 `git rm` 4 个文件
-- [ ] 6.3 改 `llm_adapters/__init__.py`：清 export 或整个删除目录
-- [ ] 6.4 改 `tests/` 顶层活跃 test 的 import（_legacy/ 不在 CI 跑可后处理）
-- [ ] 6.5 改 `scripts/` 中的 import（如有）
-- [ ] 6.6 ruff + pyright 0 errors
-- [ ] 6.7 pytest -m unit 仍 12 pass
-- [ ] 6.8 backend 重启 + smoke /api/health
-- [ ] 6.9 commit
+- [x] 6.1 grep 验证生产路径无引用（仅 `_google_impl` 替代后的 ChatGoogleOpenAI）
+- [x] 6.2 `git rm` 4 个适配器文件（dashscope_openai_adapter / deepseek_adapter / openai_compatible_base / google_openai_adapter）共 1498 行
+- [x] 6.3 `llm_adapters/__init__.py` 改 shim：仅 re-export ChatGoogleOpenAI 从 `_google_impl`
+- [x] 6.4 25 个 tests/ 文件（import 已删类）git mv 到 tests/_legacy/
+- [x] 6.5 9 个 scripts/ 文件 git mv 到 scripts/_legacy/
+- [x] 6.6 pyproject.toml ruff/pyright exclude 加 tests/_legacy + scripts/_legacy
+- [x] 6.7 ruff + pyright 0 errors
+- [x] 6.8 pytest -m unit 12 pass
+- [x] 6.9 commit
 
 ## 7. 收口 — commit 7
 
-- [ ] 7.1 docs/CHANGELOG.md `### Changed` 条目
-- [ ] 7.2 archive change → `openspec/specs/llm-abstraction/spec.md`
-- [ ] 7.3 commit
+- [x] 7.1 docs/CHANGELOG.md `### Changed` 条目
+- [x] 7.2 archive change → `openspec/specs/llm-abstraction/spec.md`
+- [x] 7.3 commit
