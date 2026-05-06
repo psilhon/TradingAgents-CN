@@ -1,27 +1,25 @@
+"""Provider key 标准化 + 环境变量 + 默认 URL utility。
+
+OpenSpec spec ``llm-abstraction``：所有 dict 派生自 ``provider_specs.PROVIDER_SPECS``。
+添加新 provider 改 ProviderSpec 即可，本文件无需改动。
+"""
+
 from __future__ import annotations
 
-_ALIASES = {
-    "dashscope": "qwen",
-    "alibaba": "qwen",
-    "qwen": "qwen",
-    "zhipu": "glm",
-    "glm": "glm",
-    "openai": "openai",
-    "google": "google",
-    "anthropic": "anthropic",
-    "deepseek": "deepseek",
-    "openrouter": "openrouter",
-    "aihubmix": "aihubmix",
-    "ollama": "ollama",
-    "qianfan": "qianfan",
-    "custom_openai": "custom_openai",
-    "siliconflow": "siliconflow",
-}
+from .provider_specs import (
+    derive_aliases_map,
+    derive_canonical_aliases_map,
+    derive_chinese_alias_map,
+    derive_default_url_map,
+    derive_env_key_map,
+)
 
-_CANONICAL_ALIASES = {
-    "qwen": ["dashscope", "alibaba", "阿里百炼", "百炼"],
-    "glm": ["zhipu", "智谱", "智谱ai"],
-}
+# 派生 view（向后兼容历史 import name）
+_ALIASES = derive_aliases_map()
+_CANONICAL_ALIASES = derive_canonical_aliases_map()
+_CHINESE_ALIAS_MAP = derive_chinese_alias_map()
+_ENV_KEY_MAP = derive_env_key_map()
+_DEFAULT_URL_MAP = derive_default_url_map()
 
 
 def normalize_provider_key(provider: str) -> str:
@@ -32,48 +30,23 @@ def normalize_provider_key(provider: str) -> str:
     if not raw:
         return ""
 
-    lowered = raw.lower()
-    if "阿里百炼" in raw or "百炼" in raw:
-        return "qwen"
-    if "智谱" in raw:
-        return "glm"
+    # 中文子串匹配（如 "阿里百炼大模型" → "qwen"）
+    for cn_fragment, canonical in _CHINESE_ALIAS_MAP.items():
+        if cn_fragment in raw:
+            return canonical
 
+    lowered = raw.lower()
     return _ALIASES.get(lowered, lowered)
 
 
 def env_key_for_provider(provider: str) -> str:
     key = normalize_provider_key(provider)
-    env_key_map = {
-        "google": "GOOGLE_API_KEY",
-        "qwen": "DASHSCOPE_API_KEY",
-        "openai": "OPENAI_API_KEY",
-        "deepseek": "DEEPSEEK_API_KEY",
-        "anthropic": "ANTHROPIC_API_KEY",
-        "openrouter": "OPENROUTER_API_KEY",
-        "aihubmix": "AIHUBMIX_API_KEY",
-        "siliconflow": "SILICONFLOW_API_KEY",
-        "qianfan": "QIANFAN_API_KEY",
-        "glm": "ZHIPU_API_KEY",
-    }
-    return env_key_map.get(key, "")
+    return _ENV_KEY_MAP.get(key, "")
 
 
 def default_backend_url(provider: str) -> str:
     key = normalize_provider_key(provider)
-    default_urls = {
-        "google": "https://generativelanguage.googleapis.com/v1beta",
-        "qwen": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "openai": "https://api.openai.com/v1",
-        "deepseek": "https://api.deepseek.com",
-        "anthropic": "https://api.anthropic.com",
-        "openrouter": "https://openrouter.ai/api/v1",
-        "aihubmix": "https://aihubmix.com/v1",
-        "ollama": "http://localhost:11434/v1",
-        "qianfan": "https://qianfan.baidubce.com/v2",
-        "siliconflow": "https://api.siliconflow.cn/v1",
-        "glm": "https://open.bigmodel.cn/api/paas/v4/",
-    }
-    return default_urls.get(key, "https://dashscope.aliyuncs.com/compatible-mode/v1")
+    return _DEFAULT_URL_MAP.get(key, "https://dashscope.aliyuncs.com/compatible-mode/v1")
 
 
 def canonical_aliases(provider: str) -> list[str]:
