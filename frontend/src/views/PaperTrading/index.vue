@@ -87,7 +87,7 @@
               </el-tab-pane>
             </el-tabs>
 
-            <div style="margin-top: 12px; text-align: center; color: #909399; font-size: 12px">
+            <div style="margin-top: 12px; text-align: center; color: var(--fg-muted); font-size: 12px">
               更新时间: {{ formatDateTime(account.updated_at) }}
             </div>
           </div>
@@ -100,7 +100,7 @@
           <template #header>
             <div class="card-hd">
               持仓
-              <span style="margin-left: 8px; font-size: 12px; color: #909399; font-weight: normal">
+              <span style="margin-left: 8px; font-size: 12px; color: var(--fg-muted); font-weight: normal">
                 ({{ filteredPositions.length }} 个)
               </span>
             </div>
@@ -125,7 +125,7 @@
             <el-table-column label="数量" width="80">
               <template #default="{ row }">
                 {{ row.quantity }}
-                <span v-if="row.available_qty !== undefined && row.available_qty < row.quantity" style="color: #909399; font-size: 11px">
+                <span v-if="row.available_qty !== undefined && row.available_qty < row.quantity" style="color: var(--fg-muted); font-size: 11px">
                   (可用{{ row.available_qty }})
                 </span>
               </template>
@@ -157,7 +157,7 @@
           <template #header>
             <div class="card-hd">
               订单记录
-              <span style="margin-left: 8px; font-size: 12px; color: #909399; font-weight: normal">
+              <span style="margin-left: 8px; font-size: 12px; color: var(--fg-muted); font-weight: normal">
                 ({{ filteredOrders.length }} 条)
               </span>
             </div>
@@ -198,7 +198,7 @@
                 <el-button v-if="row.analysis_id" size="small" type="primary" link @click="viewReport(row.analysis_id)">
                   查看报告
                 </el-button>
-                <span v-else style="color: #909399;">-</span>
+                <span v-else style="color: var(--fg-muted);">-</span>
               </template>
             </el-table-column>
           </el-table>
@@ -214,9 +214,9 @@
             来自分析报告：<span style="font-family:monospace">{{ (order as any).analysis_id }}</span>
             <el-button link size="small" type="primary" style="margin-left:8px" @click="viewReport((order as any).analysis_id)">查看报告</el-button>
           </template>
-          <div v-if="analysisLoading" style="color:#666">正在加载分析摘要…</div>
+          <div v-if="analysisLoading" style="color: var(--fg-secondary)">正在加载分析摘要…</div>
           <div v-else-if="analysisContext">
-            <div style="font-size:12px;color:#666">
+            <div style="font-size:12px;color: var(--fg-secondary)">
               <span>标的：{{ analysisContext.stock_symbol || '-' }}</span>
               <span style="margin-left:8px">模型建议：{{ analysisContext.recommendation || '-' }}</span>
             </div>
@@ -238,7 +238,7 @@
           <el-tag v-if="detectedMarket === 'CN'" type="success">🇨🇳 A股市场 (CNY)</el-tag>
           <el-tag v-else-if="detectedMarket === 'HK'" type="warning">🇭🇰 港股市场 (HKD)</el-tag>
           <el-tag v-else-if="detectedMarket === 'US'" type="info">🇺🇸 美股市场 (USD)</el-tag>
-          <div style="margin-top: 8px; font-size: 12px; color: #909399">
+          <div style="margin-top: 8px; font-size: 12px; color: var(--fg-muted)">
             <span v-if="detectedMarket === 'CN'">💡 A股T+1，今天买入明天可卖</span>
             <span v-else-if="detectedMarket === 'HK'">💡 港股T+0，买入后立即可卖</span>
             <span v-else-if="detectedMarket === 'US'">💡 美股T+0，买入后立即可卖 | 零佣金</span>

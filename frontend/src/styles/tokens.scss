@@ -1,0 +1,178 @@
+// =================================================================
+// Design Tokens — fork-local visual customization
+//
+// 使用约定：
+//   - 默认（:root）= dark 主题（参考稿主调，深冷调）
+//   - html.dark 显式 dark（与默认一致，appStore.applyTheme 切换 class 用）
+//   - html.light = 浅色覆盖（暖米护眼）
+//   - 调色板：琥珀 amber #d4a843
+//   - 涨跌：China 风格（红涨 / 绿跌）—— 参考稿 green/red 数值对调采纳
+//
+// 与 Element Plus 集成：见 element-overrides.scss
+// =================================================================
+
+:root {
+  // ---- 背景层（最外→最内）参考稿冷深调 ----
+  --bg-canvas: #070b12;        // 主背景（页面外层）
+  --bg-surface: #0f1620;       // 卡片
+  --bg-elevated: #162030;      // 表头 / 下拉 / 强调内层
+  --bg-hover: #141d2a;
+  --bg-active: #1a2436;
+  --bg-sidebar: #0c1018;       // 侧栏单独色（参考稿）
+
+  // ---- 文字层 ----
+  --fg-primary: #e8edf5;
+  --fg-secondary: #7a8fa8;
+  --fg-muted: #445569;
+  --fg-disabled: #2f3a4a;
+
+  // ---- 边框（hairline，alpha 透明）----
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  // ---- 涨跌（China 红涨绿跌；参考稿色值对调使用）----
+  --up: #f05a5a;               // 涨 = 红（参考稿原 --red）
+  --down: #22c984;             // 跌 = 绿（参考稿原 --green）
+  --flat: #7a8fa8;
+  --warning: #f0b85a;
+  --info: #4d9fff;
+
+  --up-rgb: 240, 90, 90;
+  --down-rgb: 34, 201, 132;
+  --warning-rgb: 240, 184, 90;
+
+  // ---- Accent（琥珀，参考稿 #d4a843）----
+  --accent: #d4a843;
+  --accent-fg: #070b12;        // 琥珀上写黑字
+  --accent-soft: rgba(212, 168, 67, 0.12);
+  --accent-border: rgba(212, 168, 67, 0.20);
+  --accent-glow: rgba(212, 168, 67, 0.25);
+
+  // ---- 蓝（代码徽章、链接强调）----
+  --blue: #4d9fff;
+  --blue-soft: rgba(77, 159, 255, 0.10);
+
+  // ---- Action icon 风格 token（深色：半透明色块 + 文字色）----
+  --icon-bg-gold: var(--accent-soft);
+  --icon-fg-gold: var(--accent);
+  --icon-bg-blue: var(--blue-soft);
+  --icon-fg-blue: var(--blue);
+  --icon-bg-green: rgba(var(--down-rgb), 0.10);
+  --icon-fg-green: var(--down);
+  --icon-bg-red: rgba(var(--up-rgb), 0.10);
+  --icon-fg-red: var(--up);
+  --icon-shadow: none;
+
+  // ---- Panel 阴影（深色无 shadow，靠 border 区分；浅色用阴影立体感）----
+  --panel-shadow: none;
+  --panel-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.5);
+
+  // ---- 标题渐变（hero-title accent 词使用）----
+  --gradient-title: linear-gradient(135deg, #d4a843 0%, #f0c870 100%);
+
+  // ---- Status dot halo（深色发光 / 浅色 ring）----
+  --status-halo-down: 0 0 6px rgba(var(--down-rgb), 0.60);
+  --status-halo-up: 0 0 6px rgba(var(--up-rgb), 0.60);
+  --status-halo-warn: 0 0 6px rgba(var(--warning-rgb), 0.60);
+
+  // ---- 圆角（参考稿圆润）----
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  // ---- 间距 ----
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  // ---- 字体（参考稿）----
+  --font-sans: 'Sora', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', 'Consolas', ui-monospace, monospace;
+
+  // ---- Layout ----
+  --sidebar-width: 220px;
+  --topbar-height: 56px;
+}
+
+// =================================================================
+// Light theme — html.light（暖米护眼，浅色保留之前的调子）
+// 默认走 dark；用户切到 light 时启用此分支
+// =================================================================
+
+html.light {
+  // ---- 背景层次拉开：3 层对比从 3% → 8-10% ----
+  --bg-canvas: #f5efe0;       // 暖米底，比之前更深一档
+  --bg-surface: #ffffff;      // 卡片纯白，与 canvas 反差明显
+  --bg-elevated: #fbf3df;     // 表头 / 二级面板，介于 canvas 和 surface 之间
+  --bg-hover: #f5ecd2;
+  --bg-active: #ebdfb8;
+  --bg-sidebar: #fbf3df;
+
+  --fg-primary: #1f2430;      // 比之前略深，对比度更高
+  --fg-secondary: #545b6a;
+  --fg-muted: #8b919c;
+  --fg-disabled: #b8bdc4;
+
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.10);
+  --border-strong: rgba(0, 0, 0, 0.18);
+
+  // 浅色模式下涨跌饱和度提高一档
+  --up: #a82323;
+  --down: #1a8c5c;
+  --flat: #8b919c;
+  --warning: #b7791f;
+  --info: #0e7490;
+
+  --up-rgb: 168, 35, 35;
+  --down-rgb: 26, 140, 92;
+  --warning-rgb: 183, 121, 31;
+
+  // 浅色 accent 加深
+  --accent: #b86e00;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(184, 110, 0, 0.08);
+  --accent-border: rgba(184, 110, 0, 0.30);
+  --accent-glow: rgba(255, 138, 69, 0.22);  // 暖橙色光晕（夕阳感），替代琥珀
+
+  --blue: #1d63c6;
+  --blue-soft: rgba(29, 99, 198, 0.10);
+
+  // ---- Action icon 渐变填充 + 白色 fg + 高光内阴影 ----
+  --icon-bg-gold: linear-gradient(135deg, #d4a843 0%, #8a5500 100%);
+  --icon-fg-gold: #ffffff;
+  --icon-bg-blue: linear-gradient(135deg, #4d9fff 0%, #1e40af 100%);
+  --icon-fg-blue: #ffffff;
+  --icon-bg-green: linear-gradient(135deg, #16a34a 0%, #047857 100%);
+  --icon-fg-green: #ffffff;
+  --icon-bg-red: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  --icon-fg-red: #ffffff;
+  --icon-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+
+  // ---- Panel 阴影（浅色用阴影营造立体感）----
+  --panel-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.03);
+  --panel-shadow-hover:
+    0 4px 12px rgba(0, 0, 0, 0.10),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+
+  // ---- 标题渐变（深米 → 琥珀，金属字效）----
+  --gradient-title: linear-gradient(135deg, #b86e00 0%, #d4a843 100%);
+
+  // ---- Status dot halo（浅色用 ring 替代 glow）----
+  --status-halo-down: 0 0 0 3px rgba(var(--down-rgb), 0.18);
+  --status-halo-up: 0 0 0 3px rgba(var(--up-rgb), 0.18);
+  --status-halo-warn: 0 0 0 3px rgba(var(--warning-rgb), 0.20);
+}
+
+// 兼容现有 appStore.applyTheme() 的 'dark' class
+html.dark {
+  // 默认 :root 已是 dark 主调，此处保留 hook 用于显式覆盖
+}

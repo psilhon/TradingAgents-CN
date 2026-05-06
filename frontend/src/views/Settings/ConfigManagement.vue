@@ -553,7 +553,7 @@
                 >
                   <div style="display: flex; flex-direction: column;">
                     <span>{{ model.model_display_name || model.model_name }}</span>
-                    <span style="font-size: 12px; color: #909399;">{{ model.model_name }}</span>
+                    <span style="font-size: 12px; color: var(--fg-muted);">{{ model.model_name }}</span>
                   </div>
                 </el-option>
               </el-select>
@@ -575,7 +575,7 @@
                 >
                   <div style="display: flex; flex-direction: column;">
                     <span>{{ model.model_display_name || model.model_name }}</span>
-                    <span style="font-size: 12px; color: #909399;">{{ model.model_name }}</span>
+                    <span style="font-size: 12px; color: var(--fg-muted);">{{ model.model_name }}</span>
                   </div>
                 </el-option>
               </el-select>
@@ -633,7 +633,7 @@
               <el-input-number v-model="systemSettings.worker_heartbeat_interval_seconds" :min="1" :step="1" :disabled="!isEditable('worker_heartbeat_interval_seconds')" />
               <span class="setting-description">秒</span>
               <el-tooltip effect="dark" content="Worker 心跳上报周期；过小会增加负载，过大可能影响健康检查" placement="top">
-                <i class="el-icon-info" style="margin-left:8px; color:#909399;" />
+                <i class="el-icon-info" style="margin-left:8px; color: var(--fg-muted);" />
               </el-tooltip>
             </el-form-item>
 
@@ -641,7 +641,7 @@
               <el-input-number v-model="systemSettings.queue_poll_interval_seconds" :min="0.1" :step="0.1" :disabled="!isEditable('queue_poll_interval_seconds')" />
               <span class="setting-description">秒</span>
               <el-tooltip effect="dark" content="队列拉取任务的频率；过小增加Redis压力，过大影响任务延迟" placement="top">
-                <i class="el-icon-info" style="margin-left:8px; color:#909399;" />
+                <i class="el-icon-info" style="margin-left:8px; color: var(--fg-muted);" />
               </el-tooltip>
             </el-form-item>
 
@@ -649,7 +649,7 @@
               <el-input-number v-model="systemSettings.queue_cleanup_interval_seconds" :min="1" :step="1" :disabled="!isEditable('queue_cleanup_interval_seconds')" />
               <span class="setting-description">秒</span>
               <el-tooltip effect="dark" content="清理超时/失败任务的频率；建议≥60秒" placement="top">
-                <i class="el-icon-info" style="margin-left:8px; color:#909399;" />
+                <i class="el-icon-info" style="margin-left:8px; color: var(--fg-muted);" />
               </el-tooltip>
             </el-form-item>
 
@@ -660,7 +660,7 @@
               <el-input-number v-model="systemSettings.sse_poll_timeout_seconds" :min="0.1" :step="0.1" :disabled="!isEditable('sse_poll_timeout_seconds')" />
               <span class="setting-description">秒</span>
               <el-tooltip effect="dark" content="任务进度SSE每次等待超时时间；过小会产生更多请求" placement="top">
-                <i class="el-icon-info" style="margin-left:8px; color:#909399;" />
+                <i class="el-icon-info" style="margin-left:8px; color: var(--fg-muted);" />
               </el-tooltip>
             </el-form-item>
 
@@ -668,7 +668,7 @@
               <el-input-number v-model="systemSettings.sse_heartbeat_interval_seconds" :min="1" :step="1" :disabled="!isEditable('sse_heartbeat_interval_seconds')" />
               <span class="setting-description">秒</span>
               <el-tooltip effect="dark" content="SSE维持长连接的心跳事件发送周期" placement="top">
-                <i class="el-icon-info" style="margin-left:8px; color:#909399;" />
+                <i class="el-icon-info" style="margin-left:8px; color: var(--fg-muted);" />
               </el-tooltip>
             </el-form-item>
 
@@ -684,7 +684,7 @@
               <el-input-number v-model="systemSettings.ta_hk_min_request_interval_seconds" :min="0.1" :step="0.1" :disabled="!isEditable('ta_hk_min_request_interval_seconds')" />
               <span class="setting-description">秒</span>
               <el-tooltip effect="dark" content="港股数据请求的最小间隔，用于节流" placement="top">
-                <i class="el-icon-info" style="margin-left:8px; color:#909399;" />
+                <i class="el-icon-info" style="margin-left:8px; color: var(--fg-muted);" />
               </el-tooltip>
             </el-form-item>
 
@@ -737,7 +737,7 @@
               <el-input-number v-model="systemSettings.sse_batch_poll_interval_seconds" :min="0.5" :step="0.5" :disabled="!isEditable('sse_batch_poll_interval_seconds')" />
               <span class="setting-description">秒</span>
               <el-tooltip effect="dark" content="批次进度刷新频率；过小将增加服务器负载" placement="top">
-                <i class="el-icon-info" style="margin-left:8px; color:#909399;" />
+                <i class="el-icon-info" style="margin-left:8px; color: var(--fg-muted);" />
               </el-tooltip>
             </el-form-item>
 
@@ -745,7 +745,7 @@
               <el-input-number v-model="systemSettings.sse_batch_max_idle_seconds" :min="10" :step="10" :disabled="!isEditable('sse_batch_max_idle_seconds')" />
               <span class="setting-description">秒</span>
               <el-tooltip effect="dark" content="批次流在无事件情况下允许的最长空闲时间，超时将关闭连接" placement="top">
-                <i class="el-icon-info" style="margin-left:8px; color:#909399;" />
+                <i class="el-icon-info" style="margin-left:8px; color: var(--fg-muted);" />
               </el-tooltip>
             </el-form-item>
 
@@ -2303,7 +2303,7 @@ onMounted(async () => {
 
           h4 {
             margin: 0;
-            color: #303133;
+            color: var(--fg-primary);
             font-size: 14px;
           }
         }
@@ -2328,11 +2328,11 @@ onMounted(async () => {
 
               .item-name {
                 font-weight: 500;
-                color: #303133;
+                color: var(--fg-primary);
               }
 
               .item-type {
-                color: #909399;
+                color: var(--fg-muted);
                 font-size: 12px;
               }
             }
@@ -2665,7 +2665,7 @@ onMounted(async () => {
 
         .model-code {
           font-size: 12px;
-          color: #909399;
+          color: var(--fg-muted);
           font-family: 'Courier New', monospace;
         }
       }

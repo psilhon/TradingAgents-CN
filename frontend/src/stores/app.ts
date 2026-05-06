@@ -134,12 +134,14 @@ export const useAppStore = defineStore('app', {
     // 应用主题
     applyTheme() {
       const isDark = this.isDarkTheme
+      // dark / light 互斥 class（tokens.scss: :root = dark 默认，html.light = 浅色覆盖）
       document.documentElement.classList.toggle('dark', isDark)
-      
+      document.documentElement.classList.toggle('light', !isDark)
+
       // 更新meta标签
       const themeColorMeta = document.querySelector('meta[name="theme-color"]')
       if (themeColorMeta) {
-        themeColorMeta.setAttribute('content', isDark ? '#1f2937' : '#409EFF')
+        themeColorMeta.setAttribute('content', isDark ? '#070b12' : '#f7f2e8')
       }
     },
     
