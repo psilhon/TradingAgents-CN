@@ -490,19 +490,19 @@ onUnmounted(() => {
           color: white;
 
           &.pending {
-            background: linear-gradient(135deg, #909399, #c0c4cc);
+            background: var(--bg-elevated);
           }
 
           &.processing {
-            background: linear-gradient(135deg, #e6a23c, #f7ba2a);
+            background: var(--bg-elevated);
           }
 
           &.completed {
-            background: linear-gradient(135deg, #67c23a, #85ce61);
+            background: var(--bg-elevated);
           }
 
           &.failed {
-            background: linear-gradient(135deg, #f56c6c, #f78989);
+            background: var(--bg-elevated);
           }
         }
 

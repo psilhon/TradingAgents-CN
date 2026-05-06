@@ -626,7 +626,7 @@ const applyToTrading = async () => {
           recommendation.targetPrice ? h('p', [
             h('strong', '目标价格：'),
             h('span', { style: 'color: #E6A23C;' }, `${recommendation.targetPrice.toFixed(2)}元`),
-            h('span', { style: 'color: #909399; font-size: 12px; margin-left: 8px;' }, '(仅供参考)')
+            h('span', { style: 'color: var(--fg-muted); font-size: 12px; margin-left: 8px;' }, '(仅供参考)')
           ]) : null,
           h('p', [
             h('strong', '当前价格：'),
@@ -635,7 +635,7 @@ const applyToTrading = async () => {
           h('div', { style: 'margin: 16px 0;' }, [
             h('p', { style: 'margin-bottom: 8px;' }, [
               h('strong', '交易价格：'),
-              h('span', { style: 'color: #909399; font-size: 12px; margin-left: 8px;' }, '(可修改)')
+              h('span', { style: 'color: var(--fg-muted); font-size: 12px; margin-left: 8px;' }, '(可修改)')
             ]),
             h(ElInputNumber, {
               modelValue: tradeForm.price,
@@ -651,7 +651,7 @@ const applyToTrading = async () => {
           h('div', { style: 'margin: 16px 0;' }, [
             h('p', { style: 'margin-bottom: 8px;' }, [
               h('strong', '交易数量：'),
-              h('span', { style: 'color: #909399; font-size: 12px; margin-left: 8px;' }, '(可修改，100股为单位)')
+              h('span', { style: 'color: var(--fg-muted); font-size: 12px; margin-left: 8px;' }, '(可修改，100股为单位)')
             ]),
             h(ElInputNumber, {
               modelValue: tradeForm.quantity,
@@ -665,22 +665,22 @@ const applyToTrading = async () => {
           ]),
           h('p', [
             h('strong', '预计金额：'),
-            h('span', { style: 'color: #409EFF; font-weight: bold;' }, `${estimatedAmount.value}元`)
+            h('span', { style: 'color: var(--accent); font-weight: bold;' }, `${estimatedAmount.value}元`)
           ]),
           h('p', [
             h('strong', '模型置信度：'),
             h('span', `${(recommendation.confidence * 100).toFixed(1)}%`),
-            h('span', { style: 'color: #909399; font-size: 12px; margin-left: 8px;' }, '(不代表实际成功率)')
+            h('span', { style: 'color: var(--fg-muted); font-size: 12px; margin-left: 8px;' }, '(不代表实际成功率)')
           ]),
           h('p', [
             h('strong', '风险评估：'),
             h('span', recommendation.riskLevel),
-            h('span', { style: 'color: #909399; font-size: 12px; margin-left: 8px;' }, '(实际风险可能更高)')
+            h('span', { style: 'color: var(--fg-muted); font-size: 12px; margin-left: 8px;' }, '(实际风险可能更高)')
           ]),
-          recommendation.action === 'buy' ? h('p', { style: 'color: #909399; font-size: 12px; margin-top: 12px;' },
+          recommendation.action === 'buy' ? h('p', { style: 'color: var(--fg-muted); font-size: 12px; margin-top: 12px;' },
             `可用资金：${availableCash.toFixed(2)}元，最大可买：${maxQuantity}股`
           ) : null,
-          recommendation.action === 'sell' ? h('p', { style: 'color: #909399; font-size: 12px; margin-top: 12px;' },
+          recommendation.action === 'sell' ? h('p', { style: 'color: var(--fg-muted); font-size: 12px; margin-top: 12px;' },
             `当前持仓：${maxQuantity}股`
           ) : null
         ])
@@ -989,7 +989,7 @@ watch(
     }
 
     .risk-disclaimer :deep(.el-alert) {
-      background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+      background: var(--bg-elevated);
       border: 2px solid #ffc107;
       border-radius: 12px;
       padding: 16px 20px;
@@ -1017,7 +1017,7 @@ watch(
     }
 
     .disclaimer-text {
-      color: #856404;
+      color: var(--warning);
       flex: 1;
     }
 

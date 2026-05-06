@@ -1,0 +1,166 @@
+// =================================================================
+// Typography — fork-local
+//
+// 数字用等宽 mono 字体（IBM Plex Mono），开启 tabular-nums + lining-nums
+// 用法：<span class="num">1,234.56</span>
+//
+// 涨跌色语义类（不依赖 Element Plus）：
+//   .up   = 涨色（China 风格 = 红）
+//   .down = 跌色（China 风格 = 绿）
+//   .flat = 平盘
+// =================================================================
+
+.num {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.up { color: var(--up); }
+.down { color: var(--down); }
+.flat { color: var(--flat); }
+
+// 涨跌 chip / pill
+.chip {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.04em;
+
+  &.chip-up {
+    background: rgba(var(--up-rgb), 0.15);
+    color: var(--up);
+    border: 1px solid rgba(var(--up-rgb), 0.35);
+  }
+  &.chip-down {
+    background: rgba(var(--down-rgb), 0.15);
+    color: var(--down);
+    border: 1px solid rgba(var(--down-rgb), 0.35);
+  }
+  &.chip-warn {
+    background: rgba(var(--warning-rgb), 0.15);
+    color: var(--warning);
+    border: 1px solid rgba(var(--warning-rgb), 0.35);
+  }
+}
+
+// 全表格数字默认 mono（持仓 / 报告 / 分析结果常见）
+table .num,
+.data-table td.num,
+.metric-value.num,
+.metric-block .value.num {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+// 小标签（uppercase + letter-spacing）
+.label-uppercase {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+}
+
+// =================================================================
+// 参考稿 status badge / code badge / sec-title 等专用类
+// =================================================================
+
+// 股票代码徽章（蓝色 mono）
+.code-badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blue);
+  letter-spacing: 0.02em;
+}
+
+// 状态徽章（运行中 / 完成 / 失败）—— 比 .chip 更紧凑
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  .status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  &.success {
+    background: rgba(var(--down-rgb), 0.10);
+    color: var(--down);
+  }
+  &.fail {
+    background: rgba(var(--up-rgb), 0.10);
+    color: var(--up);
+  }
+  &.running {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+}
+
+// 演示数据标识（mock 角标）
+.demo-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--fg-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+
+  &::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--fg-muted);
+    margin-right: 5px;
+  }
+}
+
+// Section title（左侧 3px accent 强调条）
+.sec-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-primary);
+
+  &::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+}
+
+// Section link（右上角"查看更多 →"）
+.sec-link {
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover { opacity: 0.8; }
+}

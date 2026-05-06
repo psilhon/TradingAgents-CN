@@ -15,6 +15,16 @@ import { setupGlobalComponents } from './components'
 import { useAuthStore } from './stores/auth'
 import { useAppStore } from './stores/app'
 import { setupTokenRefreshTimer } from './utils/auth'
+
+// Style import order matters:
+//   1. tokens.scss          — design tokens (CSS vars, light + html.dark)
+//   2. element-overrides    — map tokens onto Element Plus --el-* (must come AFTER EP css above)
+//   3. typography           — .num / .up / .down / .chip 工具类
+//   4. index                — global reset + 基础排版（用 tokens）
+//   5. dark-theme           — 业务页面 dark 残留补丁（重构后已大幅瘦身）
+import './styles/tokens.scss'
+import './styles/element-overrides.scss'
+import './styles/typography.scss'
 import './styles/index.scss'
 import './styles/dark-theme.scss'
 

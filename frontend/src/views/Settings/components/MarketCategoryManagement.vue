@@ -204,7 +204,7 @@ onMounted(() => {
 
     h3 {
       margin: 0;
-      color: #303133;
+      color: var(--fg-primary);
     }
   }
 }

@@ -339,7 +339,7 @@
         </el-form-item>
         <el-form-item label="历史数据天数" v-if="syncForm.syncTypes.includes('historical')">
           <el-input-number v-model="syncForm.days" :min="1" :max="3650" />
-          <span style="margin-left: 10px; color: #909399; font-size: 12px;">
+          <span style="margin-left: 10px; color: var(--fg-muted); font-size: 12px;">
             (最多3650天，约10年)
           </span>
         </el-form-item>
@@ -1268,7 +1268,7 @@ function exportReport() {
 
 .sentiment { font-size: 12px; }
 .sentiment.pos { color: #ef4444; }
-.sentiment.neu { color: #64748b; }
+.sentiment.neu { color: var(--fg-secondary); }
 .sentiment.neg { color: #10b981; }
 
 .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -1442,7 +1442,7 @@ function exportReport() {
 
 /* 投资建议盒子 - 重点突出 */
 .recommendation-box {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-elevated);
   border-radius: 12px;
   padding: 20px 24px;
   box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
@@ -1477,7 +1477,7 @@ function exportReport() {
 }
 
 .recommendation-text {
-  color: #1f2937;
+  color: var(--fg-primary);
   font-size: 15px;
   line-height: 1.8;
   font-weight: 500;
@@ -1501,13 +1501,13 @@ function exportReport() {
   gap: 8px;
   font-size: 15px;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--accent);
   margin-bottom: 12px;
 }
 
 .summary-title .el-icon {
   font-size: 18px;
-  color: #3b82f6;
+  color: var(--accent);
 }
 
 .summary-text {

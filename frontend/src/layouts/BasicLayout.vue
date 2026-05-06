@@ -8,10 +8,10 @@
     >
       <div class="sidebar-header">
         <div class="logo">
-          <img src="/logo.svg" alt="TradingAgents-CN" />
-          <span v-show="!appStore.sidebarCollapsed" class="logo-text">
-            TradingAgents-CN
-          </span>
+          <div class="logo-icon">TA</div>
+          <div v-show="!appStore.sidebarCollapsed" class="logo-text">
+            <div class="logo-name">TradingAgents</div>
+          </div>
         </div>
       </div>
       
@@ -46,7 +46,11 @@
           
           <Breadcrumb />
         </div>
-        
+
+        <div class="header-center">
+          <MarketTicker />
+        </div>
+
         <div class="header-right">
           <HeaderActions />
         </div>
@@ -87,6 +91,7 @@ import SidebarMenu from '@/components/Layout/SidebarMenu.vue'
 import UserProfile from '@/components/Layout/UserProfile.vue'
 import Breadcrumb from '@/components/Layout/Breadcrumb.vue'
 import HeaderActions from '@/components/Layout/HeaderActions.vue'
+import MarketTicker from '@/components/Layout/MarketTicker.vue'
 import AppFooter from '@/components/Layout/AppFooter.vue'
 import { Expand, Fold } from '@element-plus/icons-vue'
 
@@ -130,7 +135,7 @@ watch(() => route.fullPath, () => {
 <style lang="scss" scoped>
 .basic-layout {
   min-height: 100vh;
-  background-color: var(--el-bg-color-page);
+  background-color: var(--bg-canvas);
 }
 
 .sidebar-overlay {
@@ -145,40 +150,70 @@ watch(() => route.fullPath, () => {
   top: 0;
   left: 0;
   height: 100vh;
-  background-color: var(--el-bg-color);
-  border-right: 1px solid var(--el-border-color-light);
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-default);
   transition: width 0.3s ease;
   z-index: 1000;
   display: flex;
   flex-direction: column;
+
+  // 参考稿：右边缘 accent glow（仅 dark 模式可见）
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--accent-glow) 40%, transparent);
+    pointer-events: none;
+  }
 
   &.collapsed {
     width: 64px !important;
   }
 
   .sidebar-header {
-    height: 60px;
+    height: 64px;
     display: flex;
     align-items: center;
     padding: 0 16px;
-    border-bottom: 1px solid var(--el-border-color-lighter);
+    border-bottom: 1px solid var(--border-default);
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      min-width: 0;
+    }
 
-      img {
-        width: 32px;
-        height: 32px;
-      }
+    .logo-icon {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--accent), #b8861e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-fg);
+      letter-spacing: -0.5px;
+    }
 
-      .logo-text {
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-        white-space: nowrap;
-      }
+    .logo-text {
+      line-height: 1.2;
+      min-width: 0;
+    }
+
+    .logo-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--fg-primary);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
     }
   }
 
@@ -189,7 +224,7 @@ watch(() => route.fullPath, () => {
   }
 
   .sidebar-footer {
-    border-top: 1px solid var(--el-border-color-lighter);
+    border-top: 1px solid var(--border-default);
     padding: 8px;
   }
 }
@@ -202,9 +237,9 @@ watch(() => route.fullPath, () => {
 }
 
 .header {
-  height: 60px;
-  background-color: var(--el-bg-color);
-  border-bottom: 1px solid var(--el-border-color-light);
+  height: 56px;
+  background-color: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-default);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -212,25 +247,36 @@ watch(() => route.fullPath, () => {
   position: sticky;
   top: 0;
   z-index: 999;
+  gap: 16px;
 
   .header-left {
     display: flex;
     align-items: center;
     gap: 16px;
+    flex-shrink: 0;
 
     .sidebar-toggle {
-      padding: 8px;
-      
+      padding: 6px;
+
       .el-icon {
-        font-size: 18px;
+        font-size: 16px;
       }
     }
+  }
+
+  .header-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
   }
 
   .header-right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
+    flex-shrink: 0;
   }
 }
 

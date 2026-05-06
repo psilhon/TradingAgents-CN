@@ -151,7 +151,7 @@ const handleLogin = async () => {
 <style lang="scss" scoped>
 .login-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-elevated);
   display: flex;
   align-items: center;
   justify-content: center;

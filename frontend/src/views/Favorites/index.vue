@@ -189,7 +189,7 @@
               type="text"
               size="small"
               @click="showSingleSyncDialog(row)"
-              style="color: #409EFF;"
+              style="color: var(--accent);"
             >
               同步
             </el-button>
@@ -243,7 +243,7 @@
             :placeholder="getStockCodePlaceholder()"
             @blur="fetchStockInfo"
           />
-          <div style="font-size: 12px; color: #909399; margin-top: 4px;">
+          <div style="font-size: 12px; color: var(--fg-muted); margin-top: 4px;">
             {{ getStockCodeHint() }}
           </div>
         </el-form-item>
@@ -430,7 +430,7 @@
         </el-form-item>
         <el-form-item label="历史数据天数" v-if="batchSyncForm.syncTypes.includes('historical')">
           <el-input-number v-model="batchSyncForm.days" :min="1" :max="3650" />
-          <span style="margin-left: 10px; color: #909399; font-size: 12px;">
+          <span style="margin-left: 10px; color: var(--fg-muted); font-size: 12px;">
             (最多3650天，约10年)
           </span>
         </el-form-item>
@@ -481,7 +481,7 @@
         </el-form-item>
         <el-form-item label="历史数据天数" v-if="singleSyncForm.syncTypes.includes('historical')">
           <el-input-number v-model="singleSyncForm.days" :min="1" :max="3650" />
-          <span style="margin-left: 10px; color: #909399; font-size: 12px;">
+          <span style="margin-left: 10px; color: var(--fg-muted); font-size: 12px;">
             (最多3650天，约10年)
           </span>
         </el-form-item>

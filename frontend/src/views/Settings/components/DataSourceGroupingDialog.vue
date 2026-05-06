@@ -291,7 +291,7 @@ onMounted(() => {
 
     h4 {
       margin: 0 0 12px 0;
-      color: #303133;
+      color: var(--fg-primary);
       font-size: 14px;
     }
   }
@@ -313,7 +313,7 @@ onMounted(() => {
         gap: 8px;
 
         .category-desc {
-          color: #909399;
+          color: var(--fg-muted);
           font-size: 12px;
         }
       }
@@ -342,7 +342,7 @@ onMounted(() => {
         gap: 8px;
 
         .priority-info {
-          color: #909399;
+          color: var(--fg-muted);
           font-size: 12px;
         }
       }

@@ -467,11 +467,11 @@ const viewDocumentation = () => {
 
   // Hero Section
   .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--bg-elevated);
     border-radius: 16px;
     padding: 60px 40px;
     margin-bottom: 48px;
-    color: white;
+    color: var(--fg-primary);
     position: relative;
     overflow: hidden;
 
@@ -725,7 +725,7 @@ const viewDocumentation = () => {
             margin: 0;
             font-size: 20px;
             font-weight: 600;
-            color: #1a202c;
+            color: var(--fg-primary);
           }
         }
 
@@ -774,7 +774,7 @@ const viewDocumentation = () => {
           left: 0;
           right: 0;
           height: 4px;
-          background: linear-gradient(90deg, #667eea, #764ba2);
+          background: var(--bg-elevated);
         }
 
         .origin-header {
@@ -789,12 +789,12 @@ const viewDocumentation = () => {
             width: 64px;
             height: 64px;
             border-radius: 16px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--bg-elevated);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 28px;
-            color: white;
+            color: var(--fg-primary);
             flex-shrink: 0;
           }
 
@@ -938,15 +938,15 @@ const viewDocumentation = () => {
             color: white;
 
             &.frontend {
-              background: linear-gradient(135deg, #42b883, #35495e);
+              background: var(--bg-elevated);
             }
 
             &.backend {
-              background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+              background: var(--bg-elevated);
             }
 
             &.ai {
-              background: linear-gradient(135deg, #a55eea, #26de81);
+              background: var(--bg-elevated);
             }
           }
 
@@ -954,7 +954,7 @@ const viewDocumentation = () => {
             margin: 0;
             font-size: 20px;
             font-weight: 600;
-            color: #1a202c;
+            color: var(--fg-primary);
           }
         }
 
@@ -972,7 +972,7 @@ const viewDocumentation = () => {
 
             .tech-name {
               font-weight: 500;
-              color: #1a202c;
+              color: var(--fg-primary);
             }
 
             .tech-desc {
@@ -995,10 +995,10 @@ const viewDocumentation = () => {
       gap: 32px;
 
       .version-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--bg-elevated);
         border-radius: 16px;
         padding: 32px;
-        color: white;
+        color: var(--fg-primary);
         position: relative;
         overflow: hidden;
 
@@ -1071,7 +1071,7 @@ const viewDocumentation = () => {
           margin: 0 0 24px 0;
           font-size: 20px;
           font-weight: 600;
-          color: #1a202c;
+          color: var(--fg-primary);
         }
 
         .framework-list {
@@ -1088,7 +1088,7 @@ const viewDocumentation = () => {
 
             .name {
               font-weight: 500;
-              color: #1a202c;
+              color: var(--fg-primary);
             }
 
             .version {
@@ -1139,19 +1139,19 @@ const viewDocumentation = () => {
           color: white;
 
           &.email {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            background: var(--bg-elevated);
           }
 
           &.qq {
-            background: linear-gradient(135deg, #12c2e9, #c471ed);
+            background: var(--bg-elevated);
           }
 
           &.wechat {
-            background: linear-gradient(135deg, #07c160, #00d4aa);
+            background: var(--bg-elevated);
           }
 
           &.docs {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--bg-elevated);
           }
         }
 
@@ -1159,14 +1159,14 @@ const viewDocumentation = () => {
           margin: 0 0 12px 0;
           font-size: 18px;
           font-weight: 600;
-          color: #1a202c;
+          color: var(--fg-primary);
         }
 
         p {
           margin: 0 0 8px 0;
           font-size: 16px;
           font-weight: 500;
-          color: #1a202c;
+          color: var(--fg-primary);
 
           .doc-link {
             color: var(--el-color-primary);

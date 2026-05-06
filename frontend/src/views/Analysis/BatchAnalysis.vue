@@ -592,18 +592,18 @@ const submitBatchAnalysis = async () => {
         align-items: center;
         font-size: 32px;
         font-weight: 700;
-        color: #1a202c;
+        color: var(--fg-primary);
         margin: 0 0 8px 0;
 
         .title-icon {
           margin-right: 12px;
-          color: #3b82f6;
+          color: var(--accent);
         }
       }
 
       .page-description {
         font-size: 16px;
-        color: #64748b;
+        color: var(--fg-secondary);
         margin: 0;
       }
     }
@@ -616,8 +616,8 @@ const submitBatchAnalysis = async () => {
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
       :deep(.el-card__header) {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: var(--bg-elevated);
+        color: var(--fg-primary);
         border-radius: 16px 16px 0 0;
         padding: 20px 24px;
 
@@ -646,8 +646,8 @@ const submitBatchAnalysis = async () => {
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
       :deep(.el-card__header) {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        color: white;
+        background: var(--bg-elevated);
+        color: var(--fg-primary);
         border-radius: 16px 16px 0 0;
         padding: 20px 24px;
 
@@ -682,7 +682,7 @@ const submitBatchAnalysis = async () => {
               align-items: flex-start;
               gap: 12px;
               padding: 12px 0;
-              border-bottom: 1px solid #f3f4f6;
+              border-bottom: 1px solid var(--border-subtle);
 
               &:last-child {
                 border-bottom: none;
@@ -695,13 +695,13 @@ const submitBatchAnalysis = async () => {
                 .option-name {
                   font-size: 14px;
                   font-weight: 500;
-                  color: #374151;
+                  color: var(--fg-primary);
                   margin-bottom: 2px;
                 }
 
                 .option-desc {
                   font-size: 12px;
-                  color: #6b7280;
+                  color: var(--fg-secondary);
                 }
               }
             }
@@ -717,13 +717,13 @@ const submitBatchAnalysis = async () => {
         .stock-textarea {
           :deep(.el-textarea__inner) {
             border-radius: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-default);
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 14px;
             line-height: 1.6;
 
             &:focus {
-              border-color: #3b82f6;
+              border-color: var(--accent);
               box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
             }
           }
@@ -740,7 +740,7 @@ const submitBatchAnalysis = async () => {
         h4 {
           font-size: 16px;
           font-weight: 600;
-          color: #1a202c;
+          color: var(--fg-primary);
           margin: 0 0 12px 0;
         }
 
@@ -775,10 +775,10 @@ const submitBatchAnalysis = async () => {
         .section-title {
           font-size: 16px;
           font-weight: 600;
-          color: #1a202c;
+          color: var(--fg-primary);
           margin: 0 0 16px 0;
           padding-bottom: 8px;
-          border-bottom: 2px solid #e2e8f0;
+          border-bottom: 2px solid var(--border-default);
         }
       }
 
@@ -797,12 +797,12 @@ const submitBatchAnalysis = async () => {
               }
 
               :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-                background-color: #3b82f6;
-                border-color: #3b82f6;
+                background-color: var(--accent);
+                border-color: var(--accent);
               }
 
               :deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
-                color: #3b82f6;
+                color: var(--accent);
               }
 
               .analyst-info {
@@ -812,12 +812,12 @@ const submitBatchAnalysis = async () => {
 
                 .analyst-name {
                   font-weight: 500;
-                  color: #374151;
+                  color: var(--fg-primary);
                 }
 
                 .analyst-desc {
                   font-size: 12px;
-                  color: #6b7280;
+                  color: var(--fg-secondary);
                 }
               }
             }
@@ -839,7 +839,7 @@ const submitBatchAnalysis = async () => {
         height: 56px !important;
         font-size: 18px !important;
         font-weight: 700 !important;
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+        background: var(--bg-elevated) !important;
         border: none !important;
         border-radius: 16px !important;
         transition: all 0.3s ease !important;
@@ -850,7 +850,7 @@ const submitBatchAnalysis = async () => {
         &:hover {
           transform: translateY(-3px) !important;
           box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4) !important;
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+          background: var(--bg-elevated) !important;
         }
 
         &:disabled {
@@ -889,7 +889,7 @@ const submitBatchAnalysis = async () => {
   height: 56px !important;
   font-size: 18px !important;
   font-weight: 700 !important;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  background: var(--bg-elevated) !important;
   border: none !important;
   border-radius: 16px !important;
   transition: all 0.3s ease !important;
@@ -901,7 +901,7 @@ const submitBatchAnalysis = async () => {
 .large-batch-btn.el-button:hover {
   transform: translateY(-3px) !important;
   box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4) !important;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  background: var(--bg-elevated) !important;
 }
 
 .large-batch-btn.el-button:disabled {

@@ -202,7 +202,7 @@
                     :controls="false"
                     style="width: 110px;"
                   />
-                  <span style="color: #909399; font-size: 12px; white-space: nowrap;">{{ row.currency || 'CNY' }}</span>
+                  <span style="color: var(--fg-muted); font-size: 12px; white-space: nowrap;">{{ row.currency || 'CNY' }}</span>
                 </div>
               </template>
             </el-table-column>
@@ -217,7 +217,7 @@
                     :controls="false"
                     style="width: 110px;"
                   />
-                  <span style="color: #909399; font-size: 12px; white-space: nowrap;">{{ row.currency || 'CNY' }}</span>
+                  <span style="color: var(--fg-muted); font-size: 12px; white-space: nowrap;">{{ row.currency || 'CNY' }}</span>
                 </div>
               </template>
             </el-table-column>
