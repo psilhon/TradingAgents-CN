@@ -8,6 +8,14 @@
 
 ## [Unreleased]
 
+—（暂无）
+
+---
+
+## [1.1.2] — 2026-05-06
+
+**Fork patch release**——v1.1.1 后第三梯队架构重构（review-driven 第二轮）。包含 1 个性能 critical（HK 单股 60s → 0.5s）+ 1 个架构合并（LLM 抽象层删 Chain A 1500 行死代码 + 单一 ProviderSpec 注册表）+ 顺手修 4 个 LLM bug + leaky abstraction 数据污染清除。
+
 ### Changed
 
 - **🏗️ LLM 抽象层合并：删 Chain A，单一 ProviderSpec 注册表**（OpenSpec change `consolidate-llm-layers`，Tier 3 #1+#2）：v1.1.1 后 review 第三梯队架构重构。深度探查（spawned audit agent）发现历史并存两条 LLM 工厂链——`tradingagents/llm_adapters/`（继承 `ChatOpenAI`/`ChatGoogleGenerativeAI`）和 `tradingagents/llm_clients/`（包装 LangChain）。**Chain A 在生产路径仅 1 处实例化（B 反向 import `ChatGoogleOpenAI`），其它 ~50 次都在 tests/_legacy + scripts**。Chain B 才是真正生产路径——`trading_graph.create_llm_by_provider` 是唯一 LLM 入口。本 change 删 Chain A，统一走 B：(1) 移 `ChatGoogleOpenAI` → `llm_clients/_google_impl.py` + 删 `_enhance_news_content` / `_is_news_content` / `_optimize_message_content` 三件套（leaky abstraction + 在 LLM 层根据中文关键词伪造"新闻标题/文章来源: Google AI 智能分析"等假元字段污染下游 news_analyst）；(2) 新建 `provider_specs.py` 用 `ProviderSpec` dataclass 单一定义 12 个 provider 元信息——`MODEL_OPTIONS` / `_PROVIDER_CONFIG` / `env_key_map` / `_PROVIDER_ALIASES` 全部 derive 自 PROVIDER_SPECS（添加新 provider 从"改 4 处"→"加 1 个 ProviderSpec"）；(3) 修 4 个 bug——siliconflow alias 删（不再误打 api.openai.com）/ AnthropicClient + GoogleClient 读 env 与 OpenAIClient 一致 / `trading_graph.py` anthropic + custom 分支不再绕开 factory；(4) 删 4 个 Chain A 文件（dashscope_openai_adapter / deepseek_adapter / openai_compatible_base / google_openai_adapter）共 1498 行，25 个 tests + 9 个 scripts 引用 git mv 到 `_legacy/`。新建 capability `llm-abstraction` 锁定铁律——单一工厂入口 + 单一注册表 + LLM adapter 不得伪造业务元数据。Token tracker callback 抽离（原 commit 5）经评估实际无重复（Chain A 死代码自带 3 处 dup 随删除消失），跳过作 follow-up。

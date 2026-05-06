@@ -5,8 +5,8 @@
 ## 项目身份
 
 - **定位**：面向中文用户的多智能体股票分析学习平台（FastAPI 后端 + Vue 3 前端 + LangGraph 多智能体 + 多数据源）
-- **当前版本**：`v1.1.1`（fork patch release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
-- **当前阶段**：**v1.1.1 已发布** — 第一+第二梯队 10 条 OpenSpec changes 完成（消除 HARD-GATE 违规 + critical 假数据 / license 边界 + 测试体系起死回生）。第三+第四梯队（架构重构 9 条）按需排期，见 `docs/code-review-2026-05-05.md`。
+- **当前版本**：`v1.1.2`（fork patch release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
+- **当前阶段**：**v1.1.2 已发布** — 第一+第二梯队 10 + 第三梯队 2 条（#3 HK 性能 / #1+#2 LLM 抽象层合并）共 12 条 OpenSpec changes 完成。第三梯队剩 4 条（cache 层 / app 反向 import / agent state / company resolver）+ 第四梯队 3 条按需排期，见 `docs/code-review-2026-05-05.md`。
 - **技术栈**：Python 3.12（homebrew arm64）+ uv + FastAPI + Uvicorn + Vue 3 + Vite + MongoDB 4.4 + Redis 7 + Docker Compose
 - **License 双轨**：根目录 Apache 2.0；`app/`（FastAPI 后端）和 `frontend/`（Vue 前端）为**专有授权**，商业用途必须联系作者 hsliup@163.com
 
@@ -42,7 +42,7 @@ uv pip install -e . --python .venv/bin/python
 
 | 文件 | 用途 | tracked |
 |------|------|------|
-| `docker-compose.yml` | 本地 dev / 改代码后 build；image `tradingagents-{backend,frontend}:v1.1.1` | ✅ |
+| `docker-compose.yml` | 本地 dev / 改代码后 build；image `tradingagents-{backend,frontend}:v1.1.2` | ✅ |
 | `docker-compose.override.yml` | fork-local 端口段位覆盖（已并入 base，保留作 escape hatch） | ❌（在 `.git/info/exclude`） |
 
 可选管理 UI：`docker compose --profile management up -d`（redis-commander :54304 / mongo-express :54305）
