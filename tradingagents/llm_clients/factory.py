@@ -1,24 +1,10 @@
 from .base_client import BaseLLMClient
 from .provider_keys import normalize_provider_key
+from .provider_specs import derive_factory_aliases, derive_openai_compatible_set
 
-_PROVIDER_ALIASES = {
-    "dashscope": "qwen",
-    "alibaba": "qwen",
-    "zhipu": "glm",
-    "siliconflow": "openai",
-}
-
-_OPENAI_COMPATIBLE = {
-    "openai",
-    "deepseek",
-    "qwen",
-    "glm",
-    "qianfan",
-    "openrouter",
-    "aihubmix",
-    "ollama",
-    "custom_openai",
-}
+# 派生自 provider_specs.PROVIDER_SPECS（OpenSpec spec llm-abstraction：单一来源）
+_PROVIDER_ALIASES = derive_factory_aliases()
+_OPENAI_COMPATIBLE = derive_openai_compatible_set() | {"openai"}  # openai canonical 不在 _PROVIDER_CONFIG 但仍走 OpenAIClient
 
 
 def create_llm_client(

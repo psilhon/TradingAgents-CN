@@ -4,6 +4,7 @@ from typing import Any
 from langchain_openai import ChatOpenAI
 
 from .base_client import BaseLLMClient, normalize_content
+from .provider_specs import derive_openai_provider_config
 from .validators import validate_model
 
 
@@ -24,16 +25,8 @@ _PASSTHROUGH_KWARGS = (
     "http_async_client",
 )
 
-_PROVIDER_CONFIG = {
-    "deepseek": ("https://api.deepseek.com", "DEEPSEEK_API_KEY"),
-    "qwen": ("https://dashscope.aliyuncs.com/compatible-mode/v1", "DASHSCOPE_API_KEY"),
-    "glm": ("https://open.bigmodel.cn/api/paas/v4/", "ZHIPU_API_KEY"),
-    "qianfan": ("https://qianfan.baidubce.com/v2", "QIANFAN_API_KEY"),
-    "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"),
-    "aihubmix": ("https://aihubmix.com/v1", "AIHUBMIX_API_KEY"),
-    "ollama": ("http://localhost:11434/v1", None),
-    "custom_openai": (None, "CUSTOM_OPENAI_API_KEY"),
-}
+# 派生自 provider_specs.PROVIDER_SPECS（OpenSpec spec llm-abstraction：单一来源）
+_PROVIDER_CONFIG = derive_openai_provider_config()
 
 
 class OpenAIClient(BaseLLMClient):
