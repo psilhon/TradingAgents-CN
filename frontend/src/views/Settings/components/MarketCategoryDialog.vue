@@ -200,7 +200,7 @@ const handleSubmit = async () => {
 
 <style lang="scss" scoped>
 .form-help {
-  color: #909399;
+  color: var(--fg-muted);
   font-size: 12px;
   margin-top: 4px;
 }

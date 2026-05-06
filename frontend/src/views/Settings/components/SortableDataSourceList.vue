@@ -293,7 +293,7 @@ onUnmounted(() => {
 
     h4 {
       margin: 0;
-      color: #303133;
+      color: var(--fg-primary);
       font-size: 16px;
     }
 
@@ -331,7 +331,7 @@ onUnmounted(() => {
         padding: 4px;
 
         &:hover {
-          color: #409eff;
+          color: var(--accent);
         }
       }
 
@@ -347,7 +347,7 @@ onUnmounted(() => {
 
           .datasource-name {
             font-weight: 500;
-            color: #303133;
+            color: var(--fg-primary);
             font-size: 14px;
           }
 
@@ -361,7 +361,7 @@ onUnmounted(() => {
           display: flex;
           gap: 16px;
           font-size: 12px;
-          color: #909399;
+          color: var(--fg-muted);
 
           .datasource-type {
             font-weight: 500;

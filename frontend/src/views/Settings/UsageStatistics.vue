@@ -438,7 +438,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #909399;
+    color: var(--fg-muted);
     font-size: 14px;
     margin-bottom: 12px;
   }
@@ -456,12 +456,12 @@ onMounted(() => {
       .cost-amount {
         font-size: 24px;
         font-weight: 600;
-        color: #303133;
+        color: var(--fg-primary);
       }
 
       .cost-currency {
         font-size: 14px;
-        color: #909399;
+        color: var(--fg-muted);
       }
     }
   }

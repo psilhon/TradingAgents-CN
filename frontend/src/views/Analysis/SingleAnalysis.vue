@@ -70,15 +70,15 @@
                       >
                         <el-option label="🇨🇳 A股市场" value="A股">
                           <span>🇨🇳 A股市场</span>
-                          <span style="color: #909399; font-size: 12px; margin-left: 8px;">（6位数字）</span>
+                          <span style="color: var(--fg-muted); font-size: 12px; margin-left: 8px;">（6位数字）</span>
                         </el-option>
                         <el-option label="🇺🇸 美股市场" value="美股">
                           <span>🇺🇸 美股市场</span>
-                          <span style="color: #909399; font-size: 12px; margin-left: 8px;">（1-5个字母）</span>
+                          <span style="color: var(--fg-muted); font-size: 12px; margin-left: 8px;">（1-5个字母）</span>
                         </el-option>
                         <el-option label="🇭🇰 港股市场" value="港股">
                           <span>🇭🇰 港股市场</span>
-                          <span style="color: #909399; font-size: 12px; margin-left: 8px;">（1-5位数字）</span>
+                          <span style="color: var(--fg-muted); font-size: 12px; margin-left: 8px;">（1-5位数字）</span>
                         </el-option>
                       </el-select>
                     </el-form-item>
@@ -395,7 +395,7 @@
                             >
                               ⚡快速
                             </el-tag>
-                            <span style="font-size: 12px; color: #909399;">{{ model.provider }}</span>
+                            <span style="font-size: 12px; color: var(--fg-muted);">{{ model.provider }}</span>
                           </div>
                         </div>
                       </el-option>
@@ -1641,7 +1641,7 @@ const goSimOrder = async () => {
           h('div', { style: 'margin: 16px 0;' }, [
             h('p', { style: 'margin-bottom: 8px;' }, [
               h('strong', '交易价格：'),
-              h('span', { style: 'color: #909399; font-size: 12px; margin-left: 8px;' }, '(可修改)')
+              h('span', { style: 'color: var(--fg-muted); font-size: 12px; margin-left: 8px;' }, '(可修改)')
             ]),
             h(ElInputNumber, {
               modelValue: tradeForm.price,
@@ -1657,7 +1657,7 @@ const goSimOrder = async () => {
           h('div', { style: 'margin: 16px 0;' }, [
             h('p', { style: 'margin-bottom: 8px;' }, [
               h('strong', '交易数量：'),
-              h('span', { style: 'color: #909399; font-size: 12px; margin-left: 8px;' }, '(可修改，100股为单位)')
+              h('span', { style: 'color: var(--fg-muted); font-size: 12px; margin-left: 8px;' }, '(可修改，100股为单位)')
             ]),
             h(ElInputNumber, {
               modelValue: tradeForm.quantity,
@@ -1671,7 +1671,7 @@ const goSimOrder = async () => {
           ]),
           h('p', [
             h('strong', '预计金额：'),
-            h('span', { style: 'color: #409EFF; font-weight: bold;' }, `${estimatedAmount.value}元`)
+            h('span', { style: 'color: var(--accent); font-weight: bold;' }, `${estimatedAmount.value}元`)
           ]),
           h('p', [
             h('strong', '置信度：'),
@@ -1681,10 +1681,10 @@ const goSimOrder = async () => {
             h('strong', '风险等级：'),
             h('span', recommendation.riskLevel)
           ]),
-          recommendation.action === 'buy' ? h('p', { style: 'color: #909399; font-size: 12px; margin-top: 12px;' },
+          recommendation.action === 'buy' ? h('p', { style: 'color: var(--fg-muted); font-size: 12px; margin-top: 12px;' },
             `可用资金：${typeof account.cash === 'number' ? account.cash.toFixed(2) : account.cash}元，最大可买：${maxQuantity}股`
           ) : null,
-          recommendation.action === 'sell' ? h('p', { style: 'color: #909399; font-size: 12px; margin-top: 12px;' },
+          recommendation.action === 'sell' ? h('p', { style: 'color: var(--fg-muted); font-size: 12px; margin-top: 12px;' },
             `当前持仓：${maxQuantity}股`
           ) : null
         ])
@@ -2277,18 +2277,18 @@ onMounted(async () => {
         align-items: center;
         font-size: 32px;
         font-weight: 700;
-        color: #1a202c;
+        color: var(--fg-primary);
         margin: 0 0 8px 0;
 
         .title-icon {
           margin-right: 12px;
-          color: #3b82f6;
+          color: var(--accent);
         }
       }
 
       .page-description {
         font-size: 16px;
-        color: #64748b;
+        color: var(--fg-secondary);
         margin: 0;
       }
     }
@@ -2301,8 +2301,8 @@ onMounted(async () => {
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
       :deep(.el-card__header) {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: var(--bg-elevated);
+        color: var(--fg-primary);
         border-radius: 16px 16px 0 0;
         padding: 20px 24px;
 
@@ -2334,10 +2334,10 @@ onMounted(async () => {
         .section-title {
           font-size: 16px;
           font-weight: 600;
-          color: #1a202c;
+          color: var(--fg-primary);
           margin: 0 0 16px 0;
           padding-bottom: 8px;
-          border-bottom: 2px solid #e2e8f0;
+          border-bottom: 2px solid var(--border-default);
         }
       }
 
@@ -2389,21 +2389,21 @@ onMounted(async () => {
           display: flex;
           align-items: center;
           padding: 16px;
-          border: 2px solid #e2e8f0;
+          border: 2px solid var(--border-default);
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.3s ease;
 
           &:hover {
-            border-color: #3b82f6;
+            border-color: var(--accent);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
           }
 
           &.active {
-            border-color: #3b82f6;
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            color: #1e40af;
+            border-color: var(--accent);
+            background: var(--bg-elevated);
+            color: var(--accent);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
           }
@@ -2442,21 +2442,21 @@ onMounted(async () => {
           display: flex;
           align-items: center;
           padding: 16px;
-          border: 2px solid #e2e8f0;
+          border: 2px solid var(--border-default);
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.3s ease;
 
           &:hover {
-            border-color: #3b82f6;
+            border-color: var(--accent);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
           }
 
           &.active {
-            border-color: #3b82f6;
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            color: #1e40af;
+            border-color: var(--accent);
+            background: var(--bg-elevated);
+            color: var(--accent);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
           }
@@ -2468,7 +2468,7 @@ onMounted(async () => {
             &:hover {
               transform: none;
               box-shadow: none;
-              border-color: #e2e8f0;
+              border-color: var(--border-default);
             }
           }
 
@@ -2501,12 +2501,12 @@ onMounted(async () => {
           .analyst-check {
             .check-icon {
               font-size: 20px;
-              color: #3b82f6;
+              color: var(--accent);
             }
           }
 
           &.active .analyst-check .check-icon {
-            color: #1e40af;
+            color: var(--accent);
           }
         }
       }
@@ -2520,7 +2520,7 @@ onMounted(async () => {
           .config-title {
             font-size: 14px;
             font-weight: 600;
-            color: #1a202c;
+            color: var(--fg-primary);
             margin: 0 0 12px 0;
             display: flex;
             align-items: center;
@@ -2537,10 +2537,10 @@ onMounted(async () => {
                 justify-content: space-between;
                 margin-bottom: 8px;
                 font-size: 13px;
-                color: #374151;
+                color: var(--fg-primary);
 
                 .help-icon {
-                  color: #9ca3af;
+                  color: var(--fg-muted);
                   cursor: help;
                 }
               }
@@ -2553,7 +2553,7 @@ onMounted(async () => {
               align-items: center;
               justify-content: space-between;
               padding: 12px 0;
-              border-bottom: 1px solid #f3f4f6;
+              border-bottom: 1px solid var(--border-subtle);
 
               &:last-child {
                 border-bottom: none;
@@ -2563,14 +2563,14 @@ onMounted(async () => {
                 .option-name {
                   font-size: 14px;
                   font-weight: 500;
-                  color: #374151;
+                  color: var(--fg-primary);
                   display: block;
                   margin-bottom: 2px;
                 }
 
                 .option-desc {
                   font-size: 12px;
-                  color: #6b7280;
+                  color: var(--fg-secondary);
                 }
               }
             }
@@ -2579,10 +2579,10 @@ onMounted(async () => {
           .custom-input {
             :deep(.el-textarea__inner) {
               border-radius: 8px;
-              border: 1px solid #d1d5db;
+              border: 1px solid var(--border-strong);
 
               &:focus {
-                border-color: #3b82f6;
+                border-color: var(--accent);
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
               }
             }
@@ -2590,7 +2590,7 @@ onMounted(async () => {
 
           .input-help {
             font-size: 12px;
-            color: #6b7280;
+            color: var(--fg-secondary);
             margin-top: 8px;
           }
 
@@ -2607,7 +2607,7 @@ onMounted(async () => {
               height: 56px !important;
               font-size: 18px !important;
               font-weight: 700 !important;
-              background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+              background: var(--bg-elevated) !important;
               border: none !important;
               border-radius: 16px !important;
               transition: all 0.3s ease !important;
@@ -2618,7 +2618,7 @@ onMounted(async () => {
               &:hover {
                 transform: translateY(-3px) !important;
                 box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4) !important;
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+                background: var(--bg-elevated) !important;
               }
 
               &:disabled {
@@ -2652,7 +2652,7 @@ onMounted(async () => {
         height: 48px;
         font-size: 16px;
         font-weight: 600;
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        background: var(--bg-elevated);
         border: none;
         border-radius: 12px;
         transition: all 0.3s ease;
@@ -2673,13 +2673,13 @@ onMounted(async () => {
         height: 48px;
         font-size: 16px;
         border-radius: 12px;
-        border: 2px solid #e5e7eb;
-        color: #6b7280;
+        border: 2px solid var(--border-default);
+        color: var(--fg-secondary);
         transition: all 0.3s ease;
 
         &:hover {
-          border-color: #d1d5db;
-          color: #374151;
+          border-color: var(--border-strong);
+          color: var(--fg-primary);
           transform: translateY(-1px);
         }
       }
@@ -2692,7 +2692,7 @@ onMounted(async () => {
   display: flex;
   align-items: flex-start;
   padding: 12px 0;
-  border-left: 3px solid #e5e7eb;
+  border-left: 3px solid var(--border-default);
   margin-left: 15px;
   position: relative;
   transition: all 0.3s ease;
@@ -2701,8 +2701,8 @@ onMounted(async () => {
     border-left-color: #10b981;
 
     .step-icon {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
+      background: var(--bg-elevated);
+      color: var(--fg-primary);
       box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
     }
 
@@ -2717,17 +2717,17 @@ onMounted(async () => {
   }
 
   &.step-current {
-    border-left-color: #3b82f6;
+    border-left-color: var(--accent);
     background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
 
     .step-icon {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      color: white;
+      background: var(--bg-elevated);
+      color: var(--fg-primary);
       box-shadow: 0 2px 12px rgba(59, 130, 246, 0.4);
     }
 
     .step-title {
-      color: #3b82f6;
+      color: var(--accent);
       font-weight: 700;
     }
 
@@ -2739,17 +2739,17 @@ onMounted(async () => {
 
   &.step-pending {
     .step-icon {
-      background: #f3f4f6;
-      color: #9ca3af;
-      border: 2px solid #e5e7eb;
+      background: var(--border-subtle);
+      color: var(--fg-muted);
+      border: 2px solid var(--border-default);
     }
 
     .step-title {
-      color: #6b7280;
+      color: var(--fg-secondary);
     }
 
     .step-description {
-      color: #9ca3af;
+      color: var(--fg-muted);
     }
   }
 }
@@ -2778,7 +2778,7 @@ onMounted(async () => {
 }
 
 .pending-icon {
-  color: #9ca3af;
+  color: var(--fg-muted);
 }
 
 .step-content {
@@ -2833,7 +2833,7 @@ onMounted(async () => {
   height: 56px !important;
   font-size: 18px !important;
   font-weight: 700 !important;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  background: var(--bg-elevated) !important;
   border: none !important;
   border-radius: 16px !important;
   transition: all 0.3s ease !important;
@@ -2845,7 +2845,7 @@ onMounted(async () => {
 .large-analysis-btn.el-button:hover {
   transform: translateY(-3px) !important;
   box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4) !important;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  background: var(--bg-elevated) !important;
 }
 
 .large-analysis-btn.el-button:disabled {
@@ -2877,7 +2877,7 @@ onMounted(async () => {
 
 .progress-card .progress-header h4 {
   margin: 0;
-  color: #1f2937;
+  color: var(--fg-primary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2942,7 +2942,7 @@ onMounted(async () => {
   }
 
   :deep(.el-progress-bar__inner) {
-    background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+    background: var(--bg-elevated);
     border-radius: 8px;
     transition: width 0.6s ease;
   }
@@ -2968,17 +2968,17 @@ onMounted(async () => {
   gap: 8px;
   font-size: 16px;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--accent);
   margin-bottom: 8px;
 }
 
 .task-icon {
-  color: #3b82f6;
+  color: var(--accent);
 }
 
 .task-description {
   font-size: 14px;
-  color: #1e40af;
+  color: var(--accent);
   line-height: 1.5;
 }
 
@@ -3015,7 +3015,7 @@ onMounted(async () => {
 
 .results-card .results-header h3 {
   margin: 0;
-  color: #1f2937;
+  color: var(--fg-primary);
 }
 
 .results-card .result-meta {
@@ -3030,7 +3030,7 @@ onMounted(async () => {
 }
 
 .risk-disclaimer :deep(.el-alert) {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  background: var(--bg-elevated);
   border: 2px solid #ffc107;
   border-radius: 12px;
   padding: 16px 20px;
@@ -3058,7 +3058,7 @@ onMounted(async () => {
 }
 
 .disclaimer-text {
-  color: #856404;
+  color: var(--warning);
   flex: 1;
 }
 
@@ -3095,7 +3095,7 @@ onMounted(async () => {
 }
 
 .decision-section h4 {
-  color: #1f2937;
+  color: var(--fg-primary);
   margin-bottom: 16px;
 }
 
@@ -3121,7 +3121,7 @@ onMounted(async () => {
 
 .decision-action .label {
   font-weight: 600;
-  color: #374151;
+  color: var(--fg-primary);
 }
 
 .decision-metrics {
@@ -3137,25 +3137,25 @@ onMounted(async () => {
 
 .metric-item .label {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--fg-secondary);
   margin-bottom: 4px;
 }
 
 .metric-item .value {
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--fg-primary);
 }
 
 .decision-reasoning h5 {
   margin: 0 0 8px 0;
-  color: #374151;
+  color: var(--fg-primary);
   font-size: 14px;
 }
 
 .decision-reasoning p {
   margin: 0;
-  color: #6b7280;
+  color: var(--fg-secondary);
   line-height: 1.6;
 }
 
@@ -3164,24 +3164,24 @@ onMounted(async () => {
 }
 
 .reports-section h4 {
-  color: #1f2937;
+  color: var(--fg-primary);
   margin-bottom: 16px;
 }
 
 .report-content {
   line-height: 1.6;
-  color: #374151;
+  color: var(--fg-primary);
 }
 
 .report-content h1,
 .report-content h2,
 .report-content h3 {
-  color: #1f2937;
+  color: var(--fg-primary);
   margin: 16px 0 8px 0;
 }
 
 .report-content strong {
-  color: #1f2937;
+  color: var(--fg-primary);
 }
 
 .result-actions {
@@ -3189,7 +3189,7 @@ onMounted(async () => {
   gap: 12px;
   justify-content: center;
   padding-top: 24px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-default);
 }
 
 /* 分析报告标签页样式 */
@@ -3241,7 +3241,7 @@ onMounted(async () => {
     }
 
     &.is-active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      background: var(--bg-elevated) !important;
       color: white !important;
       border-color: #667eea !important;
       box-shadow: 0 6px 20px rgba(102,126,234,0.4) !important;
@@ -3327,7 +3327,7 @@ onMounted(async () => {
 
   /* 标题样式 */
   h1, h2, h3, h4, h5, h6 {
-    color: #1f2937 !important;
+    color: var(--fg-primary) !important;
     margin: 20px 0 12px 0 !important;
     font-weight: 600 !important;
   }
@@ -3345,7 +3345,7 @@ onMounted(async () => {
 
   /* 强调文本 */
   strong, b {
-    color: #1f2937 !important;
+    color: var(--fg-primary) !important;
     font-weight: 600 !important;
   }
 

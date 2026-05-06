@@ -57,7 +57,7 @@
           >
             <div style="display: flex; flex-direction: column;">
               <span>{{ model.label }}</span>
-              <span style="font-size: 12px; color: #909399;">代码: {{ model.value }}</span>
+              <span style="font-size: 12px; color: var(--fg-muted);">代码: {{ model.value }}</span>
             </div>
           </el-option>
         </el-select>
@@ -770,12 +770,12 @@ onMounted(() => {
 }
 
 .text-gray-500 {
-  color: #6b7280;
+  color: var(--fg-secondary);
   font-size: 12px;
 }
 
 .text-gray-400 {
-  color: #9ca3af;
+  color: var(--fg-muted);
 }
 
 .text-xs {
