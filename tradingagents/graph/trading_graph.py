@@ -113,19 +113,21 @@ def create_llm_by_provider(
         return client.get_llm()
 
     elif normalized_provider == "anthropic":
-        from langchain_anthropic import ChatAnthropic
-
-        return ChatAnthropic(
+        # OpenSpec spec llm-abstraction：统一走 create_llm_client（之前直接实例化 ChatAnthropic 绕开 factory）
+        client = create_llm_client(
+            provider="anthropic",
             model=model,
-            base_url=backend_url,
+            base_url=backend_url if backend_url else None,
             temperature=temperature,
             max_tokens=max_tokens,
             timeout=timeout,
             **extra_kwargs,
         )
+        return client.get_llm()
 
     else:
-        # 🔧 自定义厂家：使用 OpenAI 兼容模式
+        # 自定义厂家：走 OpenAI 兼容模式（custom_openai canonical）
+        # OpenSpec spec llm-abstraction：统一走 create_llm_client（之前直接实例化 ChatOpenAI 绕开 factory）
         logger.info(f"🔧 使用 OpenAI 兼容模式处理自定义厂家: {provider}")
 
         # 尝试从环境变量获取 API Key（支持多种命名格式）
@@ -145,11 +147,16 @@ def create_llm_by_provider(
         if not custom_api_key:
             logger.warning(f"⚠️ 未找到自定义厂家 {provider} 的 API Key，尝试使用默认配置")
 
-        from langchain_openai import ChatOpenAI
-
-        return ChatOpenAI(
-            model=model, base_url=backend_url, api_key=custom_api_key, temperature=temperature, max_tokens=max_tokens, timeout=timeout
+        client = create_llm_client(
+            provider="custom_openai",
+            model=model,
+            base_url=backend_url,
+            api_key=custom_api_key,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            timeout=timeout,
         )
+        return client.get_llm()
 
 
 def _create_provider_pair(

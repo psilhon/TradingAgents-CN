@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 from langchain_anthropic import ChatAnthropic
@@ -27,7 +28,9 @@ class AnthropicClient(BaseLLMClient):
             if key in self.kwargs:
                 llm_kwargs[key] = self.kwargs[key]
 
-        api_key = self.kwargs.get("api_key")
+        # API key 优先级：kwargs > ANTHROPIC_API_KEY env（与 OpenAIClient 行为对齐——
+        # OpenSpec spec llm-abstraction 要求 3 个 client 行为一致）
+        api_key = self.kwargs.get("api_key") or os.environ.get("ANTHROPIC_API_KEY")
         if api_key:
             llm_kwargs["api_key"] = api_key
 

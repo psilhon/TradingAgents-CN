@@ -327,16 +327,15 @@ def derive_openai_provider_config() -> dict[str, tuple[str | None, str | None]]:
 def derive_factory_aliases() -> dict[str, str]:
     """派生 ``factory._PROVIDER_ALIASES`` —— factory 层 alias → canonical 映射。
 
-    ⚠️ 历史包含 ``"siliconflow": "openai"`` 这个 bug alias（不传 base_url 时打到
-    api.openai.com）。本 commit 暂保留 bug 行为，commit 4 修复（删 alias 让
-    siliconflow 走 openai_compatible 分支独立路由）。
+    历史 ``"siliconflow": "openai"`` 是 bug——caller 不传 base_url 时打到
+    api.openai.com（虽然 trading_graph 总传 backend_url 静默掩盖）。
+    现已修：siliconflow 作为独立 canonical 路由（用 SILICONFLOW_API_KEY +
+    siliconflow 默认 base_url），见 provider_specs PROVIDER_SPECS。
     """
     out: dict[str, str] = {}
     for spec in PROVIDER_SPECS:
         for alias in spec.aliases:
             out[alias] = spec.canonical_key
-    # ⚠️ 历史 alias bug—— commit 4 删除
-    out["siliconflow"] = "openai"
     return out
 
 
