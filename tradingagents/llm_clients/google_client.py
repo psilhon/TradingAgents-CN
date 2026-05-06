@@ -9,7 +9,7 @@ class GoogleClient(BaseLLMClient):
 
     def get_llm(self) -> Any:
         self.warn_if_unknown_model()
-        from tradingagents.llm_adapters.google_openai_adapter import ChatGoogleOpenAI
+        from tradingagents.llm_clients._google_impl import ChatGoogleOpenAI
 
         llm_kwargs = {"model": self.model}
 
