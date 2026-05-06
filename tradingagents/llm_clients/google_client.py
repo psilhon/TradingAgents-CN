@@ -1,3 +1,4 @@
+import os
 from typing import Any
 
 from .base_client import BaseLLMClient
@@ -20,7 +21,13 @@ class GoogleClient(BaseLLMClient):
             if key in self.kwargs:
                 llm_kwargs[key] = self.kwargs[key]
 
-        google_api_key = self.kwargs.get("api_key") or self.kwargs.get("google_api_key")
+        # API key 优先级：kwargs > GOOGLE_API_KEY env（与 OpenAIClient / AnthropicClient 行为对齐——
+        # OpenSpec spec llm-abstraction 要求 3 个 client 行为一致）
+        google_api_key = (
+            self.kwargs.get("api_key")
+            or self.kwargs.get("google_api_key")
+            or os.environ.get("GOOGLE_API_KEY")
+        )
         if google_api_key:
             llm_kwargs["google_api_key"] = google_api_key
 
