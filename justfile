@@ -40,6 +40,34 @@ setup:
     uvx pre-commit install --hook-type pre-commit --hook-type pre-push
 
 # ────────────────────────────────────────────────────────────────────────────
+# 本地开发栈启停（thin wrapper 调 scripts/dev.sh，详见该脚本 --help）
+# ────────────────────────────────────────────────────────────────────────────
+
+# 启全栈（docker mongo+redis + backend uvicorn + frontend vite）
+up:
+    scripts/dev.sh start
+
+# 停全栈
+down:
+    scripts/dev.sh stop
+
+# 重启全栈
+dev-restart:
+    scripts/dev.sh restart
+
+# 端口/进程/docker 状态
+status:
+    scripts/dev.sh status
+
+# tail backend 日志（Ctrl-C 退出）
+logs:
+    scripts/dev.sh logs backend
+
+# tail frontend 日志
+logs-frontend:
+    scripts/dev.sh logs frontend
+
+# ────────────────────────────────────────────────────────────────────────────
 # Binding / port 审计（OpenSpec change `binding-audit-tooling` 沉淀）
 # 见 openspec/specs/audit-tooling/spec.md
 # ────────────────────────────────────────────────────────────────────────────
