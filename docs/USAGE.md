@@ -57,14 +57,30 @@ just typecheck  # 仅 pyright
 just test       # 仅 pytest
 just fix        # 自动修复 ruff lint/format
 
-# 服务（端口 54300-54309，见 CLAUDE.md）
-docker compose up -d mongodb redis     # 仅起 db，本地跑 backend
+# 🚀 全栈启停（推荐）—— scripts/dev.sh 管理 docker + backend + frontend
+just up               # 起全栈（docker mongo+redis + backend uvicorn + frontend vite）
+just down             # 停全栈（含 docker，0 残留进程/端口/PID 文件）
+just status           # 端口 + 进程 + docker 状态一览
+just logs             # tail backend log（Ctrl-C 退出）
+just logs-frontend    # tail frontend log
+just dev-restart      # 重启全栈
+
+# 手动启停（细粒度调试，多数场景用上面的 just）
+docker compose up -d mongodb redis     # 仅起 db
 .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 54301 --reload
 cd frontend && npm run dev -- --port 54300   # vite dev 强制走端口段位 54300（与 docker frontend 互斥）
 
 # CLI demo
 .venv/bin/python main.py
 ```
+
+**dev.sh 行为细节**：
+
+- 状态文件存 `.dev/{backend,frontend}.{pid,log}`（已 gitignored）
+- start 幂等：检测端口占用 / 已运行进程 → skip，不强抢
+- stop 用 `pkill -P` 杀 vite/uvicorn 子进程（避免 npm wrapper 死后留 vite 孤儿）+ 1.5s 优雅退出窗口
+- backend boot 慢（~5-15s 连 mongo + 装 scheduler），`status` 立即查可能显示端口未监听属正常
+- 与 docker frontend 容器互斥（同 :54300）—— 本脚本只跑 vite dev 模式
 
 ## 3. 二次开发流程（OpenSpec + Phase 1/2/3）
 

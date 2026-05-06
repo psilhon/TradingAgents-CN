@@ -13,15 +13,18 @@
 ## 命令速查
 
 ```
-# 数据库（本地开发只起 mongo+redis，不在 docker 跑 backend）
-docker compose up -d mongodb redis
-docker compose down
+# 🚀 全栈启停（推荐）—— scripts/dev.sh 管理 docker + backend + frontend
+just up                     # = scripts/dev.sh start  起全栈
+just down                   # = scripts/dev.sh stop   停全栈（含 docker，无残留）
+just status                 # 端口/进程/docker 状态
+just logs                   # tail backend log（or just logs-frontend）
+just dev-restart            # 重启全栈
+scripts/dev.sh --help       # 完整参数
 
-# 后端（本地 venv 跑，连 docker 起的 db；端口 54301 见「端口分配」段）
+# 手动启停（细粒度调试用——大多数场景用上面的 just）
+docker compose up -d mongodb redis        # 仅起 db
 .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 54301 --reload
-
-# 前端（独立终端；vite dev 强制 :54300，与 docker frontend 互斥）
-cd frontend && npm install && npm run dev -- --port 54300
+cd frontend && npm install && npm run dev -- --port 54300   # vite dev 与 docker frontend 互斥
 
 # CLI 多智能体演示（需要 .env 里至少 1 个 LLM key）
 .venv/bin/python main.py
