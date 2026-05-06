@@ -109,7 +109,7 @@ exclude = ["tests*", "docs*", "scripts*", "data*", "logs*", "reports*", "results
 [tool.ruff]
 line-length = 140
 target-version = "py310"
-exclude = ["app", "frontend", "scripts", ".venv"]
+exclude = ["app", "frontend", "scripts", ".venv", "tests/_legacy", "scripts/_legacy"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "RUF"]
@@ -122,7 +122,7 @@ quote-style = "double"
 
 [tool.pyright]
 include = ["tradingagents", "tests"]
-exclude = ["app", "frontend", "scripts", ".venv", "**/node_modules"]
+exclude = ["app", "frontend", "scripts", ".venv", "**/node_modules", "tests/_legacy", "scripts/_legacy"]
 typeCheckingMode = "standard"
 # silence fork 项目固有噪音（OpenSpec change `pyright-handfix-pass-1`）：
 # 中文 + 数据处理 fork 大量用 pandas DataFrame / 第三方库返回值（无 stub），
