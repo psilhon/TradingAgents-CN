@@ -574,6 +574,12 @@ async def lifespan(app: FastAPI):
         # 设置调度器实例到服务中，以便API可以管理任务
         set_scheduler_instance(scheduler)
         logger.info("✅ 调度器服务已初始化")
+
+        # 触发 SchedulerService 初始化（注册 zombie 检测 + 行情刷新 jobs）
+        # OpenSpec change `paper-realtime-quotes-job`：行情刷新 jobs 必须在
+        # scheduler.start() 之后注册，否则 IntervalTrigger 不会立即排上去
+        from app.services.scheduler_service import get_scheduler_service
+        get_scheduler_service()
     except Exception as e:
         logger.error(f"❌ 调度器启动失败: {e}", exc_info=True)
         raise  # 抛出异常，阻止应用启动
