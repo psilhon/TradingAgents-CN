@@ -8,7 +8,9 @@
 
 ## [Unreleased]
 
-—（暂无）
+### Added
+
+- **任务错误详情结构化 + Paper 粘贴导入 + Dashboard 类型清零**（OpenSpec change `stabilize-user-workflows`）：v1.1.2 后用户日常工作流稳定性改进包。三块：(1) 任务失败统一 `summary` / `technical_detail` / `category` / `suggestions` 四字段载荷，前端任务中心错误弹窗优先展示后端真实摘要 + 技术详情，错误分类区分 LLM API Key/HTTP 400 / 数据源权限 / 行情缺失 / 未知异常，secret 脱敏；(2) 模拟交易导入弹窗增加文本粘贴区 + 示例模板，本地解析支持 tab/逗号/连续空格 + 有/无表头，解析结果填回导入表格仍走 `/api/paper/import`；(3) 前端 type-check 退出码 0（修 Dashboard 未使用变量）。新建 capability `user-workflow-stability` 锁定铁律 ⨯ 3：任务失败必须保留可诊断错误详情 + 模拟交易支持粘贴导入 + 前端 type-check 必须恢复绿色。新增 tests：`test_task_error_detail` / `test_paper_import` / `test_llm_api_key_resolution`。
 
 ---
 
