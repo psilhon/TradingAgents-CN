@@ -734,6 +734,10 @@ class SchedulerService:
         # 「自选股 ∪ paper 持仓 (CN only)」实时行情入 market_quotes
         self._register_realtime_quote_sync_jobs()
 
+        # OpenSpec change `trading-calendar`：注册交易日历 sync job +
+        # 启动时检查当年/下年日历缺失自动同步
+        self._register_trading_calendar_jobs()
+
     def _register_realtime_quote_sync_jobs(self):
         """注册实时行情刷新 job — capability paper-realtime-quotes。
 
@@ -775,6 +779,66 @@ class SchedulerService:
         # 启动时 ensure unique index on market_quotes.code（异步 fire-and-forget）
         asyncio.create_task(self._ensure_market_quotes_index())
 
+    def _register_trading_calendar_jobs(self):
+        """注册交易日历 jobs — capability trading-calendar.
+
+        - 年度同步：CronTrigger(month=12, day=31, hour=20) 每年 12/31 晚上 20:00
+          同步下一年日历
+        - 启动时检查：当年 + 下一年日历缺失自动同步（fire-and-forget 不阻塞）
+        """
+        # 年度 12/31 同步下一年
+        self.scheduler.add_job(
+            self._run_trading_calendar_yearly_sync,
+            "cron",
+            month=12,
+            day=31,
+            hour=20,
+            minute=0,
+            id="trading_calendar_yearly_sync",
+            name="交易日历年度同步（次年）",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
+        logger.info("✅ 交易日历年度同步已添加：每年 12/31 20:00")
+
+        # 启动时检查 + 异步同步缺失年份
+        asyncio.create_task(self._ensure_trading_calendar_synced())
+
+    async def _run_trading_calendar_yearly_sync(self):
+        """12/31 cron 触发：同步下一年日历。"""
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            next_year = datetime.now(UTC_8).year + 1
+            result = await get_trading_calendar_service().sync_year(next_year)
+            logger.info(f"交易日历年度同步: {result}")
+        except Exception as e:
+            logger.warning(f"⚠️ 交易日历年度同步失败: {e}")
+
+    async def _ensure_trading_calendar_synced(self):
+        """启动时检查：当年 + 下一年日历缺失则触发同步."""
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            svc = get_trading_calendar_service()
+            await svc.ensure_index()
+
+            now_year = datetime.now(UTC_8).year
+            for y in (now_year, now_year + 1):
+                cnt = await svc.db[svc.COLLECTION_NAME].count_documents({"year": y})
+                if cnt == 0:
+                    logger.info(f"启动检查：trading_calendar 缺 {y} 年数据，触发同步")
+                    await svc.sync_year(y)
+                else:
+                    logger.info(
+                        f"启动检查：trading_calendar {y} 年已有 {cnt} 条交易日"
+                    )
+        except Exception as e:
+            logger.warning(f"⚠️ trading_calendar 启动检查失败: {e}")
+
     async def _ensure_market_quotes_index(self):
         """ensure unique index on market_quotes.code (启动时一次)."""
         try:
@@ -787,16 +851,27 @@ class SchedulerService:
             logger.warning(f"⚠️ ensure market_quotes index 失败: {e}")
 
     async def _run_realtime_quote_sync_intraday(self):
-        """盘中 30 秒触发：仅工作日 9:25–15:00 真正执行；盘外早 return."""
-        from datetime import time as dt_time
+        """盘中 30 秒触发：仅 A 股交易日盘中（9:30–11:30 / 13:00–15:00）真正执行.
 
-        # job body guard：工作日 + 盘中时段
-        now_local = now_tz()
-        if now_local.weekday() >= 5:  # 周六周日
-            return
-        cur = now_local.time()
-        if not (dt_time(9, 25) <= cur <= dt_time(15, 0)):
-            return
+        OpenSpec change `trading-calendar`：用 `is_intraday_now()` 替代原
+        hardcoded `weekday() < 5 + 9:25-15:00` 判断，识别节假日。
+        """
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            if not await get_trading_calendar_service().is_intraday_now():
+                return
+        except Exception as e:
+            # trading_calendar 异常时保守降级到 weekday 判断
+            logger.debug(f"trading_calendar 判断失败 fallback: {e}")
+            from datetime import time as dt_time
+            now_local = now_tz()
+            if now_local.weekday() >= 5:
+                return
+            cur = now_local.time()
+            if not (dt_time(9, 25) <= cur <= dt_time(15, 0)):
+                return
 
         await self._run_realtime_quote_sync(window='intraday')
 

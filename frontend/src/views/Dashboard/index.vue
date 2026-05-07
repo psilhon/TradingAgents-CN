@@ -898,12 +898,14 @@ const loadMarketOverview = async () => {
   }
 }
 
-// 每 5 分钟刷新市场概况（盘外也刷新——backend QuotesService 30s TTL 缓存兜底，
-// 盘外数据是最近一次成功的快照，足够前端展示）
+// 每 5 分钟刷新市场概况 — 项目铁律（capability trading-calendar）：
+// 自动刷新仅在 A 股交易日盘中执行。盘外（周末 / 节假日 / 工作日盘外时段）跳过。
+// 数据保持上一次成功值，让用户看到最近一次盘中的快照。
 let marketOverviewHandle: ReturnType<typeof setInterval> | null = null
 const startMarketOverviewPolling = () => {
   marketOverviewHandle = setInterval(() => {
     if (document.hidden) return  // 视图隐藏时不刷新
+    if (!marketOverview.value?.is_intraday) return  // 盘外不刷新
     loadMarketOverview()
   }, 5 * 60 * 1000)
 }
