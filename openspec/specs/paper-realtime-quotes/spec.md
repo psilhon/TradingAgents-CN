@@ -37,9 +37,12 @@ TBD - created by archiving change paper-realtime-quotes-job. Update Purpose afte
 
 scheduler 注册的行情刷新 job MUST 满足：
 
-- **盘中高频**：工作日 9:25–15:00 每 30 秒一次（开盘前 5 min 提前热身，覆盖到收盘 15:00）
+- **盘中高频**：工作日 9:30–11:30 / 13:00–15:00 每 30 秒一次（午休 11:30–13:00 不刷新）
 - **盘后兜底**：工作日 17:00 一次（保留收盘价，避免盘中最后一次未拉到）
-- 周末和节假日**不**触发（job body 内 `datetime.weekday() < 5` 判断）
+- 周末和节假日**不**触发：盘中 job body 内调用
+  `await get_trading_calendar_service().is_intraday_now()` 综合判断
+  （capability `trading-calendar` 提供，识别节假日 + 时段）；trading_calendar 异常时
+  fallback 到 `weekday() < 5 + 9:25-15:00` 保守判断
 - 30 秒颗粒 APScheduler `CronTrigger` 不支持，盘中 job MUST 用 `IntervalTrigger(seconds=30)` + job body 时间窗 guard 组合
 - 防重叠：`max_instances=1` + `coalesce=True`（前一次未跑完时跳过本次触发）
 - 单次执行 < 30 秒（avoid coalesce 累积）
@@ -50,11 +53,11 @@ scheduler 注册的行情刷新 job MUST 满足：
 - **THEN** 真正执行 `sync_favorites_and_paper_positions`
 - **AND** 单次 fetch+upsert < 30 秒完成（防止 coalesce）
 
-#### Scenario: 盘外早 return
+#### Scenario: 盘外早 return（含午休）
 
-- **WHEN** 工作日 0:00–9:25 或 15:01–23:59
-- **THEN** IntervalTrigger 仍触发，但 job body 第一行判断后直接 return
-- **AND** 不调用 akshare，不写 mongo
+- **WHEN** 工作日 0:00–9:30 / 11:30–13:00（午休）/ 15:01–23:59
+- **THEN** IntervalTrigger 仍触发，但 job body `is_intraday_now()` 返回 False，直接 return
+- **AND** 不调用 QuotesService / akshare，不写 mongo
 
 #### Scenario: 盘后兜底
 
@@ -63,9 +66,15 @@ scheduler 注册的行情刷新 job MUST 满足：
 
 #### Scenario: 周末停跑
 
-- **WHEN** 周六（weekday=5）/ 周日（weekday=6）任意时间
-- **THEN** IntervalTrigger 触发，job body guard 检测 weekday >= 5，直接 return
+- **WHEN** 周六 / 周日任意时间
+- **THEN** IntervalTrigger 触发，`is_intraday_now()` 返回 False（trading_calendar 不含周末），直接 return
 - **AND** 17:00 CronTrigger 周末不注册（`day_of_week='mon-fri'`）
+
+#### Scenario: 节假日停跑
+
+- **WHEN** 工作日（如 2026-10-01 国庆 / 2026-02-17 春节假期）但 `db.trading_calendar` 不含该日期
+- **THEN** IntervalTrigger 触发，`is_intraday_now()` 返回 False（trading-calendar 节假日识别），直接 return
+- **AND** 不调用 akshare
 
 #### Scenario: 防重叠
 
