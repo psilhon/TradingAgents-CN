@@ -256,13 +256,20 @@ class UnifiedNewsAnalyzer:
                     logger.info(f"[统一新闻工具] 📥 获取到 {len(news_data)} 条新闻")
 
                     # 🔥 使用同步方法保存到数据库（不依赖事件循环）
-                    from app.services.news_data_service import NewsDataService
+                    # OpenSpec capability `license-boundary`: tradingagents 在
+                    # 单体 repo 场景反向调用 app.services 入库；lib 单独发行时
+                    # ImportError 降级为不入库（仅返回 False）
+                    try:
+                        from app.services.news_data_service import NewsDataService
 
-                    news_service = NewsDataService()
-                    saved_count = news_service.save_news_data_sync(news_data=news_data, data_source="akshare", market="CN")
+                        news_service = NewsDataService()
+                        saved_count = news_service.save_news_data_sync(news_data=news_data, data_source="akshare", market="CN")
 
-                    logger.info(f"[统一新闻工具] ✅ 同步成功: {saved_count} 条新闻")
-                    return saved_count > 0
+                        logger.info(f"[统一新闻工具] ✅ 同步成功: {saved_count} 条新闻")
+                        return saved_count > 0
+                    except ImportError:
+                        logger.warning("[统一新闻工具] app.services.news_data_service 不可用（lib 单独发行），跳过入库")
+                        return False
 
                 finally:
                     # 清理事件循环

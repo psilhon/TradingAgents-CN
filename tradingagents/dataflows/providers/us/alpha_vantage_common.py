@@ -48,7 +48,7 @@ def _get_api_key_from_database() -> str | None:
     """
     try:
         logger.debug("🔍 [DB查询] 开始从数据库读取 Alpha Vantage API Key...")
-        from app.core.database import get_mongo_db_sync
+        from tradingagents.utils.database import get_mongo_db_sync
 
         db = get_mongo_db_sync()
         config_collection = db.system_configs

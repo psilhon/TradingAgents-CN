@@ -62,7 +62,7 @@ def _get_enabled_hk_data_sources() -> list:
     """
     try:
         # 尝试从数据库读取配置
-        from app.core.database import get_mongo_db_sync
+        from tradingagents.utils.database import get_mongo_db_sync
 
         db = get_mongo_db_sync()
 
@@ -117,7 +117,7 @@ def _get_enabled_us_data_sources() -> list:
     """
     try:
         # 尝试从数据库读取配置
-        from app.core.database import get_mongo_db_sync
+        from tradingagents.utils.database import get_mongo_db_sync
 
         db = get_mongo_db_sync()
 
@@ -1498,7 +1498,7 @@ def get_china_stock_data_unified(
         str: 格式化的股票数据报告
     """
     # 🔧 智能日期范围处理：自动扩展到配置的回溯天数，处理周末/节假日
-    from app.core.config import get_settings
+    from tradingagents.utils.database import get_market_analyst_lookback_days
     from tradingagents.utils.dataflow_utils import get_trading_date_range
 
     original_start_date = start_date
@@ -1506,8 +1506,7 @@ def get_china_stock_data_unified(
 
     # 从配置获取市场分析回溯天数（默认30天）
     try:
-        settings = get_settings()
-        lookback_days = settings.MARKET_ANALYST_LOOKBACK_DAYS
+        lookback_days = get_market_analyst_lookback_days()
         logger.info("📅 [配置验证] ===== MARKET_ANALYST_LOOKBACK_DAYS 配置检查 =====")
         logger.info(f"📅 [配置验证] 从配置文件读取: {lookback_days}天")
         logger.info("📅 [配置验证] 配置来源: app.core.config.Settings")
@@ -1736,7 +1735,7 @@ def get_hk_stock_data_unified(symbol: str, start_date: str | None = None, end_da
         logger.info(f"🇭🇰 获取港股数据: {symbol}")
 
         # 🔧 智能日期范围处理：自动扩展到配置的回溯天数，处理周末/节假日
-        from app.core.config import get_settings
+        from tradingagents.utils.database import get_market_analyst_lookback_days
         from tradingagents.utils.dataflow_utils import get_trading_date_range
 
         original_start_date = start_date
@@ -1744,8 +1743,7 @@ def get_hk_stock_data_unified(symbol: str, start_date: str | None = None, end_da
 
         # 从配置获取市场分析回溯天数（默认60天）
         try:
-            settings = get_settings()
-            lookback_days = settings.MARKET_ANALYST_LOOKBACK_DAYS
+            lookback_days = get_market_analyst_lookback_days()
             logger.info(f"📅 [港股配置验证] MARKET_ANALYST_LOOKBACK_DAYS: {lookback_days}天")
         except Exception as e:
             lookback_days = 60  # 默认60天
