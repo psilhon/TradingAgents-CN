@@ -1,4 +1,4 @@
-# TradingAgents-CN v1.1.2 Docker Compose 配置
+# TradingAgents-CN v1.2.0 Docker Compose 配置
 # 支持前后端分离部署
 #
 # 🔒 所有端口映射强制绑 127.0.0.1（loopback only）—— 个人使用，不对外暴露
@@ -10,7 +10,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    image: tradingagents-backend:v1.1.2
+    image: tradingagents-backend:v1.2.0
     container_name: tradingagents-backend
     ports:
       - "127.0.0.1:54301:8000"
@@ -67,7 +67,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    image: tradingagents-frontend:v1.1.2
+    image: tradingagents-frontend:v1.2.0
     container_name: tradingagents-frontend
     ports:
       - "127.0.0.1:54300:80"
