@@ -8,9 +8,31 @@
 
 ## [Unreleased]
 
+—（暂无）
+
+---
+
+## [1.2.0] — 2026-05-07
+
+**Fork minor release**——v1.1.2 后日常使用驱动的稳定性 + 配置层架构收敛 + 模型生态扩充。四条独立 feature：用户工作流稳定性 / MongoDB 作为系统配置唯一可信源 / DeepSeek V4 系列 / 视觉重构延伸。Minor bump 因 MongoDB 与 `config/*.json` 关系变化对直接编辑 JSON 的用户算半 breaking。
+
 ### Added
 
 - **任务错误详情结构化 + Paper 粘贴导入 + Dashboard 类型清零**（OpenSpec change `stabilize-user-workflows`）：v1.1.2 后用户日常工作流稳定性改进包。三块：(1) 任务失败统一 `summary` / `technical_detail` / `category` / `suggestions` 四字段载荷，前端任务中心错误弹窗优先展示后端真实摘要 + 技术详情，错误分类区分 LLM API Key/HTTP 400 / 数据源权限 / 行情缺失 / 未知异常，secret 脱敏；(2) 模拟交易导入弹窗增加文本粘贴区 + 示例模板，本地解析支持 tab/逗号/连续空格 + 有/无表头，解析结果填回导入表格仍走 `/api/paper/import`；(3) 前端 type-check 退出码 0（修 Dashboard 未使用变量）。新建 capability `user-workflow-stability` 锁定铁律 ⨯ 3：任务失败必须保留可诊断错误详情 + 模拟交易支持粘贴导入 + 前端 type-check 必须恢复绿色。新增 tests：`test_task_error_detail` / `test_paper_import` / `test_llm_api_key_resolution`。
+
+- **DeepSeek V4 Flash/Pro 接入**：`provider_specs.py` 快速档增 `deepseek-v4-flash`、深度档增 `deepseek-v4-pro`。`OpenAIClient` 对 `provider="deepseek"` 默认注入 `extra_body={"thinking": {"type": "disabled"}}`——V4 系列在 ChatCompletion + tool calling 路径下若开 thinking 模式会破坏 OpenAI `tool_calls` 协议（thinking trace 与 tool_calls 互斥）。用户显式 `extra_body` 优先合并。`tests/pytest.ini` 顺手补 `unit` / `requires_env` / `requires_network` 三个 marker（之前 pre-commit hook 因未注册 marker 报警告）。
+
+### Changed
+
+- **MongoDB 作为系统配置唯一可信源 + JSON 退化为兼容快照**（半 breaking）：历史 `config_manager` 同时把 MongoDB 与 `config/*.json` 当作"可写来源"，`update_llm_config` 先写 unified_config 的 JSON 再写 MongoDB；UI 改完重启容器后又被旧 JSON 覆盖（用户报告"配置改了不生效"根因）。本 release 把 MongoDB 钉死为唯一可信源，JSON 退化成给老依赖看的**只读兼容快照**。`app/core/unified_config.py` 新增 `export_mongodb_snapshot(system_config)` 单向导出器，`sync_to_legacy_format()` 改成调用该 exporter。`save_system_config()` 写库前清空所有 `llm_config.api_key`（凭据走 `.env`，保留在 MongoDB 会让旧 secret 反向覆盖环境变量）。`update_llm_config()` 删 `unified_config.save_llm_config` 直写 JSON 路径，改为 MongoDB 写成功后调用 exporter 单向导出。`config/README.md` 标注 MongoDB 为可信源、JSON 仅为快照。新增 `tests/test_unified_config_snapshot.py` 锁定 snapshot 行为。
+
+- **v1.1.2 视觉重构延伸**：紧接 `1af3452 feat(frontend): 视觉重构 — Bloomberg 风格双主题` 后续打磨。字体从 Sora + IBM Plex Mono 切到 Geist + Geist Mono + Noto Sans SC，favicon 从 .ico 换成 SVG。新增 `frontend/src/components/Common/{NumberFlip,Sparkline}.vue` 两个公共组件。`MarketTicker.vue` 双轨复制实现无缝滚动 + keyframes。`tokens.scss` / `typography.scss` / `element-overrides.scss` 对齐 Geist + 新主题色。
+
+### Fixed
+
+- **Tushare 连通性测试从 `trade_cal` 切到 `stock_basic`**：部分合法 Tushare token 没有 `trade_cal` 权限（积分门槛更高），把它当 ping 探针会让正常用户的"连通性测试"莫名失败。`stock_basic(list_status="L", limit=1)` 是更通用的探针。新增 `tests/test_tushare_data_source_connection.py` 锁定调用路径。
+
+- **3 个预存 ruff format 漂移修齐**（`config_manager.py` / `dataflows/providers/china/akshare.py` / `llm_clients/google_client.py`）：之前 OpenSpec changes 留下的尾巴（缺空行 / 88 列长行），just ci 阶段 `ruff format --check` 暴露。`uvx ruff format` 自动修，无逻辑改动。
 
 ---
 
