@@ -162,6 +162,8 @@ async def get_task_status_new(
                     "symbol": task_result.get("symbol") or task_result.get("stock_code"),
                     "stock_code": task_result.get("symbol") or task_result.get("stock_code"),  # 兼容字段
                     "stock_symbol": task_result.get("symbol") or task_result.get("stock_code"),
+                    "error_message": task_result.get("last_error"),
+                    "error_detail": task_result.get("error_detail"),
                     "source": "mongodb_tasks"  # 标记数据来源
                 }
 

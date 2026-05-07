@@ -7,6 +7,7 @@
       </div>
       <div class="actions">
         <el-button :icon="Refresh" text size="small" @click="refreshAll">刷新</el-button>
+        <el-button plain @click="openImportDialog">导入持仓/资金</el-button>
         <el-button type="primary" :icon="Plus" @click="openOrderDialog">下市场单</el-button>
         <el-button type="danger" plain :icon="Delete" @click="confirmReset">重置账户</el-button>
       </div>
@@ -253,6 +254,93 @@
         <el-button type="primary" @click="submitOrder">提交</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="importDialog" title="导入持仓和资金" width="920px">
+      <el-form label-width="90px" class="import-form">
+        <el-form-item label="导入模式">
+          <el-radio-group v-model="importForm.mode">
+            <el-radio-button label="merge">合并/更新</el-radio-button>
+            <el-radio-button label="replace">覆盖账户</el-radio-button>
+          </el-radio-group>
+          <div class="form-tip">
+            {{ importForm.mode === 'replace' ? '覆盖会清空当前模拟持仓、订单和成交记录。' : '同市场同代码会按导入值更新，其他持仓保留。' }}
+          </div>
+        </el-form-item>
+        <el-form-item label="可用资金">
+          <div class="cash-grid">
+            <el-input-number v-model="importForm.cash.CNY" :min="0" :precision="2" controls-position="right" placeholder="CNY" />
+            <el-input-number v-model="importForm.cash.HKD" :min="0" :precision="2" controls-position="right" placeholder="HKD" />
+            <el-input-number v-model="importForm.cash.USD" :min="0" :precision="2" controls-position="right" placeholder="USD" />
+          </div>
+        </el-form-item>
+        <el-form-item label="粘贴导入">
+          <div class="paste-import">
+            <el-input
+              v-model="importText"
+              type="textarea"
+              :rows="5"
+              placeholder="市场 代码 名称 数量 成本价 可用数量&#10;A股 002428 云南锗业 200 12.34 200&#10;HK 00700 腾讯控股 100 380.5 100"
+            />
+            <div class="import-actions">
+              <el-button size="small" @click="parseImportText">解析到表格</el-button>
+              <el-button size="small" text @click="fillImportExample">填入示例</el-button>
+            </div>
+          </div>
+        </el-form-item>
+        <el-form-item label="持仓">
+          <div class="import-table-wrap">
+            <el-table :data="importForm.positions" size="small" border>
+              <el-table-column label="市场" width="110">
+                <template #default="{ row }">
+                  <el-select v-model="row.market" size="small">
+                    <el-option label="A股" value="CN" />
+                    <el-option label="港股" value="HK" />
+                    <el-option label="美股" value="US" />
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column label="代码" min-width="120">
+                <template #default="{ row }">
+                  <el-input v-model="row.code" size="small" placeholder="002428" />
+                </template>
+              </el-table-column>
+              <el-table-column label="名称" min-width="120">
+                <template #default="{ row }">
+                  <el-input v-model="row.name" size="small" placeholder="可选" />
+                </template>
+              </el-table-column>
+              <el-table-column label="数量" width="130">
+                <template #default="{ row }">
+                  <el-input-number v-model="row.quantity" :min="1" :precision="0" size="small" controls-position="right" />
+                </template>
+              </el-table-column>
+              <el-table-column label="成本价" width="140">
+                <template #default="{ row }">
+                  <el-input-number v-model="row.avg_cost" :min="0" :precision="4" size="small" controls-position="right" />
+                </template>
+              </el-table-column>
+              <el-table-column label="可用数量" width="130">
+                <template #default="{ row }">
+                  <el-input-number v-model="row.available_qty" :min="0" :precision="0" size="small" controls-position="right" />
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="80">
+                <template #default="{ $index }">
+                  <el-button type="danger" link size="small" @click="removeImportRow($index)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div class="import-actions">
+              <el-button size="small" :icon="Plus" @click="addImportRow">添加一行</el-button>
+            </div>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="importDialog=false">取消</el-button>
+        <el-button type="primary" @click="submitImport">导入</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -261,10 +349,11 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { CreditCard, Refresh, Plus, Delete } from '@element-plus/icons-vue'
-import { paperApi } from '@/api/paper'
+import { paperApi, type ImportPositionPayload } from '@/api/paper'
 import { analysisApi } from '@/api/analysis'
 import { stocksApi } from '@/api/stocks'
 import { formatDateTime } from '@/utils/datetime'
+import { parsePaperPositionsText } from '@/utils/paperImport'
 
 // 路由与初始化
 const route = useRoute()
@@ -280,6 +369,17 @@ const orderDialog = ref(false)
 const order = ref({ side: 'buy', code: '', qty: 100 })
 const detectedMarket = ref<string>('')
 const activeMarketTab = ref<string>('CN')
+const importDialog = ref(false)
+const importText = ref('')
+const importForm = ref<{
+  mode: 'merge' | 'replace'
+  cash: { CNY: number; HKD: number; USD: number }
+  positions: ImportPositionPayload[]
+}>({
+  mode: 'merge',
+  cash: { CNY: 0, HKD: 0, USD: 0 },
+  positions: []
+})
 
 // 计算属性：根据当前市场标签页过滤持仓
 const filteredPositions = computed(() => {
@@ -429,6 +529,122 @@ async function fetchStockNames(items: any[]) {
 
 function openOrderDialog() {
   orderDialog.value = true
+}
+
+function createImportRow(): ImportPositionPayload {
+  return {
+    market: activeMarketTab.value as 'CN' | 'HK' | 'US',
+    code: '',
+    name: '',
+    quantity: 100,
+    avg_cost: 0,
+    available_qty: 100
+  }
+}
+
+function openImportDialog() {
+  importForm.value.mode = 'merge'
+  importText.value = ''
+  importForm.value.cash = {
+    CNY: Number(account.value?.cash?.CNY || 0),
+    HKD: Number(account.value?.cash?.HKD || 0),
+    USD: Number(account.value?.cash?.USD || 0)
+  }
+  importForm.value.positions = positions.value.length > 0
+    ? positions.value.map(pos => ({
+        market: (pos.market || 'CN') as 'CN' | 'HK' | 'US',
+        code: pos.code || '',
+        name: pos.name || '',
+        quantity: Number(pos.quantity || 0),
+        avg_cost: Number(pos.avg_cost || 0),
+        available_qty: Number(pos.available_qty ?? pos.quantity ?? 0)
+      }))
+    : [createImportRow()]
+  importDialog.value = true
+}
+
+function fillImportExample() {
+  importText.value = [
+    '市场 代码 名称 数量 成本价 可用数量',
+    'A股 002428 云南锗业 200 12.34 200',
+    'HK 00700 腾讯控股 100 380.5 100',
+    'US AAPL 苹果 10 180.25 10'
+  ].join('\n')
+}
+
+function parseImportText() {
+  const parsed = parsePaperPositionsText(importText.value)
+  if (parsed.length === 0) {
+    ElMessage.warning('未解析到有效持仓')
+    return
+  }
+  importForm.value.positions = parsed
+  ElMessage.success(`已解析 ${parsed.length} 个持仓`)
+}
+
+function addImportRow() {
+  importForm.value.positions.push(createImportRow())
+}
+
+function removeImportRow(index: number) {
+  importForm.value.positions.splice(index, 1)
+  if (importForm.value.positions.length === 0) {
+    addImportRow()
+  }
+}
+
+function buildImportPositions() {
+  return importForm.value.positions
+    .map(row => ({
+      ...row,
+      code: String(row.code || '').trim(),
+      name: String(row.name || '').trim(),
+      quantity: Number(row.quantity || 0),
+      avg_cost: Number(row.avg_cost || 0),
+      available_qty: Number(row.available_qty ?? row.quantity ?? 0)
+    }))
+    .filter(row => row.code && row.quantity > 0)
+}
+
+async function submitImport() {
+  try {
+    const importPositions = buildImportPositions()
+    const invalid = importPositions.find(row => row.avg_cost < 0 || row.available_qty! > row.quantity)
+    if (invalid) {
+      ElMessage.warning('请检查持仓成本价和可用数量')
+      return
+    }
+
+    if (importForm.value.mode === 'replace') {
+      await ElMessageBox.confirm(
+        '覆盖账户会清空当前模拟持仓、订单和成交记录，然后导入新的资金和持仓。确认继续？',
+        '覆盖导入确认',
+        { type: 'warning', confirmButtonText: '确认覆盖', cancelButtonText: '取消' }
+      )
+    }
+
+    const res = await paperApi.importAccount({
+      mode: importForm.value.mode,
+      cash: {
+        CNY: Number(importForm.value.cash.CNY || 0),
+        HKD: Number(importForm.value.cash.HKD || 0),
+        USD: Number(importForm.value.cash.USD || 0)
+      },
+      positions: importPositions
+    })
+
+    if (res.success) {
+      ElMessage.success(`导入完成：${res.data.imported_positions} 个持仓`)
+      importDialog.value = false
+      await refreshAll()
+    } else {
+      ElMessage.error(res.message || '导入失败')
+    }
+  } catch (e: any) {
+    if (e !== 'cancel') {
+      ElMessage.error(e?.message || '导入失败')
+    }
+  }
 }
 
 async function submitOrder() {
@@ -592,5 +808,28 @@ onMounted(() => {
 .paper-trading { padding: 16px; }
 .header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
 .title { display:flex; align-items:center; font-weight: 600; font-size: 16px; }
+.actions { display:flex; align-items:center; gap: 8px; }
 .card-hd { font-weight: 600; }
+.form-tip {
+  margin-left: 12px;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+.cash-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+.import-table-wrap {
+  width: 100%;
+}
+.paste-import {
+  width: 100%;
+}
+.import-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
 </style>

@@ -47,6 +47,21 @@ export interface PlaceOrderPayload {
   analysis_id?: string
 }
 
+export interface ImportPositionPayload {
+  code: string
+  market?: 'CN' | 'HK' | 'US'
+  name?: string
+  quantity: number
+  avg_cost: number
+  available_qty?: number
+}
+
+export interface ImportAccountPayload {
+  mode: 'merge' | 'replace'
+  cash?: Partial<CurrencyAmount>
+  positions: ImportPositionPayload[]
+}
+
 export const paperApi = {
   async getAccount() {
     return ApiClient.get<GetAccountResponse>('/api/paper/account')
@@ -59,6 +74,14 @@ export const paperApi = {
   },
   async getOrders(limit = 50) {
     return ApiClient.get<{ items: PaperOrderItem[] }>(`/api/paper/orders`, { limit })
+  },
+  async importAccount(data: ImportAccountPayload) {
+    return ApiClient.post<{
+      message: string
+      mode: string
+      imported_positions: number
+      updated_cash: string[]
+    }>('/api/paper/import', data, { showLoading: true })
   },
   async resetAccount() {
     // 后端要求 confirm=true

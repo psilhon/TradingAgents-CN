@@ -6,6 +6,7 @@
 import asyncio
 import uuid
 import logging
+import re
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 from pathlib import Path
@@ -48,6 +49,46 @@ logger = logging.getLogger("app.services.simple_analysis_service")
 
 # 配置服务实例
 config_service = ConfigService()
+
+
+def _redact_error_detail(message: str) -> str:
+    """Redact likely credentials from error details before persistence."""
+    redacted = str(message or "")
+    redacted = re.sub(r"(?i)(api[_-]?key|token|secret|password)\s*[:=]\s*['\"]?[^'\"\\s,}]+", r"\1=***REDACTED***", redacted)
+    redacted = re.sub(r"\bsk-[A-Za-z0-9_-]{12,}\b", "sk-***REDACTED***", redacted)
+    return redacted
+
+
+def _categorize_error(message: str) -> str:
+    text = str(message or "").lower()
+    if "api key" in text or "unauthorized" in text or "401" in text:
+        return "llm_auth"
+    if "http 400" in text or "error code: 400" in text or "badrequest" in text:
+        return "llm_bad_request"
+    if "权限" in text or "permission" in text or "没有接口" in text:
+        return "data_source_permission"
+    if "无法获取" in text or "no data" in text or "empty data" in text:
+        return "data_unavailable"
+    return "unknown"
+
+
+def _build_task_error_detail(error: Exception, user_message: str) -> Dict[str, Any]:
+    technical_detail = _redact_error_detail(str(error))
+    category = _categorize_error(technical_detail)
+    suggestions = {
+        "llm_auth": ["检查模型厂家 API Key 是否已配置且有效", "确认当前模型使用的厂家与 Key 匹配"],
+        "llm_bad_request": ["检查模型参数和兼容模式", "如使用推理模型，确认工具调用参数是否受支持"],
+        "data_source_permission": ["切换到其他可用数据源", "确认数据源账号具备对应接口权限"],
+        "data_unavailable": ["尝试切换数据源", "确认该股票在当前市场和日期有可用行情或财务数据"],
+        "unknown": ["查看技术详情定位具体错误", "稍后重试或降低分析深度"],
+    }.get(category, ["查看技术详情定位具体错误"])
+
+    return {
+        "summary": user_message.split("\n", 1)[0] if user_message else "分析失败",
+        "technical_detail": technical_detail,
+        "category": category,
+        "suggestions": suggestions,
+    }
 
 
 async def get_provider_by_model_name(model_name: str) -> str:
@@ -133,24 +174,16 @@ def get_provider_and_url_by_model_sync(model_name: str) -> dict:
                     providers_collection = db.llm_providers
                     provider_doc = providers_collection.find_one({"name": provider})
 
-                    # 🔥 确定 API Key（优先级：模型配置 > 厂家配置 > 环境变量）
-                    api_key = None
-                    if model_api_key and model_api_key.strip() and model_api_key != "your-api-key":
-                        api_key = model_api_key
-                        logger.info(f"✅ [同步查询] 使用模型配置的 API Key")
-                    elif provider_doc and provider_doc.get("api_key"):
-                        provider_api_key = provider_doc["api_key"]
-                        if provider_api_key and provider_api_key.strip() and provider_api_key != "your-api-key":
-                            api_key = provider_api_key
-                            logger.info(f"✅ [同步查询] 使用厂家配置的 API Key")
-
-                    # 如果数据库中没有有效的 API Key，尝试从环境变量获取
-                    if not api_key:
-                        api_key = _get_env_api_key_for_provider(provider)
-                        if api_key:
-                            logger.info(f"✅ [同步查询] 使用环境变量的 API Key")
-                        else:
-                            logger.warning(f"⚠️ [同步查询] 未找到 {provider} 的 API Key")
+                    provider_api_key = provider_doc.get("api_key") if provider_doc else None
+                    api_key, api_key_source = _resolve_api_key_for_provider(
+                        provider=provider,
+                        model_api_key=model_api_key,
+                        provider_api_key=provider_api_key,
+                    )
+                    if api_key:
+                        logger.info(f"✅ [同步查询] 使用{api_key_source}的 API Key")
+                    else:
+                        logger.warning(f"⚠️ [同步查询] 未找到 {provider} 的 API Key")
 
                     # 确定 backend_url
                     backend_url = None
@@ -310,6 +343,56 @@ def _get_env_api_key_for_provider(provider: str) -> str:
             return api_key
 
     return None
+
+
+def _is_config_api_key(api_key: str | None) -> bool:
+    if not api_key:
+        return False
+
+    api_key = api_key.strip()
+    return bool(api_key and api_key != "your-api-key" and "..." not in api_key)
+
+
+def _resolve_api_key_for_provider(
+    provider: str,
+    model_api_key: str | None = None,
+    provider_api_key: str | None = None,
+    config_sot: str | None = None,
+) -> tuple[str | None, str]:
+    """Resolve LLM API key according to the configured source of truth."""
+    if config_sot is None:
+        try:
+            from app.core.config import settings
+
+            config_sot = settings.CONFIG_SOT
+        except Exception:
+            config_sot = "file"
+
+    source_of_truth = (config_sot or "file").strip().lower()
+    env_api_key = _get_env_api_key_for_provider(provider)
+
+    if source_of_truth == "file":
+        return env_api_key, "环境变量" if env_api_key else "环境变量"
+
+    db_candidates = [
+        (model_api_key, "模型配置"),
+        (provider_api_key, "厂家配置"),
+    ]
+
+    if source_of_truth == "hybrid":
+        if env_api_key:
+            return env_api_key, "环境变量"
+        for api_key, source in db_candidates:
+            if _is_config_api_key(api_key):
+                return api_key, source
+        return None, "未配置"
+
+    for api_key, source in db_candidates:
+        if _is_config_api_key(api_key):
+            return api_key, source
+    if env_api_key:
+        return env_api_key, "环境变量"
+    return None, "未配置"
 
 
 def _get_default_backend_url(provider: str) -> str:
@@ -1009,6 +1092,7 @@ class SimpleAnalysisService:
                 f"{formatted_error['message']}\n\n"
                 f"💡 {formatted_error['suggestion']}"
             )
+            error_detail = _build_task_error_detail(e, user_friendly_error)
 
             # 标记进度跟踪器失败
             if progress_tracker:
@@ -1025,7 +1109,7 @@ class SimpleAnalysisService:
             )
 
             # 同步更新MongoDB状态为失败
-            await self._update_task_status(task_id, AnalysisStatus.FAILED, 0, user_friendly_error)
+            await self._update_task_status(task_id, AnalysisStatus.FAILED, 0, user_friendly_error, error_detail)
         finally:
             # 清理进度跟踪器缓存
             if task_id in self._progress_trackers:
@@ -2103,6 +2187,8 @@ class SimpleAnalysisService:
                         "parameters": doc.get("parameters", {}),
                         "execution_time": doc.get("execution_time"),
                         "tokens_used": doc.get("tokens_used"),
+                        "error_message": doc.get("last_error"),
+                        "error_detail": doc.get("error_detail"),
                         # 为兼容前端，这里沿用 memory_manager 的字段名
                         "result_data": doc.get("result"),
                     }
@@ -2315,7 +2401,8 @@ class SimpleAnalysisService:
         task_id: str,
         status: AnalysisStatus,
         progress: int,
-        error_message: str = None
+        error_message: str = None,
+        error_detail: Optional[Dict[str, Any]] = None
     ):
         """更新任务状态"""
         try:
@@ -2332,6 +2419,8 @@ class SimpleAnalysisService:
                 update_data["completed_at"] = datetime.utcnow()
             elif status == AnalysisStatus.FAILED:
                 update_data["last_error"] = error_message
+                if error_detail:
+                    update_data["error_detail"] = error_detail
                 update_data["completed_at"] = datetime.utcnow()
 
             await db.analysis_tasks.update_one(

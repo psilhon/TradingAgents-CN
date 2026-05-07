@@ -1,7 +1,23 @@
 <template>
   <div class="dashboard">
     <!-- Hero 区 -->
-    <section class="hero">
+    <section class="hero" ref="heroEl">
+      <!-- 装饰 K 线 SVG（极淡，仅深色可见）-->
+      <svg
+        class="hero-decoration"
+        viewBox="0 0 800 200"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <polyline
+          points="0,150 50,140 80,160 120,120 150,135 200,90 240,110 280,70 320,95 380,55 420,80 470,40 520,65 580,30 640,55 700,25 760,45 800,20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linejoin="round"
+          stroke-linecap="round"
+        />
+      </svg>
       <div class="hero-top">
         <div class="hero-left">
           <h1 class="hero-title">
@@ -17,11 +33,13 @@
         <div class="hero-stat">
           <div class="hero-stat-label">分析任务总数</div>
           <div class="hero-stat-val num">{{ userStats.totalAnalyses }}</div>
+          <Sparkline class="hero-stat-spark" :data="heroTrend.total" color="accent" :width="60" :height="10" :fill="true" />
           <div class="hero-stat-sub">今日 +{{ todayAnalyses }}</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-label">成功率</div>
           <div class="hero-stat-val num down">{{ successRate }}%</div>
+          <Sparkline class="hero-stat-spark" :data="heroTrend.success" color="down" :width="60" :height="10" :fill="true" />
           <div class="hero-stat-sub">
             {{ userStats.successfulAnalyses }} / {{ userStats.totalAnalyses }}
           </div>
@@ -29,11 +47,13 @@
         <div class="hero-stat">
           <div class="hero-stat-label">模拟总资产</div>
           <div class="hero-stat-val num accent">¥{{ formatMoney(totalEquity) }}</div>
+          <Sparkline class="hero-stat-spark" :data="heroTrend.equity" color="accent" :width="60" :height="10" :fill="true" />
           <div class="hero-stat-sub">A股账户</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-label">自选股数量</div>
           <div class="hero-stat-val num">{{ favoriteStocks.length }}</div>
+          <Sparkline class="hero-stat-spark" :data="heroTrend.fav" color="flat" :width="60" :height="10" :fill="true" />
           <div class="hero-stat-sub">{{ favUpCount }}涨 {{ favDownCount }}跌</div>
         </div>
       </div>
@@ -87,7 +107,10 @@
             <div class="sec-title">最近分析</div>
             <span class="sec-link" @click="goToHistory">查看全部历史 →</span>
           </div>
-          <div v-if="recentAnalyses.length === 0" class="empty-block">
+          <div v-if="analysisLoading" class="skeleton-wrap">
+            <div class="skeleton-line" v-for="n in 3" :key="n" style="height: 32px"></div>
+          </div>
+          <div v-else-if="recentAnalyses.length === 0" class="empty-block">
             <el-empty description="暂无分析任务" :image-size="60" />
           </div>
           <div v-else class="analysis-list">
@@ -125,7 +148,13 @@
           <div class="panel-hdr">
             <div class="sec-title">市场快讯</div>
           </div>
-          <div v-if="marketNews.length > 0" class="news-list scroll-body">
+          <div v-if="newsLoading" class="skeleton-wrap">
+            <div v-for="n in 4" :key="n" style="margin-bottom: 12px;">
+              <div class="skeleton-line" style="width: 30%; height: 10px;"></div>
+              <div class="skeleton-line" style="width: 90%; height: 12px;"></div>
+            </div>
+          </div>
+          <div v-else-if="marketNews.length > 0" class="news-list scroll-body">
             <div
               v-for="news in marketNews"
               :key="news.id"
@@ -173,7 +202,13 @@
             <div class="sec-title">我的自选股</div>
             <span class="sec-link" @click="goToFavorites">管理 →</span>
           </div>
-          <div v-if="favoriteStocks.length === 0" class="empty-block">
+          <div v-if="watchlistLoading" class="skeleton-wrap">
+            <div v-for="n in 4" :key="n" class="skeleton-row">
+              <div class="skeleton-line" style="width: 40%; height: 12px;"></div>
+              <div class="skeleton-line" style="width: 25%; height: 12px;"></div>
+            </div>
+          </div>
+          <div v-else-if="favoriteStocks.length === 0" class="empty-block">
             <el-empty description="暂无自选股" :image-size="50">
               <el-button type="primary" size="small" @click="goToFavorites">
                 添加自选股
@@ -191,17 +226,25 @@
                 <div class="watchlist-code">{{ stock.stock_code }}</div>
                 <div class="watchlist-name">{{ stock.stock_name }}</div>
               </div>
+              <Sparkline
+                class="watchlist-spark"
+                :data="mockTrend(strSeed(stock.stock_code), 14, stock.change_percent > 0 ? 'up' : stock.change_percent < 0 ? 'down' : 'flat')"
+                :color="stock.change_percent > 0 ? 'up' : stock.change_percent < 0 ? 'down' : 'flat'"
+                :width="50"
+                :height="18"
+                :fill="true"
+              />
               <div class="watchlist-right">
                 <div
                   class="watchlist-price num"
                   :class="getPriceChangeClass(stock.change_percent)"
-                >¥{{ Number(stock.current_price).toFixed(2) }}</div>
+                >¥<NumberFlip :value="Number(stock.current_price).toFixed(2)" /></div>
                 <div
                   class="watchlist-chg num"
                   :class="getPriceChangeClass(stock.change_percent)"
                 >
                   {{ stock.change_percent > 0 ? '▲' : stock.change_percent < 0 ? '▼' : '—' }}
-                  {{ Math.abs(Number(stock.change_percent)).toFixed(2) }}%
+                  <NumberFlip :value="Math.abs(Number(stock.change_percent)).toFixed(2)" />%
                 </div>
               </div>
             </div>
@@ -302,11 +345,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import {
-  TrendCharts,
   Search,
   Document,
   Files,
@@ -318,6 +360,8 @@ import {
 import { ElMessage } from 'element-plus'
 import type { AnalysisTask, AnalysisStatus } from '@/types/analysis'
 import MultiSourceSyncCard from '@/components/Dashboard/MultiSourceSyncCard.vue'
+import Sparkline from '@/components/Common/Sparkline.vue'
+import NumberFlip from '@/components/Common/NumberFlip.vue'
 import { favoritesApi } from '@/api/favorites'
 import { analysisApi } from '@/api/analysis'
 import { newsApi } from '@/api/news'
@@ -340,8 +384,61 @@ const favoriteStocks = ref<any[]>([])
 const marketNews = ref<any[]>([])
 const paperAccount = ref<PaperAccountSummary | null>(null)
 
+// Loading 状态（首次加载时显示 skeleton shimmer）
+const watchlistLoading = ref(true)
+const analysisLoading = ref(true)
+const newsLoading = ref(true)
+
 // 汇总状态指示灯（暂用静态 ok；真实状态通过展开后的 MultiSourceSyncCard 查看）
 const syncOverall = ref<'ok' | 'warn' | 'err'>('ok')
+
+// 基于 seed 的确定性 mock 趋势数组（sparkline 演示用，没有真实历史 API 时填充）
+const mockTrend = (seed: number, length = 14, direction: 'up' | 'down' | 'flat' = 'flat') => {
+  const arr: number[] = []
+  let value = 50
+  for (let i = 0; i < length; i++) {
+    const noise = Math.sin(seed * 9301 + i * 49297) * 4
+    const trend = direction === 'up' ? i * 1.4 : direction === 'down' ? -i * 1.2 : 0
+    value += noise * 0.3 + trend * 0.4
+    arr.push(value)
+  }
+  return arr
+}
+
+// 字符串 → 简单 hash 数字（用作 mockTrend seed）
+const strSeed = (s: string) => {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0
+  return Math.abs(h) % 1000
+}
+
+// Hero 4 个 stat 的 mock 趋势（固定，不随数据变）
+const heroTrend = {
+  total: mockTrend(11, 14, 'up'),
+  success: mockTrend(22, 14, 'flat'),
+  equity: mockTrend(33, 14, 'up'),
+  fav: mockTrend(44, 14, 'flat'),
+}
+
+// Hero 区鼠标跟随光斑：用 rAF throttle 更新 CSS var（GPU 友好）
+const heroEl = ref<HTMLElement | null>(null)
+let heroRafId: number | null = null
+let heroPendingX = 50
+let heroPendingY = 50
+const onHeroMouseMove = (e: MouseEvent) => {
+  if (!heroEl.value) return
+  const rect = heroEl.value.getBoundingClientRect()
+  heroPendingX = ((e.clientX - rect.left) / rect.width) * 100
+  heroPendingY = ((e.clientY - rect.top) / rect.height) * 100
+  if (heroRafId !== null) return
+  heroRafId = requestAnimationFrame(() => {
+    if (heroEl.value) {
+      heroEl.value.style.setProperty('--mx', heroPendingX + '%')
+      heroEl.value.style.setProperty('--my', heroPendingY + '%')
+    }
+    heroRafId = null
+  })
+}
 
 // 账户 tab 切换
 type AccountKey = 'CNY' | 'HKD' | 'USD'
@@ -400,7 +497,6 @@ const positionRatio = computed(() => {
 })
 
 // 路由跳转
-const quickAnalysis = () => router.push('/analysis/single')
 const goToSingleAnalysis = () => router.push('/analysis/single')
 const goToBatchAnalysis = () => router.push('/analysis/batch')
 const goToScreening = () => router.push('/screening')
@@ -511,6 +607,8 @@ const loadFavoriteStocks = async () => {
     }
   } catch (error) {
     console.error('加载自选股失败:', error)
+  } finally {
+    watchlistLoading.value = false
   }
 }
 
@@ -531,6 +629,8 @@ const loadRecentAnalyses = async () => {
   } catch (error) {
     console.error('加载最近分析失败:', error)
     recentAnalyses.value = []
+  } finally {
+    analysisLoading.value = false
   }
 }
 
@@ -552,6 +652,8 @@ const loadMarketNews = async () => {
   } catch (error) {
     console.error('加载市场快讯失败:', error)
     marketNews.value = []
+  } finally {
+    newsLoading.value = false
   }
 }
 
@@ -567,11 +669,39 @@ const loadPaperAccount = async () => {
   }
 }
 
+// Mock 价格 ticker：每 4.5s 给随机一支股票微调价格 ±0.5%（演示数字翻牌效果，
+// 真实接入 ws 行情后可移除）
+let priceTickerHandle: ReturnType<typeof setInterval> | null = null
+const startPriceTicker = () => {
+  priceTickerHandle = setInterval(() => {
+    if (favoriteStocks.value.length === 0) return
+    const idx = Math.floor(Math.random() * favoriteStocks.value.length)
+    const stock = favoriteStocks.value[idx]
+    const delta = (Math.random() - 0.5) * 0.01 // ±0.5%
+    const oldPrice = Number(stock.current_price) || 0
+    if (oldPrice <= 0) return
+    stock.current_price = +(oldPrice * (1 + delta)).toFixed(2)
+    stock.change_percent = +(Number(stock.change_percent) + delta * 100).toFixed(2)
+  }, 4500)
+}
+
 onMounted(async () => {
+  // 鼠标跟随光斑监听
+  heroEl.value?.addEventListener('mousemove', onHeroMouseMove)
+
   await loadFavoriteStocks()
   await loadRecentAnalyses()
   await loadMarketNews()
   await loadPaperAccount()
+
+  // 启动 mock 价格滚动（仅前端演示，不影响后端数据）
+  startPriceTicker()
+})
+
+onUnmounted(() => {
+  heroEl.value?.removeEventListener('mousemove', onHeroMouseMove)
+  if (heroRafId !== null) cancelAnimationFrame(heroRafId)
+  if (priceTickerHandle !== null) clearInterval(priceTickerHandle)
 })
 </script>
 
@@ -594,16 +724,21 @@ onMounted(async () => {
   padding: 10px 20px;
   overflow: hidden;
 
+  // 鼠标跟随光斑（::before），未触发时居中
   &::before {
     content: '';
     position: absolute;
-    top: -60px;
-    right: -40px;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    inset: 0;
+    background: radial-gradient(
+      circle 360px at var(--mx, 80%) var(--my, 30%),
+      var(--hero-spotlight-color) 0%,
+      transparent 60%
+    );
     pointer-events: none;
+    transition: background 0.2s ease-out;
+    z-index: 0;
   }
+  // 蓝色固定光晕（::after），下方装饰
   &::after {
     content: '';
     position: absolute;
@@ -613,6 +748,25 @@ onMounted(async () => {
     height: 200px;
     background: radial-gradient(circle, var(--blue-soft) 0%, transparent 70%);
     pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// K 线 SVG 装饰：极淡折线在 Hero 底层
+.hero-decoration {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--accent);
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+
+  // 浅色下用蓝色装饰
+  :where(html.light) & {
+    color: var(--blue);
+    opacity: 0.04;
   }
 }
 
@@ -649,6 +803,8 @@ onMounted(async () => {
   letter-spacing: -0.02em;
   margin: 0 0 2px 0;
   color: var(--fg-primary);
+  position: relative;
+  display: inline-block;
 
   // accent 词用渐变填充（金属字效，深浅两套渐变在 token）
   .accent {
@@ -657,7 +813,27 @@ onMounted(async () => {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
+    position: relative;
+    display: inline-block;
+
+    // 标题下渐变 underline + 慢速呼吸（仅深色）
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 30%;
+      bottom: -2px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+      opacity: 0.5;
+      animation: hero-underline-pulse 3.5s ease-in-out infinite;
+    }
   }
+}
+
+@keyframes hero-underline-pulse {
+  0%, 100% { opacity: 0.35; transform: scaleX(0.8); transform-origin: left; }
+  50%      { opacity: 0.8;  transform: scaleX(1);   transform-origin: left; }
 }
 
 .hero-sub {
@@ -699,20 +875,56 @@ onMounted(async () => {
 }
 
 .hero-stat-val {
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--fg-primary);
   line-height: 1.15;
+  letter-spacing: -0.01em;
+  position: relative;
+  display: inline-block;
 
   &.up { color: var(--up); }
   &.down { color: var(--down); }
   &.accent { color: var(--accent); }
+
+  // 数字 shimmer：每 9s 一次高光从左扫到右（深浅双主题，高光色由 token 切换）
+  background: linear-gradient(
+    90deg,
+    currentColor 0%,
+    currentColor 40%,
+    var(--shimmer-highlight) 50%,
+    currentColor 60%,
+    currentColor 100%
+  );
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: stat-shimmer 9s ease-in-out infinite;
 }
+
+@keyframes stat-shimmer {
+  0%, 70%, 100% { background-position: 100% 0; }
+  85%           { background-position: 0% 0; }
+}
+
+// 4 个 stat 错开 shimmer 时间，避免同时闪
+.hero-stat:nth-child(2) .hero-stat-val { animation-delay: 2s; }
+.hero-stat:nth-child(3) .hero-stat-val { animation-delay: 4s; }
+.hero-stat:nth-child(4) .hero-stat-val { animation-delay: 6s; }
 
 .hero-stat-sub {
   font-size: 10px;
   color: var(--fg-muted);
   margin-top: 1px;
+}
+
+// Hero stat sparkline 居中放在 val 和 sub 之间
+.hero-stat-spark {
+  display: block;
+  margin: 2px auto 1px;
+  opacity: 0.85;
 }
 
 // =================================================================
@@ -799,6 +1011,43 @@ onMounted(async () => {
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  position: relative;
+
+  // border 垂直渐变（深浅双主题，色调由 token 切换）
+  border-image: var(--panel-border-grad) 1;
+  border-style: solid;
+  border-width: 1px;
+
+  // 顶部 1px 渐变高光（macOS 玻璃质感，深色更明显）
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--accent-border) 30%,
+      var(--accent) 50%,
+      var(--accent-border) 70%,
+      transparent 100%
+    );
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  // hover：4 边 accent glow ring（深浅双主题）
+  &:hover {
+    border-color: var(--accent-border);
+    box-shadow:
+      0 0 0 1px var(--accent-border),
+      0 0 20px -4px var(--accent-glow);
+
+    &::before { opacity: 1; }
+  }
 }
 
 .panel-hdr {
@@ -851,7 +1100,7 @@ onMounted(async () => {
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s;
   position: relative;
   overflow: hidden;
 
@@ -864,6 +1113,19 @@ onMounted(async () => {
       opacity: 1;
       transform: translate(2px, 0);
     }
+
+    // icon 旋转 + scale（深浅双主题）
+    .action-icon {
+      transform: rotate(-6deg) scale(1.08);
+    }
+  }
+
+  // hover 外发光环（深浅双主题）
+  &:hover {
+    border-color: var(--accent-border);
+    box-shadow:
+      0 0 0 1px var(--accent-border),
+      0 0 24px -6px var(--accent-glow);
   }
 }
 
@@ -877,6 +1139,7 @@ onMounted(async () => {
   flex-shrink: 0;
   font-size: 16px;
   box-shadow: var(--icon-shadow);
+  transition: transform 0.25s ease-out;
 
   :deep(.el-icon) { font-size: 20px; }
 
@@ -985,9 +1248,41 @@ onMounted(async () => {
   &:hover { color: var(--accent); }
 }
 
+// Skeleton 加载态外壳
+.skeleton-wrap {
+  padding: 12px 14px;
+
+  .skeleton-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    &:last-child { margin-bottom: 0; }
+  }
+}
+
 .empty-block {
   padding: 32px 16px;
   text-align: center;
+
+  // 替代 el-empty 默认插画：用 dashboard 风格的迷你 K 线 SVG
+  :deep(.el-empty__image) {
+    width: 80px !important;
+    height: 40px !important;
+    background: none !important;
+
+    img, svg { display: none; }
+
+    // 替换为 ::before 伪元素绘制 K 线 SVG (data URI)
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 40' fill='none' stroke='%23d4a843' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' opacity='0.5'><polyline points='0,28 8,24 16,30 24,18 32,22 40,12 48,16 56,8 64,14 72,6 80,10'/><circle cx='80' cy='10' r='1.5' fill='%23d4a843'/></svg>") no-repeat center / contain;
+    }
+  }
 }
 
 .muted-small {
@@ -1030,6 +1325,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   padding: 6px 14px;
   border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
@@ -1037,6 +1333,12 @@ onMounted(async () => {
 
   &:last-child { border-bottom: none; }
   &:hover { background: var(--bg-hover); }
+}
+
+.watchlist-spark {
+  flex-shrink: 0;
+  opacity: 0.8;
+  margin: 0 4px;
 }
 
 .watchlist-code {
