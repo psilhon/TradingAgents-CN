@@ -8,7 +8,9 @@
 
 ## [Unreleased]
 
-—（暂无）
+### Added
+
+- **paper 模拟交易实时行情 scheduler job**（OpenSpec change `paper-realtime-quotes-job`）：APScheduler 加 2 个 job，把「自选股 ∪ paper 持仓 (CN only)」并集去重后周期 sync 实时收盘价入 `market_quotes`。盘中 `IntervalTrigger(seconds=30)` + job body 时间窗 guard（仅工作日 9:25–15:00 真正执行，盘外早 return）；盘后 `CronTrigger(day_of_week='mon-fri', hour=17, minute=0)` 收盘后兜底一次。复用已有 `app/services/quotes_service.py` 的 `QuotesService`（30s TTL 内存缓存 + `ak.stock_zh_a_spot_em`），避免重复实现 fetch logic。`market_quotes` schema 锁定 5 字段 (code/symbol/close/volume/updated_at)，启动时 ensure unique index on `code`。防重叠 `max_instances=1, coalesce=True`。新建 capability `paper-realtime-quotes` 锁定铁律 ⨯ 4：写入范围限定（不刷全市场）/ 频率（30s 盘中 + 17:00 盘后 + 工作日 only）/ schema / 失败降级。新增 `RealtimeQuoteSyncService` + 6 个单测覆盖 codes 去重 / market=CN filter / upsert payload / QuotesService 失败降级 / 空 codes 跳过 / close ≤ 0 跳过。
 
 ---
 
