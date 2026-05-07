@@ -6,6 +6,7 @@ from unittest.mock import patch
 from tradingagents.llm_clients.base_client import BaseLLMClient
 from tradingagents.llm_clients.factory import create_llm_client
 from tradingagents.llm_clients.model_catalog import get_known_models
+from tradingagents.llm_clients.openai_client import OpenAIClient
 from tradingagents.llm_clients.validators import validate_model
 
 
@@ -81,6 +82,38 @@ class ModelValidationTests(unittest.TestCase):
             client = create_llm_client("google", "gemini-2.5-pro")
 
         self.assertEqual(client.__class__.__name__, "GoogleClient")
+
+    def test_deepseek_disables_thinking_for_tool_calling_runtime(self):
+        captured_kwargs = {}
+
+        class _FakeChatOpenAI:
+            def __init__(self, **kwargs):
+                captured_kwargs.update(kwargs)
+
+        with patch("tradingagents.llm_clients.openai_client.NormalizedChatOpenAI", _FakeChatOpenAI):
+            OpenAIClient("deepseek-v4-pro", provider="deepseek", api_key="test-key").get_llm()
+
+        self.assertEqual(captured_kwargs["extra_body"], {"thinking": {"type": "disabled"}})
+
+    def test_deepseek_preserves_explicit_extra_body(self):
+        captured_kwargs = {}
+
+        class _FakeChatOpenAI:
+            def __init__(self, **kwargs):
+                captured_kwargs.update(kwargs)
+
+        with patch("tradingagents.llm_clients.openai_client.NormalizedChatOpenAI", _FakeChatOpenAI):
+            OpenAIClient(
+                "deepseek-v4-pro",
+                provider="deepseek",
+                api_key="test-key",
+                extra_body={"custom": True},
+            ).get_llm()
+
+        self.assertEqual(
+            captured_kwargs["extra_body"],
+            {"custom": True, "thinking": {"type": "disabled"}},
+        )
 
 
 if __name__ == "__main__":
