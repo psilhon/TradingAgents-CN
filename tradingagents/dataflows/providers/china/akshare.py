@@ -760,6 +760,7 @@ class AKShareProvider(BaseStockDataProvider):
         # 历史的 stock_zh_a_spot / stock_zh_a_spot_em 全市场分支（每次拉 5849 行）
         # 已删除——主路径走 stock_bid_ask_em（单股），兜底走 stock_zh_a_hist（单股）。
         try:
+
             def fetch_individual_spot():
                 return self.ak.stock_zh_a_hist(symbol=code, period="daily", adjust="")
 
