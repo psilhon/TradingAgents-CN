@@ -43,20 +43,24 @@ class QuotesService:
         """确保 cache 有效（在 TTL 内），过期则刷新。返回完整 cache（全市场）.
 
         OpenSpec capability `trading-calendar` 铁律：盘外（周末 / 节假日 /
-        非交易时段）不刷新 akshare，直接返回现有 cache（即使 TTL 过期）。
-        首次启动 cache 空 + 盘外时返回空 dict（合理：盘外没新数据可看）。
+        非交易时段）不刷新 akshare。但盘外仍需提供数据让 UI 显示「最近一次盘中
+        快照」——首次启动 cache 空时从 mongo `market_quotes` 加载已持久化数据
+        到内存。盘内则正常拉 akshare 刷新。
         """
         now = time.time()
         async with self._lock:
             if self._cache and (now - self._cache_ts) < self._ttl:
                 return self._cache
 
-            # 盘外 guard：cache 过期但不刷新，返回 stale data（或空）
+            # 盘外 guard：不调 akshare；cache 空则从 mongo 加载历史快照
             try:
                 from app.services.trading_calendar_service import (
                     get_trading_calendar_service,
                 )
                 if not await get_trading_calendar_service().is_intraday_now():
+                    if not self._cache:
+                        self._cache = await self._load_cache_from_mongo()
+                        self._cache_ts = time.time()  # 假装新鲜，避免重复 mongo 加载
                     return self._cache
             except Exception as e:
                 # trading_calendar 异常时保守降级：仍刷新（避免彻底无数据）
@@ -66,6 +70,41 @@ class QuotesService:
             self._cache = data
             self._cache_ts = time.time()
             return self._cache
+
+    async def _load_cache_from_mongo(self) -> Dict[str, Dict[str, Optional[float]]]:
+        """盘外 fallback：从 mongo `market_quotes` 加载已持久化的最近一次盘中
+        快照到内存 cache 格式。
+
+        mongo `market_quotes` 由项目其他 realtime sync job（实时行情入库 / 实时
+        行情同步 Tushare/AKShare 等）持续写入，含 close + pct_chg + amount 等
+        字段。盘外用这份 stale data 比 UI 全显「—」好。
+        """
+        try:
+            from app.core.database import get_mongo_db
+            db = get_mongo_db()
+            result: Dict[str, Dict[str, Optional[float]]] = {}
+            cursor = db["market_quotes"].find(
+                {},
+                {"code": 1, "close": 1, "pct_chg": 1, "amount": 1, "_id": 0},
+            )
+            async for doc in cursor:
+                code = str(doc.get("code", "")).strip()
+                if not code:
+                    continue
+                # 标准化 6 位代码（与 _fetch_spot_akshare 一致）
+                code = code.zfill(6) if code.isdigit() else code
+                result[code] = {
+                    "close": doc.get("close"),
+                    "pct_chg": doc.get("pct_chg"),
+                    "amount": doc.get("amount"),
+                }
+            logger.info(
+                f"QuotesService 盘外 fallback：从 mongo 加载 {len(result)} 条到 cache"
+            )
+            return result
+        except Exception as e:
+            logger.warning(f"QuotesService._load_cache_from_mongo 失败: {e}")
+            return {}
 
     async def get_market_overview(self) -> Dict[str, Optional[float]]:
         """全市场统计：涨停 / 跌停 / 上涨 / 下跌家数 + 成交额合计。
