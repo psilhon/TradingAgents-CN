@@ -529,7 +529,7 @@ def get_us_stock_data_cached(symbol: str, start_date: str, end_date: str, force_
     # 🔧 智能日期范围处理：自动扩展到配置的回溯天数，处理周末/节假日
     from datetime import datetime
 
-    from app.core.config import get_settings
+    from tradingagents.utils.database import get_market_analyst_lookback_days
     from tradingagents.utils.dataflow_utils import get_trading_date_range
 
     original_start_date = start_date
@@ -537,8 +537,7 @@ def get_us_stock_data_cached(symbol: str, start_date: str, end_date: str, force_
 
     # 从配置获取市场分析回溯天数（默认60天）
     try:
-        settings = get_settings()
-        lookback_days = settings.MARKET_ANALYST_LOOKBACK_DAYS
+        lookback_days = get_market_analyst_lookback_days()
         logger.info(f"📅 [美股配置验证] MARKET_ANALYST_LOOKBACK_DAYS: {lookback_days}天")
     except Exception as e:
         lookback_days = 60  # 默认60天
