@@ -6,7 +6,7 @@
 
 - **定位**：面向中文用户的多智能体股票分析学习平台（FastAPI 后端 + Vue 3 前端 + LangGraph 多智能体 + 多数据源）
 - **当前版本**：`v1.2.1`（fork patch release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
-- **当前阶段**：**v1.2.1 已发布** — v1.2.0 后修 CI gitleaks 误报。v1.2.0 主体：用户工作流稳定性 + 配置层 truth source 收敛（MongoDB 唯一可写源 / JSON 退化为兼容快照）+ DeepSeek V4 + 视觉重构延伸。OpenSpec 累计 13 条 changes archived（含 `stabilize-user-workflows`）。第三梯队剩 3 条（cache 层 / app 反向 import / agent state）+ 第四梯队 3 条按需排期，见 `docs/code-review-2026-05-05.md`。
+- **当前阶段**：**v1.2.1 已发布**，`[Unreleased]` 累积大量 Dashboard 模拟账户专业化 + 项目铁律 capabilities，待下次 release 合到 v1.3.0。OpenSpec 累计 **33 条 changes archived**（v1.2.1 后新加 5 条 capability：`paper-realtime-quotes` / `trading-calendar` / `paper-account-snapshots` / `portfolio-fundamentals` + market overview/dashboard 重构系列）。Dashboard 模拟账户 panel 9 处 mock（5 Tier 3 + 4 Tier 4）已全部接入真实数据源（TWRR/Sharpe/回撤/月度收益 + Beta/VaR/加权 PE-PB），新账户首日显示「—」属预期。剩余 follow-up：第三梯队 4 条（cache 层 / app 反向 import / agent state / company resolver）+ 第四梯队 3 条 + Tier 4 扩展（多基准 / 蒙卡 VaR / 板块敞口 / 港股美股 calendar+snapshot）+ 4 处零散 TODO，按需排期，见 `docs/code-review-2026-05-05.md`。
 - **技术栈**：Python 3.12（homebrew arm64）+ uv + FastAPI + Uvicorn + Vue 3 + Vite + MongoDB 4.4 + Redis 7 + Docker Compose
 - **License 双轨**：根目录 Apache 2.0；`app/`（FastAPI 后端）和 `frontend/`（Vue 前端）为**专有授权**，商业用途必须联系作者 hsliup@163.com
 

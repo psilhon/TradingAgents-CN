@@ -602,14 +602,29 @@ class QuotesIngestionService:
         1. 检测 Tushare 权限（首次运行）
         2. 按轮换顺序尝试获取行情：Tushare → AKShare东方财富 → AKShare新浪财经
         3. 任意一个接口成功即入库，失败则跳过本次采集
+
+        OpenSpec capability `trading-calendar` 铁律：节假日 / 周末 / 工作日盘外
+        不调任何 fetch，避免 akshare 浪费调用 + 写脏数据。优先调
+        is_intraday_now() 综合判断（含节假日识别），失败 fallback 到 sync 的
+        weekday + 时段判断（_is_trading_time）。
         """
-        # 非交易时段处理
-        if not self._is_trading_time():
-            if settings.QUOTES_BACKFILL_ON_OFFHOURS:
-                await self.backfill_last_close_snapshot_if_needed()
-            else:
-                logger.info("⏭️ 非交易时段，跳过行情采集")
-            return
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            if not await get_trading_calendar_service().is_intraday_now():
+                if settings.QUOTES_BACKFILL_ON_OFFHOURS:
+                    await self.backfill_last_close_snapshot_if_needed()
+                return
+        except Exception as e:
+            logger.debug(f"trading_calendar guard 失败 fallback: {e}")
+            # 非交易时段处理（fallback：原 sync 判断）
+            if not self._is_trading_time():
+                if settings.QUOTES_BACKFILL_ON_OFFHOURS:
+                    await self.backfill_last_close_snapshot_if_needed()
+                else:
+                    logger.info("⏭️ 非交易时段，跳过行情采集")
+                return
 
         try:
             # 首次运行：检测 Tushare 权限

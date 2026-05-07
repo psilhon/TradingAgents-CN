@@ -1172,8 +1172,23 @@ async def run_akshare_quotes_sync(force: bool = False):
     APScheduler任务：同步实时行情
 
     Args:
-        force: 是否强制执行（跳过交易时间检查），默认 False
+        force: 是否强制执行（跳过 trading_calendar guard），默认 False
+
+    OpenSpec capability `trading-calendar` 铁律：盘外（周末/节假日/工作日盘外）
+    跳过 fetch，除非 force=True。AKShare service 内部无交易时间检查，
+    入口层加 guard 保护节假日不刷。
     """
+    if not force:
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            if not await get_trading_calendar_service().is_intraday_now():
+                logger.debug("AKShare 行情同步跳过：非 A 股交易日盘中")
+                return {"skipped": "off_market"}
+        except Exception as e:
+            logger.debug(f"trading_calendar guard 失败 fallback: {e}")
+
     try:
         service = await get_akshare_sync_service()
         # 注意：AKShare 没有交易时间检查逻辑，force 参数仅用于接口一致性
