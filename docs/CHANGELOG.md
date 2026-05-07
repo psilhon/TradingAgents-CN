@@ -10,7 +10,23 @@
 
 ### Added
 
-- **paper 模拟交易实时行情 scheduler job**（OpenSpec change `paper-realtime-quotes-job`）：APScheduler 加 2 个 job，把「自选股 ∪ paper 持仓 (CN only)」并集去重后周期 sync 实时收盘价入 `market_quotes`。盘中 `IntervalTrigger(seconds=30)` + job body 时间窗 guard（仅工作日 9:25–15:00 真正执行，盘外早 return）；盘后 `CronTrigger(day_of_week='mon-fri', hour=17, minute=0)` 收盘后兜底一次。复用已有 `app/services/quotes_service.py` 的 `QuotesService`（30s TTL 内存缓存 + `ak.stock_zh_a_spot_em`），避免重复实现 fetch logic。`market_quotes` schema 锁定 5 字段 (code/symbol/close/volume/updated_at)，启动时 ensure unique index on `code`。防重叠 `max_instances=1, coalesce=True`。新建 capability `paper-realtime-quotes` 锁定铁律 ⨯ 4：写入范围限定（不刷全市场）/ 频率（30s 盘中 + 17:00 盘后 + 工作日 only）/ schema / 失败降级。新增 `RealtimeQuoteSyncService` + 6 个单测覆盖 codes 去重 / market=CN filter / upsert payload / QuotesService 失败降级 / 空 codes 跳过 / close ≤ 0 跳过。
+- **A 股交易日历 + 项目铁律「自动刷新仅在交易日盘中执行」**（OpenSpec change `trading-calendar`）：用户提出新规则——所有自动刷新内容（scheduler jobs / 前端 polling）MUST 仅在 A 股交易日盘中（工作日 9:30–11:30 / 13:00–15:00 且非节假日）真正执行，盘外（周末 / 节假日 / 工作日盘外时段）跳过。新建 capability `trading-calendar` 锁定铁律 ⨯ 4：项目级铁律 + mongo schema (date/year, unique index on date) + 启动时检查与 12/31 年度自动同步 + TradingCalendarService API。新建 `app/services/trading_calendar_service.py`：用 akshare `tool_trade_date_hist_sina()` 拉历史交易日（1990–2026 共 8797 条），按年过滤后 upsert 到 `db.trading_calendar`，`is_trading_day(d)` 带 FIFO dict 缓存（max 2048 条），`is_intraday_now()` 综合判断（节假日识别 + 时段判断），`get_today_status()` 返回 `{date, is_trading_day, is_intraday, next_trading_day}` 供前端用。`scheduler_service` 加 `_register_trading_calendar_jobs`：12/31 cron 同步下一年 + 启动时缺当年/下一年异步同步（fire-and-forget 不阻塞启动）。`paper-realtime-quotes-job` 的盘中 guard 从 hardcoded `weekday()<5 + 9:25–15:00` 替换为 `is_intraday_now()`，节假日识别（春节 / 国庆周一–周五原本仍触发，现在跳过）。`market overview` endpoint 加 `is_intraday: bool` 字段，前端 Dashboard polling 加 `if (!marketOverview.value?.is_intraday) return` guard。新增 7 个单测覆盖 sync / mongo 命中 / 节假日识别 / 缓存 / akshare 失败降级。
+
+- **今日市场概况实时数据 + 5 min polling**：Dashboard「今日市场概况」panel 替换 mock 数字（87/12/8423/2841）为真实数据。新建 `app/routers/market.py` `GET /api/market/overview` 返回 `{limit_up, limit_down, advance, decline, amount_total[亿], total, is_intraday}`，复用 `QuotesService` 30s TTL 内存缓存（底层 `ak.stock_zh_a_spot_em` 全市场快照）。`QuotesService` 加 `_ensure_cache` + `get_market_overview` method，前端 `setInterval(5 * 60 * 1000)` polling，`document.hidden` 时跳过，盘外（`is_intraday=false`）跳过。修复 `amount_total` NaN bug（pandas 数值列空值是 NaN，JSON 序列化成 null 让前端 fallback「—」）—— 加 `math.isnan()` 守卫累加前过滤。
+
+- **Dashboard 模拟账户 panel 方案 A + Tier 3+4 视觉重构**（前端集成）：账户卡片从「左右两列资金 vs 持仓」重构为「上下分区 + 底部局部两列」：Hero 全宽（总资产 26px 金色 + 累计盈亏 + 90 天 sparkline mock）/ KPI 6 列横铺（含 TWRR、Sharpe mock）/ 月度收益柱图全宽 mock / 底部两列（左：当前&最大回撤 + Beta/VaR/加权 PE/PB Tier 4 mock，flex:1 撑开把持仓比例 progress 推到底；右：持仓明细 list）。配合 backend `app/routers/paper.py:get_account` 返回 `name` 字段让持仓行显示中文股票名。Mock 字段 5 处 `// TODO: paper-account-snapshots` 和 `// TODO: Tier 4` 注释标记，待后端立项接入。
+
+- **Dashboard 自选股点击跳转东方财富个股页**：`viewStockDetail` 改 `window.open(...)` 新 tab 跳东方财富（6xx→sh / 4-8-9xx→bj / 其余→sz），带 `noopener,noreferrer`。
+
+- **Watchlist panel 撑满 grid row + 修最后一行被截断**：watchlist-panel `display: flex; flex-direction: column`，watchlist-list 改 `flex: 1; min-height: 0; max-height: none`，让 list 撑满 panel 减 header 后高度（之前固定 max-height: 320px 在 grid stretch 后底部留白 + 第 7 只持仓只显半行）。
+
+### Fixed
+
+- **自选股 stock_code 前导空格导致行情显示 0**：mongo 历史数据中部分 stock_code 含前导空格（如 `" 000776"` 广发证券），`favorites_service` 富集时 `find({code: {$in: codes}})` 用未 strip 的 codes 匹配 `market_quotes` 里 trim 过的 code → miss → current_price 保持 None → 前端 `current_price || 0` 显示 ¥0.00。修复：`_format_favorite` 加 `str(raw_code).strip()`，富集 codes list 也 strip 兜底。
+
+### Added (continued)
+
+- **paper 模拟交易实时行情 scheduler job**（OpenSpec change `paper-realtime-quotes-job`，先于 trading-calendar 落地，盘中 guard 已在本 release 同步切换到 `is_intraday_now()`）：APScheduler 加 2 个 job，把「自选股 ∪ paper 持仓 (CN only)」并集去重后周期 sync 实时收盘价入 `market_quotes`。盘中 `IntervalTrigger(seconds=30)` + job body 时间窗 guard（仅工作日 9:25–15:00 真正执行，盘外早 return）；盘后 `CronTrigger(day_of_week='mon-fri', hour=17, minute=0)` 收盘后兜底一次。复用已有 `app/services/quotes_service.py` 的 `QuotesService`（30s TTL 内存缓存 + `ak.stock_zh_a_spot_em`），避免重复实现 fetch logic。`market_quotes` schema 锁定 5 字段 (code/symbol/close/volume/updated_at)，启动时 ensure unique index on `code`。防重叠 `max_instances=1, coalesce=True`。新建 capability `paper-realtime-quotes` 锁定铁律 ⨯ 4：写入范围限定（不刷全市场）/ 频率（30s 盘中 + 17:00 盘后 + 工作日 only）/ schema / 失败降级。新增 `RealtimeQuoteSyncService` + 6 个单测覆盖 codes 去重 / market=CN filter / upsert payload / QuotesService 失败降级 / 空 codes 跳过 / close ≤ 0 跳过。
 
 ---
 
