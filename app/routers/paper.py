@@ -330,6 +330,7 @@ async def get_account(current_user: dict = Depends(get_current_user)):
 
         detailed_positions.append({
             "code": code,
+            "name": p.get("name"),
             "market": market,
             "currency": currency,
             "quantity": qty,

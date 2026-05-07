@@ -16,6 +16,7 @@ export interface PaperAccountSummary {
 
 export interface PaperPositionItem {
   code: string
+  name?: string
   quantity: number
   avg_cost: number
   last_price?: number | null
