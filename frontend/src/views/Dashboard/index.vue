@@ -251,58 +251,201 @@
           </div>
         </div>
 
-        <!-- Row 3 右：模拟交易账户 -->
+        <!-- Row 3 左：模拟交易账户（方案 A + Tier 3） -->
         <div class="panel account-panel ga-account">
           <div class="panel-hdr">
-            <div class="sec-title">模拟交易账户</div>
-            <span class="sec-link" @click="goToPaperTrading">详情 →</span>
-          </div>
-          <div class="account-tabs">
-            <div
-              v-for="tab in accountTabs"
-              :key="tab.key"
-              class="account-tab"
-              :class="{ active: activeAccountTab === tab.key }"
-              @click="activeAccountTab = tab.key"
-            >
-              {{ tab.flag }} {{ tab.label }}
+            <div class="sec-title">
+              <span>🇨🇳 A 股模拟账户</span>
+              <span v-if="paperAccount" class="position-chip num">{{ positionCount }} 持仓</span>
             </div>
+            <span class="sec-link" @click="goToPaperTrading">详情 →</span>
           </div>
           <div class="account-body">
             <template v-if="paperAccount">
-              <div class="account-row">
-                <span class="account-label">可用现金</span>
-                <span class="account-val num">
-                  {{ currentCurrency.symbol }}{{ formatMoney(getCurrencyAmount(paperAccount.cash, currentCurrency.key)) }}
-                </span>
-              </div>
-              <div class="account-row">
-                <span class="account-label">持仓市值</span>
-                <span class="account-val num">
-                  {{ currentCurrency.symbol }}{{ formatMoney(getCurrencyAmount(paperAccount.positions_value, currentCurrency.key)) }}
-                </span>
-              </div>
-              <div class="account-divider"></div>
-              <div class="account-row">
-                <span class="account-label">账户总资产</span>
-                <span class="account-val num accent strong">
-                  {{ currentCurrency.symbol }}{{ formatMoney(getCurrencyAmount(paperAccount.equity, currentCurrency.key)) }}
-                </span>
-              </div>
-              <div class="account-progress">
-                <div class="progress-label">
-                  <span>持仓比例</span>
-                  <span class="num">{{ positionRatio }}%</span>
+              <!-- Hero 全宽：总资产 + 累计盈亏 + 资产曲线 sparkline -->
+              <div class="account-hero hero-full">
+                <div class="hero-info">
+                  <div class="hero-label">账户总资产 (¥)</div>
+                  <div class="hero-val num accent">
+                    {{ formatMoney(getCurrencyAmount(paperAccount.equity, 'CNY')) }}
+                  </div>
+                  <div class="hero-pnl num" :class="totalPnl >= 0 ? 'up' : 'down'">
+                    <span class="pnl-amount">
+                      {{ totalPnl >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(totalPnl)) }}
+                    </span>
+                    <span class="pnl-rate">
+                      ({{ totalPnl >= 0 ? '+' : '' }}{{ pnlRate }}%)
+                    </span>
+                  </div>
                 </div>
-                <div class="progress-bar">
-                  <div class="progress-fill" :style="{ width: positionRatio + '%' }"></div>
+                <!-- TODO: paper-account-snapshots OpenSpec change 后切真实 90 天资产曲线 -->
+                <div class="hero-spark">
+                  <svg viewBox="0 0 130 50" class="spark-svg">
+                    <polyline
+                      :points="mockSparklineLine"
+                      fill="none"
+                      stroke="var(--up)"
+                      stroke-width="1.6"
+                    />
+                    <polyline
+                      :points="mockSparklineFill"
+                      fill="var(--up)"
+                      fill-opacity="0.12"
+                      stroke="none"
+                    />
+                  </svg>
+                  <div class="spark-meta">
+                    <span class="dim">90 天</span>
+                    <span class="num up">+18.6%</span>
+                  </div>
                 </div>
               </div>
-              <el-button
-                type="primary"
-                style="width: 100%; margin-top: 14px;"
-                @click="goToPaperTrading"
-              >开始模拟交易</el-button>
+
+              <!-- KPI 6 列横铺全宽 -->
+              <div class="account-kpis kpis-6col">
+                <div class="kpi-cell">
+                  <div class="kpi-label">可用现金</div>
+                  <div class="kpi-val num">
+                    ¥{{ formatMoney(getCurrencyAmount(paperAccount.cash, 'CNY')) }}
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="kpi-label">持仓市值</div>
+                  <div class="kpi-val num">
+                    ¥{{ formatMoney(getCurrencyAmount(paperAccount.positions_value, 'CNY')) }}
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="kpi-label">已实现盈亏</div>
+                  <div class="kpi-val num" :class="realizedPnl >= 0 ? 'up' : 'down'">
+                    {{ realizedPnl >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(realizedPnl)) }}
+                  </div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="kpi-label">浮动盈亏</div>
+                  <div class="kpi-val num" :class="unrealizedPnl >= 0 ? 'up' : 'down'">
+                    {{ unrealizedPnl >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(unrealizedPnl)) }}
+                  </div>
+                </div>
+                <!-- TODO: paper-account-snapshots OpenSpec change 后切真实 -->
+                <div class="kpi-cell">
+                  <div class="kpi-label">TWRR</div>
+                  <div class="kpi-val num up">+18.6%</div>
+                </div>
+                <div class="kpi-cell">
+                  <div class="kpi-label">Sharpe</div>
+                  <div class="kpi-val num strong">1.42</div>
+                </div>
+              </div>
+
+              <!-- 月度收益柱图 全宽 -->
+              <!-- TODO: paper-account-snapshots OpenSpec change 后切真实 -->
+              <div class="month-bars">
+                <div class="month-bars-label">月度收益</div>
+                <div class="month-bars-row">
+                  <div v-for="m in mockMonthBars" :key="m.month" class="month-bar-cell">
+                    <div class="month-bar-track">
+                      <div
+                        class="month-bar-fill"
+                        :class="m.value >= 0 ? 'up' : 'down'"
+                        :style="{
+                          height: Math.abs(m.value) * 1.6 + 'px',
+                          bottom: m.value >= 0 ? '50%' : 'auto',
+                          top: m.value < 0 ? '50%' : 'auto',
+                        }"
+                      ></div>
+                      <div class="month-bar-axis"></div>
+                    </div>
+                    <div class="month-bar-label">{{ m.month }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 底部两列：左 [progress + 风险 + button] / 右 [持仓 list] -->
+              <div class="account-footer">
+                <div class="footer-left">
+                  <!-- TODO: paper-account-snapshots OpenSpec change 后切真实 -->
+                  <div class="risk-stats">
+                    <div class="risk-stat">
+                      <span class="risk-label">当前回撤</span>
+                      <span class="risk-val num down">−3.2%</span>
+                    </div>
+                    <div class="risk-stat">
+                      <span class="risk-label">最大回撤</span>
+                      <span class="risk-val num down">−8.5%</span>
+                    </div>
+                  </div>
+                  <!-- TODO: Tier 4 — 等外部行情/基本面数据接入后切真实 (Beta vs HS300, 历史 VaR, 持仓加权 PE/PB) -->
+                  <div class="tier4-kpis">
+                    <div class="kpi-cell">
+                      <div class="kpi-label">Beta</div>
+                      <div class="kpi-val num">1.12 <span class="kpi-tag">中高弹性</span></div>
+                    </div>
+                    <div class="kpi-cell">
+                      <div class="kpi-label">VaR (1D, 95%)</div>
+                      <div class="kpi-val num down">−¥4,820</div>
+                    </div>
+                    <div class="kpi-cell">
+                      <div class="kpi-label">加权 PE</div>
+                      <div class="kpi-val num">18.4×</div>
+                    </div>
+                    <div class="kpi-cell">
+                      <div class="kpi-label">加权 PB</div>
+                      <div class="kpi-val num">2.1×</div>
+                    </div>
+                  </div>
+                  <div class="account-progress account-progress-bottom">
+                    <div class="progress-label">
+                      <span>持仓比例</span>
+                      <span class="num">{{ positionRatio }}%</span>
+                    </div>
+                    <div class="progress-bar">
+                      <div class="progress-fill" :style="{ width: positionRatio + '%' }"></div>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="paperPositions.length > 0" class="footer-right">
+                  <div class="positions-header">
+                    <span>持仓明细</span>
+                    <span class="muted-small">{{ positionCount }} 只</span>
+                  </div>
+                  <div class="positions-list">
+                    <div
+                      v-for="p in paperPositions"
+                      :key="p.code"
+                      class="position-item"
+                    >
+                      <div class="pos-row pos-row-main">
+                        <span class="pos-code">
+                          <span class="num">{{ p.code }}</span>
+                          <span v-if="p.name" class="pos-name">{{ p.name }}</span>
+                        </span>
+                        <span
+                          class="pos-pnl num"
+                          :class="(p.unrealized_pnl ?? 0) >= 0 ? 'up' : 'down'"
+                        >
+                          {{ (p.unrealized_pnl ?? 0) >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(p.unrealized_pnl ?? 0)) }}
+                        </span>
+                      </div>
+                      <div class="pos-row pos-row-meta">
+                        <span class="pos-meta">
+                          {{ p.quantity }} 股 @ ¥{{ formatMoney(p.avg_cost) }}
+                          <template v-if="p.last_price != null">
+                            <span class="pos-arrow">→</span>
+                            ¥{{ formatMoney(p.last_price) }}
+                          </template>
+                        </span>
+                        <span
+                          class="pos-pnl-rate"
+                          :class="positionPnlRate(p) >= 0 ? 'up' : 'down'"
+                        >
+                          {{ positionPnlRate(p) >= 0 ? '+' : '' }}{{ positionPnlRate(p).toFixed(2) }}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </template>
             <div v-else class="empty-block">
               <p class="muted-small">暂无账户信息</p>
@@ -365,7 +508,7 @@ import NumberFlip from '@/components/Common/NumberFlip.vue'
 import { favoritesApi } from '@/api/favorites'
 import { analysisApi } from '@/api/analysis'
 import { newsApi } from '@/api/news'
-import { paperApi, type PaperAccountSummary } from '@/api/paper'
+import { paperApi, type PaperAccountSummary, type PaperPositionItem } from '@/api/paper'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -383,6 +526,7 @@ const recentAnalyses = ref<AnalysisTask[]>([])
 const favoriteStocks = ref<any[]>([])
 const marketNews = ref<any[]>([])
 const paperAccount = ref<PaperAccountSummary | null>(null)
+const paperPositions = ref<PaperPositionItem[]>([])
 
 // Loading 状态（首次加载时显示 skeleton shimmer）
 const watchlistLoading = ref(true)
@@ -440,17 +584,8 @@ const onHeroMouseMove = (e: MouseEvent) => {
   })
 }
 
-// 账户 tab 切换
+// 模拟账户固定走 A 股 / CNY；港股美股暂时不展示在 Dashboard 卡片
 type AccountKey = 'CNY' | 'HKD' | 'USD'
-const accountTabs: { key: AccountKey; label: string; flag: string; symbol: string }[] = [
-  { key: 'CNY', label: 'A股', flag: '🇨🇳', symbol: '¥' },
-  { key: 'HKD', label: '港股', flag: '🇭🇰', symbol: 'HK$' },
-  { key: 'USD', label: '美股', flag: '🇺🇸', symbol: '$' },
-]
-const activeAccountTab = ref<AccountKey>('CNY')
-const currentCurrency = computed(() => {
-  return accountTabs.find((t) => t.key === activeAccountTab.value) || accountTabs[0]
-})
 
 const getCurrencyAmount = (
   amount: number | { CNY: number; HKD: number; USD: number } | undefined,
@@ -490,10 +625,58 @@ const favDownCount = computed(() =>
 
 const positionRatio = computed(() => {
   if (!paperAccount.value) return 0
-  const equity = getCurrencyAmount(paperAccount.value.equity, activeAccountTab.value)
-  const positions = getCurrencyAmount(paperAccount.value.positions_value, activeAccountTab.value)
+  const equity = getCurrencyAmount(paperAccount.value.equity, 'CNY')
+  const positions = getCurrencyAmount(paperAccount.value.positions_value, 'CNY')
   if (!equity) return 0
   return ((positions / equity) * 100).toFixed(1)
+})
+
+// 持仓数 + 累计盈亏 KPI
+const positionCount = computed(() => paperPositions.value.length)
+
+const positionPnlRate = (p: PaperPositionItem): number => {
+  const pnl = p.unrealized_pnl ?? 0
+  const cost = p.quantity * p.avg_cost
+  if (!cost) return 0
+  return (pnl / cost) * 100
+}
+
+// =================================================================
+// Tier 3 mock 数据 — TODO: 等后端 OpenSpec change `paper-account-snapshots`
+// 实施完毕后切换到 GET /api/paper/snapshots + GET /api/paper/performance
+// =================================================================
+const mockSparklineLine =
+  '0,42 12,40 24,38 36,30 48,32 60,24 72,18 84,22 96,12 108,8 120,5'
+const mockSparklineFill =
+  '0,42 12,40 24,38 36,30 48,32 60,24 72,18 84,22 96,12 108,8 120,5 120,50 0,50'
+
+const mockMonthBars = [
+  { month: '2月', value: 2.1 },
+  { month: '3月', value: -1.5 },
+  { month: '4月', value: 4.8 },
+  { month: '5月', value: 6.2 },
+  { month: '6月', value: -2.3 },
+  { month: '7月', value: 3.5 },
+  { month: '8月', value: 5.1 },
+]
+
+const realizedPnl = computed(() => {
+  if (!paperAccount.value) return 0
+  return getCurrencyAmount(paperAccount.value.realized_pnl, 'CNY')
+})
+
+const unrealizedPnl = computed(() => {
+  return paperPositions.value.reduce((sum, p) => sum + (p.unrealized_pnl ?? 0), 0)
+})
+
+const totalPnl = computed(() => realizedPnl.value + unrealizedPnl.value)
+
+const pnlRate = computed(() => {
+  if (!paperAccount.value) return '0.00'
+  const equity = getCurrencyAmount(paperAccount.value.equity, 'CNY')
+  const cost = equity - totalPnl.value
+  if (!cost) return '0.00'
+  return ((totalPnl.value / cost) * 100).toFixed(2)
 })
 
 // 路由跳转
@@ -662,10 +845,12 @@ const loadPaperAccount = async () => {
     const response = await paperApi.getAccount()
     if (response.success && response.data) {
       paperAccount.value = response.data.account
+      paperPositions.value = response.data.positions ?? []
     }
   } catch (error) {
     console.error('加载模拟交易账户失败:', error)
     paperAccount.value = null
+    paperPositions.value = []
   }
 }
 
@@ -948,10 +1133,10 @@ onUnmounted(() => {
 .ga-sync        { grid-column: 2; grid-row: 1; }
 .ga-quick       { grid-column: 1; grid-row: 2; }
 .ga-market      { grid-column: 2; grid-row: 2; }
-.ga-analysis    { grid-column: 1; grid-row: 3; }
-.ga-account     { grid-column: 2; grid-row: 3; }
+.ga-account     { grid-column: 1; grid-row: 3; }
+.ga-watchlist   { grid-column: 2; grid-row: 3; }
 .ga-news        { grid-column: 1; grid-row: 4; }
-.ga-watchlist   { grid-column: 2; grid-row: 4; }
+.ga-analysis    { grid-column: 2; grid-row: 4; }
 
 // 移动端：单列、按声明顺序流式排
 @media (max-width: 1100px) {
@@ -1369,31 +1554,430 @@ onUnmounted(() => {
 // =================================================================
 // 模拟账户
 // =================================================================
-.account-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border-default);
-}
-
-.account-tab {
-  flex: 1;
-  padding: 4px;
-  text-align: center;
-  font-size: 12px;
-  color: var(--fg-muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s;
-
-  &:hover { color: var(--fg-secondary); }
-
-  &.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+.account-panel {
+  .sec-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 }
 
+.position-chip {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--fg-secondary);
+  background: var(--border-default);
+  padding: 2px 6px;
+  border-radius: 8px;
+  line-height: 1;
+}
+
 .account-body {
-  padding: 8px 14px;
+  padding: 10px 14px 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+// Hero 全宽：左侧大数字 + 右侧资产曲线 sparkline
+.account-hero {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-default);
+
+  &.hero-full {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14px;
+  }
+}
+
+.hero-info { flex: 1; min-width: 0; }
+
+.hero-spark {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.spark-svg {
+  width: 96px;
+  height: 30px;
+  display: block;
+}
+
+.spark-meta {
+  font-size: 11px;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+
+  .dim { color: var(--fg-muted); }
+  .up { color: var(--up); font-weight: 600; }
+}
+
+// preview-chip：标识 mock 数据来源（待 paper-account-snapshots 接入）
+.preview-chip {
+  background: rgba(212, 168, 67, 0.18) !important;
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
+.hero-label {
+  font-size: 10px;
+  color: var(--fg-muted);
+  margin-bottom: 1px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.hero-val {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  display: block;
+  // 强制金色（覆盖 .num 的 shimmer + background-clip:text 干扰）
+  color: var(--accent) !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: var(--accent) !important;
+}
+
+.hero-pnl {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
+  &.up { color: var(--up); }
+  &.down { color: var(--down); }
+}
+
+.pnl-amount {
+  font-weight: 700;
+}
+
+.pnl-rate {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+// 资金 KPI 网格 — 默认 6 列横铺；中等宽度 3 列；移动端 2 列
+.account-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 18px;
+  margin-bottom: 8px;
+
+  &.kpis-6col {
+    grid-template-columns: repeat(6, 1fr);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-default);
+
+    @media (max-width: 1100px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+.kpi-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.kpi-label {
+  font-size: 10px;
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.kpi-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  letter-spacing: -0.01em;
+
+  &.up { color: var(--up); }
+  &.down { color: var(--down); }
+  &.strong { font-weight: 700; }
+}
+
+// 月度收益柱图 全宽
+.month-bars {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.month-bars-label {
+  font-size: 10px;
+  color: var(--fg-muted);
+  margin-bottom: 2px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.month-bars-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.month-bar-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.month-bar-track {
+  position: relative;
+  width: 100%;
+  height: 24px;
+}
+
+.month-bar-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--border-default);
+}
+
+.month-bar-fill {
+  position: absolute;
+  left: 25%;
+  width: 50%;
+  border-radius: 2px;
+
+  &.up { background: var(--up); }
+  &.down { background: var(--down); }
+}
+
+.month-bar-label {
+  font-size: 10px;
+  color: var(--fg-muted);
+}
+
+// 底部两列：左 [progress + 风险 + Tier 4 KPI + button] / 右 [持仓 list]
+// 用 stretch + flex 让两列等高（左列 button 推到底，持仓 list 撑满）
+.account-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 18px;
+  align-items: stretch;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-left {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-right {
+  min-width: 0;
+  border-left: 1px solid var(--border-default);
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 900px) {
+    border-left: none;
+    padding-left: 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-default);
+  }
+}
+
+// Tier 4 — 风险/估值 KPI 2×2 网格
+.tier4-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-default);
+  flex: 1;  // 撑开剩余空间，把持仓比例 progress 推到底（与右列持仓 list 对齐）
+}
+
+// 持仓比例 progress 移到 footer-left 底部
+.account-progress-bottom {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-default);
+}
+
+.kpi-tag {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: var(--border-default);
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: 4px;
+  vertical-align: middle;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.risk-stats {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 5px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.risk-stat {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.risk-label {
+  font-size: 10px;
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.risk-val {
+  font-size: 12.5px;
+  font-weight: 600;
+
+  &.up { color: var(--up); }
+  &.down { color: var(--down); }
+}
+
+// 持仓明细 list — flex 撑满 footer-right 高度
+.positions-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.positions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  color: var(--fg-muted);
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  .muted-small {
+    font-size: 11px;
+    color: var(--fg-muted);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+}
+
+.positions-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 2px;
+    &:hover { background: var(--fg-muted); }
+  }
+}
+
+.position-item {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border-default);
+
+  &:first-child { padding-top: 0; }
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.pos-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.pos-row-main {
+  margin-bottom: 1px;
+}
+
+.pos-code {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.pos-name {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  letter-spacing: normal;
+}
+
+.pos-pnl {
+  font-size: 12.5px;
+  font-weight: 600;
+
+  &.up { color: var(--up); }
+  &.down { color: var(--down); }
+}
+
+.pos-row-meta {
+  font-size: 10.5px;
+  color: var(--fg-muted);
+}
+
+.pos-meta {
+  font-variant-numeric: tabular-nums;
+}
+
+.pos-arrow {
+  margin: 0 3px;
+  opacity: 0.6;
+}
+
+.pos-pnl-rate {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+
+  &.up { color: var(--up); opacity: 0.85; }
+  &.down { color: var(--down); opacity: 0.85; }
 }
 
 .account-row {
