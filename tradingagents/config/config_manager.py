@@ -30,6 +30,7 @@ def _redact_for_preview(api_key: str | None) -> str:
         return "未配置"
     return _redact_full(api_key)
 
+
 # 发出废弃警告
 warnings.warn(
     "ConfigManager is deprecated and will be removed in version 2.0 (2026-03-31). "
