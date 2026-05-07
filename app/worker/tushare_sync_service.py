@@ -1291,8 +1291,22 @@ async def run_tushare_quotes_sync(force: bool = False):
     APScheduler任务：同步实时行情
 
     Args:
-        force: 是否强制执行（跳过交易时间检查），默认 False
+        force: 是否强制执行（跳过交易时间检查 + trading_calendar guard），默认 False
+
+    OpenSpec capability `trading-calendar` 铁律：盘外（周末/节假日/工作日盘外）
+    跳过 fetch，除非 force=True。
     """
+    if not force:
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            if not await get_trading_calendar_service().is_intraday_now():
+                logger.debug("Tushare 行情同步跳过：非 A 股交易日盘中")
+                return {"skipped": "off_market"}
+        except Exception as e:
+            logger.debug(f"trading_calendar guard 失败 fallback: {e}")
+
     try:
         service = await get_tushare_sync_service()
         result = await service.sync_realtime_quotes(force=force)
