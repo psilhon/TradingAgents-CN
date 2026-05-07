@@ -603,6 +603,35 @@ async def list_orders(limit: int = Query(50, ge=1, le=200), current_user: dict =
     return ok({"items": cleaned})
 
 
+# OpenSpec change `paper-account-snapshots`：每日账户快照 + 性能聚合
+@router.get("/snapshots", response_model=dict)
+async def list_snapshots(
+    days: int = Query(90, ge=1, le=365),
+    current_user: dict = Depends(get_current_user),
+):
+    """返回最近 N 个交易日 paper 账户净值快照（按 date 升序）.
+
+    字段：date / equity / cash / positions_value / realized_pnl / unrealized_pnl
+    """
+    from app.services.paper_snapshot_service import get_paper_snapshot_service
+    items = await get_paper_snapshot_service().get_snapshots(
+        current_user["id"], days=days
+    )
+    return ok({"items": items})
+
+
+@router.get("/performance", response_model=dict)
+async def get_performance(current_user: dict = Depends(get_current_user)):
+    """聚合 paper 账户性能指标（基于 90 天 snapshot 时间序列）.
+
+    返回 TWRR / Sharpe / 当前&最大回撤 / 月度收益 / sparkline 11 点。
+    snapshot < 2 条时所有指标为 null（前端显示「—」）。
+    """
+    from app.services.paper_performance_service import get_overview
+    overview = await get_overview(current_user["id"], days=90)
+    return ok(overview)
+
+
 @router.post("/import", response_model=dict)
 async def import_account(payload: ImportAccountRequest, current_user: dict = Depends(get_current_user)):
     """导入模拟账户资金和初始持仓。"""

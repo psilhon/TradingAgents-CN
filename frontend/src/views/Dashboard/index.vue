@@ -278,25 +278,26 @@
                     </span>
                   </div>
                 </div>
-                <!-- TODO: paper-account-snapshots OpenSpec change 后切真实 90 天资产曲线 -->
-                <div class="hero-spark">
+                <div v-if="paperPerformance && paperPerformance.sparkline_points.length >= 2" class="hero-spark">
                   <svg viewBox="0 0 130 50" class="spark-svg">
                     <polyline
-                      :points="mockSparklineLine"
+                      :points="sparklineLinePoints"
                       fill="none"
-                      stroke="var(--up)"
+                      :stroke="(paperPerformance.twrr ?? 0) >= 0 ? 'var(--up)' : 'var(--down)'"
                       stroke-width="1.6"
                     />
                     <polyline
-                      :points="mockSparklineFill"
-                      fill="var(--up)"
+                      :points="sparklineFillPoints"
+                      :fill="(paperPerformance.twrr ?? 0) >= 0 ? 'var(--up)' : 'var(--down)'"
                       fill-opacity="0.12"
                       stroke="none"
                     />
                   </svg>
                   <div class="spark-meta">
                     <span class="dim">90 天</span>
-                    <span class="num up">+18.6%</span>
+                    <span class="num" :class="(paperPerformance.twrr ?? 0) >= 0 ? 'up' : 'down'">
+                      {{ formatPctSigned(paperPerformance.twrr) }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -327,36 +328,38 @@
                     {{ unrealizedPnl >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(unrealizedPnl)) }}
                   </div>
                 </div>
-                <!-- TODO: paper-account-snapshots OpenSpec change 后切真实 -->
                 <div class="kpi-cell">
                   <div class="kpi-label">TWRR</div>
-                  <div class="kpi-val num up">+18.6%</div>
+                  <div class="kpi-val num" :class="paperPerformance?.twrr != null ? ((paperPerformance.twrr >= 0) ? 'up' : 'down') : ''">
+                    {{ paperPerformance?.twrr != null ? formatPctSigned(paperPerformance.twrr) : '—' }}
+                  </div>
                 </div>
                 <div class="kpi-cell">
                   <div class="kpi-label">Sharpe</div>
-                  <div class="kpi-val num strong">1.42</div>
+                  <div class="kpi-val num strong">
+                    {{ paperPerformance?.sharpe != null ? paperPerformance.sharpe.toFixed(2) : '—' }}
+                  </div>
                 </div>
               </div>
 
               <!-- 月度收益柱图 全宽 -->
-              <!-- TODO: paper-account-snapshots OpenSpec change 后切真实 -->
-              <div class="month-bars">
+              <div v-if="paperPerformance && paperPerformance.monthly_returns.length > 0" class="month-bars">
                 <div class="month-bars-label">月度收益</div>
                 <div class="month-bars-row">
-                  <div v-for="m in mockMonthBars" :key="m.month" class="month-bar-cell">
+                  <div v-for="m in paperPerformance.monthly_returns.slice(-7)" :key="m.month" class="month-bar-cell">
                     <div class="month-bar-track">
                       <div
                         class="month-bar-fill"
-                        :class="m.value >= 0 ? 'up' : 'down'"
+                        :class="m.return_pct >= 0 ? 'up' : 'down'"
                         :style="{
-                          height: Math.abs(m.value) * 1.6 + 'px',
-                          bottom: m.value >= 0 ? '50%' : 'auto',
-                          top: m.value < 0 ? '50%' : 'auto',
+                          height: Math.min(Math.abs(m.return_pct) * 1.6, 12) + 'px',
+                          bottom: m.return_pct >= 0 ? '50%' : 'auto',
+                          top: m.return_pct < 0 ? '50%' : 'auto',
                         }"
                       ></div>
                       <div class="month-bar-axis"></div>
                     </div>
-                    <div class="month-bar-label">{{ m.month }}</div>
+                    <div class="month-bar-label">{{ m.month.slice(5) }}月</div>
                   </div>
                 </div>
               </div>
@@ -364,15 +367,18 @@
               <!-- 底部两列：左 [progress + 风险 + button] / 右 [持仓 list] -->
               <div class="account-footer">
                 <div class="footer-left">
-                  <!-- TODO: paper-account-snapshots OpenSpec change 后切真实 -->
                   <div class="risk-stats">
                     <div class="risk-stat">
                       <span class="risk-label">当前回撤</span>
-                      <span class="risk-val num down">−3.2%</span>
+                      <span class="risk-val num down">
+                        {{ paperPerformance?.current_drawdown != null ? formatPctSigned(paperPerformance.current_drawdown) : '—' }}
+                      </span>
                     </div>
                     <div class="risk-stat">
                       <span class="risk-label">最大回撤</span>
-                      <span class="risk-val num down">−8.5%</span>
+                      <span class="risk-val num down">
+                        {{ paperPerformance?.max_drawdown != null ? formatPctSigned(paperPerformance.max_drawdown) : '—' }}
+                      </span>
                     </div>
                   </div>
                   <!-- TODO: Tier 4 — 等外部行情/基本面数据接入后切真实 (Beta vs HS300, 历史 VaR, 持仓加权 PE/PB) -->
@@ -522,6 +528,7 @@ import { analysisApi } from '@/api/analysis'
 import { newsApi } from '@/api/news'
 import { paperApi, type PaperAccountSummary, type PaperPositionItem } from '@/api/paper'
 import { marketApi, type MarketOverview } from '@/api/market'
+import { paperPerformanceApi, type PaperPerformance } from '@/api/paperPerformance'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -542,6 +549,7 @@ const paperAccount = ref<PaperAccountSummary | null>(null)
 const paperPositions = ref<PaperPositionItem[]>([])
 const marketOverview = ref<MarketOverview | null>(null)
 const marketOverviewLoading = ref(false)
+const paperPerformance = ref<PaperPerformance | null>(null)
 
 // Loading 状态（首次加载时显示 skeleton shimmer）
 const watchlistLoading = ref(true)
@@ -657,23 +665,48 @@ const positionPnlRate = (p: PaperPositionItem): number => {
 }
 
 // =================================================================
-// Tier 3 mock 数据 — TODO: 等后端 OpenSpec change `paper-account-snapshots`
-// 实施完毕后切换到 GET /api/paper/snapshots + GET /api/paper/performance
+// Tier 3 真实数据：从 GET /api/paper/performance 拉取（OpenSpec change
+// `paper-account-snapshots` 已落地）。snapshot < 2 条时所有字段为 null，
+// 前端显示「—」。
 // =================================================================
-const mockSparklineLine =
-  '0,42 12,40 24,38 36,30 48,32 60,24 72,18 84,22 96,12 108,8 120,5'
-const mockSparklineFill =
-  '0,42 12,40 24,38 36,30 48,32 60,24 72,18 84,22 96,12 108,8 120,5 120,50 0,50'
 
-const mockMonthBars = [
-  { month: '2月', value: 2.1 },
-  { month: '3月', value: -1.5 },
-  { month: '4月', value: 4.8 },
-  { month: '5月', value: 6.2 },
-  { month: '6月', value: -2.3 },
-  { month: '7月', value: 3.5 },
-  { month: '8月', value: 5.1 },
-]
+// 把后端 sparkline_points (90 天 equity 等距 11 点) 转成 SVG polyline points
+// 字符串。viewBox 130×50，留 4px 上下 padding 避免顶天/触底
+const sparklineLinePoints = computed(() => {
+  const pts = paperPerformance.value?.sparkline_points
+  if (!pts || pts.length < 2) return ''
+  const min = Math.min(...pts)
+  const max = Math.max(...pts)
+  const range = max - min || 1
+  const w = 130
+  const h = 50
+  const padTop = 4
+  const padBottom = 4
+  const usableH = h - padTop - padBottom
+  return pts
+    .map((p, i) => {
+      const x = (i / (pts.length - 1)) * w
+      // 高 equity 在上 (y 小)，低在下 (y 大)
+      const y = padTop + (1 - (p - min) / range) * usableH
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(' ')
+})
+
+const sparklineFillPoints = computed(() => {
+  const line = sparklineLinePoints.value
+  if (!line) return ''
+  // 闭合到底部形成填充区域
+  return `${line} 130,50 0,50`
+})
+
+// 格式化 0.186 → "+18.60%" / -0.032 → "-3.20%"
+const formatPctSigned = (v: number | null | undefined): string => {
+  if (v == null) return '—'
+  const pct = v * 100
+  const sign = pct >= 0 ? '+' : '−'
+  return `${sign}${Math.abs(pct).toFixed(2)}%`
+}
 
 const realizedPnl = computed(() => {
   if (!paperAccount.value) return 0
@@ -884,6 +917,18 @@ const loadPaperAccount = async () => {
   }
 }
 
+const loadPaperPerformance = async () => {
+  try {
+    const response = await paperPerformanceApi.getPerformance()
+    if (response.success && response.data) {
+      paperPerformance.value = response.data
+    }
+  } catch (error) {
+    console.error('加载 paper 性能指标失败:', error)
+    // 失败时保留 null，前端各字段显示「—」
+  }
+}
+
 const loadMarketOverview = async () => {
   marketOverviewLoading.value = true
   try {
@@ -922,6 +967,7 @@ onMounted(async () => {
   await loadRecentAnalyses()
   await loadMarketNews()
   await loadPaperAccount()
+  await loadPaperPerformance()
   await loadMarketOverview()
 
   // 启动市场概况 5 min polling（内部含 is_intraday guard，盘外跳过）
