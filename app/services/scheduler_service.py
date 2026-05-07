@@ -730,6 +730,91 @@ class SchedulerService:
         )
         logger.info("✅ 僵尸任务检测定时任务已添加")
 
+        # OpenSpec change `paper-realtime-quotes-job`：注册 2 个 job 同步
+        # 「自选股 ∪ paper 持仓 (CN only)」实时行情入 market_quotes
+        self._register_realtime_quote_sync_jobs()
+
+    def _register_realtime_quote_sync_jobs(self):
+        """注册实时行情刷新 job — capability paper-realtime-quotes。
+
+        - 盘中：IntervalTrigger(seconds=30) 全天跑，job body 时间窗 guard 过滤
+          盘外（仅工作日 9:25–15:00 真正执行）
+        - 盘后：CronTrigger(day_of_week='mon-fri', hour=17, minute=0) 收盘后一次
+
+        防重叠：max_instances=1, coalesce=True
+        """
+        # 盘中高频
+        self.scheduler.add_job(
+            self._run_realtime_quote_sync_intraday,
+            'interval',
+            seconds=30,
+            id='realtime_quote_sync_intraday',
+            name='自选股+持仓行情刷新（盘中）',
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+            misfire_grace_time=10,
+        )
+        logger.info("✅ 行情刷新（盘中）已添加：IntervalTrigger 30s + 时间窗 guard")
+
+        # 盘后兜底
+        self.scheduler.add_job(
+            self._run_realtime_quote_sync_after_close,
+            'cron',
+            day_of_week='mon-fri',
+            hour=17,
+            minute=0,
+            id='realtime_quote_sync_after_close',
+            name='自选股+持仓行情刷新（盘后）',
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
+        logger.info("✅ 行情刷新（盘后）已添加：工作日 17:00")
+
+        # 启动时 ensure unique index on market_quotes.code（异步 fire-and-forget）
+        asyncio.create_task(self._ensure_market_quotes_index())
+
+    async def _ensure_market_quotes_index(self):
+        """ensure unique index on market_quotes.code (启动时一次)."""
+        try:
+            from app.services.realtime_quote_sync_service import (
+                get_realtime_quote_sync_service,
+            )
+            await get_realtime_quote_sync_service().ensure_index()
+            logger.info("✅ market_quotes.code unique index 已 ensure")
+        except Exception as e:
+            logger.warning(f"⚠️ ensure market_quotes index 失败: {e}")
+
+    async def _run_realtime_quote_sync_intraday(self):
+        """盘中 30 秒触发：仅工作日 9:25–15:00 真正执行；盘外早 return."""
+        from datetime import time as dt_time
+
+        # job body guard：工作日 + 盘中时段
+        now_local = now_tz()
+        if now_local.weekday() >= 5:  # 周六周日
+            return
+        cur = now_local.time()
+        if not (dt_time(9, 25) <= cur <= dt_time(15, 0)):
+            return
+
+        await self._run_realtime_quote_sync(window='intraday')
+
+    async def _run_realtime_quote_sync_after_close(self):
+        """盘后 17:00 一次（cron 已按 mon-fri 过滤，无需 weekday guard）."""
+        await self._run_realtime_quote_sync(window='after_close')
+
+    async def _run_realtime_quote_sync(self, window: str):
+        """实际触发 sync。失败 log warn 不抛（不让 scheduler job fail）."""
+        try:
+            from app.services.realtime_quote_sync_service import (
+                get_realtime_quote_sync_service,
+            )
+            result = await get_realtime_quote_sync_service().sync_favorites_and_paper_positions()
+            logger.debug(f"行情刷新 [{window}]: {result}")
+        except Exception as e:
+            logger.warning(f"⚠️ 行情刷新 [{window}] 失败: {e}")
+
     async def _check_zombie_tasks(self):
         """检测僵尸任务（长时间处于running状态的任务）"""
         try:
