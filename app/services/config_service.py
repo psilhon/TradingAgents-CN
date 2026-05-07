@@ -546,6 +546,11 @@ class ConfigService:
         try:
             print(f"💾 开始保存配置，LLM配置数量: {len(config.llm_configs)}")
 
+            # LLM credentials are resolved from environment variables. Keeping
+            # model-level keys in MongoDB makes stale secrets override .env.
+            for llm_config in config.llm_configs:
+                llm_config.api_key = ""
+
             # 保存到数据库
             db = await self._get_db()
             config_collection = db.system_configs
@@ -902,11 +907,6 @@ class ConfigService:
 
             llm_config.updated_at = now
 
-            # 直接保存到统一配置管理器
-            success = unified_config.save_llm_config(llm_config)
-            if not success:
-                return False
-
             # 查找并更新对应的LLM配置
             for i, existing_config in enumerate(config.llm_configs):
                 if (
@@ -919,7 +919,15 @@ class ConfigService:
                 # 如果不存在，添加新配置
                 config.llm_configs.append(llm_config)
 
-            return await self.save_system_config(config)
+            result = await self.save_system_config(config)
+            if result:
+                try:
+                    unified_config.export_mongodb_snapshot(config)
+                    print("✅ 大模型配置已导出为 JSON 兼容快照")
+                except Exception as e:
+                    print(f"⚠️  导出 JSON 兼容快照失败: {e}")
+
+            return result
         except Exception as e:
             print(f"更新LLM配置失败: {e}")
             return False
@@ -989,7 +997,12 @@ class ConfigService:
             elif provider_str == "deepseek":
                 # DeepSeek 使用专门的测试方法
                 logger.info(f"🔍 使用 DeepSeek 专用测试方法")
-                result = self._test_deepseek_api(api_key, f"{provider_str} {llm_config.model_name}", llm_config.model_name)
+                result = self._test_deepseek_api(
+                    api_key,
+                    f"{provider_str} {llm_config.model_name}",
+                    llm_config.model_name,
+                    api_base,
+                )
                 result["response_time"] = time.time() - start_time
                 return result
             elif provider_str == "dashscope":
@@ -1291,8 +1304,10 @@ class ConfigService:
                     import tushare as ts
                     ts.set_token(api_key)
                     pro = ts.pro_api()
-                    # 获取交易日历（轻量级测试）
-                    df = pro.trade_cal(exchange='SSE', start_date='20240101', end_date='20240101')
+                    # Use stock_basic for connection checks. Some valid Tushare
+                    # accounts do not have trade_cal permission, so trade_cal is
+                    # too strict for a generic connectivity test.
+                    df = pro.stock_basic(list_status="L", limit=1)
 
                     if df is not None and len(df) > 0:
                         response_time = time.time() - start_time
@@ -1311,7 +1326,7 @@ class ConfigService:
                             "response_time": response_time,
                             "details": {
                                 "type": ds_type,
-                                "test_result": "获取交易日历成功",
+                                "test_result": "获取股票基础信息成功",
                                 "credential_source": credential_source,
                                 "used_db_credentials": used_db_credentials,
                                 "used_env_credentials": used_env_credentials
@@ -3605,7 +3620,13 @@ class ConfigService:
                 "message": f"{display_name} API测试异常: {str(e)}"
             }
 
-    def _test_deepseek_api(self, api_key: str, display_name: str, model_name: str = None) -> dict:
+    def _test_deepseek_api(
+        self,
+        api_key: str,
+        display_name: str,
+        model_name: str = None,
+        base_url: str = None,
+    ) -> dict:
         """测试DeepSeek API"""
         try:
             import requests
@@ -3617,7 +3638,8 @@ class ConfigService:
 
             logger.info(f"🔍 [DeepSeek 测试] 使用模型: {model_name}")
 
-            url = "https://api.deepseek.com/chat/completions"
+            api_base = (base_url or "https://api.deepseek.com").rstrip("/")
+            url = f"{api_base}/chat/completions"
 
             headers = {
                 "Content-Type": "application/json",
@@ -3629,8 +3651,11 @@ class ConfigService:
                 "messages": [
                     {"role": "user", "content": "你好，请简单介绍一下你自己。"}
                 ],
-                "max_tokens": 50,
-                "temperature": 0.1
+                "max_tokens": 256,
+                "temperature": 0.1,
+                # V4 defaults to thinking mode. Connectivity tests should stay
+                # cheap and avoid reasoning-token budget edge cases.
+                "thinking": {"type": "disabled"},
             }
 
             response = requests.post(url, json=data, headers=headers, timeout=10)
@@ -3655,9 +3680,21 @@ class ConfigService:
                         "message": f"{display_name} API响应格式异常"
                     }
             else:
+                error_detail = ""
+                try:
+                    error_payload = response.json()
+                    error_obj = error_payload.get("error", error_payload)
+                    if isinstance(error_obj, dict):
+                        error_detail = error_obj.get("message") or str(error_obj)
+                    else:
+                        error_detail = str(error_obj)
+                except Exception:
+                    error_detail = response.text[:300]
+
+                suffix = f": {error_detail}" if error_detail else ""
                 return {
                     "success": False,
-                    "message": f"{display_name} API测试失败: HTTP {response.status_code}"
+                    "message": f"{display_name} API测试失败: HTTP {response.status_code}{suffix}"
                 }
 
         except Exception as e:

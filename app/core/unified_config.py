@@ -33,6 +33,22 @@ class ConfigPaths:
 
 class UnifiedConfigManager:
     """统一配置管理器"""
+
+    MODEL_SETTING_KEYS = {
+        "llm_provider",
+        "default_model",
+        "quick_analysis_model",
+        "deep_analysis_model",
+        "quick_think_llm",
+        "deep_think_llm",
+        "backend_url",
+        "quick_provider",
+        "deep_provider",
+        "quick_backend_url",
+        "deep_backend_url",
+        "quick_api_key",
+        "deep_api_key",
+    }
     
     def __init__(self):
         self.paths = ConfigPaths()
@@ -87,6 +103,10 @@ class UnifiedConfigManager:
         if cache_key:
             self._cache[cache_key] = data
             self._last_modified[cache_key] = self._get_file_mtime(file_path)
+
+    def _to_plain_value(self, value: Any) -> Any:
+        """Convert enum-like values to their JSON-facing value."""
+        return getattr(value, "value", value)
     
     # ==================== 模型配置管理 ====================
     
@@ -108,12 +128,28 @@ class UnifiedConfigManager:
                 llm_config = LLMConfig(
                     provider=provider,
                     model_name=model.get("model_name", ""),
+                    model_display_name=model.get("model_display_name"),
                     api_key="",
                     api_base=model.get("base_url"),
                     max_tokens=model.get("max_tokens", 4000),
                     temperature=model.get("temperature", 0.7),
+                    timeout=model.get("timeout", 180),
+                    retry_times=model.get("retry_times", 3),
                     enabled=model.get("enabled", True),
-                    description=f"{model.get('provider', '')} {model.get('model_name', '')}"
+                    description=model.get("description") or f"{model.get('provider', '')} {model.get('model_name', '')}",
+                    model_category=model.get("model_category"),
+                    custom_endpoint=model.get("custom_endpoint"),
+                    enable_memory=model.get("enable_memory", False),
+                    enable_debug=model.get("enable_debug", False),
+                    priority=model.get("priority", 0),
+                    input_price_per_1k=model.get("input_price_per_1k"),
+                    output_price_per_1k=model.get("output_price_per_1k"),
+                    currency=model.get("currency", "CNY"),
+                    capability_level=model.get("capability_level", 2),
+                    suitable_roles=model.get("suitable_roles", ["both"]),
+                    features=model.get("features", []),
+                    recommended_depths=model.get("recommended_depths", ["快速", "基础", "标准"]),
+                    performance_metrics=model.get("performance_metrics"),
                 )
                 llm_configs.append(llm_config)
             except Exception as e:
@@ -157,6 +193,102 @@ class UnifiedConfigManager:
         except Exception as e:
             print(f"保存LLM配置失败: {e}")
             return False
+
+    def export_mongodb_snapshot(self, system_config: SystemConfig) -> bool:
+        """Export MongoDB configuration to legacy JSON snapshots.
+
+        MongoDB is the authoritative configuration source. The JSON files
+        generated here are compatibility snapshots for legacy dependencies.
+        """
+        try:
+            llm_configs = list(system_config.llm_configs or [])
+
+            legacy_models = []
+            for llm_config in llm_configs:
+                provider = self._to_plain_value(llm_config.provider)
+                legacy_models.append({
+                    "provider": provider,
+                    "model_name": llm_config.model_name,
+                    "model_display_name": llm_config.model_display_name,
+                    "api_key": "",
+                    "base_url": llm_config.api_base,
+                    "max_tokens": llm_config.max_tokens,
+                    "temperature": llm_config.temperature,
+                    "timeout": llm_config.timeout,
+                    "retry_times": llm_config.retry_times,
+                    "enabled": llm_config.enabled,
+                    "description": llm_config.description,
+                    "model_category": llm_config.model_category,
+                    "custom_endpoint": llm_config.custom_endpoint,
+                    "enable_memory": llm_config.enable_memory,
+                    "enable_debug": llm_config.enable_debug,
+                    "priority": llm_config.priority,
+                    "input_price_per_1k": llm_config.input_price_per_1k,
+                    "output_price_per_1k": llm_config.output_price_per_1k,
+                    "currency": llm_config.currency,
+                    "capability_level": llm_config.capability_level,
+                    "suitable_roles": llm_config.suitable_roles,
+                    "features": llm_config.features,
+                    "recommended_depths": llm_config.recommended_depths,
+                    "performance_metrics": llm_config.performance_metrics,
+                })
+
+            self._save_json_file(self.paths.models_json, legacy_models, "models")
+
+            current_settings = self.get_system_settings()
+            snapshot_settings = {
+                key: value
+                for key, value in current_settings.items()
+                if key not in self.MODEL_SETTING_KEYS
+            }
+            snapshot_settings.update(system_config.system_settings or {})
+
+            quick_model = (
+                snapshot_settings.get("quick_analysis_model")
+                or snapshot_settings.get("quick_think_llm")
+                or system_config.default_llm
+            )
+            deep_model = (
+                snapshot_settings.get("deep_analysis_model")
+                or snapshot_settings.get("deep_think_llm")
+                or system_config.default_llm
+            )
+
+            model_by_name = {config.model_name: config for config in llm_configs}
+            quick_config = model_by_name.get(quick_model)
+            deep_config = model_by_name.get(deep_model)
+
+            if quick_model:
+                snapshot_settings["quick_analysis_model"] = quick_model
+                snapshot_settings["quick_think_llm"] = quick_model
+            if deep_model:
+                snapshot_settings["deep_analysis_model"] = deep_model
+                snapshot_settings["deep_think_llm"] = deep_model
+            if system_config.default_llm:
+                snapshot_settings["default_model"] = system_config.default_llm
+
+            if quick_config:
+                quick_provider = self._to_plain_value(quick_config.provider)
+                snapshot_settings["llm_provider"] = quick_provider
+                snapshot_settings["quick_provider"] = quick_provider
+                if quick_config.api_base:
+                    snapshot_settings["backend_url"] = quick_config.api_base
+                    snapshot_settings["quick_backend_url"] = quick_config.api_base
+            if deep_config:
+                snapshot_settings["deep_provider"] = self._to_plain_value(deep_config.provider)
+                if deep_config.api_base:
+                    snapshot_settings["deep_backend_url"] = deep_config.api_base
+
+            # Never export secrets to compatibility JSON. Legacy callers should
+            # resolve keys from environment variables or MongoDB provider config.
+            snapshot_settings.pop("quick_api_key", None)
+            snapshot_settings.pop("deep_api_key", None)
+
+            self._save_json_file(self.paths.settings_json, snapshot_settings, "settings")
+            return True
+        except Exception as e:
+            print(f"导出 MongoDB 配置快照失败: {e}")
+            return False
     
     # ==================== 系统设置管理 ====================
     
@@ -189,6 +321,8 @@ class UnifiedConfigManager:
             # 合并配置（新配置覆盖旧配置）
             merged_settings = current_settings.copy()
             merged_settings.update(settings)
+            for secret_key in ("quick_api_key", "deep_api_key"):
+                merged_settings.pop(secret_key, None)
             print(f"🔀 [unified_config] 合并后配置包含 {len(merged_settings)} 项")
 
             # 添加字段名映射（新字段名 -> 旧字段名）
@@ -466,36 +600,8 @@ class UnifiedConfigManager:
             )
     
     def sync_to_legacy_format(self, system_config: SystemConfig) -> bool:
-        """同步配置到传统格式"""
-        try:
-            # 同步模型配置
-            for llm_config in system_config.llm_configs:
-                self.save_llm_config(llm_config)
-
-            # 读取现有的 settings.json
-            current_settings = self.get_system_settings()
-
-            # 同步系统设置（保留现有字段，只更新需要的字段）
-            settings = current_settings.copy()
-
-            # 映射新字段名到旧字段名
-            if "quick_analysis_model" in system_config.system_settings:
-                settings["quick_think_llm"] = system_config.system_settings["quick_analysis_model"]
-                settings["quick_analysis_model"] = system_config.system_settings["quick_analysis_model"]
-
-            if "deep_analysis_model" in system_config.system_settings:
-                settings["deep_think_llm"] = system_config.system_settings["deep_analysis_model"]
-                settings["deep_analysis_model"] = system_config.system_settings["deep_analysis_model"]
-
-            if system_config.default_llm:
-                settings["default_model"] = system_config.default_llm
-
-            self.save_system_settings(settings)
-
-            return True
-        except Exception as e:
-            print(f"同步配置到传统格式失败: {e}")
-            return False
+        """同步配置到传统格式快照。MongoDB 仍是唯一可信来源。"""
+        return self.export_mongodb_snapshot(system_config)
 
 
 # 创建全局实例
