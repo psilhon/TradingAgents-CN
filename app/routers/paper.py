@@ -30,6 +30,21 @@ class PlaceOrderRequest(BaseModel):
     analysis_id: Optional[str] = None
 
 
+class ImportPositionItem(BaseModel):
+    code: str = Field(..., description="股票代码")
+    market: Optional[Literal["CN", "HK", "US"]] = Field(None, description="市场类型，不传则自动识别")
+    name: Optional[str] = Field(None, description="股票名称")
+    quantity: int = Field(..., gt=0, description="持仓数量")
+    avg_cost: float = Field(..., ge=0, description="持仓成本价")
+    available_qty: Optional[int] = Field(None, ge=0, description="可用数量，不传则等于持仓数量")
+
+
+class ImportAccountRequest(BaseModel):
+    mode: Literal["merge", "replace"] = Field(default="merge", description="导入模式")
+    cash: Optional[Dict[Literal["CNY", "HKD", "USD"], float]] = Field(default=None, description="多币种可用资金")
+    positions: List[ImportPositionItem] = Field(default_factory=list, description="初始持仓")
+
+
 def _detect_market_and_code(code: str) -> Tuple[str, str]:
     """
     检测股票代码的市场类型并标准化代码
@@ -60,6 +75,23 @@ def _detect_market_and_code(code: str) -> Tuple[str, str]:
 
     # 默认当作A股，补齐6位
     return ('CN', code.zfill(6))
+
+
+def _normalize_code_for_market(code: str, market: str) -> str:
+    raw_code = code.strip().upper()
+    if market == "HK":
+        return raw_code[:-3].zfill(5) if raw_code.endswith(".HK") else raw_code.zfill(5)
+    if market == "CN":
+        return raw_code.zfill(6)
+    return raw_code
+
+
+def _currency_for_market(market: str) -> str:
+    return {
+        "CN": "CNY",
+        "HK": "HKD",
+        "US": "USD",
+    }.get(market, "CNY")
 
 
 async def _get_or_create_account(user_id: str) -> Dict[str, Any]:
@@ -568,6 +600,78 @@ async def list_orders(limit: int = Query(50, ge=1, le=200), current_user: dict =
     # 去除 _id
     cleaned = [{k: v for k, v in it.items() if k != "_id"} for it in items]
     return ok({"items": cleaned})
+
+
+@router.post("/import", response_model=dict)
+async def import_account(payload: ImportAccountRequest, current_user: dict = Depends(get_current_user)):
+    """导入模拟账户资金和初始持仓。"""
+    db = get_mongo_db()
+    user_id = current_user["id"]
+    now_iso = datetime.utcnow().isoformat()
+
+    await _get_or_create_account(user_id)
+
+    cleared = {"positions": 0, "orders": 0, "trades": 0}
+    if payload.mode == "replace":
+        cleared["positions"] = (await db["paper_positions"].delete_many({"user_id": user_id})).deleted_count
+        cleared["orders"] = (await db["paper_orders"].delete_many({"user_id": user_id})).deleted_count
+        cleared["trades"] = (await db["paper_trades"].delete_many({"user_id": user_id})).deleted_count
+
+    cash_updates: Dict[str, float] = {}
+    if payload.cash:
+        for currency, amount in payload.cash.items():
+            cash_updates[f"cash.{currency}"] = round(float(amount), 2)
+
+    account_updates: Dict[str, Any] = {"updated_at": now_iso}
+    account_updates.update(cash_updates)
+    await db["paper_accounts"].update_one(
+        {"user_id": user_id},
+        {"$set": account_updates},
+    )
+
+    imported_positions = 0
+    for item in payload.positions:
+        if item.market:
+            market = item.market
+            normalized_code = _normalize_code_for_market(item.code, market)
+        else:
+            market, normalized_code = _detect_market_and_code(item.code)
+
+        currency = _currency_for_market(market)
+        available_qty = item.available_qty if item.available_qty is not None else item.quantity
+        available_qty = min(int(available_qty), int(item.quantity))
+
+        position_doc = {
+            "user_id": user_id,
+            "code": normalized_code,
+            "market": market,
+            "currency": currency,
+            "name": item.name,
+            "quantity": int(item.quantity),
+            "available_qty": available_qty,
+            "frozen_qty": 0,
+            "avg_cost": round(float(item.avg_cost), 4),
+            "source": "manual_import",
+            "imported_at": now_iso,
+            "updated_at": now_iso,
+        }
+        if not item.name:
+            position_doc.pop("name")
+
+        await db["paper_positions"].update_one(
+            {"user_id": user_id, "code": normalized_code, "market": market},
+            {"$set": position_doc},
+            upsert=True,
+        )
+        imported_positions += 1
+
+    return ok({
+        "message": "导入完成",
+        "mode": payload.mode,
+        "imported_positions": imported_positions,
+        "updated_cash": sorted(payload.cash.keys()) if payload.cash else [],
+        "cleared": cleared,
+    })
 
 
 @router.post("/reset", response_model=dict)
