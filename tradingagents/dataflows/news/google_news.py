@@ -1,6 +1,7 @@
 import random
 import time
 from datetime import datetime
+from urllib.parse import quote_plus
 
 import requests
 from bs4 import BeautifulSoup
@@ -66,11 +67,15 @@ def getNewsData(query, start_date, end_date):
         )
     }
 
+    # URL encode query 防止空格/中文/&/+ 等特殊字符破坏 URL 结构
+    # （见 code-review-2026-05-05 misc-bugfix-batch）
+    query_encoded = quote_plus(str(query))
+
     news_results = []
     page = 0
     while True:
         offset = page * 10
-        url = f"https://www.google.com/search?q={query}&tbs=cdr:1,cd_min:{start_date},cd_max:{end_date}&tbm=nws&start={offset}"
+        url = f"https://www.google.com/search?q={query_encoded}&tbs=cdr:1,cd_min:{start_date},cd_max:{end_date}&tbm=nws&start={offset}"
 
         try:
             response = make_request(url, headers)
