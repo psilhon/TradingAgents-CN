@@ -38,8 +38,11 @@ class FavoritesService:
         added_at = favorite.get("added_at")
         if isinstance(added_at, datetime):
             added_at = added_at.isoformat()
+        # strip stock_code：兼容历史数据中含前导/尾随空格（如 " 000776"）
+        raw_code = favorite.get("stock_code")
+        stock_code = str(raw_code).strip() if raw_code else raw_code
         return {
-            "stock_code": favorite.get("stock_code"),
+            "stock_code": stock_code,
             "stock_name": favorite.get("stock_name"),
             "market": favorite.get("market", "A股"),
             "added_at": added_at,
@@ -73,7 +76,13 @@ class FavoritesService:
         items = [self._format_favorite(fav) for fav in favorites]
 
         # 批量获取股票基础信息（板块等）
-        codes = [it.get("stock_code") for it in items if it.get("stock_code")]
+        # strip：兼容 mongo 历史数据中 stock_code 含前导/尾随空格（如 " 000776"），
+        # 否则 $in 匹配不到 market_quotes / stock_basic_info 里 trim 过的 code
+        codes = [
+            str(it.get("stock_code")).strip()
+            for it in items
+            if it.get("stock_code")
+        ]
         if codes:
             try:
                 # 🔥 获取数据源优先级配置

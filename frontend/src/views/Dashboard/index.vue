@@ -456,30 +456,42 @@
           </div>
         </div>
 
-        <!-- Row 4 右：今日市场概况 (mock 占位) -->
+        <!-- Row 4 右：今日市场概况（实时数据，盘中每 5 min 刷新） -->
         <div class="panel market-overview-panel ga-market">
           <div class="panel-hdr">
             <div class="sec-title">今日市场概况</div>
-            <span class="demo-chip">演示</span>
+            <span v-if="marketOverviewLoading" class="market-loading-chip">加载中…</span>
+            <span v-else-if="marketOverview && marketOverview.total > 0" class="market-fresh-chip">
+              {{ marketOverview.total }} 只 · 5 min 刷新
+            </span>
           </div>
           <div class="market-grid">
             <div class="market-cell">
               <div class="market-cell-label">涨停家数</div>
-              <div class="market-cell-val num up">87</div>
+              <div class="market-cell-val num up">
+                {{ marketOverview?.limit_up ?? '—' }}
+              </div>
             </div>
             <div class="market-cell">
               <div class="market-cell-label">跌停家数</div>
-              <div class="market-cell-val num down">12</div>
+              <div class="market-cell-val num down">
+                {{ marketOverview?.limit_down ?? '—' }}
+              </div>
             </div>
             <div class="market-cell">
               <div class="market-cell-label">成交额</div>
               <div class="market-cell-val num">
-                8,423<span class="market-cell-unit">亿</span>
+                <template v-if="marketOverview?.amount_total != null">
+                  {{ formatMoney(marketOverview.amount_total) }}<span class="market-cell-unit">亿</span>
+                </template>
+                <template v-else>—</template>
               </div>
             </div>
             <div class="market-cell">
               <div class="market-cell-label">上涨家数</div>
-              <div class="market-cell-val num up">2,841</div>
+              <div class="market-cell-val num up">
+                {{ marketOverview?.advance != null ? marketOverview.advance.toLocaleString() : '—' }}
+              </div>
             </div>
           </div>
         </div>
@@ -509,6 +521,7 @@ import { favoritesApi } from '@/api/favorites'
 import { analysisApi } from '@/api/analysis'
 import { newsApi } from '@/api/news'
 import { paperApi, type PaperAccountSummary, type PaperPositionItem } from '@/api/paper'
+import { marketApi, type MarketOverview } from '@/api/market'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -527,6 +540,8 @@ const favoriteStocks = ref<any[]>([])
 const marketNews = ref<any[]>([])
 const paperAccount = ref<PaperAccountSummary | null>(null)
 const paperPositions = ref<PaperPositionItem[]>([])
+const marketOverview = ref<MarketOverview | null>(null)
+const marketOverviewLoading = ref(false)
 
 // Loading 状态（首次加载时显示 skeleton shimmer）
 const watchlistLoading = ref(true)
@@ -733,8 +748,23 @@ const openNewsUrl = (url?: string) => {
   }
 }
 
+// A 股代码 → 东方财富个股页 URL 映射
+// - 6xx → 沪市 (sh)
+// - 4/8/9xx → 北交所 (bj)
+// - 其余 (0/1/2/3xx) → 深市 (sz)
+const getEastMoneyStockUrl = (code: string): string => {
+  const c = String(code).trim().padStart(6, '0')
+  let prefix: string
+  if (c.startsWith('6')) prefix = 'sh'
+  else if (c.startsWith('4') || c.startsWith('8') || c.startsWith('9')) prefix = 'bj'
+  else prefix = 'sz'
+  return `https://quote.eastmoney.com/${prefix}${c}.html`
+}
+
 const viewStockDetail = (stock: any) => {
-  router.push(`/analysis/single?stock_code=${stock.stock_code}`)
+  const code = stock?.stock_code
+  if (!code) return
+  window.open(getEastMoneyStockUrl(code), '_blank', 'noopener,noreferrer')
 }
 
 const getStatusText = (status: string | AnalysisStatus) => {
@@ -854,6 +884,30 @@ const loadPaperAccount = async () => {
   }
 }
 
+const loadMarketOverview = async () => {
+  marketOverviewLoading.value = true
+  try {
+    const response = await marketApi.getOverview()
+    if (response.success && response.data) {
+      marketOverview.value = response.data
+    }
+  } catch (error) {
+    console.error('加载市场概况失败:', error)
+  } finally {
+    marketOverviewLoading.value = false
+  }
+}
+
+// 每 5 分钟刷新市场概况（盘外也刷新——backend QuotesService 30s TTL 缓存兜底，
+// 盘外数据是最近一次成功的快照，足够前端展示）
+let marketOverviewHandle: ReturnType<typeof setInterval> | null = null
+const startMarketOverviewPolling = () => {
+  marketOverviewHandle = setInterval(() => {
+    if (document.hidden) return  // 视图隐藏时不刷新
+    loadMarketOverview()
+  }, 5 * 60 * 1000)
+}
+
 // Mock 价格 ticker：每 4.5s 给随机一支股票微调价格 ±0.5%（演示数字翻牌效果，
 // 真实接入 ws 行情后可移除）
 let priceTickerHandle: ReturnType<typeof setInterval> | null = null
@@ -878,15 +932,19 @@ onMounted(async () => {
   await loadRecentAnalyses()
   await loadMarketNews()
   await loadPaperAccount()
+  await loadMarketOverview()
 
   // 启动 mock 价格滚动（仅前端演示，不影响后端数据）
   startPriceTicker()
+  // 启动市场概况 5 min polling
+  startMarketOverviewPolling()
 })
 
 onUnmounted(() => {
   heroEl.value?.removeEventListener('mousemove', onHeroMouseMove)
   if (heroRafId !== null) cancelAnimationFrame(heroRafId)
   if (priceTickerHandle !== null) clearInterval(priceTickerHandle)
+  if (marketOverviewHandle !== null) clearInterval(marketOverviewHandle)
 })
 </script>
 
@@ -1261,7 +1319,17 @@ onUnmounted(() => {
 }
 
 // 各 list panel 单独可选高度（按业务密度调）
-.watchlist-list.scroll-body { max-height: 320px; }  // ~5 只可见
+// watchlist 在 grid row 3 跟 ga-account 同行，被 stretch 到 ga-account 高度
+// 所以让 panel 用 flex column + list flex:1 撑满，避免底部空白 + 最后一行被截断
+.watchlist-panel {
+  display: flex;
+  flex-direction: column;
+}
+.watchlist-list.scroll-body {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
 .news-list.scroll-body { max-height: 360px; }       // ~5 条可见
 // 最近分析固定 3 条不滚动（与自选股呼应的卡片列表风格）
 
@@ -2039,6 +2107,23 @@ onUnmounted(() => {
 // 今日市场概况
 // =================================================================
 .market-overview-panel .panel-hdr { padding: 8px 14px; }
+
+.market-loading-chip,
+.market-fresh-chip {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.market-fresh-chip {
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
 
 .market-grid {
   display: grid;

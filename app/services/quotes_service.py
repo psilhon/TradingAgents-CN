@@ -6,6 +6,7 @@ QuotesService: 提供A股批量实时快照获取（AKShare东方财富 spot 接
 from __future__ import annotations
 
 import asyncio
+import math
 import time
 import logging
 from typing import Dict, List, Optional
@@ -37,6 +38,64 @@ class QuotesService:
         self._cache_ts: float = 0.0
         self._cache: Dict[str, Dict[str, Optional[float]]] = {}
         self._lock = asyncio.Lock()
+
+    async def _ensure_cache(self) -> Dict[str, Dict[str, Optional[float]]]:
+        """确保 cache 有效（在 TTL 内），过期则刷新。返回完整 cache（全市场）."""
+        now = time.time()
+        async with self._lock:
+            if not self._cache or (now - self._cache_ts) >= self._ttl:
+                data = await asyncio.to_thread(self._fetch_spot_akshare)
+                self._cache = data
+                self._cache_ts = time.time()
+            return self._cache
+
+    async def get_market_overview(self) -> Dict[str, Optional[float]]:
+        """全市场统计：涨停 / 跌停 / 上涨 / 下跌家数 + 成交额合计。
+
+        简化阈值：pct_chg >= 9.5% 算涨停，<= -9.5% 算跌停（不区分主板/创业板/科创板的
+        ±10% / ±20% 涨跌幅限制，足够 Dashboard 概览用）。
+
+        amount 单位假设 akshare 返回为元，统一 / 1e8 转亿。如返回为万元，前端再调整。
+        """
+        cache = await self._ensure_cache()
+        if not cache:
+            return {
+                "limit_up": None,
+                "limit_down": None,
+                "advance": None,
+                "decline": None,
+                "amount_total": None,
+                "total": 0,
+            }
+
+        limit_up = limit_down = advance = decline = 0
+        amount_total: float = 0.0
+        for q in cache.values():
+            pct = q.get("pct_chg")
+            amt = q.get("amount")
+            # NaN 守卫：pandas 数值列空值是 NaN（float），非 None；JSON 序列化时
+            # NaN → null 让前端 fallback 到「—」。统一过滤 NaN
+            if pct is not None and not math.isnan(pct):
+                if pct >= 9.5:
+                    limit_up += 1
+                elif pct <= -9.5:
+                    limit_down += 1
+                if pct > 0:
+                    advance += 1
+                elif pct < 0:
+                    decline += 1
+            if amt is not None and not math.isnan(amt):
+                amount_total += amt
+
+        return {
+            "limit_up": limit_up,
+            "limit_down": limit_down,
+            "advance": advance,
+            "decline": decline,
+            # 转成亿（原始单位元）
+            "amount_total": round(amount_total / 1e8, 0),
+            "total": len(cache),
+        }
 
     async def get_quotes(self, codes: List[str]) -> Dict[str, Dict[str, Optional[float]]]:
         """获取一批股票的近实时快照（最新价、涨跌幅、成交额）。
