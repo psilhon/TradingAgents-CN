@@ -149,6 +149,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { List, Refresh, Download } from '@element-plus/icons-vue'
 import { analysisApi } from '@/api/analysis'
+import { configApi } from '@/api/config'
 import TaskResultDialog from '@/components/Global/TaskResultDialog.vue'
 import TaskReportDialog from '@/components/Global/TaskReportDialog.vue'
 
@@ -364,7 +365,64 @@ const openReport = (row:any): void => {
   void router.push({ name: 'ReportDetail', params: { id } })
 }
 
-const retryTask = (_row:any) => { ElMessage.info('重试功能待实现') }
+const retryTask = async (row:any) => {
+  const symbol = row?.stock_code || row?.stock_symbol || row?.symbol
+  if (!symbol) {
+    ElMessage.error('未找到股票代码，无法重试')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `确定要重新分析 "${row.stock_name || symbol}" 吗？系统会创建一个新的分析任务。`,
+      '确认重试',
+      {
+        confirmButtonText: '开始重试',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    loading.value = true
+
+    const defaults = await configApi.getDefaultModels()
+    const originalParams = row?.parameters && typeof row.parameters === 'object'
+      ? row.parameters
+      : {}
+
+    const parameters = {
+      market_type: originalParams.market_type || row.market_type || 'A股',
+      research_depth: originalParams.research_depth || row.research_depth || '标准',
+      selected_analysts: originalParams.selected_analysts,
+      custom_prompt: originalParams.custom_prompt,
+      include_sentiment: originalParams.include_sentiment,
+      include_risk: originalParams.include_risk,
+      language: originalParams.language || 'zh-CN',
+      quick_analysis_model: originalParams.quick_analysis_model || defaults.quick_analysis_model,
+      deep_analysis_model: originalParams.deep_analysis_model || defaults.deep_analysis_model
+    }
+
+    const response = await analysisApi.startSingleAnalysis({
+      symbol,
+      stock_code: symbol,
+      parameters
+    })
+
+    const newTaskId = (response as any)?.data?.data?.task_id || (response as any)?.data?.task_id
+    ElMessage.success(newTaskId ? `已创建重试任务：${newTaskId}` : '已创建重试任务')
+
+    activeTab.value = 'running'
+    currentPage.value = 1
+    await loadList()
+    setupPolling()
+  } catch (e: any) {
+    if (e !== 'cancel') {
+      ElMessage.error(e?.response?.data?.detail || e?.message || '重试失败')
+    }
+  } finally {
+    loading.value = false
+  }
+}
 
 // 显示错误详情
 const showErrorDetail = async (row: any) => {
@@ -379,7 +437,14 @@ const showErrorDetail = async (row: any) => {
     const res = await analysisApi.getTaskStatus(taskId)
     const task = (res as any)?.data?.data || row
 
-    const errorMessage = task.error_message || task.message || '未知错误'
+    const detail = task.error_detail || row.error_detail
+    const suggestions = Array.isArray(detail?.suggestions) ? detail.suggestions : []
+    const errorMessage = [
+      detail?.summary || task.error_message || task.message || '未知错误',
+      detail?.category ? `分类：${detail.category}` : '',
+      detail?.technical_detail ? `技术详情：${detail.technical_detail}` : '',
+      suggestions.length > 0 ? `建议：\n${suggestions.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n')}` : ''
+    ].filter(Boolean).join('\n\n')
 
     // 使用 ElMessageBox 显示错误详情
     await ElMessageBox.alert(
@@ -388,12 +453,9 @@ const showErrorDetail = async (row: any) => {
       {
         confirmButtonText: '确定',
         type: 'error',
-        dangerouslyUseHTMLString: true,
         customStyle: {
           width: '600px'
-        },
-        // 使用 HTML 格式化显示，保留换行
-        message: errorMessage.replace(/\n/g, '<br>')
+        }
       }
     )
   } catch (e: any) {
@@ -534,4 +596,3 @@ const formatTime = (t:string) => t ? formatDateTime(t) : '-'
   .pagination-wrapper { display:flex; justify-content:center; margin-top: 16px; }
 }
 </style>
-
