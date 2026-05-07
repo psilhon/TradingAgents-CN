@@ -339,9 +339,9 @@ class StockDataPreparer:
         end_date = datetime.strptime(analysis_date, "%Y-%m-%d")
 
         # 获取配置的回溯天数（与get_china_stock_data_unified保持一致）
-        from app.core.config import settings
+        from tradingagents.utils.database import get_market_analyst_lookback_days
 
-        lookback_days = getattr(settings, "MARKET_ANALYST_LOOKBACK_DAYS", 365)
+        lookback_days = get_market_analyst_lookback_days(default=365)
 
         # 使用扩展后的日期范围进行数据检查和同步
         extended_start_date = end_date - timedelta(days=lookback_days)
@@ -509,9 +509,9 @@ class StockDataPreparer:
 
         # 计算日期范围
         end_date = datetime.strptime(analysis_date, "%Y-%m-%d")
-        from app.core.config import settings
+        from tradingagents.utils.database import get_market_analyst_lookback_days
 
-        lookback_days = getattr(settings, "MARKET_ANALYST_LOOKBACK_DAYS", 365)
+        lookback_days = get_market_analyst_lookback_days(default=365)
         extended_start_date = end_date - timedelta(days=lookback_days)
         extended_start_date_str = extended_start_date.strftime("%Y-%m-%d")
         end_date_str = end_date.strftime("%Y-%m-%d")
@@ -782,16 +782,23 @@ class StockDataPreparer:
                         continue
 
                     # 根据数据源获取对应的同步服务
-                    if data_source == "tushare":
-                        from app.worker.tushare_sync_service import get_tushare_sync_service
+                    # OpenSpec capability `license-boundary`：单体 repo 中
+                    # tradingagents 调 app.worker 强制刷数据；lib 单独发行时
+                    # ImportError 降级为跳过同步（数据靠业务层 cron 自然刷新）
+                    try:
+                        if data_source == "tushare":
+                            from app.worker.tushare_sync_service import get_tushare_sync_service
 
-                        service = await get_tushare_sync_service()
-                    elif data_source == "akshare":
-                        from app.worker.akshare_sync_service import get_akshare_sync_service
+                            service = await get_tushare_sync_service()
+                        elif data_source == "akshare":
+                            from app.worker.akshare_sync_service import get_akshare_sync_service
 
-                        service = await get_akshare_sync_service()
-                    else:
-                        logger.warning(f"⚠️ [数据同步] 不支持的数据源: {data_source}")
+                            service = await get_akshare_sync_service()
+                        else:
+                            logger.warning(f"⚠️ [数据同步] 不支持的数据源: {data_source}")
+                            continue
+                    except ImportError:
+                        logger.warning("⚠️ [数据同步] app.worker.*_sync_service 不可用（lib 单独发行），跳过强制同步")
                         continue
 
                     # 初始化结果统计
@@ -836,11 +843,16 @@ class StockDataPreparer:
                     logger.info("📊 [数据同步] 同步实时行情...")
                     try:
                         # 对于单个股票，AKShare更适合获取实时行情
+                        # OpenSpec capability `license-boundary`：lib 单独发行时降级
                         if data_source == "tushare":
                             # Tushare的实时行情接口有限制，改用AKShare
-                            from app.worker.akshare_sync_service import get_akshare_sync_service
+                            try:
+                                from app.worker.akshare_sync_service import get_akshare_sync_service
 
-                            realtime_service = await get_akshare_sync_service()
+                                realtime_service = await get_akshare_sync_service()
+                            except ImportError:
+                                logger.warning("⚠️ akshare_sync_service 不可用，跳过实时行情同步")
+                                realtime_service = service
                         else:
                             realtime_service = service
 

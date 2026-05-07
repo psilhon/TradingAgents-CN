@@ -55,10 +55,10 @@ def calculate_realtime_pe_pb(symbol: str, db_client=None) -> dict[str, Any] | No
             # 这是异步客户端，创建同步客户端
             from pymongo import MongoClient
 
-            from app.core.config import settings
+            from tradingagents.utils.database import get_mongo_uri
 
             logger.debug(f"检测到异步客户端 {client_type}，转换为同步客户端")
-            db_client = MongoClient(settings.MONGO_URI)
+            db_client = MongoClient(get_mongo_uri())
 
         db = db_client["tradingagents"]
         code6 = str(symbol).zfill(6)
@@ -372,10 +372,10 @@ def get_pe_pb_with_fallback(symbol: str, db_client=None) -> dict[str, Any]:
         if "AsyncIOMotorClient" in client_type or "Motor" in client_type:
             from pymongo import MongoClient
 
-            from app.core.config import settings
+            from tradingagents.utils.database import get_mongo_uri
 
             logger.debug(f"检测到异步客户端 {client_type}，转换为同步客户端")
-            db_client = MongoClient(settings.MONGO_URI)
+            db_client = MongoClient(get_mongo_uri())
 
     except Exception as e:
         logger.error(f"❌ [PE智能策略-失败] 数据库连接失败: {e}")

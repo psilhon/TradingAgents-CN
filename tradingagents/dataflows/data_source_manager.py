@@ -110,7 +110,7 @@ class DataSourceManager:
 
         try:
             # 🔥 从数据库读取数据源配置（使用同步客户端）
-            from app.core.database import get_mongo_db_sync
+            from tradingagents.utils.database import get_mongo_db_sync
 
             db = get_mongo_db_sync()
             config_collection = db.system_configs
@@ -430,7 +430,7 @@ class DataSourceManager:
         # 🔥 从数据库读取数据源配置，获取启用状态
         enabled_sources_in_db = set()
         try:
-            from app.core.database import get_mongo_db_sync
+            from tradingagents.utils.database import get_mongo_db_sync
 
             db = get_mongo_db_sync()
             config_collection = db.system_configs
@@ -526,7 +526,7 @@ class DataSourceManager:
     def _get_datasource_configs_from_db(self) -> dict:
         """从数据库读取数据源配置（包括 API Key）"""
         try:
-            from app.core.database import get_mongo_db_sync
+            from tradingagents.utils.database import get_mongo_db_sync
 
             db = get_mongo_db_sync()
 
@@ -2337,7 +2337,7 @@ class USDataSourceManager:
         """
         try:
             # 从数据库读取数据源配置
-            from app.core.database import get_mongo_db_sync
+            from tradingagents.utils.database import get_mongo_db_sync
 
             db = get_mongo_db_sync()
 
@@ -2468,7 +2468,7 @@ class USDataSourceManager:
     def _get_enabled_sources_from_db(self) -> list[str]:
         """从数据库读取启用的数据源列表"""
         try:
-            from app.core.database import get_mongo_db_sync
+            from tradingagents.utils.database import get_mongo_db_sync
 
             db = get_mongo_db_sync()
 
@@ -2499,7 +2499,7 @@ class USDataSourceManager:
     def _get_datasource_configs_from_db(self) -> dict:
         """从数据库读取数据源配置（包括 API Key）"""
         try:
-            from app.core.database import get_mongo_db_sync
+            from tradingagents.utils.database import get_mongo_db_sync
 
             db = get_mongo_db_sync()
 
