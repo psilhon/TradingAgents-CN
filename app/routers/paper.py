@@ -632,6 +632,20 @@ async def get_performance(current_user: dict = Depends(get_current_user)):
     return ok(overview)
 
 
+# OpenSpec change `portfolio-fundamentals`：组合估值 + 风险指标
+@router.get("/portfolio_metrics", response_model=dict)
+async def get_portfolio_metrics(current_user: dict = Depends(get_current_user)):
+    """聚合 paper 组合 Beta / VaR / 加权 PE/PB.
+
+    - beta: {value, tag} 或 null（snapshot < 30 天）
+    - var: {amount, pct} 或 null（同上）
+    - weighted_pe / weighted_pb: float 或 null（持仓为空 / indicators 全缺）
+    """
+    from app.services.portfolio_risk_service import get_portfolio_metrics as get_metrics
+    metrics = await get_metrics(current_user["id"])
+    return ok(metrics)
+
+
 @router.post("/import", response_model=dict)
 async def import_account(payload: ImportAccountRequest, current_user: dict = Depends(get_current_user)):
     """导入模拟账户资金和初始持仓。"""

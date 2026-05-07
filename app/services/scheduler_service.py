@@ -741,6 +741,10 @@ class SchedulerService:
         # OpenSpec change `paper-account-snapshots`：每日盘后写账户净值快照
         self._register_paper_snapshot_jobs()
 
+        # OpenSpec change `portfolio-fundamentals`：盘后 17:30 同步沪深 300 历史 K
+        # + 自选股∪持仓 PE/PB indicators
+        self._register_portfolio_fundamentals_jobs()
+
     def _register_realtime_quote_sync_jobs(self):
         """注册实时行情刷新 job — capability paper-realtime-quotes。
 
@@ -908,6 +912,74 @@ class SchedulerService:
                 )
         except Exception as e:
             logger.warning(f"⚠️ paper snapshot 启动检查失败: {e}")
+
+    def _register_portfolio_fundamentals_jobs(self):
+        """注册组合基本面 jobs — capability portfolio-fundamentals.
+
+        - 17:30 cron：sync 沪深 300 历史 K + 自选股∪持仓 PE/PB
+        - 启动时检查 index_quotes_daily 当年缺则补
+        """
+        self.scheduler.add_job(
+            self._run_portfolio_fundamentals_sync,
+            "cron",
+            day_of_week="mon-fri",
+            hour=17,
+            minute=30,
+            id="portfolio_fundamentals_sync",
+            name="组合基本面同步（指数 + 个股 PE/PB）",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
+        logger.info("✅ 组合基本面 cron 已添加：工作日 17:30")
+
+        # 启动时检查
+        asyncio.create_task(self._ensure_index_history_synced())
+
+    async def _run_portfolio_fundamentals_sync(self):
+        """17:30 cron：仅交易日真正执行 sync."""
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            if not await get_trading_calendar_service().is_trading_day():
+                return
+
+            from app.services.index_data_service import get_index_data_service
+            from app.services.stock_indicator_service import get_stock_indicator_service
+
+            idx_result = await get_index_data_service().sync_index_history(
+                "000300", days=7
+            )
+            ind_result = await get_stock_indicator_service().sync_indicators_for_codes()
+            logger.info(
+                f"组合基本面 sync: index={idx_result} indicators={ind_result}"
+            )
+        except Exception as e:
+            logger.warning(f"⚠️ 组合基本面 sync 失败: {e}")
+
+    async def _ensure_index_history_synced(self):
+        """启动时检查 index_quotes_daily 当年缺则全量同步."""
+        try:
+            from app.services.index_data_service import get_index_data_service
+
+            svc = get_index_data_service()
+            await svc.ensure_index()
+
+            from app.services.stock_indicator_service import get_stock_indicator_service
+            ind_svc = get_stock_indicator_service()
+            await ind_svc.ensure_index()
+
+            cnt = await svc.db[svc.COLLECTION_NAME].count_documents({"symbol": "000300"})
+            if cnt < 60:
+                logger.info(f"启动检查：index_quotes_daily 仅 {cnt} 条沪深 300，触发同步")
+                await svc.sync_index_history("000300", days=365)
+            else:
+                logger.info(
+                    f"启动检查：index_quotes_daily 已有 {cnt} 条沪深 300"
+                )
+        except Exception as e:
+            logger.warning(f"⚠️ index history 启动检查失败: {e}")
 
     async def _ensure_market_quotes_index(self):
         """ensure unique index on market_quotes.code (启动时一次)."""
