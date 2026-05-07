@@ -2622,9 +2622,13 @@ onMounted(async () => {
               }
 
               &:disabled {
-                opacity: 0.6 !important;
+                opacity: 1 !important;
+                color: var(--fg-secondary) !important;
+                background: var(--bg-active) !important;
+                border: 1px solid var(--border-strong) !important;
                 transform: none !important;
-                box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1) !important;
+                box-shadow: none !important;
+                cursor: not-allowed !important;
               }
 
               .el-icon {
@@ -2849,9 +2853,18 @@ onMounted(async () => {
 }
 
 .large-analysis-btn.el-button:disabled {
-  opacity: 0.6 !important;
+  opacity: 1 !important;
+  color: var(--fg-secondary) !important;
+  background: var(--bg-active) !important;
+  border: 1px solid var(--border-strong) !important;
   transform: none !important;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.large-analysis-btn.el-button:disabled .el-icon,
+.large-analysis-btn.el-button:disabled span {
+  color: var(--fg-secondary) !important;
 }
 
 .large-analysis-btn.el-button .el-icon {
