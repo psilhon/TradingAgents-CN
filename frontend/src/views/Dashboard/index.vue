@@ -381,23 +381,39 @@
                       </span>
                     </div>
                   </div>
-                  <!-- TODO: Tier 4 — 等外部行情/基本面数据接入后切真实 (Beta vs HS300, 历史 VaR, 持仓加权 PE/PB) -->
                   <div class="tier4-kpis">
                     <div class="kpi-cell">
                       <div class="kpi-label">Beta</div>
-                      <div class="kpi-val num">1.12 <span class="kpi-tag">中高弹性</span></div>
+                      <div class="kpi-val num">
+                        <template v-if="portfolioMetrics?.beta">
+                          {{ portfolioMetrics.beta.value.toFixed(2) }}
+                          <span class="kpi-tag" :class="betaTagClass(portfolioMetrics.beta.tag)">
+                            {{ portfolioMetrics.beta.tag }}
+                          </span>
+                        </template>
+                        <template v-else>—</template>
+                      </div>
                     </div>
                     <div class="kpi-cell">
                       <div class="kpi-label">VaR (1D, 95%)</div>
-                      <div class="kpi-val num down">−¥4,820</div>
+                      <div class="kpi-val num down">
+                        <template v-if="portfolioMetrics?.var">
+                          −¥{{ formatMoney(Math.abs(portfolioMetrics.var.amount)) }}
+                        </template>
+                        <template v-else>—</template>
+                      </div>
                     </div>
                     <div class="kpi-cell">
                       <div class="kpi-label">加权 PE</div>
-                      <div class="kpi-val num">18.4×</div>
+                      <div class="kpi-val num">
+                        {{ portfolioMetrics?.weighted_pe != null ? portfolioMetrics.weighted_pe.toFixed(1) + '×' : '—' }}
+                      </div>
                     </div>
                     <div class="kpi-cell">
                       <div class="kpi-label">加权 PB</div>
-                      <div class="kpi-val num">2.1×</div>
+                      <div class="kpi-val num">
+                        {{ portfolioMetrics?.weighted_pb != null ? portfolioMetrics.weighted_pb.toFixed(1) + '×' : '—' }}
+                      </div>
                     </div>
                   </div>
                   <div class="account-progress account-progress-bottom">
@@ -529,6 +545,7 @@ import { newsApi } from '@/api/news'
 import { paperApi, type PaperAccountSummary, type PaperPositionItem } from '@/api/paper'
 import { marketApi, type MarketOverview } from '@/api/market'
 import { paperPerformanceApi, type PaperPerformance } from '@/api/paperPerformance'
+import { portfolioMetricsApi, type PortfolioMetrics } from '@/api/portfolioMetrics'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -550,6 +567,23 @@ const paperPositions = ref<PaperPositionItem[]>([])
 const marketOverview = ref<MarketOverview | null>(null)
 const marketOverviewLoading = ref(false)
 const paperPerformance = ref<PaperPerformance | null>(null)
+const portfolioMetrics = ref<PortfolioMetrics | null>(null)
+
+// Beta tag chip 配色（按弹性等级）
+const betaTagClass = (tag: string): string => {
+  switch (tag) {
+    case '高弹性':
+      return 'tag-high'
+    case '中高弹性':
+      return 'tag-mid-high'
+    case '中性':
+      return 'tag-neutral'
+    case '防御':
+      return 'tag-defensive'
+    default:
+      return ''
+  }
+}
 
 // Loading 状态（首次加载时显示 skeleton shimmer）
 const watchlistLoading = ref(true)
@@ -929,6 +963,17 @@ const loadPaperPerformance = async () => {
   }
 }
 
+const loadPortfolioMetrics = async () => {
+  try {
+    const response = await portfolioMetricsApi.get()
+    if (response.success && response.data) {
+      portfolioMetrics.value = response.data
+    }
+  } catch (error) {
+    console.error('加载组合 Beta/VaR/估值指标失败:', error)
+  }
+}
+
 const loadMarketOverview = async () => {
   marketOverviewLoading.value = true
   try {
@@ -968,6 +1013,7 @@ onMounted(async () => {
   await loadMarketNews()
   await loadPaperAccount()
   await loadPaperPerformance()
+  await loadPortfolioMetrics()
   await loadMarketOverview()
 
   // 启动市场概况 5 min polling（内部含 is_intraday guard，盘外跳过）
@@ -1939,6 +1985,24 @@ onUnmounted(() => {
   vertical-align: middle;
   letter-spacing: 0;
   text-transform: none;
+
+  // Beta 弹性 tag 配色
+  &.tag-high {
+    color: var(--down);  // 红 = 高风险
+    background: rgba(244, 67, 54, 0.12);
+  }
+  &.tag-mid-high {
+    color: var(--accent);  // 金 = 中高（项目主题色）
+    background: rgba(212, 168, 67, 0.14);
+  }
+  &.tag-neutral {
+    color: #2196f3;
+    background: rgba(33, 150, 243, 0.14);
+  }
+  &.tag-defensive {
+    color: var(--up);  // 绿 = 防御
+    background: rgba(76, 175, 80, 0.12);
+  }
 }
 
 .risk-stats {
