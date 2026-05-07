@@ -155,6 +155,21 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/queue', redirect: '/tasks' },
   { path: '/analysis/history', redirect: '/tasks?tab=completed' },
+  // dev-only：账户专业指标 4 tier 视觉模板预览（不进导航菜单）
+  {
+    path: '/dev/account-tiers',
+    name: 'DevAccountTiers',
+    component: () => import('@/layouts/BasicLayout.vue'),
+    meta: { title: '账户 Tier 模板预览', requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'DevAccountTiersHome',
+        component: () => import('@/views/Dev/AccountTiersDemo.vue'),
+        meta: { title: '账户 Tier 模板预览', requiresAuth: true }
+      }
+    ]
+  },
   {
     path: '/reports',
     name: 'Reports',
