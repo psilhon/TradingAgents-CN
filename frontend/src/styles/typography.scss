@@ -12,7 +12,7 @@
 
 .num {
   font-family: var(--font-mono);
-  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-feature-settings: 'tnum' 1, 'lnum' 1, 'ss01' 1;  // ss01 = IBM Plex Mono 斜杠零
   font-variant-numeric: tabular-nums lining-nums;
 }
 
@@ -52,7 +52,7 @@ table .num,
 .metric-value.num,
 .metric-block .value.num {
   font-family: var(--font-mono);
-  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-feature-settings: 'tnum' 1, 'lnum' 1, 'ss01' 1;  // ss01 = IBM Plex Mono 斜杠零
   font-variant-numeric: tabular-nums lining-nums;
 }
 
@@ -95,20 +95,135 @@ table .num,
     border-radius: 50%;
     background: currentColor;
     flex-shrink: 0;
+    // 脉冲呼吸（所有状态都呼吸）
+    animation: status-dot-pulse 2.4s ease-in-out infinite;
   }
 
   &.success {
     background: rgba(var(--down-rgb), 0.10);
     color: var(--down);
+
+    // ✓ 钩（替代圆点 / 与圆点共存的话视觉重，所以替换）
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: transparent;
+      border-radius: 0;
+      animation: none;
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 2px;
+        height: 4px;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: translate(2px, -75%) rotate(45deg);
+      }
+    }
   }
+
   &.fail {
     background: rgba(var(--up-rgb), 0.10);
     color: var(--up);
+
+    // × 叉（替代圆点）
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: transparent;
+      border-radius: 0;
+      animation: none;
+      position: relative;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 50% 0 auto 0;
+        height: 1.5px;
+        background: currentColor;
+        border-radius: 1px;
+      }
+      &::before { transform: translateY(-50%) rotate(45deg); }
+      &::after  { transform: translateY(-50%) rotate(-45deg); }
+    }
   }
+
   &.running {
     background: var(--accent-soft);
     color: var(--accent);
+
+    // 旋转 spinner（替代圆点）
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: transparent;
+      border: 1.5px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: status-spinner 0.8s linear infinite;
+    }
   }
+}
+
+@keyframes status-dot-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.85); }
+}
+
+@keyframes status-spinner {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// =================================================================
+// Skeleton shimmer：加载态卡片底色扫光（depth=面积越大移动越显眼）
+// 用法：<div class="skeleton-line" style="width: 80%; height: 14px"></div>
+// =================================================================
+.skeleton,
+.skeleton-line,
+.skeleton-block {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.06) 50%,
+      transparent 100%
+    );
+    animation: skeleton-shimmer 1.4s linear infinite;
+  }
+}
+
+.skeleton-line { height: 12px; margin-bottom: 8px; }
+.skeleton-block { height: 60px; }
+
+@keyframes skeleton-shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+// 浅色：shimmer 用淡黑高光
+html.light .skeleton::after,
+html.light .skeleton-line::after,
+html.light .skeleton-block::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.04) 50%,
+    transparent 100%
+  );
 }
 
 // 演示数据标识（mock 角标）
@@ -134,7 +249,7 @@ table .num,
   }
 }
 
-// Section title（左侧 3px accent 强调条）
+// Section title（左侧 3px accent 强调条 + glow 慢速呼吸）
 .sec-title {
   display: flex;
   align-items: center;
@@ -150,7 +265,14 @@ table .num,
     height: 14px;
     background: var(--accent);
     border-radius: 2px;
+    box-shadow: 0 0 8px var(--accent-glow);
+    animation: sec-title-pulse 4s ease-in-out infinite;
   }
+}
+
+@keyframes sec-title-pulse {
+  0%, 100% { box-shadow: 0 0 4px var(--accent-glow); }
+  50%      { box-shadow: 0 0 12px var(--accent); }
 }
 
 // Section link（右上角"查看更多 →"）

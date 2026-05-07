@@ -157,16 +157,24 @@ watch(() => route.fullPath, () => {
   display: flex;
   flex-direction: column;
 
-  // 参考稿：右边缘 accent glow（仅 dark 模式可见）
+  // 参考稿：右边缘 accent glow（仅 dark 模式可见，慢速上下漂移呼吸）
   &::after {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
     width: 1px;
-    height: 100%;
-    background: linear-gradient(to bottom, transparent, var(--accent-glow) 40%, transparent);
+    height: 200%;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--accent-glow) 30%,
+      var(--accent) 50%,
+      var(--accent-glow) 70%,
+      transparent 100%
+    );
     pointer-events: none;
+    animation: sidebar-glow-drift 8s ease-in-out infinite;
   }
 
   &.collapsed {
@@ -201,6 +209,36 @@ watch(() => route.fullPath, () => {
       font-weight: 700;
       color: var(--accent-fg);
       letter-spacing: -0.5px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.20),
+        0 0 12px -2px var(--accent-glow);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+      cursor: default;
+
+      // 内部添加旋转高光环
+      position: relative;
+      overflow: hidden;
+      &::before {
+        content: '';
+        position: absolute;
+        inset: -50%;
+        background: conic-gradient(
+          from 0deg,
+          transparent 0deg,
+          rgba(255, 255, 255, 0.30) 60deg,
+          transparent 120deg,
+          transparent 360deg
+        );
+        animation: logo-shine 6s linear infinite;
+        pointer-events: none;
+      }
+    }
+
+    .logo:hover .logo-icon {
+      transform: rotate(8deg) scale(1.06);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.30),
+        0 0 24px -2px var(--accent-glow);
     }
 
     .logo-text {
@@ -347,5 +385,17 @@ watch(() => route.fullPath, () => {
 .slide-left-leave-to {
   transform: translateX(-30px);
   opacity: 0;
+}
+
+// 侧栏 accent glow 慢速上下漂移
+@keyframes sidebar-glow-drift {
+  0%, 100% { transform: translateY(-50%); }
+  50%      { transform: translateY(0%); }
+}
+
+// 侧栏 logo 金块内的旋转高光（慢速 conic gradient 转一圈）
+@keyframes logo-shine {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
