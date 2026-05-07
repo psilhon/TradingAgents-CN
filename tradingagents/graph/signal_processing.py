@@ -173,10 +173,11 @@ class SignalProcessor:
                     # 如果仍然没有找到价格，尝试智能推算
                     if target_price is None or target_price == "null" or target_price == "":
                         target_price = self._smart_price_estimation(full_text, action, is_china)
-                        if target_price:
+                        # 注意：用 is not None 而非 truthy 判断，0.0 也是合法价格
+                        # （见 code-review-2026-05-05 misc-bugfix-batch）
+                        if target_price is not None:
                             logger.debug(f"🔍 [SignalProcessor] 智能推算目标价格: {target_price}")
                         else:
-                            target_price = None
                             logger.warning("🔍 [SignalProcessor] 未能提取到目标价格，设置为None")
                 else:
                     # 确保价格是数值类型
@@ -225,8 +226,12 @@ class SignalProcessor:
             # 回退到简单提取
             return self._extract_simple_decision(full_signal)
 
-    def _smart_price_estimation(self, text: str, action: str, is_china: bool) -> float:
-        """智能价格推算方法"""
+    def _smart_price_estimation(self, text: str, action: str, is_china: bool) -> float | None:
+        """智能价格推算方法。
+
+        无法推算时返回 None（原标注 -> float 谎报，line 291 实际 return None）。
+        见 code-review-2026-05-05 misc-bugfix-batch。
+        """
         import re
 
         # 尝试从文本中提取当前价格和涨跌幅信息

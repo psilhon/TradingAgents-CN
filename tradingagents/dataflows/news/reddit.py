@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Annotated
 
 ticker_to_company = {
@@ -83,7 +83,9 @@ def fetch_top_from_category(
                 parsed_line = json.loads(line)
 
                 # select only lines that are from the date
-                post_date = datetime.utcfromtimestamp(parsed_line["created_utc"]).strftime("%Y-%m-%d")
+                # 注：utcfromtimestamp 在 Python 3.12 deprecated，改用 fromtimestamp(tz=timezone.utc)
+                # （见 code-review-2026-05-05 misc-bugfix-batch）
+                post_date = datetime.fromtimestamp(parsed_line["created_utc"], tz=timezone.utc).strftime("%Y-%m-%d")
                 if post_date != date:
                     continue
 
@@ -97,9 +99,14 @@ def fetch_top_from_category(
 
                     search_terms.append(query)
 
+                    # re.escape 防止公司名中的 . & 等被当成 regex meta 字符
+                    # 例 "Johnson & Johnson" 中 & 不转义会让 re.search 行为异常
                     found = False
                     for term in search_terms:
-                        if re.search(term, parsed_line["title"], re.IGNORECASE) or re.search(term, parsed_line["selftext"], re.IGNORECASE):
+                        pattern = re.escape(term)
+                        if re.search(pattern, parsed_line["title"], re.IGNORECASE) or re.search(
+                            pattern, parsed_line["selftext"], re.IGNORECASE
+                        ):
                             found = True
                             break
 

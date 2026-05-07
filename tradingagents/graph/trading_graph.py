@@ -847,7 +847,10 @@ class TradingAgentsGraph:
             model_info = "Unknown"
 
         # 处理决策并添加模型信息
-        decision = self.process_signal(final_state["final_trade_decision"], company_name)
+        # 兜底：若 graph 因 Trader 等节点异常未填充 final_trade_decision，
+        # .get() 返回空字符串，避免 KeyError 让整条链崩
+        # （见 code-review-2026-05-05 misc-bugfix-batch）
+        decision = self.process_signal(final_state.get("final_trade_decision", ""), company_name)
         decision["model_info"] = model_info
 
         # Return decision and processed signal
