@@ -168,6 +168,13 @@ html.light {
   --el-button-active-text-color: var(--accent-fg);
   font-weight: 600;
   border-radius: var(--radius-sm);
+  // 发光呼吸（深浅双主题，颜色由 --cta-glow-color token 切换）
+  animation: cta-glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes cta-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50%      { box-shadow: 0 0 18px 0 var(--cta-glow-color); }
 }
 
 // 默认按钮：透明 + hairline
@@ -188,10 +195,42 @@ html.light {
   box-shadow: 0 0 0 1px var(--accent) inset !important;
 }
 
-// 菜单激活态：左 2px accent 强调条 + accent-soft 背景
+// 菜单 item hover：渐变 sweep（深色更明显）
+.el-menu-item,
+.el-sub-menu__title {
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s, color 0.2s !important;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, var(--accent-soft) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.25s;
+    pointer-events: none;
+  }
+
+  &:hover::after { opacity: 1; }
+
+  // icon 在 hover / active 时微微 scale
+  .el-icon {
+    transition: transform 0.2s, color 0.2s;
+  }
+  &:hover .el-icon {
+    transform: scale(1.12);
+  }
+}
+
+// 菜单激活态：左 2px accent 条 + 渐变背景 + 左条呼吸
 .el-menu-item.is-active,
 .el-sub-menu.is-active > .el-sub-menu__title {
-  background: var(--accent-soft) !important;
+  background: linear-gradient(
+    90deg,
+    var(--accent-soft) 0%,
+    rgba(0, 0, 0, 0) 70%
+  ) !important;
   color: var(--accent) !important;
   position: relative;
 
@@ -199,12 +238,24 @@ html.light {
     content: '';
     position: absolute;
     left: 0;
-    top: 20%;
-    height: 60%;
+    top: 18%;
+    height: 64%;
     width: 2px;
     background: var(--accent);
     border-radius: 2px;
+    box-shadow: 0 0 8px var(--accent-glow);
+    animation: nav-active-pulse 2.6s ease-in-out infinite;
   }
+
+  .el-icon {
+    color: var(--accent);
+    filter: drop-shadow(0 0 6px var(--accent-glow));
+  }
+}
+
+@keyframes nav-active-pulse {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 6px var(--accent-glow); }
+  50%      { opacity: 0.7; box-shadow: 0 0 14px var(--accent-glow); }
 }
 
 // 自定义滚动条（细 + 主题感）
@@ -221,9 +272,30 @@ html.light {
   &:hover { background: var(--fg-muted); }
 }
 
+// 深色：滚动条 thumb 用琥珀垂直渐变 + 微弱 glow
+:root ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent) 0%, #8a5500 100%);
+  box-shadow: 0 0 6px rgba(212, 168, 67, 0.30);
+  border-radius: 4px;
+  &:hover {
+    background: linear-gradient(180deg, #f0c870 0%, var(--accent) 100%);
+    box-shadow: 0 0 10px rgba(212, 168, 67, 0.50);
+  }
+}
+
+// 浅色：保持低调（深色 thumb 在白底太张扬）
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.20);
+  box-shadow: none;
+  &:hover { background: rgba(0, 0, 0, 0.35); }
+}
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-color: var(--accent) transparent;
+}
+html.light * {
+  scrollbar-color: rgba(0, 0, 0, 0.20) transparent;
 }
 
 // =================================================================

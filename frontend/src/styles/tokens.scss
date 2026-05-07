@@ -76,6 +76,18 @@
   --status-halo-up: 0 0 6px rgba(var(--up-rgb), 0.60);
   --status-halo-warn: 0 0 6px rgba(var(--warning-rgb), 0.60);
 
+  // ---- 动效色（双主题对比色）----
+  --shimmer-highlight: rgba(255, 255, 255, 0.95);  // 数字 shimmer 扫光高光（深色白）
+  --cta-glow-color: rgba(212, 168, 67, 0.35);       // 主按钮发光（深色琥珀）
+  --hero-spotlight-color: var(--accent-glow);       // Hero 鼠标光斑色
+
+  // ---- Border 渐变描边色（深色顶亮底暗，立体）----
+  --panel-border-grad: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.10) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+
   // ---- 圆角（参考稿圆润）----
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -89,9 +101,9 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  // ---- 字体（参考稿）----
-  --font-sans: 'Sora', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'SF Mono', 'Consolas', ui-monospace, monospace;
+  // ---- 字体（Vercel Geist 系列 + 思源黑体 fallback）----
+  --font-sans: 'Geist', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', 'Consolas', ui-monospace, monospace;
 
   // ---- Layout ----
   --sidebar-width: 220px;
@@ -104,22 +116,22 @@
 // =================================================================
 
 html.light {
-  // ---- 背景层次拉开：3 层对比从 3% → 8-10% ----
-  --bg-canvas: #f5efe0;       // 暖米底，比之前更深一档
-  --bg-surface: #ffffff;      // 卡片纯白，与 canvas 反差明显
-  --bg-elevated: #fbf3df;     // 表头 / 二级面板，介于 canvas 和 surface 之间
-  --bg-hover: #f5ecd2;
-  --bg-active: #ebdfb8;
-  --bg-sidebar: #fbf3df;
+  // ---- 背景层次：3 层只差 ~2-3%，温润不刺眼，避免纯白卡片在米底上割裂 ----
+  --bg-canvas: #f4eedf;       // 暖米底
+  --bg-surface: #fbf6ea;      // 卡片：极淡米白（不再纯白），与 canvas 仅差 3%
+  --bg-elevated: #efe8d2;     // 表头 / 二级
+  --bg-hover: #ebe4cd;
+  --bg-active: #e2d8b8;
+  --bg-sidebar: #f4eedf;      // 与 canvas 同色，侧栏不再"贴片"
 
-  --fg-primary: #1f2430;      // 比之前略深，对比度更高
+  --fg-primary: #1f2430;
   --fg-secondary: #545b6a;
   --fg-muted: #8b919c;
   --fg-disabled: #b8bdc4;
 
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-default: rgba(0, 0, 0, 0.10);
-  --border-strong: rgba(0, 0, 0, 0.18);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.14);
 
   // 浅色模式下涨跌饱和度提高一档
   --up: #a82323;
@@ -155,13 +167,13 @@ html.light {
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     0 1px 2px rgba(0, 0, 0, 0.12);
 
-  // ---- Panel 阴影（浅色用阴影营造立体感）----
+  // ---- Panel 阴影（浅色用细微阴影，不抢戏）----
   --panel-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.03);
+    0 1px 2px rgba(80, 60, 20, 0.04),
+    0 1px 1px rgba(80, 60, 20, 0.02);
   --panel-shadow-hover:
-    0 4px 12px rgba(0, 0, 0, 0.10),
-    0 2px 4px rgba(0, 0, 0, 0.06);
+    0 4px 10px rgba(80, 60, 20, 0.08),
+    0 2px 4px rgba(80, 60, 20, 0.04);
 
   // ---- 标题渐变（深米 → 琥珀，金属字效）----
   --gradient-title: linear-gradient(135deg, #b86e00 0%, #d4a843 100%);
@@ -170,6 +182,18 @@ html.light {
   --status-halo-down: 0 0 0 3px rgba(var(--down-rgb), 0.18);
   --status-halo-up: 0 0 0 3px rgba(var(--up-rgb), 0.18);
   --status-halo-warn: 0 0 0 3px rgba(var(--warning-rgb), 0.20);
+
+  // ---- 动效色（浅色用深色高光，避免白光在白底丢失）----
+  --shimmer-highlight: rgba(0, 0, 0, 0.30);          // 数字扫光改用深色高光
+  --cta-glow-color: rgba(184, 110, 0, 0.40);          // 主按钮发光琥珀（饱和度提升）
+  --hero-spotlight-color: rgba(255, 138, 69, 0.32);   // Hero 暖橙光斑（饱和度提升一档）
+
+  // Border 渐变描边色：浅色用淡黑 alpha（顶部不要太重）
+  --panel-border-grad: linear-gradient(180deg,
+    rgba(0, 0, 0, 0.09) 0%,
+    rgba(0, 0, 0, 0.05) 50%,
+    rgba(0, 0, 0, 0.03) 100%
+  );
 }
 
 // 兼容现有 appStore.applyTheme() 的 'dark' class
