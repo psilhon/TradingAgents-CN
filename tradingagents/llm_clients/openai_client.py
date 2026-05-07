@@ -1,4 +1,5 @@
 import os
+from collections.abc import Mapping
 from typing import Any
 
 from langchain_openai import ChatOpenAI
@@ -23,10 +24,25 @@ _PASSTHROUGH_KWARGS = (
     "callbacks",
     "http_client",
     "http_async_client",
+    "extra_body",
 )
 
 # 派生自 provider_specs.PROVIDER_SPECS（OpenSpec spec llm-abstraction：单一来源）
 _PROVIDER_CONFIG = derive_openai_provider_config()
+
+_DEEPSEEK_EXTRA_BODY_DEFAULTS = {"thinking": {"type": "disabled"}}
+
+
+def _merge_extra_body_defaults(
+    extra_body: Any,
+    defaults: dict[str, Any],
+) -> dict[str, Any]:
+    merged = dict(extra_body) if isinstance(extra_body, Mapping) else {}
+
+    for key, value in defaults.items():
+        merged.setdefault(key, value)
+
+    return merged
 
 
 class OpenAIClient(BaseLLMClient):
@@ -64,6 +80,12 @@ class OpenAIClient(BaseLLMClient):
         for key in _PASSTHROUGH_KWARGS:
             if key in self.kwargs:
                 llm_kwargs[key] = self.kwargs[key]
+
+        if self.provider == "deepseek":
+            llm_kwargs["extra_body"] = _merge_extra_body_defaults(
+                llm_kwargs.get("extra_body"),
+                _DEEPSEEK_EXTRA_BODY_DEFAULTS,
+            )
 
         return NormalizedChatOpenAI(**llm_kwargs)
 
