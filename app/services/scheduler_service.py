@@ -738,6 +738,9 @@ class SchedulerService:
         # 启动时检查当年/下年日历缺失自动同步
         self._register_trading_calendar_jobs()
 
+        # OpenSpec change `paper-account-snapshots`：每日盘后写账户净值快照
+        self._register_paper_snapshot_jobs()
+
     def _register_realtime_quote_sync_jobs(self):
         """注册实时行情刷新 job — capability paper-realtime-quotes。
 
@@ -838,6 +841,73 @@ class SchedulerService:
                     )
         except Exception as e:
             logger.warning(f"⚠️ trading_calendar 启动检查失败: {e}")
+
+    def _register_paper_snapshot_jobs(self):
+        """注册 paper 账户快照 jobs — capability paper-account-snapshots.
+
+        - 盘后 16:00 cron job：遍历活跃 paper user → take_snapshot
+        - 启动时检查当日 snapshot 缺则补（仅交易日，async fire-and-forget）
+        """
+        # 工作日盘后 cron
+        self.scheduler.add_job(
+            self._run_paper_snapshot_batch,
+            "cron",
+            day_of_week="mon-fri",
+            hour=16,
+            minute=0,
+            id="paper_snapshot_daily",
+            name="paper 账户净值每日快照",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
+        logger.info("✅ paper 账户快照 cron 已添加：工作日 16:00")
+
+        # 启动时检查当日缺则补
+        asyncio.create_task(self._ensure_paper_snapshot_today())
+
+    async def _run_paper_snapshot_batch(self):
+        """16:00 cron 触发：仅交易日真正执行."""
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            if not await get_trading_calendar_service().is_trading_day():
+                return
+            from app.services.paper_snapshot_service import get_paper_snapshot_service
+            result = await get_paper_snapshot_service().take_snapshots_for_all_users()
+            logger.info(f"paper snapshot batch: {result}")
+        except Exception as e:
+            logger.warning(f"⚠️ paper snapshot batch 失败: {e}")
+
+    async def _ensure_paper_snapshot_today(self):
+        """启动时检查当日 snapshot：仅交易日 + 缺则补一条."""
+        try:
+            from app.services.paper_snapshot_service import get_paper_snapshot_service
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+
+            svc = get_paper_snapshot_service()
+            await svc.ensure_index()
+
+            # 仅交易日补
+            cal_svc = get_trading_calendar_service()
+            if not await cal_svc.is_trading_day():
+                logger.info("paper snapshot 启动检查：今日非交易日，跳过补漏")
+                return
+
+            today_str = datetime.now(UTC_8).date().isoformat()
+            cnt = await svc.db[svc.COLLECTION_NAME].count_documents({"date": today_str})
+            if cnt == 0:
+                logger.info(f"paper snapshot 启动检查：{today_str} 缺数据，触发补一条")
+                await svc.take_snapshots_for_all_users()
+            else:
+                logger.info(
+                    f"paper snapshot 启动检查：{today_str} 已有 {cnt} 条快照"
+                )
+        except Exception as e:
+            logger.warning(f"⚠️ paper snapshot 启动检查失败: {e}")
 
     async def _ensure_market_quotes_index(self):
         """ensure unique index on market_quotes.code (启动时一次)."""
