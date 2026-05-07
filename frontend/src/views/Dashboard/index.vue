@@ -910,21 +910,9 @@ const startMarketOverviewPolling = () => {
   }, 5 * 60 * 1000)
 }
 
-// Mock 价格 ticker：每 4.5s 给随机一支股票微调价格 ±0.5%（演示数字翻牌效果，
-// 真实接入 ws 行情后可移除）
-let priceTickerHandle: ReturnType<typeof setInterval> | null = null
-const startPriceTicker = () => {
-  priceTickerHandle = setInterval(() => {
-    if (favoriteStocks.value.length === 0) return
-    const idx = Math.floor(Math.random() * favoriteStocks.value.length)
-    const stock = favoriteStocks.value[idx]
-    const delta = (Math.random() - 0.5) * 0.01 // ±0.5%
-    const oldPrice = Number(stock.current_price) || 0
-    if (oldPrice <= 0) return
-    stock.current_price = +(oldPrice * (1 + delta)).toFixed(2)
-    stock.change_percent = +(Number(stock.change_percent) + delta * 100).toFixed(2)
-  }, 4500)
-}
+// 删除原 mock priceTicker（每 4.5s 随机改一支股票 ±0.5%）：违反项目铁律
+// 「自动刷新仅在 A 股交易日盘中」+ mock 数据让 UI 显示与真实 mongo 不一致，
+// 用户在盘外仍看到数字跳动误以为后端在刷新。盘中真实数据走 5 min polling 即可。
 
 onMounted(async () => {
   // 鼠标跟随光斑监听
@@ -936,16 +924,13 @@ onMounted(async () => {
   await loadPaperAccount()
   await loadMarketOverview()
 
-  // 启动 mock 价格滚动（仅前端演示，不影响后端数据）
-  startPriceTicker()
-  // 启动市场概况 5 min polling
+  // 启动市场概况 5 min polling（内部含 is_intraday guard，盘外跳过）
   startMarketOverviewPolling()
 })
 
 onUnmounted(() => {
   heroEl.value?.removeEventListener('mousemove', onHeroMouseMove)
   if (heroRafId !== null) cancelAnimationFrame(heroRafId)
-  if (priceTickerHandle !== null) clearInterval(priceTickerHandle)
   if (marketOverviewHandle !== null) clearInterval(marketOverviewHandle)
 })
 </script>

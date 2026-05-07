@@ -40,13 +40,31 @@ class QuotesService:
         self._lock = asyncio.Lock()
 
     async def _ensure_cache(self) -> Dict[str, Dict[str, Optional[float]]]:
-        """确保 cache 有效（在 TTL 内），过期则刷新。返回完整 cache（全市场）."""
+        """确保 cache 有效（在 TTL 内），过期则刷新。返回完整 cache（全市场）.
+
+        OpenSpec capability `trading-calendar` 铁律：盘外（周末 / 节假日 /
+        非交易时段）不刷新 akshare，直接返回现有 cache（即使 TTL 过期）。
+        首次启动 cache 空 + 盘外时返回空 dict（合理：盘外没新数据可看）。
+        """
         now = time.time()
         async with self._lock:
-            if not self._cache or (now - self._cache_ts) >= self._ttl:
-                data = await asyncio.to_thread(self._fetch_spot_akshare)
-                self._cache = data
-                self._cache_ts = time.time()
+            if self._cache and (now - self._cache_ts) < self._ttl:
+                return self._cache
+
+            # 盘外 guard：cache 过期但不刷新，返回 stale data（或空）
+            try:
+                from app.services.trading_calendar_service import (
+                    get_trading_calendar_service,
+                )
+                if not await get_trading_calendar_service().is_intraday_now():
+                    return self._cache
+            except Exception as e:
+                # trading_calendar 异常时保守降级：仍刷新（避免彻底无数据）
+                logger.debug(f"trading_calendar guard 失败，fallback 刷新 cache: {e}")
+
+            data = await asyncio.to_thread(self._fetch_spot_akshare)
+            self._cache = data
+            self._cache_ts = time.time()
             return self._cache
 
     async def get_market_overview(self) -> Dict[str, Optional[float]]:
