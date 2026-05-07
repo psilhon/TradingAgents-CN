@@ -18,6 +18,19 @@ logger = get_logger("agents")
 from tradingagents.config.runtime_settings import use_app_cache_enabled  # noqa: E402
 
 
+def _normalize_code(symbol: str) -> str:
+    """A 股 6 位数字代码补 0；港股 / 美股原样返回。
+
+    历史 bug：对所有 symbol 调 zfill(6) 让 'AAPL' → '00AAPL'，跨市场查询全错。
+    见 code-review-2026-05-05 misc-bugfix-batch。
+    """
+    s = str(symbol).strip()
+    # 仅纯数字 + 长度 ≤ 6 才补 0（A 股标准 6 位）
+    if s.isdigit() and len(s) <= 6:
+        return s.zfill(6)
+    return s
+
+
 class MongoDBCacheAdapter:
     """MongoDB 缓存适配器（从 app 的 MongoDB 读取同步数据）"""
 
@@ -54,7 +67,7 @@ class MongoDBCacheAdapter:
             return None
 
         try:
-            code6 = str(symbol).zfill(6)
+            code6 = _normalize_code(symbol)
             collection = self.db.stock_basic_info
 
             # 🔥 获取数据源优先级
@@ -178,7 +191,7 @@ class MongoDBCacheAdapter:
             return None
 
         try:
-            code6 = str(symbol).zfill(6)
+            code6 = _normalize_code(symbol)
             collection = self.db.stock_daily_quotes
 
             # 获取数据源优先级
@@ -227,7 +240,7 @@ class MongoDBCacheAdapter:
             return None
 
         try:
-            code6 = str(symbol).zfill(6)
+            code6 = _normalize_code(symbol)
             collection = self.db.stock_financial_data
 
             # 获取数据源优先级
@@ -270,7 +283,7 @@ class MongoDBCacheAdapter:
             # 构建查询条件
             query = {}
             if symbol:
-                code6 = str(symbol).zfill(6)
+                code6 = _normalize_code(symbol)
                 query["symbol"] = code6
 
             # 时间范围
@@ -304,7 +317,7 @@ class MongoDBCacheAdapter:
             # 构建查询条件
             query = {}
             if symbol:
-                code6 = str(symbol).zfill(6)
+                code6 = _normalize_code(symbol)
                 query["symbol"] = code6
 
             # 时间范围
@@ -333,7 +346,7 @@ class MongoDBCacheAdapter:
             return None
 
         try:
-            code6 = str(symbol).zfill(6)
+            code6 = _normalize_code(symbol)
             collection = self.db.market_quotes
 
             # 获取最新行情

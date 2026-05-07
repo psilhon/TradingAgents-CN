@@ -77,11 +77,11 @@ def create_risk_manager(llm, memory):
         response_content = ""
 
         while retry_count < max_retries:
+            # ⏱️ 提前到 try 前赋值，避免 try 内首句 logger 调用前抛异常时 except
+            # 引用 start_time 触发 UnboundLocalError（见 code-review-2026-05-05）
+            start_time = time.time()
             try:
                 logger.info(f"🔄 [Risk Manager] 调用LLM生成交易决策 (尝试 {retry_count + 1}/{max_retries})")
-
-                # ⏱️ 记录开始时间
-                start_time = time.time()
 
                 response = llm.invoke(prompt)
 
