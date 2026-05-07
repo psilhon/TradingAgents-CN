@@ -12,6 +12,16 @@
 
 ---
 
+## [1.2.1] — 2026-05-07
+
+**Fork patch release**——v1.2.0 后立即修 CI gitleaks 误报。
+
+### Fixed
+
+- **CI gitleaks 误报：测试 fake key 重构**：v1.2.0 release 后 GitHub Actions 的 `security` job 跑 gitleaks，把 `tests/test_llm_api_key_resolution.py` 中的 placeholder fake key（`"sk-env-key-1234567890"` 等）当真凭据误报（generic-api-key rule + entropy 3.97）。本地 `just ci` 不跑 gitleaks，push 前未暴露。本 patch 把 fake key 提取为 module-level 常量 `_FAKE_ENV_KEY` / `_FAKE_MODEL_KEY` / `_FAKE_PROVIDER_KEY`，值改成 `FAKE_*_DEEPSEEK` 全大写 SCREAMING_SNAKE_CASE：明显 placeholder + 低 entropy，gitleaks 不再触发，3 个测试用例语义不变。
+
+---
+
 ## [1.2.0] — 2026-05-07
 
 **Fork minor release**——v1.1.2 后日常使用驱动的稳定性 + 配置层架构收敛 + 模型生态扩充。四条独立 feature：用户工作流稳定性 / MongoDB 作为系统配置唯一可信源 / DeepSeek V4 系列 / 视觉重构延伸。Minor bump 因 MongoDB 与 `config/*.json` 关系变化对直接编辑 JSON 的用户算半 breaking。
