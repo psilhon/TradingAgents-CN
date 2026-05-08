@@ -6,15 +6,25 @@ Requires MongoDB initialized by app lifespan.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.services.basics_sync_service import get_basics_sync_service
+from app.routers.auth_db import get_current_user
 
 router = APIRouter(prefix="/api/sync", tags=["sync"])
 
 
+def _require_admin(user: dict) -> None:
+    if not user.get("is_admin", False):
+        raise HTTPException(status_code=403, detail="权限不足")
+
+
 @router.post("/stock_basics/run")
-async def run_stock_basics_sync(force: bool = False):
+async def run_stock_basics_sync(
+    force: bool = False,
+    current_user: dict = Depends(get_current_user),
+):
+    _require_admin(current_user)
     try:
         service = get_basics_sync_service()
         result = await service.run_full_sync(force=force)
@@ -28,4 +38,3 @@ async def get_stock_basics_status():
     service = get_basics_sync_service()
     status = await service.get_status()
     return {"success": True, "data": status}
-

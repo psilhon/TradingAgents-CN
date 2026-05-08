@@ -185,6 +185,16 @@ def _sanitize_kv(d: Dict[str, Any]) -> Dict[str, Any]:
         return d
 
 
+def _secret_meta(value: Any) -> str:
+    """Return non-sensitive metadata for secret-like values."""
+    if value is None:
+        return "present=False, length=0"
+    try:
+        return f"present=True, length={len(str(value))}"
+    except Exception:
+        return "present=True, length=unknown"
+
+
 
 
 class SetDefaultRequest(BaseModel):
@@ -1134,7 +1144,7 @@ async def update_data_source_config(
                 # 处理 API Key
                 if 'api_key' in _req:
                     api_key = _req.get('api_key')
-                    logger.info(f"🔍 [API Key 验证] 收到的 API Key: {repr(api_key)} (类型: {type(api_key).__name__}, 长度: {len(api_key) if api_key else 0})")
+                    logger.info(f"🔍 [API Key 验证] 收到 API Key ({_secret_meta(api_key)}, 类型: {type(api_key).__name__})")
 
                     # 如果是 None 或空字符串，保留原值（不更新）
                     if api_key is None or api_key == '':
@@ -1147,8 +1157,7 @@ async def update_data_source_config(
                         # 对数据库中的完整 API Key 进行相同的截断处理
                         if ds_config.api_key:
                             truncated_db_key = _truncate_api_key(ds_config.api_key)
-                            logger.info(f"🔍 [API Key 验证] 数据库原值截断后: {truncated_db_key}")
-                            logger.info(f"🔍 [API Key 验证] 收到的值: {api_key}")
+                            logger.info("🔍 [API Key 验证] 数据库已有截断值，正在比较客户端截断值")
 
                             # 比较截断后的值
                             if api_key == truncated_db_key:
@@ -1175,7 +1184,7 @@ async def update_data_source_config(
                         _req['api_key'] = ds_config.api_key or ""
                     # 如果是新输入的密钥，必须验证有效性
                     elif not is_valid_api_key(api_key):
-                        logger.error(f"❌ [API Key 验证] 验证失败: '{api_key}' (长度: {len(api_key)})")
+                        logger.error(f"❌ [API Key 验证] 验证失败 ({_secret_meta(api_key)})")
                         logger.error(f"   - 长度检查: {len(api_key)} > 10? {len(api_key) > 10}")
                         logger.error(f"   - 占位符前缀检查: startswith('your_')? {api_key.startswith('your_')}, startswith('your-')? {api_key.startswith('your-')}")
                         logger.error(f"   - 占位符后缀检查: endswith('_here')? {api_key.endswith('_here')}, endswith('-here')? {api_key.endswith('-here')}")
@@ -1190,7 +1199,7 @@ async def update_data_source_config(
                 # 处理 API Secret
                 if 'api_secret' in _req:
                     api_secret = _req.get('api_secret')
-                    logger.info(f"🔍 [API Secret 验证] 收到的 API Secret: {repr(api_secret)} (类型: {type(api_secret).__name__}, 长度: {len(api_secret) if api_secret else 0})")
+                    logger.info(f"🔍 [API Secret 验证] 收到 API Secret ({_secret_meta(api_secret)}, 类型: {type(api_secret).__name__})")
 
                     # 如果是 None 或空字符串，保留原值（不更新）
                     if api_secret is None or api_secret == '':
@@ -1203,8 +1212,7 @@ async def update_data_source_config(
                         # 对数据库中的完整 API Secret 进行相同的截断处理
                         if ds_config.api_secret:
                             truncated_db_secret = _truncate_api_key(ds_config.api_secret)
-                            logger.info(f"🔍 [API Secret 验证] 数据库原值截断后: {truncated_db_secret}")
-                            logger.info(f"🔍 [API Secret 验证] 收到的值: {api_secret}")
+                            logger.info("🔍 [API Secret 验证] 数据库已有截断值，正在比较客户端截断值")
 
                             # 比较截断后的值
                             if api_secret == truncated_db_secret:
@@ -1231,7 +1239,7 @@ async def update_data_source_config(
                         _req['api_secret'] = ds_config.api_secret or ""
                     # 如果是新输入的密钥，必须验证有效性
                     elif not is_valid_api_key(api_secret):
-                        logger.error(f"❌ [API Secret 验证] 验证失败: '{api_secret}' (长度: {len(api_secret)})")
+                        logger.error(f"❌ [API Secret 验证] 验证失败 ({_secret_meta(api_secret)})")
                         logger.error(f"   - 长度检查: {len(api_secret)} > 10? {len(api_secret) > 10}")
                         raise HTTPException(
                             status_code=status.HTTP_400_BAD_REQUEST,
