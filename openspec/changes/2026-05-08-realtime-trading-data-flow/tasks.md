@@ -45,11 +45,9 @@
 - [x] 3.3 `app/routers/paper.py` `_get_last_price` 改走 `quote_snapshot_reader.read_quotes(...)`，返回 `(price, as_of_ts) | (None, None)`；`/api/paper/account` / `/api/paper/positions` 响应里 positions 每条带 `last_price_as_of`，顶层带 `as_of_ts`（取所有 positions min）
 - [x] 3.4 写 hot-path SLO 单测 `tests/test_hot_path_slo.py`：spy `QuotesService._fetch_spot_akshare`，断言 `/api/market/overview` 路径（cache 空 + cache 有数据两种）不调 akshare
 
-## 4. realtime_quote_sync_service 加 redis publish
-
-- [ ] 4.1 `app/services/realtime_quote_sync_service.py`：每次 mongo upsert 后对每个变化的 code（`pct_chg` / `close` 任一变了）发 redis publish `channel:quote:{code}` payload `{code, close, pct_chg, amount, as_of_ts}`
-- [ ] 4.2 redis 异常 logger.warning 不抛（不阻塞 sync 主流程）
-- [ ] 4.3 单测 `tests/services/test_realtime_quote_sync_service.py` 加 publish 路径 mock 验证
+- [x] 4.1 `app/services/realtime_quote_sync_service.py`：每次 mongo upsert 后对每个变化的 code（`pct_chg` / `close` 任一变了）发 redis publish `channel:quote:{code}` payload `{code, close, pct_chg, amount, as_of_ts}`
+- [x] 4.2 redis 异常 logger.warning + throttle（首次 fail 一次 warning，后续静默直到恢复时 info）
+- [x] 4.3 单测 `tests/services/test_realtime_quote_publish.py`：3 scenario（变化才 publish / redis 故障不阻塞 / payload schema）
 
 ## 5. WebSocket /ws/quotes endpoint
 
