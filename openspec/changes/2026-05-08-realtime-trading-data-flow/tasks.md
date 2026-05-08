@@ -51,11 +51,12 @@
 
 ## 5. WebSocket /ws/quotes endpoint
 
-- [ ] 5.1 新建 `app/routers/websocket_quotes.py`（与 `websocket_notifications.py` 同模式：auth 复用 token_data.sub，user_id 不允许 hardcode）
-- [ ] 5.2 `GET /ws/quotes` 接受连接 → 等 `subscribe` 消息 → 启 redis pubsub task 监听对应 channel → 推送给 client
-- [ ] 5.3 `subscribe_pnl` → 直接订阅 `channel:pnl:{token_data.sub}`，禁止订阅别人的（spec 强制）
-- [ ] 5.4 ws disconnect 时清理 pubsub subscription
-- [ ] 5.5 集成测试 `tests/integration/test_ws_quotes.py`：起测试 redis（或 fakeredis）+ 模拟 publish + 验证 client 收到
+- [x] 5.1 新建 `app/routers/websocket_quotes.py`（与 `websocket_notifications.py` 同模式：auth 复用 token_data.sub，user_id 不允许 hardcode）
+- [x] 5.2 `GET /ws/quotes` 接受连接 → 等 `subscribe` 消息 → 启 redis pubsub task 监听对应 channel → 推送给 client（30s 心跳，60s 接收超时关闭）
+- [x] 5.3 `subscribe_pnl` → 直接订阅 `channel:pnl:{token_data.sub}`，禁止订阅别人的（即便 client payload 含 user_id 也忽略，spec 强制）
+- [x] 5.4 ws disconnect 时清理 pubsub subscription（cancel listener + heartbeat task + pubsub.unsubscribe + close）
+- [x] 5.5 单元测试 `tests/test_websocket_quotes.py`：FastAPI TestClient + fake redis pubsub + mock AuthService —— 7 scenario（无效 token / 空 sub / subscribe / subscribe_pnl 强制 user-scoped / ping-pong / unknown type / invalid JSON）
+- [x] 5.6 在 `app/main.py` 注册 router (prefix=/api, tag=websocket-quotes)
 
 ## 6. PnL stream service
 
