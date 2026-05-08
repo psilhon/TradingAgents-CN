@@ -33,25 +33,33 @@ TBD - created by archiving change paper-realtime-quotes-job. Update Purpose afte
 - **THEN** 不得为该单 code 独立调用 `stock_zh_a_spot_em()` 触发全市场拉取
 - **AND** 应等待 scheduler job 下次触发 / 复用 `QuotesService` 已有缓存
 
-### Requirement: 刷新频率 MUST 工作日盘中每 30 秒 + 盘后每日一次
+### Requirement: 刷新频率 MUST 工作日盘中每 3 秒 + 盘后每日一次
 
 scheduler 注册的行情刷新 job MUST 满足：
 
-- **盘中高频**：工作日 9:30–11:30 / 13:00–15:00 每 30 秒一次（午休 11:30–13:00 不刷新）
+- **盘中高频**：工作日 9:30–11:30 / 13:00–15:00 每 3 秒一次（午休 11:30–13:00 不刷新）
 - **盘后兜底**：工作日 17:00 一次（保留收盘价，避免盘中最后一次未拉到）
 - 周末和节假日**不**触发：盘中 job body 内调用
   `await get_trading_calendar_service().is_intraday_now()` 综合判断
   （capability `trading-calendar` 提供，识别节假日 + 时段）；trading_calendar 异常时
   fallback 到 `weekday() < 5 + 9:25-15:00` 保守判断
-- 30 秒颗粒 APScheduler `CronTrigger` 不支持，盘中 job MUST 用 `IntervalTrigger(seconds=30)` + job body 时间窗 guard 组合
+- 3 秒颗粒 APScheduler `CronTrigger` 不支持，盘中 job MUST 用 `IntervalTrigger(seconds=3)` + job body 时间窗 guard 组合
 - 防重叠：`max_instances=1` + `coalesce=True`（前一次未跑完时跳过本次触发）
-- 单次执行 < 30 秒（avoid coalesce 累积）
+- 单次执行 < 3 秒（avoid coalesce 累积；akshare spot 接口 + mongo upsert
+  典型 < 1s）
+
+历史颗粒变迁：v1.2.x 之前为 30 秒（akshare 配额保守 default）；v1.2.x 后
+升频到 3 秒，配合 OpenSpec capability `realtime-trading-data-flow` 的
+redis pub/sub + WebSocket /ws/quotes push 链路让前端 SLO 从"最长 30 秒
+看到价格更新"降到"最长 3 秒"。akshare 配额评估：盘中 5.5h × 60s/3s × 2 ≈
+6600 次/天，单用户场景可接受。如撞 rate limit，可在
+mongo system_configs.realtime_quote_sync_interval_seconds 临时回调到 30s.
 
 #### Scenario: 盘中高频
 
-- **WHEN** 工作日 9:25–15:00 任意 30 秒间隔触发
+- **WHEN** 工作日 9:25–15:00 任意 3 秒间隔触发
 - **THEN** 真正执行 `sync_favorites_and_paper_positions`
-- **AND** 单次 fetch+upsert < 30 秒完成（防止 coalesce）
+- **AND** 单次 fetch+upsert < 3 秒完成（防止 coalesce）
 
 #### Scenario: 盘外早 return（含午休）
 
