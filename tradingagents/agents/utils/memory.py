@@ -204,21 +204,15 @@ class FinancialSituationMemory:
                     self.client = OpenAI(api_key=openai_key, base_url=config.get("backend_url", "https://api.openai.com/v1"))
                     logger.warning("⚠️ DeepSeek回退到OpenAI嵌入服务")
                 else:
-                    # 最后尝试DeepSeek自己的嵌入
-                    deepseek_key = os.getenv("DEEPSEEK_API_KEY")
-                    if deepseek_key:
-                        try:
-                            self.client = OpenAI(api_key=deepseek_key, base_url="https://api.deepseek.com")
-                            logger.info("💡 DeepSeek使用自己的嵌入服务")
-                        except Exception as e:
-                            logger.error(f"❌ DeepSeek嵌入服务不可用: {e}")
-                            # 禁用内存功能
-                            self.client = "DISABLED"
-                            logger.info("🚨 内存功能已禁用，系统将继续运行但不保存历史记忆")
-                    else:
-                        # 禁用内存功能而不是抛出异常
-                        self.client = "DISABLED"
-                        logger.info("🚨 未找到可用的嵌入服务，内存功能已禁用")
+                    # DeepSeek 官方 API 不提供 embedding 端点（实测 /v1/embeddings 必 404），
+                    # 历史代码曾 fallback 到 OpenAI(base_url="https://api.deepseek.com") 然后
+                    # 每次 get_embedding 调用都触发 404 spam（error.log "deepseek embedding 异常 404"）.
+                    # 修复：DASHSCOPE/OPENAI 两个 key 都没配时直接 DISABLED，不再尝试 deepseek 自身端点.
+                    self.client = "DISABLED"
+                    logger.info(
+                        "🚨 DeepSeek 无 embedding API 且未配置 DASHSCOPE_API_KEY / OPENAI_API_KEY 降级，"
+                        "内存功能已禁用（系统继续运行，但不保存历史记忆）"
+                    )
         elif self.llm_provider == "google":
             # Google AI使用阿里百炼嵌入（如果可用），否则禁用记忆功能
             dashscope_key = os.getenv("DASHSCOPE_API_KEY")

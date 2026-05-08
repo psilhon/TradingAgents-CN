@@ -30,18 +30,24 @@ _PASSTHROUGH_KWARGS = (
 # 派生自 provider_specs.PROVIDER_SPECS（OpenSpec spec llm-abstraction：单一来源）
 _PROVIDER_CONFIG = derive_openai_provider_config()
 
-_DEEPSEEK_EXTRA_BODY_DEFAULTS = {"thinking": {"type": "disabled"}}
+# DeepSeek 调用约束（v1.2.x）：langchain ChatOpenAI 不支持 reasoning_content
+# round-trip，多轮对话用 deepseek-reasoner 类思考模型时会报
+# "The `reasoning_content` in the thinking mode must be passed back to the API"
+# (HTTP 400). 防御性 default：强制 override 用户传的 thinking 配置为 disabled，
+# 即便用户主动 enabled 也覆盖（thinking 模型在本项目当前 langchain 版本不可用，
+# 用户应改用 deepseek-chat 等非 thinking 模型）.
+_DEEPSEEK_EXTRA_BODY_OVERRIDES = {"thinking": {"type": "disabled"}}
 
 
-def _merge_extra_body_defaults(
-    extra_body: Any,
-    defaults: dict[str, Any],
-) -> dict[str, Any]:
+def _merge_deepseek_extra_body(extra_body: Any) -> dict[str, Any]:
+    """合并用户 extra_body 与 deepseek 强制 override.
+
+    强制覆盖（不是 setdefault）—— 见 _DEEPSEEK_EXTRA_BODY_OVERRIDES 注释.
+    无关字段保留用户值.
+    """
     merged = dict(extra_body) if isinstance(extra_body, Mapping) else {}
-
-    for key, value in defaults.items():
-        merged.setdefault(key, value)
-
+    for key, value in _DEEPSEEK_EXTRA_BODY_OVERRIDES.items():
+        merged[key] = value
     return merged
 
 
@@ -82,9 +88,8 @@ class OpenAIClient(BaseLLMClient):
                 llm_kwargs[key] = self.kwargs[key]
 
         if self.provider == "deepseek":
-            llm_kwargs["extra_body"] = _merge_extra_body_defaults(
+            llm_kwargs["extra_body"] = _merge_deepseek_extra_body(
                 llm_kwargs.get("extra_body"),
-                _DEEPSEEK_EXTRA_BODY_DEFAULTS,
             )
 
         return NormalizedChatOpenAI(**llm_kwargs)
