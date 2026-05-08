@@ -163,7 +163,10 @@ class MongoDBCacheAdapter:
                     else:
                         logger.warning("⚠️ [数据源优先级] 没有可用的数据源配置，使用默认顺序")
                 else:
-                    logger.warning("⚠️ [数据源优先级] 数据库中没有找到数据源配置")
+                    # 降级到默认顺序是合规行为（mongo system_configs 未由用户主动配置时
+                    # tushare > akshare > baostock 已是合理 default）；用 debug 级别，
+                    # 避免 agent 路径每只股票每次调用都 WARNING spam
+                    logger.debug("[数据源优先级] 数据库中没有数据源配置，使用默认顺序")
 
         except Exception as e:
             logger.error(f"❌ 获取数据源优先级失败: {e}", exc_info=True)
