@@ -40,10 +40,10 @@
 
 ## 3. router hot-path 改造
 
-- [ ] 3.1 `app/routers/market.py` `GET /api/market/overview` 改走 `market_overview_prewarm_service.compute_overview()`，移除 `QuotesService.get_market_overview()` 直接调用（hot-path 不再阻塞 _ensure_cache）
-- [ ] 3.2 响应 schema 加 `as_of_ts: str | null (ISO8601)` + `staleness_seconds: float | null` 必返字段
-- [ ] 3.3 `app/routers/paper.py` `_get_last_price` 改走 `quote_snapshot_reader.read_quotes(...)`，返回 `(price, as_of_ts) | (None, None)`；`/api/paper/account` / `/api/paper/positions` / `/api/paper/performance` 响应里 positions 每条带 `last_price_as_of`，顶层带 `as_of_ts`（取所有 positions min）
-- [ ] 3.4 写 hot-path SLO 单测：mock services，断言 `/api/market/overview` 路径不调 akshare（spy on `QuotesService._fetch_spot_akshare`）；同样断言 paper 路径不调
+- [x] 3.1 `app/routers/market.py` `GET /api/market/overview` 改走 `market_overview_prewarm_service.compute_overview()`，移除 `QuotesService.get_market_overview()` 直接调用（hot-path 不再阻塞 _ensure_cache）
+- [x] 3.2 响应 schema 加 `as_of_ts: str | null (ISO8601)` + `staleness_seconds: float | null` 必返字段
+- [x] 3.3 `app/routers/paper.py` `_get_last_price` 改走 `quote_snapshot_reader.read_quotes(...)`，返回 `(price, as_of_ts) | (None, None)`；`/api/paper/account` / `/api/paper/positions` 响应里 positions 每条带 `last_price_as_of`，顶层带 `as_of_ts`（取所有 positions min）
+- [x] 3.4 写 hot-path SLO 单测 `tests/test_hot_path_slo.py`：spy `QuotesService._fetch_spot_akshare`，断言 `/api/market/overview` 路径（cache 空 + cache 有数据两种）不调 akshare
 
 ## 4. realtime_quote_sync_service 加 redis publish
 
