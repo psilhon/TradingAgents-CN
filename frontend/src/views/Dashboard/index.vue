@@ -522,7 +522,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -546,9 +546,11 @@ import { paperApi, type PaperAccountSummary, type PaperPositionItem } from '@/ap
 import { marketApi, type MarketOverview } from '@/api/market'
 import { paperPerformanceApi, type PaperPerformance } from '@/api/paperPerformance'
 import { portfolioMetricsApi, type PortfolioMetrics } from '@/api/portfolioMetrics'
+import { useQuotesStore } from '@/stores/quotes'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const quotesStore = useQuotesStore()
 
 // 响应式数据
 const userStats = ref({
@@ -1004,6 +1006,86 @@ const startMarketOverviewPolling = () => {
 // 「自动刷新仅在 A 股交易日盘中」+ mock 数据让 UI 显示与真实 mongo 不一致，
 // 用户在盘外仍看到数字跳动误以为后端在刷新。盘中真实数据走 5 min polling 即可。
 
+// OpenSpec capability `realtime-trading-data-flow`：自选股 + paper 持仓的 last_price
+// 通过 /ws/quotes 实时推送 (channel:quote:{code})；paper PnL 通过 channel:pnl:{user_id}
+// 服务端聚合后推送（每 ≤ 3s diff > 0.01 才发，盘外不发）.
+//
+// quoteByCode reactive 由 quotesStore 维护；下面 watchEffect 把推送的 last_price
+// merge 到既有 favoriteStocks / paperPositions 数组对应行，保持原渲染逻辑兼容.
+const collectAllCodes = (): string[] => {
+  const codes = new Set<string>()
+  for (const s of favoriteStocks.value) {
+    const c = String(s?.stock_code ?? s?.code ?? '').trim()
+    if (c) codes.add(c)
+  }
+  for (const p of paperPositions.value) {
+    const c = String(p?.code ?? '').trim()
+    // PaperPositionItem 类型未声明 market 字段——如有则按 CN 过滤，否则一律订阅
+    const market = (p as any)?.market
+    if (c && (market === 'CN' || !market)) codes.add(c)
+  }
+  return Array.from(codes)
+}
+
+let lastSubscribedCodes: string[] = []
+const refreshQuoteSubscriptions = () => {
+  const next = collectAllCodes()
+  const nextSet = new Set(next)
+  const lastSet = new Set(lastSubscribedCodes)
+  const toAdd = next.filter((c) => !lastSet.has(c))
+  const toRemove = lastSubscribedCodes.filter((c) => !nextSet.has(c))
+  if (toRemove.length > 0) quotesStore.unsubscribe(toRemove)
+  if (toAdd.length > 0) quotesStore.subscribe(toAdd)
+  lastSubscribedCodes = next
+}
+
+// quoteByCode push 到来时合并到 favoriteStocks / paperPositions 的 last_price 字段
+watch(
+  () => quotesStore.quoteByCode,
+  (qmap) => {
+    for (const fav of favoriteStocks.value) {
+      const code = String(fav?.stock_code ?? fav?.code ?? '').trim()
+      const q = qmap[code]
+      if (q && q.close != null) {
+        fav.current_price = q.close
+        if (q.pct_chg != null) fav.pct_change = q.pct_chg
+        fav.last_price_as_of = q.as_of_ts
+      }
+    }
+    for (const pos of paperPositions.value) {
+      const code = String(pos?.code ?? '').trim()
+      const q = qmap[code]
+      if (q && q.close != null) {
+        pos.last_price = q.close
+        // 重算 unrealized_pnl 让 UI 立即更新（avg_cost 是固定的，qty * (last - cost)）
+        const qty = Number(pos.quantity ?? 0)
+        const avg = Number(pos.avg_cost ?? 0)
+        if (qty > 0) {
+          pos.market_value = Number((q.close * qty).toFixed(2))
+          pos.unrealized_pnl = Number(((q.close - avg) * qty).toFixed(2))
+        }
+        ;(pos as any).last_price_as_of = q.as_of_ts
+      }
+    }
+  },
+  { deep: true }
+)
+
+// PnL 推送到来时覆盖 paper 总指标（避免前端用 stale price 算错）
+watch(
+  () => quotesStore.latestPnl,
+  (pnl) => {
+    if (!pnl || !paperAccount.value) return
+    // 后端 PnL 已基于最新 last_price 聚合 — 把总指标覆盖到 paperAccount summary
+    paperAccount.value.equity = paperAccount.value.equity || ({} as any)
+    if (typeof paperAccount.value.equity === 'object') {
+      ;(paperAccount.value.equity as any).CNY = pnl.total_equity
+    }
+    ;(paperAccount.value as any).realtime_unrealized_pnl = pnl.total_unrealized
+    ;(paperAccount.value as any).realtime_as_of_ts = pnl.as_of_ts
+  }
+)
+
 onMounted(async () => {
   // 鼠标跟随光斑监听
   heroEl.value?.addEventListener('mousemove', onHeroMouseMove)
@@ -1018,12 +1100,20 @@ onMounted(async () => {
 
   // 启动市场概况 5 min polling（内部含 is_intraday guard，盘外跳过）
   startMarketOverviewPolling()
+
+  // 启动 ws 实时行情订阅（自选股 + paper 持仓 codes）+ PnL 流
+  quotesStore.connect()
+  // 等 onopen 后 subscribe；这里直接发，store 在 connected 回调里也会 resub
+  refreshQuoteSubscriptions()
+  quotesStore.subscribePnl()
 })
 
 onUnmounted(() => {
   heroEl.value?.removeEventListener('mousemove', onHeroMouseMove)
   if (heroRafId !== null) cancelAnimationFrame(heroRafId)
   if (marketOverviewHandle !== null) clearInterval(marketOverviewHandle)
+  // 断开 ws + 清空订阅
+  quotesStore.disconnect()
 })
 </script>
 
