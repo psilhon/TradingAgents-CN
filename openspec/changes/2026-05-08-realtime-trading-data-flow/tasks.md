@@ -32,11 +32,11 @@
 
 ### 2B. market_overview_prewarm_service（全市场聚合，in-memory 路径）
 
-- [ ] 2B.1 新建 `app/services/market_overview_prewarm_service.py` + `get_prewarm_service()` singleton
-- [ ] 2B.2 `compute_overview() -> dict`：从 `QuotesService._cache` + `_cache_ts` 聚合 `limit_up/limit_down/advance/decline/amount_total/total/as_of_ts/staleness_seconds`；cache 空时返回 nullable 字段（不阻塞等待）
-- [ ] 2B.3 `prewarm_loop()` lifecycle task：盘中每 30s 调 `QuotesService._ensure_cache()`；盘外 sleep；asyncio.wait_for 包外加超时 = ttl，避免单轮卡死
-- [ ] 2B.4 在 `app/main.py` lifespan 启动时 `asyncio.create_task(prewarm_service.prewarm_loop())`，shutdown 时 cancel
-- [ ] 2B.5 单元测试 `tests/services/test_market_overview_prewarm_service.py`：mock QuotesService cache + 验证 compute_overview 输出 + prewarm_loop 盘内/盘外路径
+- [x] 2B.1 新建 `app/services/market_overview_prewarm_service.py` + `get_prewarm_service()` singleton
+- [x] 2B.2 `compute_overview() -> dict`：从 `QuotesService._cache` + `_cache_ts` 聚合 `limit_up/limit_down/advance/decline/amount_total/total/as_of_ts/staleness_seconds`；cache 空时返回 nullable 字段（不阻塞等待）
+- [x] 2B.3 `prewarm_loop()` lifecycle task：盘中每 30s 调 `QuotesService._ensure_cache()`；盘外 sleep；asyncio.wait_for 包外加超时 = ttl，避免单轮卡死
+- [ ] 2B.4 在 `app/main.py` lifespan 启动时 `asyncio.create_task(prewarm_service.prewarm_loop())`，shutdown 时 cancel  *(deferred to Section 6 — 与 PnL stream lifecycle 一起注册)*
+- [x] 2B.5 单元测试 `tests/services/test_market_overview_prewarm_service.py`：mock QuotesService cache + 验证 compute_overview 输出 + prewarm_loop 盘内/盘外路径
 
 ## 3. router hot-path 改造
 
