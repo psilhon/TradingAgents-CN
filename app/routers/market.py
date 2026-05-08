@@ -15,9 +15,30 @@ from fastapi import APIRouter, Depends
 
 from app.routers.auth_db import get_current_user
 from app.services.market_overview_prewarm_service import get_prewarm_service
+from app.services.quote_freshness_monitor import get_freshness_monitor
 from app.services.trading_calendar_service import get_trading_calendar_service
 
 router = APIRouter(prefix="/market", tags=["market"])
+
+
+@router.get("/freshness")
+async def get_market_freshness(_user: dict = Depends(get_current_user)) -> dict:
+    """市场行情数据时效摘要 — 给 UI 角标渲染（绿/黄/红）.
+
+    OpenSpec change 2026-05-08-realtime-trading-data-flow Requirement
+    "GET /api/market/freshness MUST 暴露数据时效给 UI 角标".
+
+    返回字段：
+    - as_of_ts: str | None ISO8601，mongo `market_quotes.updated_at` max
+    - staleness_seconds: float | None now - as_of_ts
+    - is_intraday: bool 当前是否盘中
+    - last_successful_sync_at: str | None
+    - sync_running: bool prewarm task 是否在跑
+    - sla_threshold_seconds: float SLA 阈值（默认 90s）
+    - breach: bool 盘中且 staleness > SLA
+    """
+    info = await get_freshness_monitor().get_freshness()
+    return {"success": True, "data": info}
 
 
 @router.get("/overview")
