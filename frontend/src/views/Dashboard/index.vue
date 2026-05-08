@@ -443,6 +443,15 @@
                           <span v-if="p.name" class="pos-name">{{ p.name }}</span>
                         </span>
                         <span
+                          v-if="positionTodayPnl(p) !== null"
+                          class="pos-today-pnl num"
+                          :class="(positionTodayPnl(p) ?? 0) >= 0 ? 'up' : 'down'"
+                          :title="`今日浮动盈亏（基于 ws 实时推送 pct_chg 反推昨收价）`"
+                        >
+                          今日 {{ (positionTodayPnl(p) ?? 0) >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(positionTodayPnl(p) ?? 0)) }}
+                        </span>
+                        <span v-else class="pos-today-pnl muted-small">今日 —</span>
+                        <span
                           class="pos-pnl num"
                           :class="(p.unrealized_pnl ?? 0) >= 0 ? 'up' : 'down'"
                         >
@@ -698,6 +707,22 @@ const positionPnlRate = (p: PaperPositionItem): number => {
   const cost = p.quantity * p.avg_cost
   if (!cost) return 0
   return (pnl / cost) * 100
+}
+
+// 今日浮动盈亏（区别于右侧 unrealized_pnl 累计盈亏）.
+// 公式：从 ws 推送的 pct_chg(%) + last_price 反推今日相对昨收的金额变动.
+//   prev_close = last_price / (1 + pct_chg/100)
+//   today_pnl  = (last_price - prev_close) × qty
+//             = market_value × pct_chg / (100 + pct_chg)
+// 取自 ws push 的 pct_chg，盘外或缺数据时返回 null（UI 显示「—」）.
+const positionTodayPnl = (p: PaperPositionItem): number | null => {
+  const pctChg = (p as any)?.pct_chg
+  const lastPrice = p.last_price
+  const qty = Number(p.quantity ?? 0)
+  if (pctChg == null || lastPrice == null || qty <= 0) return null
+  const denominator = 100 + Number(pctChg)
+  if (Math.abs(denominator) < 1e-9) return null
+  return (Number(lastPrice) * qty * Number(pctChg)) / denominator
 }
 
 // =================================================================
@@ -1065,6 +1090,8 @@ watch(
           pos.unrealized_pnl = Number(((q.close - avg) * qty).toFixed(2))
         }
         ;(pos as any).last_price_as_of = q.as_of_ts
+        // 透传 pct_chg 让 UI 能算今日盈亏（market_value × pct_chg / (100 + pct_chg)）
+        ;(pos as any).pct_chg = q.pct_chg
       }
     }
   },
@@ -2211,6 +2238,24 @@ onUnmounted(() => {
 
   &.up { color: var(--up); }
   &.down { color: var(--down); }
+}
+
+/* 今日浮动盈亏（main row 中间，区别于右侧累计盈亏） */
+.pos-today-pnl {
+  flex: 1;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+
+  &.up { color: var(--up); }
+  &.down { color: var(--down); }
+
+  &.muted-small {
+    color: var(--fg-muted);
+    font-size: 10.5px;
+    font-weight: 400;
+  }
 }
 
 .pos-row-meta {
