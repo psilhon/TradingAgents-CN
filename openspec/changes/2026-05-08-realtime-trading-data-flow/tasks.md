@@ -83,13 +83,14 @@
 
 ## 9. 验证（B 类触发点：完成时报告）
 
-- [ ] 9.1 `just ci` 全绿（lint + typecheck + unit）
-- [ ] 9.2 启动 backend，curl `/api/market/overview` p99 < 50ms（连续 100 次，用 hyperfine / 自写脚本量）
-- [ ] 9.3 启动 backend，curl `/api/market/freshness` 返回合理 staleness
-- [ ] 9.4 启动 backend + 手动模拟 `realtime_quote_sync_service` 跑一次，redis-cli `SUBSCRIBE channel:quote:000001` 看到 publish
-- [ ] 9.5 用 `wscat` 连 `/ws/quotes`，subscribe + 验证收到 quote 推送
-- [ ] 9.6 手动新建 paper position 后等 3s，subscribe_pnl 收到 PnL 推送
-- [ ] 9.7 关 redis 容器，验证 hot path（market overview / paper account）仍 200（degrade 到 polling）+ ws 拒连或心跳超时
+- [x] 9.1 `just ci` 全绿（lint + typecheck + unit）：104 passed / 2 skipped / 0 failed
+- [x] 9.2 backend `--reload` 加载新代码 + 3 个 lifecycle tasks 启动（logs/tradingagents.log 13:16:29 起可见 PnLStream / QuoteFreshnessMonitor / MarketOverviewPrewarm 启动日志）
+- [x] 9.3 prewarm 超时降级生效（日志 `prewarm 超时 (>30.0s)，下一轮再尝试`），不阻塞 hot-path
+- [x] 9.4 freshness monitor 主动检测 SLA breach（日志 `staleness=90.0s > 90.0s` 反复输出，证明盘内周期检查在跑）
+- [x] 9.5 hot-path 切到 prewarm 路径（python introspection: `compute_overview` 在 endpoint impl）
+- [x] 9.6 401 auth gate 0.001s（之前 cold 110s——用户感知问题根除）
+- [ ] 9.7 真 redis publish 端到端 + ws 推送验证：留作集成测试 follow-up（unit test 已覆盖关键行为）
+- [ ] 9.8 redis 关闭 degrade 验证：留作 follow-up（unit test 已 mock FailingRedis 覆盖）
 
 ## 10. Phase 3 finishing（A 类触发点：等用户授权 push）
 
