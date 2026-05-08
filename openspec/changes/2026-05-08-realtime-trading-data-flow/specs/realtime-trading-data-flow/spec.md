@@ -2,31 +2,74 @@
 
 ### Requirement: hot-path 端点 MUST NOT 在用户请求路径同步触发上游行情拉取
 
-任何对外暴露给前端 / agent 的实时数据 endpoint（包括但不限于 `/api/market/overview` / `/api/paper/account` / `/api/paper/positions` / `/api/paper/performance` / 自选股价格查询 / 持仓 PnL 查询）MUST 仅从 mongo `market_quotes` collection（或其聚合）读取数据，不得在请求处理路径上同步调用 akshare / tushare / baostock 等外部行情源。
+任何对外暴露给前端 / agent 的实时数据 endpoint（包括但不限于 `/api/market/overview` / `/api/paper/account` / `/api/paper/positions` / `/api/paper/performance` / 自选股价格查询 / 持仓 PnL 查询）MUST 仅从 **hot snapshot** 读取数据，不得在请求处理路径上同步调用 akshare / tushare / baostock 等外部行情源。
 
-理由：交易系统的"实时"由后台定频 sync + push 推送保证；hot path 的 SLO 是 p99 < 50ms。任何让用户请求路径同步等待外部 HTTP 的实现，在外部源 p99 不可控时会直接拖垮 UI（实测 akshare cold p99 = 110s）。
+**hot snapshot 分两类**（按数据规模分层存储）：
 
-允许的"间接调用"：APScheduler / asyncio background task 路径下的 `realtime_quote_sync_service` / `quotes_ingestion_service` 持续向 mongo 写入。这些不在用户请求路径上。
+1. **持仓 / 自选股快照**（限定 codes，通常 < 100 只）：mongo `market_quotes` collection。由 `paper-realtime-quotes` capability 的 30s sync job 写入。
+2. **全市场聚合快照**（5500+ 只）：in-memory `QuotesService._cache`。由本 capability 的 `market_overview_prewarm_service` 周期 prewarm 维护。
 
-#### Scenario: market overview 不调 akshare
+理由：交易系统的"实时"由后台定频 sync + prewarm 维护；hot path 的 SLO 是 p99 < 50ms。任何让用户请求路径同步等待外部 HTTP 的实现，在外部源 p99 不可控时会直接拖垮 UI（实测 akshare cold p99 = 110s）。
+
+mongo 与 in-memory 分层的设计依据：`paper-realtime-quotes` capability 锁定 `market_quotes` 写入范围在"自选股 ∪ paper 持仓"（防止 5500 行整库写入压力），全市场聚合不能从 mongo 来——必须用 in-memory 路径，由 prewarm 服务维护时效。
+
+允许的"间接调用"：APScheduler / asyncio background task 路径下的 `realtime_quote_sync_service`（写 mongo）/ `market_overview_prewarm_service`（写 in-memory）/ `quotes_ingestion_service` 等持续向 hot snapshot 写入。这些不在用户请求路径上。
+
+#### Scenario: market overview 路径不阻塞等待 akshare
 
 - **WHEN** client 请求 `GET /api/market/overview`
-- **THEN** 实现 MUST 仅从 mongo `market_quotes` 聚合
-- **AND** MUST NOT 调用 `ak.stock_zh_a_spot_em()` 或 `QuotesService.get_market_overview()` 触发上游 fetch
-- **AND** p99 响应时间 < 50ms（mongo 命中索引）
+- **THEN** 实现 MUST 仅从 in-memory `QuotesService._cache` 聚合（通过 `market_overview_prewarm_service.compute_overview()`）
+- **AND** MUST NOT 在请求路径触发 `_fetch_spot_akshare` 同步执行（即便 cache 为空也不触发——返回 staleness_seconds=null + total=0 而非阻塞等待）
+- **AND** p99 响应时间 < 50ms（in-memory 聚合）
 
 #### Scenario: paper account 不调 akshare
 
 - **WHEN** client 请求 `GET /api/paper/account` / `/api/paper/positions` / `/api/paper/performance`
-- **THEN** 持仓 last_price 查询路径 MUST 仅读 mongo `market_quotes`
+- **THEN** 持仓 last_price 查询路径 MUST 仅读 mongo `market_quotes`（通过 `quote_snapshot_reader`）
 - **AND** mongo 缺漏的 code 返回 `last_price=null` + `last_price_as_of=null`，不 fallback 触发外部 fetch
 - **AND** p99 响应时间 < 100ms（含 PnL 聚合计算）
 
-#### Scenario: 上游源仅在 worker / scheduler 路径出现
+#### Scenario: 上游源仅在 worker / scheduler / prewarm 路径出现
 
 - **WHEN** code review / lint
 - **THEN** `app/routers/**/*.py` MUST NOT import 或同步调用 `akshare` / `tushare` / `baostock`
-- **AND** `_fetch_spot_akshare` / `ak.stock_zh_a_spot_em` 调用栈 MUST 仅出现在 `app/services/realtime_quote_sync_service.py` / `app/services/quotes_ingestion_service.py` / `app/worker/**` / APScheduler job
+- **AND** `_fetch_spot_akshare` / `ak.stock_zh_a_spot_em` 调用栈 MUST 仅出现在 `app/services/realtime_quote_sync_service.py` / `app/services/market_overview_prewarm_service.py` / `app/services/quotes_ingestion_service.py` / `app/worker/**` / APScheduler job
+
+### Requirement: market_overview_prewarm_service MUST 盘中周期 prewarm in-memory 全市场快照
+
+`app/services/market_overview_prewarm_service.py` MUST 提供 lifecycle background task `prewarm_loop`，盘中（按 `trading-calendar.is_intraday_now()` 判定）每 ≤ 30s 一轮：
+
+1. 触发 `QuotesService._ensure_cache()` 让内存快照通过既有锁保护逻辑刷新（akshare 调用在线程池）
+2. wait_for 超时（默认 30s，与 ttl 一致）→ 不阻塞，下一轮再尝试
+3. 盘外（`is_intraday_now() == False`）跳过 prewarm（节省 akshare 配额 + 价格不会变）
+
+prewarm 服务 MUST 与 `realtime_quote_sync_service`（mongo 写入）解耦，是两个独立的 background task，分别负责"全市场 in-memory"和"持仓 / 自选股 mongo"两条 sync 链路。
+
+#### Scenario: 盘中 prewarm 让 hot-path 永远命中 cache
+
+- **WHEN** 盘中（9:30-11:30 / 13:00-15:00）+ prewarm task 在跑
+- **AND** client 请求 `GET /api/market/overview`
+- **THEN** `QuotesService._cache` 已被 prewarm 刷新，hot-path `compute_overview()` 命中内存
+- **AND** 响应 < 50ms，as_of_ts 距 now < 30s（一个 prewarm 周期内）
+
+#### Scenario: 盘外 prewarm 静默
+
+- **WHEN** 周末 / 节假日 / 11:30-13:00 午休 / 15:00 后
+- **AND** prewarm task 触发轮询
+- **THEN** `is_intraday_now() == False`，task sleep 跳过，不调 akshare
+- **AND** logger 仅 debug 级日志（不 spam）
+
+#### Scenario: prewarm 与 sync 解耦
+
+- **WHEN** prewarm task 当轮调 akshare 失败 / 超时
+- **THEN** `realtime_quote_sync_service` 的 mongo 写入 job MUST NOT 受影响（独立 task）
+- **AND** hot-path 持仓查询（mongo 路径）MUST NOT 受影响
+
+#### Scenario: in-memory cache 冷启动空时
+
+- **WHEN** 进程刚启动 + prewarm 还未跑过任何一轮 + client 请求 `/api/market/overview`
+- **THEN** `compute_overview()` 返回 `{limit_up: null, ..., total: 0, as_of_ts: null, staleness_seconds: null}`
+- **AND** MUST NOT 在请求路径阻塞等待 prewarm（前端基于 as_of_ts=null 显示"等待数据"）
 
 ### Requirement: 所有实时数据响应 MUST 透出 as_of_ts 与 staleness_seconds
 
