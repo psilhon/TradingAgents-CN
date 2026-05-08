@@ -620,6 +620,20 @@ async def lifespan(app: FastAPI):
         logger.error(f"❌ 调度器启动失败: {e}", exc_info=True)
         raise  # 抛出异常，阻止应用启动
 
+    # OpenSpec realtime-trading-data-flow lifecycle tasks：
+    # 1. market_overview_prewarm_service — 盘中 30s 一轮 prewarm in-memory 全市场快照
+    # 2. pnl_stream_service — 盘中 3s 一轮 PnL 重算 + redis publish
+    try:
+        from app.services.market_overview_prewarm_service import get_prewarm_service
+        from app.services.pnl_stream_service import get_pnl_stream_service
+
+        get_prewarm_service().start()
+        get_pnl_stream_service().start()
+        logger.info("✅ realtime-data lifecycle tasks 启动 (prewarm + pnl_stream)")
+    except Exception as e:
+        logger.error(f"❌ realtime-data lifecycle tasks 启动失败: {e}", exc_info=True)
+        # 不 raise——这些 task 失败不应阻止应用启动；hot-path 仍能从 mongo 读
+
     try:
         yield
     finally:
@@ -630,6 +644,17 @@ async def lifespan(app: FastAPI):
                 logger.info("🛑 Scheduler stopped")
             except Exception as e:
                 logger.warning(f"Scheduler shutdown error: {e}")
+
+        # 关闭 realtime-data lifecycle tasks
+        try:
+            from app.services.market_overview_prewarm_service import get_prewarm_service
+            from app.services.pnl_stream_service import get_pnl_stream_service
+
+            await get_prewarm_service().stop()
+            await get_pnl_stream_service().stop()
+            logger.info("🛑 realtime-data lifecycle tasks stopped")
+        except Exception as e:
+            logger.warning(f"realtime-data lifecycle cleanup error: {e}")
 
         # 关闭 UserService MongoDB 连接
         try:
