@@ -18,19 +18,32 @@
 - [ ] 1.4 redis pub/sub 通道命名约定写入 spec：`channel:quote:{code}` / `channel:pnl:{user_id}`
 - [ ] 1.5 拟定 ws 协议草案（client→server: `{type:"subscribe"|"subscribe_pnl"|"unsubscribe", codes?:[]}`，server→client: `{type:"quote"|"pnl"|"error", data, as_of_ts}`），写入 spec
 
-## 2. quote_snapshot_reader（hot path 改读 mongo）
+## 2. hot snapshot 双路径（mongo + in-memory）
 
-- [ ] 2.1 新建 `app/services/quote_snapshot_reader.py` + `get_quote_snapshot_reader()` singleton
-- [ ] 2.2 `read_market_overview() -> dict`：直接从 mongo `market_quotes` 聚合 `limit_up/limit_down/advance/decline/amount_total/total/as_of_ts/staleness_seconds`
-- [ ] 2.3 `read_quotes(codes) -> dict`：返回 `{code: {close, pct_chg, amount, last_price_as_of}}`，缺漏 code 值 None
-- [ ] 2.4 单元测试 `tests/services/test_quote_snapshot_reader.py`：mock mongo cursor，验证聚合 + as_of_ts 正确
+> 立项漏审回填（commit 注明）：原 plan 假设 `/api/market/overview` 也读 mongo，
+> 与 `paper-realtime-quotes` 既定"只 sync favorites∪positions" spec 冲突。
+> 修正：持仓 / 自选股走 mongo，全市场聚合走 in-memory prewarm。
+
+### 2A. quote_snapshot_reader（持仓 / 自选股，mongo 路径）
+
+- [ ] 2A.1 新建 `app/services/quote_snapshot_reader.py` + `get_quote_snapshot_reader()` singleton
+- [ ] 2A.2 `read_quotes(codes: list[str]) -> dict`：返回 `{code: {close, pct_chg, amount, last_price_as_of}}`，缺漏 code 值 None；顶层带 `as_of_ts`（min last_price_as_of, 忽略 null）
+- [ ] 2A.3 单元测试 `tests/services/test_quote_snapshot_reader.py`：mock mongo cursor + 验证聚合 + as_of_ts 正确
+
+### 2B. market_overview_prewarm_service（全市场聚合，in-memory 路径）
+
+- [ ] 2B.1 新建 `app/services/market_overview_prewarm_service.py` + `get_prewarm_service()` singleton
+- [ ] 2B.2 `compute_overview() -> dict`：从 `QuotesService._cache` + `_cache_ts` 聚合 `limit_up/limit_down/advance/decline/amount_total/total/as_of_ts/staleness_seconds`；cache 空时返回 nullable 字段（不阻塞等待）
+- [ ] 2B.3 `prewarm_loop()` lifecycle task：盘中每 30s 调 `QuotesService._ensure_cache()`；盘外 sleep；asyncio.wait_for 包外加超时 = ttl，避免单轮卡死
+- [ ] 2B.4 在 `app/main.py` lifespan 启动时 `asyncio.create_task(prewarm_service.prewarm_loop())`，shutdown 时 cancel
+- [ ] 2B.5 单元测试 `tests/services/test_market_overview_prewarm_service.py`：mock QuotesService cache + 验证 compute_overview 输出 + prewarm_loop 盘内/盘外路径
 
 ## 3. router hot-path 改造
 
-- [ ] 3.1 `app/routers/market.py` `GET /api/market/overview` 改走 `quote_snapshot_reader.read_market_overview()`，移除 `QuotesService.get_market_overview()` 调用
-- [ ] 3.2 响应 schema 加 `as_of_ts: str (ISO8601)` + `staleness_seconds: float` 必返字段
-- [ ] 3.3 `app/routers/paper.py` `_get_last_price` 改返回 `(price, as_of_ts) | (None, None)`；`/api/paper/account` / `/api/paper/positions` / `/api/paper/performance` 响应里 positions 每条带 `last_price_as_of`，顶层带 `as_of_ts`（取所有 positions min）
-- [ ] 3.4 写 hot-path SLO 单测：mock mongo，断言 `/api/market/overview` 走完不调 akshare（spy on `_fetch_spot_akshare`），p99 路径 < 50ms（用 timeit profile 记录）
+- [ ] 3.1 `app/routers/market.py` `GET /api/market/overview` 改走 `market_overview_prewarm_service.compute_overview()`，移除 `QuotesService.get_market_overview()` 直接调用（hot-path 不再阻塞 _ensure_cache）
+- [ ] 3.2 响应 schema 加 `as_of_ts: str | null (ISO8601)` + `staleness_seconds: float | null` 必返字段
+- [ ] 3.3 `app/routers/paper.py` `_get_last_price` 改走 `quote_snapshot_reader.read_quotes(...)`，返回 `(price, as_of_ts) | (None, None)`；`/api/paper/account` / `/api/paper/positions` / `/api/paper/performance` 响应里 positions 每条带 `last_price_as_of`，顶层带 `as_of_ts`（取所有 positions min）
+- [ ] 3.4 写 hot-path SLO 单测：mock services，断言 `/api/market/overview` 路径不调 akshare（spy on `QuotesService._fetch_spot_akshare`）；同样断言 paper 路径不调
 
 ## 4. realtime_quote_sync_service 加 redis publish
 

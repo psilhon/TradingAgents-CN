@@ -37,24 +37,37 @@
 
 ### 后端：hot-path 与慢源解耦（核心）
 
-- **NEW** `app/services/quote_snapshot_reader.py`：
-  - `read_market_overview() -> dict`：直接从 mongo `market_quotes` 聚合（涨停 / 跌停 / 上涨 / 下跌 / 成交额 / total），**永不调 akshare**
+**两类数据存储分层**（金融工程惯例：限定标的存 mongo / 全市场聚合存内存）：
+
+| 数据类 | 存储 | 写入路径 | 读取路径 |
+|---|---|---|---|
+| 持仓 / 自选股近实时价（限定 codes） | mongo `market_quotes` | 既有 `realtime_quote_sync_service`（30s sync，paper-realtime-quotes capability 不动） | hot-path 读 mongo |
+| 全市场聚合（5500+ 只涨跌停 / 成交额） | in-memory hot snapshot（`QuotesService._cache`） | 新增 `MarketOverviewPrewarmService`（盘中 30s prewarm） | hot-path 读内存 |
+
+> 注：原 plan 假设 `/api/market/overview` 也走 mongo，与 `paper-realtime-quotes` 既定"只 sync favorites∪positions"冲突——立项时漏审，执行阶段回填修正。
+
+- **NEW** `app/services/quote_snapshot_reader.py`（持仓 / 自选股路径）：
   - `read_quotes(codes: list[str]) -> dict`：从 mongo `market_quotes` 批量查；缺漏的 code 标 `None`（不触发上游 fetch）
-  - 每个返回都带 `as_of_ts`（mongo 中**最新一条** `updated_at` 的 max）+ `staleness_seconds`（now - as_of_ts）
+  - 每条记录带 `last_price_as_of`（doc.updated_at），顶层带 `as_of_ts`（min last_price_as_of）
+
+- **NEW** `app/services/market_overview_prewarm_service.py`（全市场聚合路径）：
+  - `compute_overview() -> dict`：从 `QuotesService._cache` 内存快照聚合涨停 / 跌停 / 上涨 / 下跌 / 成交额；带 `as_of_ts`（取 `QuotesService._cache_ts`）+ `staleness_seconds`
+  - **lifecycle prewarm task**：盘中（`trading-calendar.is_intraday_now()`）每 30s 异步触发 `QuotesService._ensure_cache()` 让内存快照永远 fresh；akshare 慢只阻塞后台 task，hot-path 永远命中 cache
+  - 盘外不 prewarm（依赖 trading-calendar）
 
 - **MODIFIED** `app/routers/market.py`：
-  - `GET /api/market/overview` 改走 `quote_snapshot_reader.read_market_overview()`，剥离 `QuotesService.get_market_overview()` 调用
+  - `GET /api/market/overview` 改走 `market_overview_prewarm_service.compute_overview()`，移除直接调 `QuotesService.get_market_overview()` 的同步触发
   - 响应 schema 加 `as_of_ts: ISO8601` + `staleness_seconds: float` 必返字段
-  - SLO：p99 < 50ms（去掉 akshare 路径后纯 mongo 聚合）
+  - SLO：p99 < 50ms（hot-path 仅读内存 + 简单聚合）
 
 - **MODIFIED** `app/routers/paper.py`：
-  - `_get_last_price(code, market)` A 股分支只读 mongo `market_quotes`（已是当前实现），加返回 `(price, as_of_ts)` tuple
+  - `_get_last_price(code, market)` A 股分支改读 `quote_snapshot_reader.read_quotes(...)`，返回 `(price, as_of_ts) | (None, None)`
   - `GET /api/paper/account` / `/api/paper/performance` / `GET /api/paper/positions` 响应里 positions 数组每条带 `last_price_as_of`
   - 顶层响应加 `as_of_ts`（取所有 positions 的 min `last_price_as_of`，反映"最 stale 的那条"）
 
 - **MODIFIED** `app/services/quotes_service.py`：
-  - `get_quotes(codes)` 加超时降级（与上一 change 在 `_ensure_cache` 加的同模式）—— 这条是**收尾**，不是核心
-  - 增加单测保证 `_fetch_spot_akshare` 永不在 hot-path 同步调用（仅 worker / scheduler 路径）
+  - `get_quotes(codes)` 加超时降级（与上一 change 在 `_ensure_cache` 加的同模式）—— 收尾，不是核心
+  - hot-path SLO 单测：`_fetch_spot_akshare` 永不在 router 同步路径调用（仅 prewarm task / scheduler / worker）
 
 ### 后端：PnL 服务端聚合 + 增量推送
 
@@ -97,15 +110,17 @@
 ## Impact
 
 **改动范围**：
-- 新建 `app/services/quote_snapshot_reader.py`（~80 行）
+- 新建 `app/services/quote_snapshot_reader.py`（~60 行，持仓 / 自选股 mongo 读）
+- 新建 `app/services/market_overview_prewarm_service.py`（~80 行，全市场内存 prewarm）
 - 新建 `app/services/pnl_stream_service.py`（~150 行）
 - 新建 `app/services/quote_freshness_monitor.py`（~60 行）
 - 新建 `app/routers/websocket_quotes.py` 或扩展 `websocket_notifications.py`（~120 行）
 - 修改 `app/routers/market.py`（~20 行）
 - 修改 `app/routers/paper.py`（~40 行，加 `as_of_ts` 字段）
 - 修改 `app/services/realtime_quote_sync_service.py`（~30 行，加 redis publish）
-- 修改 `app/services/scheduler_service.py`（注册 PnL stream task，~15 行）
+- 修改 `app/main.py` lifespan 注册 prewarm + pnl stream lifecycle tasks（~20 行）
 - 新建 `tests/services/test_quote_snapshot_reader.py`（~60 行）
+- 新建 `tests/services/test_market_overview_prewarm_service.py`（~70 行）
 - 新建 `tests/services/test_pnl_stream_service.py`（~80 行）
 - 新建 `tests/integration/test_ws_quotes.py`（~100 行）
 - 新建 `openspec/specs/realtime-trading-data-flow/spec.md`
