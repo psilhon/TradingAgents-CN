@@ -60,12 +60,12 @@
 
 ## 6. PnL stream service
 
-- [ ] 6.1 新建 `app/services/pnl_stream_service.py` + `compute_pnl(user_id) -> dict`
-- [ ] 6.2 公式：`unrealized = Σ (last_price - avg_cost) * qty`（last_price 来自 `quote_snapshot_reader.read_quotes`）；`equity = cash + Σ qty*last_price`；带 `as_of_ts`（取所有 positions min `last_price_as_of`）
-- [ ] 6.3 lifecycle background task `pnl_stream_loop`：盘中（`is_intraday_now()`）每 3s 扫描 `paper_positions.distinct("user_id")`，重算 PnL，与上次 diff 后 publish `channel:pnl:{user_id}`
-- [ ] 6.4 与上次 diff 判定：close diff > 0.001 或 unrealized diff > 0.01；只 publish 变化的
-- [ ] 6.5 在 `app/main.py` lifespan 启动 / 注册 `pnl_stream_loop` 为 asyncio.Task（非 APScheduler，因为是 long-running loop）
-- [ ] 6.6 单测 `tests/services/test_pnl_stream_service.py`：mock positions + quotes，验证 PnL 公式 + diff 逻辑
+- [x] 6.1 新建 `app/services/pnl_stream_service.py` + `compute_pnl(user_id) -> dict`
+- [x] 6.2 公式：`unrealized = Σ (last_price - avg_cost) * qty`（last_price 来自 `quote_snapshot_reader.read_quotes`）；`equity = cash[CNY] + Σ qty*last_price`；带 `as_of_ts`（min last_price_as_of）
+- [x] 6.3 lifecycle background task `pnl_stream_loop`：盘中（`is_intraday_now()`）每 3s 扫 `paper_positions.distinct("user_id", {"market": "CN"})`，重算 PnL，diff > 0.01 后 publish `channel:pnl:{user_id}`
+- [x] 6.4 diff 判定：unrealized 或 equity abs diff > 0.01 才 publish
+- [x] 6.5 在 `app/main.py` lifespan 启动时调 `get_prewarm_service().start()` + `get_pnl_stream_service().start()`；shutdown stop（同时也完成 2B.4 deferred）
+- [x] 6.6 单测 `tests/services/test_pnl_stream_service.py`：5 scenario（公式 / 缺 quotes / diff 阈值 / 盘外 noop / singleton）
 
 ## 7. quote_freshness_monitor + freshness endpoint
 
