@@ -77,19 +77,9 @@
 
 ## 8. 文档 + spec
 
-- [ ] 8.1 更新 `docs/ai-context/architecture.md`：新增"实时数据流 SLO 模型"段
-  - ASCII 图：scheduler 30s → mongo `market_quotes` → redis pub → ws push → UI（虚线 fallback：UI polling → mongo read）
-  - SLO 表（数据类 / 可接受延迟 / 当前实现路径 / 监控指标）
-  - 失败模式 + degrade 行为
-- [ ] 8.2 `docs/CHANGELOG.md` `[Unreleased]` 加：
-  ```
-  ### Added
-  - hot-path mongo snapshot reader（/api/market/overview / paper.* 永不调 akshare）
-  - WebSocket /ws/quotes：实时行情 + PnL 推送
-  - 响应 freshness 透出（as_of_ts / staleness_seconds）
-  - GET /api/market/freshness：数据时效角标 endpoint
-  ```
-- [ ] 8.3 confirm spec.md 与实现一致（self-review）
+- [x] 8.1 更新 `docs/ai-context/architecture.md`：新增"实时数据流 SLO 模型"段（双 hot snapshot 路径表 + ASCII push 链路图 + SLO 表 + hot-path 路径约束 + lifecycle tasks 表 + 失败模式 degrade 表）
+- [x] 8.2 `docs/CHANGELOG.md` `[Unreleased]` 加完整条目（含 6 条 capability 铁律 / 立项漏审说明 / 前置依赖）
+- [x] 8.3 spec.md 与实现一致（review pass）：双 hot-snapshot path / 6 requirements / scenarios 全部覆盖
 
 ## 9. 验证（B 类触发点：完成时报告）
 
