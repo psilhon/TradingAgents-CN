@@ -28,7 +28,33 @@ from pathlib import Path
 from app.core.config import settings
 from app.core.database import init_db, close_db
 from app.core.logging_config import setup_logging
-from app.routers import auth_db as auth, analysis, screening, queue, sse, health, favorites, config, reports, database, operation_logs, tags, tushare_init, akshare_init, baostock_init, historical_data, multi_period_sync, financial_data, news_data, social_media, internal_messages, usage_statistics, model_capabilities, cache, logs
+from app.routers import (
+    auth_db as auth,
+    analysis,
+    screening,
+    queue,
+    sse,
+    health,
+    favorites,
+    config,
+    reports,
+    database,
+    operation_logs,
+    tags,
+    tushare_init,
+    akshare_init,
+    baostock_init,
+    historical_data,
+    multi_period_sync,
+    financial_data,
+    news_data,
+    social_media,
+    internal_messages,
+    usage_statistics,
+    model_capabilities,
+    cache,
+    logs,
+)
 from app.routers import sync as sync_router, multi_source_sync
 from app.routers import stocks as stocks_router
 from app.routers import stock_data as stock_data_router
@@ -36,6 +62,7 @@ from app.routers import stock_sync as stock_sync_router
 from app.routers import multi_market_stocks as multi_market_stocks_router
 from app.routers import notifications as notifications_router
 from app.routers import websocket_notifications as websocket_notifications_router
+from app.routers import websocket_quotes as websocket_quotes_router
 from app.routers import scheduler as scheduler_router
 from app.routers import market as market_router
 from app.services.basics_sync_service import get_basics_sync_service
@@ -46,21 +73,22 @@ from app.worker.tushare_sync_service import (
     run_tushare_quotes_sync,
     run_tushare_historical_sync,
     run_tushare_financial_sync,
-    run_tushare_status_check
+    run_tushare_status_check,
 )
 from app.worker.akshare_sync_service import (
     run_akshare_basic_info_sync,
     run_akshare_quotes_sync,
     run_akshare_historical_sync,
     run_akshare_financial_sync,
-    run_akshare_status_check
+    run_akshare_status_check,
 )
 from app.worker.baostock_sync_service import (
     run_baostock_basic_info_sync,
     run_baostock_daily_quotes_sync,
     run_baostock_historical_sync,
-    run_baostock_status_check
+    run_baostock_status_check,
 )
+
 # 港股和美股改为按需获取+缓存模式，不再需要定时同步任务
 # from app.worker.hk_sync_service import ...
 # from app.worker.us_sync_service import ...
@@ -77,7 +105,7 @@ def get_version() -> str:
     try:
         version_file = Path(__file__).parent.parent / "VERSION"
         if version_file.exists():
-            return version_file.read_text(encoding='utf-8').strip()
+            return version_file.read_text(encoding="utf-8").strip()
     except Exception:
         pass
     return "1.0.0"  # 默认版本号
@@ -93,17 +121,17 @@ async def _print_config_summary(logger):
         # .env 文件路径信息
         import os
         from pathlib import Path
-        
+
         current_dir = Path.cwd()
         logger.info(f"📁 Current working directory: {current_dir}")
-        
+
         # 检查可能的 .env 文件位置
         env_files_to_check = [
             current_dir / ".env",
             current_dir / "app" / ".env",
             Path(__file__).parent.parent / ".env",  # 项目根目录
         ]
-        
+
         logger.info("🔍 Checking .env file locations:")
         env_file_found = False
         for env_file in env_files_to_check:
@@ -112,12 +140,12 @@ async def _print_config_summary(logger):
                 env_file_found = True
                 # 显示文件的前几行（隐藏敏感信息）
                 try:
-                    with open(env_file, 'r', encoding='utf-8') as f:
+                    with open(env_file, "r", encoding="utf-8") as f:
                         lines = f.readlines()[:5]  # 只读前5行
                         logger.info(f"     Preview (first 5 lines):")
                         for i, line in enumerate(lines, 1):
                             # 隐藏包含密码、密钥等敏感信息的行
-                            if any(keyword in line.upper() for keyword in ['PASSWORD', 'SECRET', 'KEY', 'TOKEN']):
+                            if any(keyword in line.upper() for keyword in ["PASSWORD", "SECRET", "KEY", "TOKEN"]):
                                 logger.info(f"       {i}: {line.split('=')[0]}=***")
                             else:
                                 logger.info(f"       {i}: {line.strip()}")
@@ -125,18 +153,18 @@ async def _print_config_summary(logger):
                     logger.warning(f"     Could not preview file: {e}")
             else:
                 logger.info(f"  ❌ Not found: {env_file}")
-        
+
         if not env_file_found:
             logger.warning("⚠️  No .env file found in checked locations")
-        
+
         # Pydantic Settings 配置加载状态
         logger.info("⚙️  Pydantic Settings Configuration:")
         logger.info(f"  • Settings class: {settings.__class__.__name__}")
         logger.info(f"  • Config source: {getattr(settings.model_config, 'env_file', 'Not specified')}")
         logger.info(f"  • Encoding: {getattr(settings.model_config, 'env_file_encoding', 'Not specified')}")
-        
+
         # 显示一些关键配置值的来源（环境变量 vs 默认值）
-        key_settings = ['HOST', 'PORT', 'DEBUG', 'MONGODB_HOST', 'REDIS_HOST']
+        key_settings = ["HOST", "PORT", "DEBUG", "MONGODB_HOST", "REDIS_HOST"]
         logger.info("  • Key settings sources:")
         for setting_name in key_settings:
             env_var_name = setting_name
@@ -146,7 +174,7 @@ async def _print_config_summary(logger):
                 logger.info(f"    - {setting_name}: from environment variable ({config_value})")
             else:
                 logger.info(f"    - {setting_name}: using default value ({config_value})")
-        
+
         # 环境信息
         env = "Production" if settings.is_production else "Development"
         logger.info(f"Environment: {env}")
@@ -157,6 +185,7 @@ async def _print_config_summary(logger):
 
         # 代理配置
         import os
+
         if settings.HTTP_PROXY or settings.HTTPS_PROXY:
             logger.info("Proxy Configuration:")
             if settings.HTTP_PROXY:
@@ -165,7 +194,7 @@ async def _print_config_summary(logger):
                 logger.info(f"  HTTPS_PROXY: {settings.HTTPS_PROXY}")
             if settings.NO_PROXY:
                 # 只显示前3个域名
-                no_proxy_list = settings.NO_PROXY.split(',')
+                no_proxy_list = settings.NO_PROXY.split(",")
                 if len(no_proxy_list) <= 3:
                     logger.info(f"  NO_PROXY: {settings.NO_PROXY}")
                 else:
@@ -177,6 +206,7 @@ async def _print_config_summary(logger):
         # 检查大模型配置
         try:
             from app.services.config_service import config_service
+
             config = await config_service.get_system_config()
             if config and config.llm_configs:
                 enabled_llms = [llm for llm in config.llm_configs if llm.enabled]
@@ -223,6 +253,7 @@ async def lifespan(app: FastAPI):
     # 验证启动配置
     try:
         from app.core.startup_validator import validate_startup_config
+
         validate_startup_config()
     except Exception as e:
         logger.error(f"配置验证失败: {e}")
@@ -233,6 +264,7 @@ async def lifespan(app: FastAPI):
     #  配置桥接：将统一配置写入环境变量，供 TradingAgents 核心库使用
     try:
         from app.core.config_bridge import bridge_config_to_env
+
         bridge_config_to_env()
     except Exception as e:
         logger.warning(f"⚠️  配置桥接失败: {e}")
@@ -241,6 +273,7 @@ async def lifespan(app: FastAPI):
     # Apply dynamic settings (log_level, enable_monitoring) from ConfigProvider
     try:
         from app.services.config_provider import provider as config_provider  # local import to avoid early DB init issues
+
         eff = await config_provider.get_effective_system_settings()
         desired_level = str(eff.get("log_level", "INFO")).upper()
         setup_logging(log_level=desired_level)
@@ -248,6 +281,7 @@ async def lifespan(app: FastAPI):
             logging.getLogger(name).setLevel(desired_level)
         try:
             from app.middleware.operation_log_middleware import set_operation_log_enabled
+
             set_operation_log_enabled(bool(eff.get("enable_monitoring", True)))
         except Exception:
             pass
@@ -307,7 +341,7 @@ async def lifespan(app: FastAPI):
                     lambda: multi_source_service.run_full_sync(force=False, preferred_sources=preferred_sources),
                     CronTrigger.from_crontab(settings.SYNC_STOCK_BASICS_CRON, timezone=settings.TIMEZONE),
                     id="basics_sync_service",
-                    name="股票基础信息同步（多数据源）"
+                    name="股票基础信息同步（多数据源）",
                 )
                 logger.info(f"📅 Stock basics sync scheduled by CRON: {settings.SYNC_STOCK_BASICS_CRON} ({settings.TIMEZONE})")
             else:
@@ -316,7 +350,7 @@ async def lifespan(app: FastAPI):
                     lambda: multi_source_service.run_full_sync(force=False, preferred_sources=preferred_sources),
                     CronTrigger(hour=int(hh), minute=int(mm), timezone=settings.TIMEZONE),
                     id="basics_sync_service",
-                    name="股票基础信息同步（多数据源）"
+                    name="股票基础信息同步（多数据源）",
                 )
                 logger.info(f"📅 Stock basics sync scheduled daily at {settings.SYNC_STOCK_BASICS_TIME} ({settings.TIMEZONE})")
 
@@ -328,7 +362,7 @@ async def lifespan(app: FastAPI):
                 quotes_ingestion.run_once,  # coroutine function; AsyncIOScheduler will await it
                 IntervalTrigger(seconds=settings.QUOTES_INGEST_INTERVAL_SECONDS, timezone=settings.TIMEZONE),
                 id="quotes_ingestion_service",
-                name="实时行情入库服务"
+                name="实时行情入库服务",
             )
             logger.info(f"⏱ 实时行情入库任务已启动: 每 {settings.QUOTES_INGEST_INTERVAL_SECONDS}s")
 
@@ -341,7 +375,7 @@ async def lifespan(app: FastAPI):
             CronTrigger.from_crontab(settings.TUSHARE_BASIC_INFO_SYNC_CRON, timezone=settings.TIMEZONE),
             id="tushare_basic_info_sync",
             name="股票基础信息同步（Tushare）",
-            kwargs={"force_update": False}
+            kwargs={"force_update": False},
         )
         if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_BASIC_INFO_SYNC_ENABLED):
             scheduler.pause_job("tushare_basic_info_sync")
@@ -354,7 +388,7 @@ async def lifespan(app: FastAPI):
             run_tushare_quotes_sync,
             CronTrigger.from_crontab(settings.TUSHARE_QUOTES_SYNC_CRON, timezone=settings.TIMEZONE),
             id="tushare_quotes_sync",
-            name="实时行情同步（Tushare）"
+            name="实时行情同步（Tushare）",
         )
         if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_QUOTES_SYNC_ENABLED):
             scheduler.pause_job("tushare_quotes_sync")
@@ -368,7 +402,7 @@ async def lifespan(app: FastAPI):
             CronTrigger.from_crontab(settings.TUSHARE_HISTORICAL_SYNC_CRON, timezone=settings.TIMEZONE),
             id="tushare_historical_sync",
             name="历史数据同步（Tushare）",
-            kwargs={"incremental": True}
+            kwargs={"incremental": True},
         )
         if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_HISTORICAL_SYNC_ENABLED):
             scheduler.pause_job("tushare_historical_sync")
@@ -381,7 +415,7 @@ async def lifespan(app: FastAPI):
             run_tushare_financial_sync,
             CronTrigger.from_crontab(settings.TUSHARE_FINANCIAL_SYNC_CRON, timezone=settings.TIMEZONE),
             id="tushare_financial_sync",
-            name="财务数据同步（Tushare）"
+            name="财务数据同步（Tushare）",
         )
         if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_FINANCIAL_SYNC_ENABLED):
             scheduler.pause_job("tushare_financial_sync")
@@ -394,7 +428,7 @@ async def lifespan(app: FastAPI):
             run_tushare_status_check,
             CronTrigger.from_crontab(settings.TUSHARE_STATUS_CHECK_CRON, timezone=settings.TIMEZONE),
             id="tushare_status_check",
-            name="数据源状态检查（Tushare）"
+            name="数据源状态检查（Tushare）",
         )
         if not (settings.TUSHARE_UNIFIED_ENABLED and settings.TUSHARE_STATUS_CHECK_ENABLED):
             scheduler.pause_job("tushare_status_check")
@@ -411,7 +445,7 @@ async def lifespan(app: FastAPI):
             CronTrigger.from_crontab(settings.AKSHARE_BASIC_INFO_SYNC_CRON, timezone=settings.TIMEZONE),
             id="akshare_basic_info_sync",
             name="股票基础信息同步（AKShare）",
-            kwargs={"force_update": False}
+            kwargs={"force_update": False},
         )
         if not (settings.AKSHARE_UNIFIED_ENABLED and settings.AKSHARE_BASIC_INFO_SYNC_ENABLED):
             scheduler.pause_job("akshare_basic_info_sync")
@@ -424,7 +458,7 @@ async def lifespan(app: FastAPI):
             run_akshare_quotes_sync,
             CronTrigger.from_crontab(settings.AKSHARE_QUOTES_SYNC_CRON, timezone=settings.TIMEZONE),
             id="akshare_quotes_sync",
-            name="实时行情同步（AKShare）"
+            name="实时行情同步（AKShare）",
         )
         if not (settings.AKSHARE_UNIFIED_ENABLED and settings.AKSHARE_QUOTES_SYNC_ENABLED):
             scheduler.pause_job("akshare_quotes_sync")
@@ -438,7 +472,7 @@ async def lifespan(app: FastAPI):
             CronTrigger.from_crontab(settings.AKSHARE_HISTORICAL_SYNC_CRON, timezone=settings.TIMEZONE),
             id="akshare_historical_sync",
             name="历史数据同步（AKShare）",
-            kwargs={"incremental": True}
+            kwargs={"incremental": True},
         )
         if not (settings.AKSHARE_UNIFIED_ENABLED and settings.AKSHARE_HISTORICAL_SYNC_ENABLED):
             scheduler.pause_job("akshare_historical_sync")
@@ -451,7 +485,7 @@ async def lifespan(app: FastAPI):
             run_akshare_financial_sync,
             CronTrigger.from_crontab(settings.AKSHARE_FINANCIAL_SYNC_CRON, timezone=settings.TIMEZONE),
             id="akshare_financial_sync",
-            name="财务数据同步（AKShare）"
+            name="财务数据同步（AKShare）",
         )
         if not (settings.AKSHARE_UNIFIED_ENABLED and settings.AKSHARE_FINANCIAL_SYNC_ENABLED):
             scheduler.pause_job("akshare_financial_sync")
@@ -464,7 +498,7 @@ async def lifespan(app: FastAPI):
             run_akshare_status_check,
             CronTrigger.from_crontab(settings.AKSHARE_STATUS_CHECK_CRON, timezone=settings.TIMEZONE),
             id="akshare_status_check",
-            name="数据源状态检查（AKShare）"
+            name="数据源状态检查（AKShare）",
         )
         if not (settings.AKSHARE_UNIFIED_ENABLED and settings.AKSHARE_STATUS_CHECK_ENABLED):
             scheduler.pause_job("akshare_status_check")
@@ -480,7 +514,7 @@ async def lifespan(app: FastAPI):
             run_baostock_basic_info_sync,
             CronTrigger.from_crontab(settings.BAOSTOCK_BASIC_INFO_SYNC_CRON, timezone=settings.TIMEZONE),
             id="baostock_basic_info_sync",
-            name="股票基础信息同步（BaoStock）"
+            name="股票基础信息同步（BaoStock）",
         )
         if not (settings.BAOSTOCK_UNIFIED_ENABLED and settings.BAOSTOCK_BASIC_INFO_SYNC_ENABLED):
             scheduler.pause_job("baostock_basic_info_sync")
@@ -493,7 +527,7 @@ async def lifespan(app: FastAPI):
             run_baostock_daily_quotes_sync,
             CronTrigger.from_crontab(settings.BAOSTOCK_DAILY_QUOTES_SYNC_CRON, timezone=settings.TIMEZONE),
             id="baostock_daily_quotes_sync",
-            name="日K线数据同步（BaoStock）"
+            name="日K线数据同步（BaoStock）",
         )
         if not (settings.BAOSTOCK_UNIFIED_ENABLED and settings.BAOSTOCK_DAILY_QUOTES_SYNC_ENABLED):
             scheduler.pause_job("baostock_daily_quotes_sync")
@@ -506,7 +540,7 @@ async def lifespan(app: FastAPI):
             run_baostock_historical_sync,
             CronTrigger.from_crontab(settings.BAOSTOCK_HISTORICAL_SYNC_CRON, timezone=settings.TIMEZONE),
             id="baostock_historical_sync",
-            name="历史数据同步（BaoStock）"
+            name="历史数据同步（BaoStock）",
         )
         if not (settings.BAOSTOCK_UNIFIED_ENABLED and settings.BAOSTOCK_HISTORICAL_SYNC_ENABLED):
             scheduler.pause_job("baostock_historical_sync")
@@ -519,7 +553,7 @@ async def lifespan(app: FastAPI):
             run_baostock_status_check,
             CronTrigger.from_crontab(settings.BAOSTOCK_STATUS_CHECK_CRON, timezone=settings.TIMEZONE),
             id="baostock_status_check",
-            name="数据源状态检查（BaoStock）"
+            name="数据源状态检查（BaoStock）",
         )
         if not (settings.BAOSTOCK_UNIFIED_ENABLED and settings.BAOSTOCK_STATUS_CHECK_ENABLED):
             scheduler.pause_job("baostock_status_check")
@@ -540,7 +574,7 @@ async def lifespan(app: FastAPI):
                 result = await service.sync_news_data(
                     symbols=None,  # None + favorites_only=True 表示只同步自选股
                     max_news_per_stock=settings.NEWS_SYNC_MAX_PER_SOURCE,
-                    favorites_only=True  # 只同步自选股
+                    favorites_only=True,  # 只同步自选股
                 )
                 logger.info(
                     f"✅ 新闻同步完成: "
@@ -562,7 +596,7 @@ async def lifespan(app: FastAPI):
             run_news_sync,
             CronTrigger.from_crontab(settings.NEWS_SYNC_CRON, timezone=settings.TIMEZONE),
             id="news_sync",
-            name="新闻数据同步（AKShare - 仅自选股）"
+            name="新闻数据同步（AKShare - 仅自选股）",
         )
         if not settings.NEWS_SYNC_ENABLED:
             scheduler.pause_job("news_sync")
@@ -580,6 +614,7 @@ async def lifespan(app: FastAPI):
         # OpenSpec change `paper-realtime-quotes-job`：行情刷新 jobs 必须在
         # scheduler.start() 之后注册，否则 IntervalTrigger 不会立即排上去
         from app.services.scheduler_service import get_scheduler_service
+
         get_scheduler_service()
     except Exception as e:
         logger.error(f"❌ 调度器启动失败: {e}", exc_info=True)
@@ -599,6 +634,7 @@ async def lifespan(app: FastAPI):
         # 关闭 UserService MongoDB 连接
         try:
             from app.services.user_service import user_service
+
             user_service.close()
         except Exception as e:
             logger.warning(f"UserService cleanup error: {e}")
@@ -614,15 +650,12 @@ app = FastAPI(
     version=get_version(),
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # 安全中间件
 if not settings.DEBUG:
-    app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=settings.ALLOWED_HOSTS
-    )
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
 
 # CORS中间件
 app.add_middleware(
@@ -665,7 +698,9 @@ async def log_requests(request: Request, call_next):
 # 全局异常处理
 # 请求ID/Trace-ID 中间件（需作为最外层，放在函数式中间件之后）
 from app.middleware.request_id import RequestIDMiddleware
+
 app.add_middleware(RequestIDMiddleware)
+
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -676,9 +711,9 @@ async def global_exception_handler(request: Request, exc: Exception):
             "error": {
                 "code": "INTERNAL_SERVER_ERROR",
                 "message": "Internal server error occurred",
-                "request_id": getattr(request.state, "request_id", None)
+                "request_id": getattr(request.state, "request_id", None),
             }
-        }
+        },
     )
 
 
@@ -688,6 +723,7 @@ async def test_log():
     """测试日志中间件是否工作"""
     print("🧪 测试端点被调用 - 这条消息应该出现在控制台")
     return {"message": "测试成功", "timestamp": time.time()}
+
 
 # 注册路由
 app.include_router(health.router, prefix="/api", tags=["health"])
@@ -712,6 +748,7 @@ app.include_router(operation_logs.router, prefix="/api/system", tags=["operation
 app.include_router(logs.router, prefix="/api/system", tags=["logs"])
 # 新增：系统配置只读摘要
 from app.routers import system_config as system_config_router
+
 app.include_router(system_config_router.router, prefix="/api/system", tags=["system"])
 
 # 通知模块（REST + SSE）
@@ -719,6 +756,7 @@ app.include_router(notifications_router.router, prefix="/api", tags=["notificati
 
 # 🔥 WebSocket 通知模块（替代 SSE + Redis PubSub）
 app.include_router(websocket_notifications_router.router, prefix="/api", tags=["websocket"])
+app.include_router(websocket_quotes_router.router, prefix="/api", tags=["websocket-quotes"])
 
 # 定时任务管理
 app.include_router(scheduler_router.router, tags=["scheduler"])
@@ -742,12 +780,7 @@ app.include_router(internal_messages.router, tags=["internal-messages"])
 async def root():
     """根路径，返回API信息"""
     print("🏠 根路径被访问")
-    return {
-        "name": "TradingAgents-CN API",
-        "version": get_version(),
-        "status": "running",
-        "docs_url": "/docs" if settings.DEBUG else None
-    }
+    return {"name": "TradingAgents-CN API", "version": get_version(), "status": "running", "docs_url": "/docs" if settings.DEBUG else None}
 
 
 if __name__ == "__main__":
@@ -758,15 +791,6 @@ if __name__ == "__main__":
         reload=settings.DEBUG,
         log_level="info",
         reload_dirs=["app"] if settings.DEBUG else None,
-        reload_excludes=[
-            "__pycache__",
-            "*.pyc",
-            "*.pyo",
-            "*.pyd",
-            ".git",
-            ".pytest_cache",
-            "*.log",
-            "*.tmp"
-        ] if settings.DEBUG else None,
-        reload_includes=["*.py"] if settings.DEBUG else None
+        reload_excludes=["__pycache__", "*.pyc", "*.pyo", "*.pyd", ".git", ".pytest_cache", "*.log", "*.tmp"] if settings.DEBUG else None,
+        reload_includes=["*.py"] if settings.DEBUG else None,
     )
