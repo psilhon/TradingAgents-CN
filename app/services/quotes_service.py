@@ -3,6 +3,7 @@ QuotesService: 提供A股批量实时快照获取（AKShare东方财富 spot 接
 - 不使用通达信（TDX）作为兜底数据源。
 - 仅用于筛选返回前对 items 进行行情富集。
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -33,8 +34,15 @@ def _safe_float(v) -> Optional[float]:
 
 
 class QuotesService:
-    def __init__(self, ttl_seconds: int = 30) -> None:
+    def __init__(
+        self,
+        ttl_seconds: int = 30,
+        fetch_timeout_seconds: float = 8.0,
+    ) -> None:
         self._ttl = ttl_seconds
+        # 盘内 akshare spot 拉取超时上限。akshare 偶尔慢到 60-110s，
+        # 超时后降级到 stale cache / mongo 历史快照，避免 UI 阻塞。
+        self._fetch_timeout = fetch_timeout_seconds
         self._cache_ts: float = 0.0
         self._cache: Dict[str, Dict[str, Optional[float]]] = {}
         self._lock = asyncio.Lock()
@@ -57,6 +65,7 @@ class QuotesService:
                 from app.services.trading_calendar_service import (
                     get_trading_calendar_service,
                 )
+
                 if not await get_trading_calendar_service().is_intraday_now():
                     if not self._cache:
                         self._cache = await self._load_cache_from_mongo()
@@ -66,8 +75,27 @@ class QuotesService:
                 # trading_calendar 异常时保守降级：仍刷新（避免彻底无数据）
                 logger.debug(f"trading_calendar guard 失败，fallback 刷新 cache: {e}")
 
-            data = await asyncio.to_thread(self._fetch_spot_akshare)
-            self._cache = data
+            # 盘内 fetch：加超时降级，避免 akshare 慢调用阻塞 UI / lock 串行
+            try:
+                data = await asyncio.wait_for(
+                    asyncio.to_thread(self._fetch_spot_akshare),
+                    timeout=self._fetch_timeout,
+                )
+                if data:
+                    self._cache = data
+                    self._cache_ts = time.time()
+                    return self._cache
+                logger.warning("AKShare spot 返回空，沿用现有 cache 或降级 mongo 快照")
+            except asyncio.TimeoutError:
+                logger.warning(f"AKShare spot fetch 超时（>{self._fetch_timeout}s），沿用现有 cache 或降级 mongo 快照")
+            except Exception as e:
+                logger.warning(f"AKShare spot fetch 异常: {e}，沿用现有 cache 或降级 mongo 快照")
+
+            # 降级链：有旧 cache 就直接返回（不刷 ts，下个 ttl 周期再重试 fetch）；
+            # 无旧 cache 才读 mongo 历史快照。
+            if self._cache:
+                return self._cache
+            self._cache = await self._load_cache_from_mongo()
             self._cache_ts = time.time()
             return self._cache
 
@@ -81,6 +109,7 @@ class QuotesService:
         """
         try:
             from app.core.database import get_mongo_db
+
             db = get_mongo_db()
             result: Dict[str, Dict[str, Optional[float]]] = {}
             cursor = db["market_quotes"].find(
@@ -98,9 +127,7 @@ class QuotesService:
                     "pct_chg": doc.get("pct_chg"),
                     "amount": doc.get("amount"),
                 }
-            logger.info(
-                f"QuotesService 盘外 fallback：从 mongo 加载 {len(result)} 条到 cache"
-            )
+            logger.info(f"QuotesService 盘外 fallback：从 mongo 加载 {len(result)} 条到 cache")
             return result
         except Exception as e:
             logger.warning(f"QuotesService._load_cache_from_mongo 失败: {e}")
@@ -177,6 +204,7 @@ class QuotesService:
         """
         try:
             import akshare as ak  # 已在项目中使用，不额外安装
+
             df = ak.stock_zh_a_spot_em()
             if df is None or getattr(df, "empty", True):
                 logger.warning("AKShare spot 返回空数据")
@@ -200,7 +228,7 @@ class QuotesService:
                 code_str = str(code_raw).strip()
                 # 如果是纯数字，移除前导0后补齐到6位
                 if code_str.isdigit():
-                    code_clean = code_str.lstrip('0') or '0'  # 移除前导0，如果全是0则保留一个0
+                    code_clean = code_str.lstrip("0") or "0"  # 移除前导0，如果全是0则保留一个0
                     code = code_clean.zfill(6)  # 补齐到6位
                 else:
                     code = code_str.zfill(6)
@@ -224,4 +252,3 @@ def get_quotes_service() -> QuotesService:
     if _quotes_service is None:
         _quotes_service = QuotesService(ttl_seconds=30)
     return _quotes_service
-

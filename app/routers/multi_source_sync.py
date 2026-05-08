@@ -5,15 +5,21 @@ Provides endpoints for multi-source stock data synchronization
 import asyncio
 import logging
 from typing import Dict, List, Optional, Any, Union
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from app.services.multi_source_basics_sync_service import get_multi_source_sync_service
 from app.services.data_sources.manager import DataSourceManager
+from app.routers.auth_db import get_current_user
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/sync/multi-source", tags=["Multi-Source Sync"])
+
+
+def _require_admin(user: dict) -> None:
+    if not user.get("is_admin", False):
+        raise HTTPException(status_code=403, detail="权限不足")
 
 
 class SyncRequest(BaseModel):
@@ -154,9 +160,11 @@ async def get_sync_status():
 @router.post("/stock_basics/run")
 async def run_stock_basics_sync(
     force: bool = Query(False, description="是否强制运行同步"),
-    preferred_sources: Optional[str] = Query(None, description="优先使用的数据源，用逗号分隔")
+    preferred_sources: Optional[str] = Query(None, description="优先使用的数据源，用逗号分隔"),
+    current_user: dict = Depends(get_current_user),
 ):
     """运行多数据源股票基础信息同步"""
+    _require_admin(current_user)
     try:
         service = get_multi_source_sync_service()
 
@@ -446,8 +454,9 @@ async def get_sync_history(
 
 
 @router.delete("/cache")
-async def clear_sync_cache():
+async def clear_sync_cache(current_user: dict = Depends(get_current_user)):
     """清空同步相关的缓存"""
+    _require_admin(current_user)
     try:
         service = get_multi_source_sync_service()
 
