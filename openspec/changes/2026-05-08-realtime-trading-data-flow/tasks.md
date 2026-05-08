@@ -26,9 +26,9 @@
 
 ### 2A. quote_snapshot_reader（持仓 / 自选股，mongo 路径）
 
-- [ ] 2A.1 新建 `app/services/quote_snapshot_reader.py` + `get_quote_snapshot_reader()` singleton
-- [ ] 2A.2 `read_quotes(codes: list[str]) -> dict`：返回 `{code: {close, pct_chg, amount, last_price_as_of}}`，缺漏 code 值 None；顶层带 `as_of_ts`（min last_price_as_of, 忽略 null）
-- [ ] 2A.3 单元测试 `tests/services/test_quote_snapshot_reader.py`：mock mongo cursor + 验证聚合 + as_of_ts 正确
+- [x] 2A.1 新建 `app/services/quote_snapshot_reader.py` + `get_quote_snapshot_reader()` singleton
+- [x] 2A.2 `read_quotes(codes: list[str]) -> dict`：返回 `{code: {close, pct_chg, amount, last_price_as_of}}`，缺漏 code 值 None；顶层带 `as_of_ts`（min last_price_as_of, 忽略 null）
+- [x] 2A.3 单元测试 `tests/services/test_quote_snapshot_reader.py`：mock mongo cursor + 验证聚合 + as_of_ts 正确
 
 ### 2B. market_overview_prewarm_service（全市场聚合，in-memory 路径）
 
