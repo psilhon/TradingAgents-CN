@@ -16,25 +16,32 @@ Spec: openspec/specs/paper-realtime-quotes/spec.md (after archive)
 
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Optional
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.core.database import get_mongo_db
+from app.core.database import get_mongo_db, get_redis_client
 from app.services.quotes_service import get_quotes_service
 
 logger = logging.getLogger(__name__)
 
 
 class RealtimeQuoteSyncService:
-    """周期同步 A 股实时行情入 mongo `market_quotes`."""
+    """周期同步 A 股实时行情入 mongo `market_quotes` + redis publish quote 事件."""
 
     COLLECTION_NAME = "market_quotes"
+    QUOTE_CHANNEL_PREFIX = "channel:quote:"
 
     def __init__(self, db: AsyncIOMotorDatabase | None = None) -> None:
         self._db = db
+        # OpenSpec realtime-trading-data-flow Req "变化的 code 才 publish"：
+        # 维护上次 publish 的 (close, pct_chg) 元组，下轮比较，无变化不发
+        self._last_published: dict[str, tuple[Optional[float], Optional[float]]] = {}
+        # redis publish 失败时只 warning 一次，避免 spam
+        self._publish_failed: bool = False
 
     @property
     def db(self) -> AsyncIOMotorDatabase:
@@ -59,18 +66,14 @@ class RealtimeQuoteSyncService:
         codes: set[str] = set()
 
         # 1. 自选股
-        async for doc in self.db["user_favorites"].find(
-            {}, {"favorite_stocks.stock_code": 1, "_id": 0}
-        ):
+        async for doc in self.db["user_favorites"].find({}, {"favorite_stocks.stock_code": 1, "_id": 0}):
             for fav in doc.get("favorite_stocks", []) or []:
                 code = fav.get("stock_code")
                 if code:
                     codes.add(str(code).strip())
 
         # 2. paper 持仓（仅 A 股）
-        async for pos in self.db["paper_positions"].find(
-            {"market": "CN"}, {"code": 1, "_id": 0}
-        ):
+        async for pos in self.db["paper_positions"].find({"market": "CN"}, {"code": 1, "_id": 0}):
             code = pos.get("code")
             if code:
                 codes.add(str(code).strip())
@@ -100,18 +103,18 @@ class RealtimeQuoteSyncService:
 
         # Scenario: QuotesService 失败 → 全错误
         if not quotes:
-            logger.warning(
-                f"RealtimeQuoteSync: QuotesService 返回空 dict, total={total} 全部失败"
-            )
+            logger.warning(f"RealtimeQuoteSync: QuotesService 返回空 dict, total={total} 全部失败")
             return {"total": total, "fetched": 0, "updated": 0, "errors": total}
 
         fetched = len(quotes)
         updated = 0
         now = datetime.now(timezone.utc)
 
-        # Upsert 到 market_quotes
+        # Upsert 到 market_quotes + 变化时 redis publish
         for code, quote in quotes.items():
             close = quote.get("close")
+            pct_chg = quote.get("pct_chg")
+            amount = quote.get("amount")
             # 守卫：close 为 None 或 ≤ 0 跳过（不写脏数据）
             if close is None or close <= 0:
                 continue
@@ -124,7 +127,9 @@ class RealtimeQuoteSyncService:
                             "code": code,
                             "symbol": code,
                             "close": float(close),
-                            "volume": quote.get("amount"),  # akshare 返回成交额
+                            "pct_chg": float(pct_chg) if pct_chg is not None else None,
+                            "amount": float(amount) if amount is not None else None,
+                            "volume": amount,  # 兼容旧字段名（akshare 返回成交额）
                             "updated_at": now,
                         }
                     },
@@ -133,18 +138,58 @@ class RealtimeQuoteSyncService:
                 updated += 1
             except Exception as e:
                 logger.warning(f"RealtimeQuoteSync: upsert {code} 失败: {e}")
+                continue
+
+            # 变化检测：与上次 publish 的 (close, pct_chg) 比较，仅变化才发
+            current = (
+                float(close),
+                float(pct_chg) if pct_chg is not None else None,
+            )
+            if self._last_published.get(code) != current:
+                self._last_published[code] = current
+                await self._publish_quote_event(code, close, pct_chg, amount, now)
 
         errors = total - updated
-        logger.info(
-            f"RealtimeQuoteSync: total={total} fetched={fetched} "
-            f"updated={updated} errors={errors}"
-        )
+        logger.info(f"RealtimeQuoteSync: total={total} fetched={fetched} updated={updated} errors={errors}")
         return {
             "total": total,
             "fetched": fetched,
             "updated": updated,
             "errors": errors,
         }
+
+    async def _publish_quote_event(
+        self,
+        code: str,
+        close: Any,
+        pct_chg: Any,
+        amount: Any,
+        ts: datetime,
+    ) -> None:
+        """Redis publish quote 事件 to `channel:quote:{code}`.
+
+        OpenSpec realtime-trading-data-flow: redis 不可用时 logger.warning
+        一次（throttle，避免 spam），不抛——sync 主流程必须继续。
+        """
+        try:
+            r = get_redis_client()
+            payload = json.dumps(
+                {
+                    "code": code,
+                    "close": float(close),
+                    "pct_chg": float(pct_chg) if pct_chg is not None else None,
+                    "amount": float(amount) if amount is not None else None,
+                    "as_of_ts": ts.isoformat(),
+                }
+            )
+            await r.publish(f"{self.QUOTE_CHANNEL_PREFIX}{code}", payload)
+            if self._publish_failed:
+                logger.info("RealtimeQuoteSync: redis publish 已恢复")
+                self._publish_failed = False
+        except Exception as e:
+            if not self._publish_failed:
+                logger.warning(f"RealtimeQuoteSync: redis publish 失败 {e!r}（后续静默直到恢复）")
+                self._publish_failed = True
 
 
 _realtime_quote_sync_service: RealtimeQuoteSyncService | None = None
