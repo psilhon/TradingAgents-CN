@@ -6,10 +6,11 @@ import asyncio
 import json
 import logging
 from typing import Dict, Set
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, HTTPException
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, Depends
 from datetime import datetime
 
 from app.services.auth_service import AuthService
+from app.routers.auth_db import get_current_user
 
 router = APIRouter()
 logger = logging.getLogger("webapi.websocket")
@@ -137,7 +138,10 @@ async def websocket_notifications_endpoint(
         await websocket.close(code=1008, reason="Unauthorized")
         return
     
-    user_id = "admin"  # 从 token_data 中获取
+    user_id = token_data.sub
+    if not user_id:
+        await websocket.close(code=1008, reason="Unauthorized")
+        return
     
     # 连接 WebSocket
     await manager.connect(websocket, user_id)
@@ -227,9 +231,10 @@ async def websocket_task_progress_endpoint(
         await websocket.close(code=1008, reason="Unauthorized")
         return
     
-    user_id = "admin"
-    channel = f"task_progress:{task_id}"
-    
+    user_id = token_data.sub
+    if not user_id:
+        await websocket.close(code=1008, reason="Unauthorized")
+        return
     # 连接 WebSocket
     await websocket.accept()
     logger.info(f"✅ [WS-Task] 新连接: task={task_id}, user={user_id}")
@@ -263,7 +268,7 @@ async def websocket_task_progress_endpoint(
 
 
 @router.get("/ws/stats")
-async def get_websocket_stats():
+async def get_websocket_stats(current_user: dict = Depends(get_current_user)):
     """获取 WebSocket 连接统计"""
     return manager.get_stats()
 
@@ -292,13 +297,13 @@ async def send_task_progress_via_websocket(task_id: str, progress_data: dict):
         task_id: 任务 ID
         progress_data: 进度数据
     """
-    # 注意：这里需要知道任务属于哪个用户
-    # 可以从数据库查询或在 progress_data 中传递
-    # 暂时简化处理
+    user_id = progress_data.get("user_id")
+    if not user_id:
+        logger.warning("⚠️ [WS-Task] 缺少 user_id，跳过任务进度推送以避免跨用户广播")
+        return
+
     message = {
         "type": "progress",
         "data": progress_data
     }
-    # 广播给所有连接（生产环境应该只发给任务所属用户）
-    await manager.broadcast(message)
-
+    await manager.send_personal_message(message, user_id)
