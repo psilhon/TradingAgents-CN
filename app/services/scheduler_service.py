@@ -748,8 +748,11 @@ class SchedulerService:
     def _register_realtime_quote_sync_jobs(self):
         """注册实时行情刷新 job — capability paper-realtime-quotes。
 
-        - 盘中：IntervalTrigger(seconds=30) 全天跑，job body 时间窗 guard 过滤
+        - 盘中：IntervalTrigger(seconds=3) 全天跑，job body 时间窗 guard 过滤
           盘外（仅工作日 9:25–15:00 真正执行）
+          (v1.2.x: 30s → 3s 颗粒升频，配合 redis pub/sub + ws push 让前端
+           最长等 3s 看到价格更新；akshare 公开 API 配额评估：盘中 5.5h ×
+           60s/3s × 2 ≈ 6600 次/天，单用户场景可接受)
         - 盘后：CronTrigger(day_of_week='mon-fri', hour=17, minute=0) 收盘后一次
 
         防重叠：max_instances=1, coalesce=True
@@ -758,15 +761,15 @@ class SchedulerService:
         self.scheduler.add_job(
             self._run_realtime_quote_sync_intraday,
             'interval',
-            seconds=30,
+            seconds=3,
             id='realtime_quote_sync_intraday',
             name='自选股+持仓行情刷新（盘中）',
             replace_existing=True,
             max_instances=1,
             coalesce=True,
-            misfire_grace_time=10,
+            misfire_grace_time=2,
         )
-        logger.info("✅ 行情刷新（盘中）已添加：IntervalTrigger 30s + 时间窗 guard")
+        logger.info("✅ 行情刷新（盘中）已添加：IntervalTrigger 3s + 时间窗 guard")
 
         # 盘后兜底
         self.scheduler.add_job(
