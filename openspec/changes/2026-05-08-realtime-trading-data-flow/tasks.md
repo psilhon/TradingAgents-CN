@@ -69,10 +69,11 @@
 
 ## 7. quote_freshness_monitor + freshness endpoint
 
-- [ ] 7.1 新建 `app/services/quote_freshness_monitor.py` + `get_freshness() -> dict`
-- [ ] 7.2 `GET /api/market/freshness` endpoint（`app/routers/market.py` 内）：返回 `{as_of_ts, staleness_seconds, is_intraday, last_successful_sync_at, sync_running}`
-- [ ] 7.3 盘中周期检查（APScheduler `IntervalTrigger(seconds=60)`）：staleness > SLO 阈值（默认 90s）时 logger.warning + 写 `system_logs` collection 一条 `kind="quote_staleness_breach"` 事件
-- [ ] 7.4 单测 `tests/services/test_quote_freshness_monitor.py`
+- [x] 7.1 新建 `app/services/quote_freshness_monitor.py` + `get_freshness() -> dict`
+- [x] 7.2 `GET /api/market/freshness` endpoint（`app/routers/market.py` 内）：返回 `{as_of_ts, staleness_seconds, is_intraday, last_successful_sync_at, sync_running, sla_threshold_seconds, breach}`
+- [x] 7.3 盘中周期检查（lifecycle background task `monitor_loop` 每 60s 一轮）：staleness > SLO 阈值（默认 90s）时 logger.warning + 写 `system_logs` collection 一条 `kind="quote_staleness_breach"` 事件；盘外即便 stale 也不写
+- [x] 7.4 单测 `tests/services/test_quote_freshness_monitor.py`：6 scenario（盘中正常 / 盘外不 breach / 盘中 SLA 违反写 logs / 盘外不写 / 无数据 / singleton）
+- [x] 7.5 在 `app/main.py` lifespan 注册 `get_freshness_monitor().start()` + shutdown stop
 
 ## 8. 文档 + spec
 

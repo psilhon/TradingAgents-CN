@@ -623,13 +623,16 @@ async def lifespan(app: FastAPI):
     # OpenSpec realtime-trading-data-flow lifecycle tasks：
     # 1. market_overview_prewarm_service — 盘中 30s 一轮 prewarm in-memory 全市场快照
     # 2. pnl_stream_service — 盘中 3s 一轮 PnL 重算 + redis publish
+    # 3. quote_freshness_monitor — 60s 一轮 SLA 检查 + 写 system_logs breach 事件
     try:
         from app.services.market_overview_prewarm_service import get_prewarm_service
         from app.services.pnl_stream_service import get_pnl_stream_service
+        from app.services.quote_freshness_monitor import get_freshness_monitor
 
         get_prewarm_service().start()
         get_pnl_stream_service().start()
-        logger.info("✅ realtime-data lifecycle tasks 启动 (prewarm + pnl_stream)")
+        get_freshness_monitor().start()
+        logger.info("✅ realtime-data lifecycle tasks 启动 (prewarm + pnl_stream + freshness)")
     except Exception as e:
         logger.error(f"❌ realtime-data lifecycle tasks 启动失败: {e}", exc_info=True)
         # 不 raise——这些 task 失败不应阻止应用启动；hot-path 仍能从 mongo 读
@@ -649,9 +652,11 @@ async def lifespan(app: FastAPI):
         try:
             from app.services.market_overview_prewarm_service import get_prewarm_service
             from app.services.pnl_stream_service import get_pnl_stream_service
+            from app.services.quote_freshness_monitor import get_freshness_monitor
 
             await get_prewarm_service().stop()
             await get_pnl_stream_service().stop()
+            await get_freshness_monitor().stop()
             logger.info("🛑 realtime-data lifecycle tasks stopped")
         except Exception as e:
             logger.warning(f"realtime-data lifecycle cleanup error: {e}")
