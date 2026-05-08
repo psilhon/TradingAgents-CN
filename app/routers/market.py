@@ -1,7 +1,12 @@
 """市场概况 API — 全市场聚合统计（涨停/跌停/上涨/下跌/成交额）。
 
-数据源：复用 `app/services/quotes_service.py` 的 `QuotesService` 30s TTL 内存缓存
-（底层 ak.stock_zh_a_spot_em 全市场快照）。endpoint 直接读 cache 后聚合。
+数据源：`app/services/market_overview_prewarm_service.py` 的
+in-memory hot snapshot（底层 `QuotesService._cache`，由盘中 prewarm task
+每 30s 异步刷新）。hot-path **永不**在请求路径同步触发 akshare 拉取
+（OpenSpec change 2026-05-08-realtime-trading-data-flow Requirement 1）.
+
+cache 空（首启 + prewarm 还未跑过任何一轮）时返回 nullable 字段 +
+`as_of_ts=null`，前端基于此显示"等待数据"，不阻塞。
 """
 
 from __future__ import annotations
@@ -9,7 +14,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 
 from app.routers.auth_db import get_current_user
-from app.services.quotes_service import get_quotes_service
+from app.services.market_overview_prewarm_service import get_prewarm_service
 from app.services.trading_calendar_service import get_trading_calendar_service
 
 router = APIRouter(prefix="/market", tags=["market"])
@@ -17,18 +22,20 @@ router = APIRouter(prefix="/market", tags=["market"])
 
 @router.get("/overview")
 async def get_market_overview(_user: dict = Depends(get_current_user)) -> dict:
-    """A 股市场概况：涨停/跌停/上涨/下跌家数 + 成交额合计（亿元）+ 是否盘中.
+    """A 股市场概况：涨停/跌停/上涨/下跌家数 + 成交额合计（亿元）+ 是否盘中 + 数据时效.
 
     返回字段：
-    - limit_up: int 涨停家数（pct_chg >= 9.5%）
-    - limit_down: int 跌停家数（pct_chg <= -9.5%）
-    - advance: int 上涨家数（pct_chg > 0）
-    - decline: int 下跌家数（pct_chg < 0）
-    - amount_total: float 成交额合计（亿元）
-    - total: int 全市场样本数
+    - limit_up: int | None 涨停家数（pct_chg >= 9.5%）；cache 空时为 None
+    - limit_down: int | None 跌停家数（pct_chg <= -9.5%）
+    - advance: int | None 上涨家数（pct_chg > 0）
+    - decline: int | None 下跌家数（pct_chg < 0）
+    - amount_total: float | None 成交额合计（亿元）
+    - total: int 全市场样本数（cache 空时 0）
+    - as_of_ts: str | None ISO8601，hot snapshot 最新时刻；cache 空时 None
+    - staleness_seconds: float | None now - as_of_ts；cache 空时 None
     - is_intraday: bool 当前是否 A 股交易日盘中（前端 polling guard 用）
     """
-    overview = await get_quotes_service().get_market_overview()
+    overview = await get_prewarm_service().compute_overview()
     is_intraday = False
     try:
         is_intraday = await get_trading_calendar_service().is_intraday_now()
