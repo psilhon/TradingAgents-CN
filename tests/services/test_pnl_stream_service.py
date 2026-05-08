@@ -194,6 +194,19 @@ def test_publish_only_on_significant_diff(monkeypatch) -> None:
     monkeypatch.setattr(mod, "get_redis_client", lambda: fake_redis, raising=True)
     monkeypatch.setattr(mod, "get_mongo_db", lambda: _make_fake_db(account, positions), raising=True)
 
+    # 强制盘内（避免 test 时段 dependent flakiness——trading_calendar 默认会
+    # 走 mongo 查询，未 init 时 fallback 到 weekday + 时段，盘外时段会让本
+    # test fail）
+    class _IntradayCalendar:
+        async def is_intraday_now(self) -> bool:
+            return True
+
+    monkeypatch.setattr(
+        "app.services.trading_calendar_service.get_trading_calendar_service",
+        lambda: _IntradayCalendar(),
+        raising=True,
+    )
+
     # 第一轮：close=12.00 → unrealized=2000, equity=112000
     monkeypatch.setattr(
         mod,
