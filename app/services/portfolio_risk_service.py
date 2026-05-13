@@ -156,10 +156,10 @@ async def _get_paper_positions_with_mv(user_id: str) -> list[dict[str, Any]]:
         qty = int(p.get("quantity", 0))
         if qty <= 0 or not code:
             continue
-        last = await _get_last_price(code, "CN")
-        if last is None or last <= 0:
+        price, _source = await _get_last_price(code, "CN")
+        if price is None or price <= 0:
             continue
-        mv = qty * float(last)
+        mv = qty * float(price)
         result.append({"code": code, "mkt_value": mv})
     return result
 

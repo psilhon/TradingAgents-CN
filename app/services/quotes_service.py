@@ -15,6 +15,70 @@ from typing import Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 
+def _to_sina_symbol(code: str) -> Optional[str]:
+    """6 位股票代码 → sina hq.sinajs.cn 格式 (sh/sz/bj + 6位)."""
+    c = str(code).strip()
+    if not c.isdigit() or len(c) > 6:
+        return None
+    c = c.zfill(6)
+    head = c[0]
+    if head in ("6", "9"):
+        return f"sh{c}"  # 沪市主板 / 科创板
+    elif head in ("0", "2", "3"):
+        return f"sz{c}"  # 深市主板 / 中小板 / 创业板
+    elif head in ("4", "8"):
+        return f"bj{c}"  # 北交所
+    return None
+
+
+def _fetch_sina_batch(symbols: list[str]) -> Dict[str, Dict[str, Optional[float]]]:
+    """同步调用 sina hq.sinajs.cn 批量端点，解析为标准 dict。
+
+    返回格式 `{sina_symbol: {close, pct_chg, amount}}`.
+    新浪字段（A 股）：name, open, prev_close, last_price, high, low, ..., volume(股), amount(元), ...
+    """
+    import requests
+
+    url = f"https://hq.sinajs.cn/list={','.join(symbols)}"
+    # sina 反爬要求 Referer，UA 兼容
+    headers = {
+        "Referer": "https://finance.sina.com.cn/",
+        "User-Agent": "Mozilla/5.0",
+    }
+    resp = requests.get(url, headers=headers, timeout=6.0)
+    resp.encoding = "gbk"  # sina 返回 GBK 编码（中文 name 会乱码但 numeric 字段正常）
+    if resp.status_code != 200:
+        return {}
+    result: Dict[str, Dict[str, Optional[float]]] = {}
+    for line in resp.text.splitlines():
+        # 格式：var hq_str_sh600519="贵州茅台,1850.00,1860.00,1870.50,..."
+        if "=" not in line or '"' not in line:
+            continue
+        try:
+            sym_part, payload = line.split("=", 1)
+            sym = sym_part.replace("var hq_str_", "").strip()
+            data_str = payload.strip().strip(";").strip('"')
+            if not data_str:
+                continue  # 停牌或代码错误时返回空字符串
+            fields = data_str.split(",")
+            if len(fields) < 10:
+                continue
+            prev_close = _safe_float(fields[2])
+            last_price = _safe_float(fields[3])
+            amount = _safe_float(fields[9])
+            pct_chg = None
+            if prev_close and last_price and prev_close > 0:
+                pct_chg = round((last_price - prev_close) / prev_close * 100, 3)
+            result[sym] = {
+                "close": last_price,
+                "pct_chg": pct_chg,
+                "amount": amount,
+            }
+        except Exception:
+            continue
+    return result
+
+
 def _safe_float(v) -> Optional[float]:
     try:
         if v is None:
@@ -133,6 +197,51 @@ class QuotesService:
             logger.warning(f"QuotesService._load_cache_from_mongo 失败: {e}")
             return {}
 
+    def invalidate_cache(self) -> None:
+        """强制清除内存 TTL 缓存，使下次 get_quotes / _ensure_cache 重新拉取。"""
+        self._cache_ts = 0.0
+
+    async def get_quotes_targeted(
+        self, codes: List[str]
+    ) -> Dict[str, Dict[str, Optional[float]]]:
+        """按需批量查询特定股票行情（不走全市场缓存）。
+
+        直接调用新浪 `hq.sinajs.cn/list=...` 批量端点，毫秒级响应，适合
+        手动刷新 / 自选股 / 持仓 等小规模查询（≤80 codes/批）。
+
+        返回格式与 `get_quotes` 一致：`{code: {close, pct_chg, amount}}`.
+        失败/无数据时返回空 dict（不抛）。
+        """
+        codes = [c.strip() for c in codes if c]
+        if not codes:
+            return {}
+        # 转 sina symbol 格式（sh/sz/bj + 6digit）
+        sina_symbols: List[str] = []
+        code_map: Dict[str, str] = {}  # sina_symbol -> 标准 6 位 code
+        for c in codes:
+            sym = _to_sina_symbol(c)
+            if sym:
+                sina_symbols.append(sym)
+                code_map[sym] = c.zfill(6) if c.isdigit() else c
+        if not sina_symbols:
+            return {}
+
+        # 调批量端点（分块 80 个一组）
+        result: Dict[str, Dict[str, Optional[float]]] = {}
+        chunk_size = 80
+        for i in range(0, len(sina_symbols), chunk_size):
+            chunk = sina_symbols[i : i + chunk_size]
+            try:
+                parsed = await asyncio.to_thread(_fetch_sina_batch, chunk)
+            except Exception as e:
+                logger.warning(f"sina hq batch 失败: {e}")
+                continue
+            for sym, data in parsed.items():
+                code = code_map.get(sym, sym)
+                result[code] = data
+        logger.info(f"sina hq batch 拉取完成: {len(result)}/{len(sina_symbols)} 条")
+        return result
+
     async def get_market_overview(self) -> Dict[str, Optional[float]]:
         """全市场统计：涨停 / 跌停 / 上涨 / 下跌家数 + 成交额合计。
 
@@ -184,6 +293,7 @@ class QuotesService:
     async def get_quotes(self, codes: List[str]) -> Dict[str, Dict[str, Optional[float]]]:
         """获取一批股票的近实时快照（最新价、涨跌幅、成交额）。
         - 优先使用缓存；缓存超时或为空则刷新一次全市场快照。
+        - AKShare 失败时降级到已有 cache 或 mongo 历史快照。
         - 返回仅包含请求的 codes。
         """
         codes = [c.strip() for c in codes if c]
@@ -193,55 +303,92 @@ class QuotesService:
                 return {c: q for c, q in self._cache.items() if c in codes and q}
             # 刷新缓存（阻塞IO放到线程）
             data = await asyncio.to_thread(self._fetch_spot_akshare)
-            self._cache = data
-            self._cache_ts = time.time()
+            if data:
+                self._cache = data
+                self._cache_ts = time.time()
+            elif not self._cache:
+                # AKShare 失败且无旧缓存：降级到 mongo 历史快照
+                self._cache = await self._load_cache_from_mongo()
+                self._cache_ts = time.time()
+            # else: AKShare 失败但有旧缓存，沿用（不刷 ts，下次仍重试）
             return {c: q for c, q in self._cache.items() if c in codes and q}
 
     def _fetch_spot_akshare(self) -> Dict[str, Dict[str, Optional[float]]]:
-        """通过 AKShare 东方财富全市场快照接口拉取行情，并标准化为字典。
-        预期列（常见）：代码、名称、最新价、涨跌幅、成交额。
-        不同版本可能有差异，做多列名兼容。
+        """全市场实时快照获取（带源降级）。
+
+        源优先级：
+        1. 东方财富 `stock_zh_a_spot_em()` — 字段最全，含成交额
+        2. 新浪财经 `stock_zh_a_spot()` — 东财被反爬/网络不通时降级
+
+        任一源成功立即返回；全失败返回 {}.
         """
         try:
             import akshare as ak  # 已在项目中使用，不额外安装
-
-            df = ak.stock_zh_a_spot_em()
-            if df is None or getattr(df, "empty", True):
-                logger.warning("AKShare spot 返回空数据")
-                return {}
-            # 兼容常见列名
-            code_col = next((c for c in ["代码", "代码code", "symbol", "股票代码"] if c in df.columns), None)
-            price_col = next((c for c in ["最新价", "现价", "最新价(元)", "price", "最新"] if c in df.columns), None)
-            pct_col = next((c for c in ["涨跌幅", "涨跌幅(%)", "涨幅", "pct_chg"] if c in df.columns), None)
-            amount_col = next((c for c in ["成交额", "成交额(元)", "amount", "成交额(万元)"] if c in df.columns), None)
-
-            if not code_col or not price_col:
-                logger.error(f"AKShare spot 缺少必要列: code={code_col}, price={price_col}")
-                return {}
-
-            result: Dict[str, Dict[str, Optional[float]]] = {}
-            for _, row in df.iterrows():  # type: ignore
-                code_raw = row.get(code_col)
-                if not code_raw:
-                    continue
-                # 标准化股票代码：移除前导0，然后补齐到6位
-                code_str = str(code_raw).strip()
-                # 如果是纯数字，移除前导0后补齐到6位
-                if code_str.isdigit():
-                    code_clean = code_str.lstrip("0") or "0"  # 移除前导0，如果全是0则保留一个0
-                    code = code_clean.zfill(6)  # 补齐到6位
-                else:
-                    code = code_str.zfill(6)
-                close = _safe_float(row.get(price_col))
-                pct = _safe_float(row.get(pct_col)) if pct_col else None
-                amt = _safe_float(row.get(amount_col)) if amount_col else None
-                # 若成交额单位为万元，统一转换为元（部分接口是万元，这里不强转，保持原样由前端展示单位）
-                result[code] = {"close": close, "pct_chg": pct, "amount": amt}
-            logger.info(f"AKShare spot 拉取完成: {len(result)} 条")
-            return result
         except Exception as e:
-            logger.error(f"获取AKShare实时快照失败: {e}")
+            logger.error(f"akshare 导入失败: {e}")
             return {}
+
+        # 1. 优先东方财富
+        try:
+            df = ak.stock_zh_a_spot_em()
+            if df is not None and not getattr(df, "empty", True):
+                result = self._parse_spot_df(df)
+                if result:
+                    logger.info(f"AKShare spot (eastmoney) 拉取完成: {len(result)} 条")
+                    return result
+            logger.warning("AKShare spot (eastmoney) 返回空数据，降级到新浪源")
+        except Exception as e:
+            logger.warning(f"AKShare spot (eastmoney) 失败: {type(e).__name__}，降级到新浪源")
+
+        # 2. 降级到新浪
+        try:
+            df = ak.stock_zh_a_spot()  # 新浪源
+            if df is not None and not getattr(df, "empty", True):
+                result = self._parse_spot_df(df)
+                if result:
+                    logger.info(f"AKShare spot (sina) 拉取完成: {len(result)} 条")
+                    return result
+            logger.warning("AKShare spot (sina) 返回空数据")
+        except Exception as e:
+            logger.error(f"AKShare spot (sina) 也失败: {e}")
+
+        return {}
+
+    def _parse_spot_df(self, df) -> Dict[str, Dict[str, Optional[float]]]:
+        """解析 AKShare spot DataFrame 为标准 dict 格式。
+
+        兼容东方财富和新浪两种接口的列名差异。
+        新浪列：代码 / 名称 / 最新价 / 涨跌额 / 涨跌幅 / 买入 / 卖出 / 昨收
+        东财列：代码 / 名称 / 最新价 / 涨跌幅 / 涨跌额 / 成交量 / 成交额 ...
+        新浪源无"成交额"列时，amount 字段会是 None（不影响 close/pct_chg 使用）.
+        """
+        code_col = next((c for c in ["代码", "代码code", "symbol", "股票代码"] if c in df.columns), None)
+        price_col = next((c for c in ["最新价", "现价", "最新价(元)", "price", "最新"] if c in df.columns), None)
+        pct_col = next((c for c in ["涨跌幅", "涨跌幅(%)", "涨幅", "pct_chg"] if c in df.columns), None)
+        amount_col = next((c for c in ["成交额", "成交额(元)", "amount", "成交额(万元)"] if c in df.columns), None)
+
+        if not code_col or not price_col:
+            logger.error(f"AKShare spot 缺少必要列: code={code_col}, price={price_col}")
+            return {}
+
+        result: Dict[str, Dict[str, Optional[float]]] = {}
+        for _, row in df.iterrows():  # type: ignore
+            code_raw = row.get(code_col)
+            if not code_raw:
+                continue
+            # 标准化股票代码：sina 源代码带 sh/sz 前缀，需剥离
+            code_str = str(code_raw).strip().lower()
+            if code_str.startswith(("sh", "sz", "bj")):
+                code_str = code_str[2:]
+            if code_str.isdigit():
+                code = code_str.lstrip("0").zfill(6) or "000000"
+            else:
+                code = code_str.zfill(6)
+            close = _safe_float(row.get(price_col))
+            pct = _safe_float(row.get(pct_col)) if pct_col else None
+            amt = _safe_float(row.get(amount_col)) if amount_col else None
+            result[code] = {"close": close, "pct_chg": pct, "amount": amt}
+        return result
 
 
 _quotes_service: Optional[QuotesService] = None
