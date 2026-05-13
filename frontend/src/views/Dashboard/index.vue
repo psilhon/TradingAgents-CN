@@ -491,10 +491,22 @@
         <div class="panel market-overview-panel ga-market">
           <div class="panel-hdr">
             <div class="sec-title">今日市场概况</div>
-            <span v-if="marketOverviewLoading" class="market-loading-chip">加载中…</span>
-            <span v-else-if="marketOverview && marketOverview.total > 0" class="market-fresh-chip">
-              {{ marketOverview.total }} 只 · 5 min 刷新
-            </span>
+            <div class="panel-hdr-actions">
+              <span v-if="marketOverviewLoading" class="market-loading-chip">加载中…</span>
+              <span v-else-if="marketOverview && marketOverview.total > 0" class="market-fresh-chip">
+                {{ marketOverview.total }} 只 · 5 min 刷新
+              </span>
+              <el-tooltip content="刷新全部行情（市场概况 + 自选股 + 模拟账户）" placement="top">
+                <el-button
+                  :icon="Refresh"
+                  size="small"
+                  circle
+                  :loading="quotesRefreshing"
+                  @click="handleRefreshQuotes"
+                  class="refresh-quotes-btn"
+                />
+              </el-tooltip>
+            </div>
           </div>
           <div class="market-grid">
             <div class="market-cell">
@@ -542,6 +554,7 @@ import {
   ArrowRight,
   ArrowDown,
   Download,
+  Refresh,
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import type { AnalysisTask, AnalysisStatus } from '@/types/analysis'
@@ -1025,6 +1038,35 @@ const startMarketOverviewPolling = () => {
     if (!marketOverview.value?.is_intraday) return  // 盘外不刷新
     loadMarketOverview()
   }, 5 * 60 * 1000)
+}
+
+// 手动刷新行情（清除后端缓存 → 重新拉取 → 刷新本地数据）
+const quotesRefreshing = ref(false)
+const handleRefreshQuotes = async () => {
+  if (quotesRefreshing.value) return
+  quotesRefreshing.value = true
+  try {
+    const response = await marketApi.refreshQuotes()
+    if (response.success) {
+      const stats = response.data
+      ElMessage.success(`行情已刷新：共 ${stats?.updated ?? 0} 只股票更新`)
+      // 刷新后重新加载所有行情相关区域
+      await Promise.all([
+        loadMarketOverview(),
+        loadFavoriteStocks(),
+        loadPaperAccount(),
+        loadPaperPerformance(),
+        loadPortfolioMetrics(),
+      ])
+      // 重新订阅 WebSocket 推送，让自选股/持仓实时价格立即更新
+      refreshQuoteSubscriptions()
+    }
+  } catch (error) {
+    ElMessage.error('行情刷新失败，请稍后重试')
+    console.error('手动刷新行情失败:', error)
+  } finally {
+    quotesRefreshing.value = false
+  }
 }
 
 // 删除原 mock priceTicker（每 4.5s 随机改一支股票 ±0.5%）：违反项目铁律
@@ -2339,6 +2381,23 @@ onUnmounted(() => {
 // 今日市场概况
 // =================================================================
 .market-overview-panel .panel-hdr { padding: 8px 14px; }
+
+.panel-hdr-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.refresh-quotes-btn {
+  --el-button-bg-color: transparent;
+  --el-button-border-color: var(--border-subtle);
+  --el-button-hover-bg-color: var(--bg-elevated);
+  --el-button-hover-border-color: var(--accent);
+  --el-button-hover-text-color: var(--accent);
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
 
 .market-loading-chip,
 .market-fresh-chip {

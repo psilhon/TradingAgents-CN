@@ -124,7 +124,7 @@ async def test_sync_empty_codes_skips_quotes_service():
     svc = RealtimeQuoteSyncService(db=db)  # type: ignore[arg-type]
 
     fake_quotes = MagicMock()
-    fake_quotes.get_quotes = AsyncMock()
+    fake_quotes.get_quotes_targeted = AsyncMock()
 
     with patch(
         "app.services.realtime_quote_sync_service.get_quotes_service",
@@ -133,7 +133,7 @@ async def test_sync_empty_codes_skips_quotes_service():
         result = await svc.sync_favorites_and_paper_positions()
 
     assert result == {"total": 0, "fetched": 0, "updated": 0, "errors": 0}
-    fake_quotes.get_quotes.assert_not_called()
+    fake_quotes.get_quotes_targeted.assert_not_called()
 
 
 @pytest.mark.unit
@@ -146,7 +146,8 @@ async def test_sync_quotes_service_failure_returns_errors():
     svc = RealtimeQuoteSyncService(db=db)  # type: ignore[arg-type]
 
     fake_quotes = MagicMock()
-    fake_quotes.get_quotes = AsyncMock(return_value={})  # 模拟 akshare 失败
+    fake_quotes.get_quotes_targeted = AsyncMock(return_value={})  # 模拟 sina 失败
+    fake_quotes.get_quotes = AsyncMock(return_value={})  # 全市场快照也失败
 
     with patch(
         "app.services.realtime_quote_sync_service.get_quotes_service",
@@ -169,7 +170,7 @@ async def test_sync_upserts_valid_quotes_to_market_quotes():
     svc = RealtimeQuoteSyncService(db=db)  # type: ignore[arg-type]
 
     fake_quotes = MagicMock()
-    fake_quotes.get_quotes = AsyncMock(
+    fake_quotes.get_quotes_targeted = AsyncMock(
         return_value={
             "000776": {"close": 21.17, "pct_chg": 1.5, "amount": 12000.0},
             "002428": {"close": 80.20, "pct_chg": 2.3, "amount": 50000.0},
@@ -220,7 +221,7 @@ async def test_sync_skips_invalid_close_prices():
     svc = RealtimeQuoteSyncService(db=db)  # type: ignore[arg-type]
 
     fake_quotes = MagicMock()
-    fake_quotes.get_quotes = AsyncMock(
+    fake_quotes.get_quotes_targeted = AsyncMock(
         return_value={
             "000776": {"close": 21.17},  # ✅ 有效
             "002428": {"close": None},  # ✗ None 跳过

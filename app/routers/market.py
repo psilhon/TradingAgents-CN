@@ -16,6 +16,7 @@ from fastapi import APIRouter, Depends
 from app.routers.auth_db import get_current_user
 from app.services.market_overview_prewarm_service import get_prewarm_service
 from app.services.quote_freshness_monitor import get_freshness_monitor
+from app.services.realtime_quote_sync_service import get_realtime_quote_sync_service
 from app.services.trading_calendar_service import get_trading_calendar_service
 
 router = APIRouter(prefix="/market", tags=["market"])
@@ -64,3 +65,23 @@ async def get_market_overview(_user: dict = Depends(get_current_user)) -> dict:
         pass
     overview["is_intraday"] = is_intraday
     return {"success": True, "data": overview}
+
+
+@router.post("/refresh-quotes")
+async def refresh_quotes(_user: dict = Depends(get_current_user)) -> dict:
+    """手动刷新行情：按需查询自选股 ∪ paper 持仓 (CN) 的实时行情.
+
+    使用 sina hq.sinajs.cn 批量端点（毫秒级），仅同步目标 codes（通常 ≤100 只），
+    不拉全市场快照。写入 mongo `market_quotes` 并 redis publish——前端 WebSocket
+    会自动收到更新。盘外也可手动触发。
+    """
+    # force_publish=True：手动刷新场景下绕过变化检测，强制 publish 到 redis，
+    # 让前端 WS 即使行情值未变也能收到事件、更新 last_price_as_of。
+    sync_service = get_realtime_quote_sync_service()
+    stats = await sync_service.sync_favorites_and_paper_positions(force_publish=True)
+
+    return {
+        "success": True,
+        "message": "行情刷新完成",
+        "data": stats,
+    }
