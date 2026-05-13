@@ -209,6 +209,7 @@ back/
 # Historical backup snapshots (do not track)
 data_backup_*/
 backups/
+backup/
 config/backup/
 tradingagents/dataflows/cache/data_cache/metadata/
 frontend/.eslintrc-auto-import.json
