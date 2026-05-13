@@ -14,8 +14,9 @@
 | `web/` | streamlit 旧 UI | ⚫ **已废弃**（chainlit/starlette 冲突，不可启动）|
 | `openspec/` | OpenSpec 决策追溯（fork 加）| 🟢 changes / specs |
 | `docs/` | 文档 73+ 文件 | 🟢 散乱无统一索引；上游已有 `QUICK_START.md` `STRUCTURE.md` `architecture/` 等 |
-| `docker/` `nginx/` | 部署配套 | 🟢 |
-| `scripts/` | 上游一次性脚本（数据导出、迁移等）| ⚫ 不在 lint 范围 |
+| `config/` | 原生服务配置（`mongod.conf` / `redis.conf`）| 🟢 fork 加 |
+| `scripts/` | 上游一次性脚本（数据导出、迁移等） + fork 新增 `setup-native.sh` / `local-services.sh` | ⚫ 不在 lint 范围 |
+| `data/` | 原生 mongo/redis 数据目录（gitignored）| — |
 | `examples/` | 示例代码 | ⚫ 不在 lint 范围 |
 | `data/` `reports/` `assets/` `images/` | 运行时 / 静态资源 | — |
 
@@ -28,7 +29,7 @@
 | `app/worker.py` / `app/worker/` | apscheduler 定时任务 | 后台 worker |
 | `main.py` | `python main.py` | LangGraph 多智能体 CLI demo（Google AI 默认）|
 | `cli/main.py` | `python -m cli.main` | 数据初始化 CLI |
-| `frontend/src/main.ts` | `npm run dev -- --port 54300` | Vue 前端入口（强制段位 54300，与 docker frontend 互斥）|
+| `frontend/src/main.ts` | `npm run dev -- --port 54300` | Vue 前端入口（强制段位 54300）|
 | `tradingagents/graph/trading_graph.py` | 被 `main.py` import | **多智能体编排核心** |
 
 ## 配置文件
@@ -40,10 +41,10 @@
 | `requirements.txt` | **已弃用**（首行注释；用 pyproject）| ✓ |
 | `requirements-lock.txt` | **过时** | ✓ |
 | `frontend/package.json` | npm scripts (dev/build/lint/format/type-check) | ✓ |
-| `docker-compose.yml` | 本地 build 模式 | ✓ |
-| `docker-compose.hub.nginx.yml` / `.arm.yml` | 用作者 Hub 镜像 + Nginx (amd64 / arm64) | ✓ |
-| `docker-compose.override.yml` | **本 fork 加的端口映射**（54300-54309）| ❌ `.git/info/exclude` 本地独有 |
-| `Dockerfile.backend` / `Dockerfile.frontend` | 镜像构建 | ✓ |
+| `config/mongod.conf` | MongoDB 7.0 配置（bind 127.0.0.1:54302, 项目本地 dbpath）| ✓ fork 加 |
+| `config/redis.conf` | Redis 配置（bind 127.0.0.1:54303, AOF）| ✓ fork 加 |
+| `scripts/local-services.sh` | 原生服务编排（替代 docker compose）| ✓ fork 加 |
+| `scripts/setup-native.sh` | 一次性安装脚本（brew install + mongo user 创建）| ✓ fork 加 |
 | `.env` / `.env.example` | 配置（150+ 项；必填 3 处）| `.env` gitignored / `.env.example` tracked |
 | `justfile` / `.pre-commit-config.yaml` / `.github/workflows/ci.yml` | 本 fork 加的 CI 配方（init-ci Recipe B）| ✓ 待 commit |
 

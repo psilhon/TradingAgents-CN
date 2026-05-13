@@ -30,7 +30,7 @@ git checkout HEAD -- VERSION requirements.txt requirements-lock.txt
 MONGODB_PORT=54302
 REDIS_PORT=54303
 ```
-否则 backend fallback 连 27017/6379 失败（docker 端口已被 override 改成 54302/54303，无监听）。
+否则 backend fallback 连 27017/6379 失败（原生 mongo/redis 实际监听 54302/54303，无监听 27017）。
 
 ### 上游 `scripts/*.py` 多处 hardcode 端口
 
@@ -70,8 +70,18 @@ uv pip install -e . --python .venv/bin/python
 
 ## 系统约束
 
-### Docker Desktop 必须手动启动
+### 原生 mongo/redis 启动失败
 
-Claude 无法代替你启动 Docker Desktop GUI 应用。每次重启 mac 后需手动打开 Docker Desktop，等 daemon ready 后才能 `docker compose up`。
+**症状**：`./scripts/local-services.sh start` 报"端口被占用"或"binary 未找到"。
 
-验证 ready：`docker info | head -3` 看到 Server Version 即可。
+**原因 1**：`/opt/homebrew/opt/mongodb-community@7.0/bin/mongod` 不存在 → 未运行 `./scripts/setup-native.sh`。
+
+**原因 2**：54302/54303 已被其他进程占用（其他项目同样段位 / 上次 ungraceful 退出留下孤儿）。
+
+**fix**：
+```bash
+# 看占用进程
+lsof -nP -iTCP:54302 -sTCP:LISTEN
+# 必要时停掉，然后重试
+./scripts/local-services.sh start
+```

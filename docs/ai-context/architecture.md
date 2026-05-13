@@ -166,5 +166,5 @@ stock_zh_a_hist
 | `tradingagents/` | 通常无冲突（你不会跟上游同时改同函数）|
 | `app/` `frontend/` | **大概率冲突**（上游主开发区），优先 rebase 而非 merge |
 | `pyproject.toml` | 注意 [tool.*] 段（fork 加的）vs 依赖列表（上游改的）|
-| `docker-compose.yml` | 不动（端口走 `docker-compose.override.yml`）|
+| `config/mongod.conf` `config/redis.conf` | fork 加，不会冲突；改端口需同步 `.env` 和业务代码 |
 | `docs/` | 上游加新文档无冲突；fork 加的 `CHANGELOG.md` `USAGE.md` `ai-context/` 上游不会改 |

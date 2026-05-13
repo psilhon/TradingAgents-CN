@@ -43,7 +43,7 @@ setup:
 # 本地开发栈启停（thin wrapper 调 scripts/dev.sh，详见该脚本 --help）
 # ────────────────────────────────────────────────────────────────────────────
 
-# 启全栈（docker mongo+redis + backend uvicorn + frontend vite）
+# 启全栈（原生 mongo+redis + backend uvicorn + frontend vite）
 up:
     scripts/dev.sh start
 
@@ -55,7 +55,7 @@ down:
 dev-restart:
     scripts/dev.sh restart
 
-# 端口/进程/docker 状态
+# 端口/进程/服务状态
 status:
     scripts/dev.sh status
 
@@ -102,29 +102,45 @@ audit-binds:
     EXIT_CODE=0
 
     echo "=== 1. 0.0.0.0 hardcode 在 fork-local 配置文件 ==="
-    # 排除文档中的"叙述性"上下文（含 0.0.0.0 但是规则文本本身）
-    BAD=$(grep -nE '"0\.0\.0\.0"' frontend/vite.config.ts docker-compose.override.yml 2>/dev/null || true)
+    BAD=$(grep -nE '"0\.0\.0\.0"' frontend/vite.config.ts 2>/dev/null || true)
     if [ -n "$BAD" ]; then
         echo "$BAD" | sed 's/^/  ⚠️  /'
         EXIT_CODE=1
     else
-        echo "  ✓ frontend/vite.config.ts + docker-compose.override.yml 无 0.0.0.0 hardcode"
+        echo "  ✓ frontend/vite.config.ts 无 0.0.0.0 hardcode"
     fi
     echo ""
 
-    echo "=== 2. docker-compose.override.yml 端口必须绑 127.0.0.1 ==="
-    if [ -f docker-compose.override.yml ]; then
-        BAD=$(grep -nE '^\s*-\s*"543[0-9]{2}:' docker-compose.override.yml 2>/dev/null || true)
-        if [ -n "$BAD" ]; then
-            echo "$BAD" | sed 's/^/  ⚠️  /'
-            echo "  端口映射缺 127.0.0.1: 前缀（应为 \"127.0.0.1:543xx:xxx\"）"
-            EXIT_CODE=1
+    echo "=== 2. config/mongod.conf 和 config/redis.conf 必须 bind 127.0.0.1 ==="
+    if [ -f config/mongod.conf ]; then
+        if grep -qE "bindIp:\s*127\.0\.0\.1" config/mongod.conf; then
+            echo "  ✓ config/mongod.conf: bindIp 127.0.0.1"
         else
-            COUNT=$(grep -cE '127\.0\.0\.1:5430[0-9]:' docker-compose.override.yml 2>/dev/null || echo 0)
-            echo "  ✓ docker-compose.override.yml 含 $COUNT 个 127.0.0.1:543xx 映射"
+            echo "  ⚠️  config/mongod.conf: bindIp 不是 127.0.0.1"
+            EXIT_CODE=1
+        fi
+        if grep -qE "port:\s*54302" config/mongod.conf; then
+            echo "  ✓ config/mongod.conf: port 54302"
+        else
+            echo "  ⚠️  config/mongod.conf: port 不是 54302"
+            EXIT_CODE=1
         fi
     else
-        echo "  (docker-compose.override.yml 不存在 — 见 CLAUDE.md 端口分配段)"
+        echo "  (config/mongod.conf 不存在 — 首次部署请运行 ./scripts/setup-native.sh)"
+    fi
+    if [ -f config/redis.conf ]; then
+        if grep -qE "^bind\s+127\.0\.0\.1" config/redis.conf; then
+            echo "  ✓ config/redis.conf: bind 127.0.0.1"
+        else
+            echo "  ⚠️  config/redis.conf: bind 不是 127.0.0.1"
+            EXIT_CODE=1
+        fi
+        if grep -qE "^port\s+54303" config/redis.conf; then
+            echo "  ✓ config/redis.conf: port 54303"
+        else
+            echo "  ⚠️  config/redis.conf: port 不是 54303"
+            EXIT_CODE=1
+        fi
     fi
     echo ""
 

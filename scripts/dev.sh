@@ -2,7 +2,7 @@
 # scripts/dev.sh — 本地开发栈启停脚本（OpenSpec spec: loopback-binding-policy）
 #
 # 管理：
-#   - docker (mongo + redis)，端口 54302/54303
+#   - 原生 mongo + redis，端口 54302/54303（scripts/local-services.sh）
 #   - backend (uvicorn)，端口 54301
 #   - frontend (vite dev)，端口 54300
 #
@@ -12,7 +12,7 @@
 #   scripts/dev.sh start     启动全栈
 #   scripts/dev.sh stop      停全栈
 #   scripts/dev.sh restart
-#   scripts/dev.sh status    端口/进程/docker 状态（默认）
+#   scripts/dev.sh status    端口/进程/服务状态（默认）
 #   scripts/dev.sh logs b    tail backend log（或 f = frontend）
 
 set -euo pipefail
@@ -76,15 +76,15 @@ stop_with_children() {
 }
 
 cmd_start() {
-    require_cmd docker
     require_cmd lsof
 
-    # 1. Docker (mongo + redis)
-    log "启动 docker (mongo + redis)..."
-    if docker compose up -d --wait mongodb redis 2>&1 | tail -5; then
-        log "docker 已就绪"
-    else
-        err "docker compose 启动失败"; exit 1
+    # 1. 原生服务 (mongo + redis)，由 scripts/local-services.sh 自管 PID
+    # 不再用 docker，详见 OpenSpec change native-local-deployment
+    log "启动原生服务 (mongo + redis)..."
+    if ! bash "$(dirname "$0")/local-services.sh" start; then
+        err "原生服务启动失败 — 检查 logs/mongod.log 或 logs/redis.log"
+        err "首次部署请先运行: ./scripts/setup-native.sh"
+        exit 1
     fi
 
     # 2. Backend (uvicorn)
@@ -130,10 +130,8 @@ cmd_stop() {
     stop_with_children "$FRONTEND_PID" "frontend"
     stop_with_children "$BACKEND_PID" "backend"
 
-    if command -v docker >/dev/null 2>&1; then
-        log "停 docker (mongo + redis)..."
-        docker compose stop mongodb redis 2>&1 | tail -3 || true
-    fi
+    log "停原生服务 (mongo + redis)..."
+    bash "$(dirname "$0")/local-services.sh" stop || true
 
     log "全部已停"
 }
@@ -171,12 +169,8 @@ cmd_status() {
     fi
     echo ""
 
-    echo "=== Docker (mongo + redis) ==="
-    if command -v docker >/dev/null 2>&1; then
-        docker compose ps mongodb redis 2>/dev/null | tail -n +1 || echo "  docker compose 不可用"
-    else
-        echo "  docker 命令不存在"
-    fi
+    echo "=== 原生服务 (mongo + redis) ==="
+    bash "$(dirname "$0")/local-services.sh" status 2>/dev/null | tail -n +2 || echo "  local-services.sh 不可用"
     echo ""
 
     echo "=== 访问地址 ==="
@@ -208,11 +202,14 @@ usage() {
 Usage: scripts/dev.sh <command>
 
 Commands:
-  start | up            启动 docker (mongo+redis) + backend + frontend
-  stop  | down          停止全部（含 docker）
+  start | up            启动原生 mongo+redis + backend + frontend
+  stop  | down          停止全部（含原生服务）
   restart               stop + start
-  status | ps           端口/进程/docker 状态（默认）
+  status | ps           端口/进程/服务状态（默认）
   logs [b|f]            tail backend (默认) 或 frontend log
+
+依赖（首次部署需先装）：
+  ./scripts/setup-native.sh    # 装 mongodb-community@7.0 + redis + mongosh，初始化 mongo 用户
 
 State：.dev/{backend,frontend}.{pid,log}（gitignored）
 端口段位 54300-54309（loopback only，OpenSpec spec: loopback-binding-policy）
@@ -226,7 +223,7 @@ State：.dev/{backend,frontend}.{pid,log}（gitignored）
 提示：
   - backend 用 --reload，编辑 app/ 自动重启；frontend vite HMR 自动刷新
   - 端口被外部占用时本脚本 skip 不强行抢
-  - 与 docker frontend 容器互斥（同 :54300）；本脚本只跑 vite dev 模式
+  - 原生 mongo+redis 由 scripts/local-services.sh 管理，首次部署先跑 setup-native.sh
 EOF
 }
 
