@@ -80,8 +80,12 @@ class RealtimeQuoteSyncService:
 
         return codes
 
-    async def sync_favorites_and_paper_positions(self) -> dict[str, int]:
+    async def sync_favorites_and_paper_positions(self, force_publish: bool = False) -> dict[str, int]:
         """周期触发入口：抓 target codes → 调 QuotesService → upsert mongo。
+
+        Args:
+            force_publish: True 时无视变化检测，强制 publish 全部数据。
+                手动刷新场景用，让前端 WS 感知刷新事件。
 
         返回 `{total, fetched, updated, errors}` 状态字典。
         - total: target codes 总数
@@ -97,13 +101,17 @@ class RealtimeQuoteSyncService:
             logger.info("RealtimeQuoteSync: 自选股 ∪ paper 持仓 = 空集，跳过")
             return {"total": 0, "fetched": 0, "updated": 0, "errors": 0}
 
-        # 调 QuotesService 拿行情（内部 30s TTL 缓存，akshare batch 已封装）
+        # 调 QuotesService 拿行情：优先用 sina 按需批量端点（毫秒级，仅查询
+        # 目标 codes，不拉全市场 5500+ 条）；失败时降级到全市场快照 + 缓存。
         quotes_service = get_quotes_service()
-        quotes = await quotes_service.get_quotes(list(target_codes))
-
-        # Scenario: QuotesService 失败 → 全错误
+        quotes = await quotes_service.get_quotes_targeted(list(target_codes))
         if not quotes:
-            logger.warning(f"RealtimeQuoteSync: QuotesService 返回空 dict, total={total} 全部失败")
+            logger.info("RealtimeQuoteSync: sina 按需查询为空，降级到全市场快照")
+            quotes = await quotes_service.get_quotes(list(target_codes))
+
+        # Scenario: 两源都失败 → 全错误
+        if not quotes:
+            logger.warning(f"RealtimeQuoteSync: 行情查询返回空 dict, total={total} 全部失败")
             return {"total": total, "fetched": 0, "updated": 0, "errors": total}
 
         fetched = len(quotes)
@@ -140,12 +148,13 @@ class RealtimeQuoteSyncService:
                 logger.warning(f"RealtimeQuoteSync: upsert {code} 失败: {e}")
                 continue
 
-            # 变化检测：与上次 publish 的 (close, pct_chg) 比较，仅变化才发
+            # 变化检测：与上次 publish 的 (close, pct_chg) 比较，仅变化才发；
+            # force_publish=True 时无视检测强制 publish（手动刷新场景）
             current = (
                 float(close),
                 float(pct_chg) if pct_chg is not None else None,
             )
-            if self._last_published.get(code) != current:
+            if force_publish or self._last_published.get(code) != current:
                 self._last_published[code] = current
                 await self._publish_quote_event(code, close, pct_chg, amount, now)
 

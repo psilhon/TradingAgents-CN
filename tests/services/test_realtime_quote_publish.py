@@ -18,6 +18,9 @@ import pytest
 
 def _make_fake_quotes_service(quotes: dict[str, dict[str, float]]):
     class _FakeQS:
+        async def get_quotes_targeted(self, codes):
+            return {c: quotes[c] for c in codes if c in quotes}
+
         async def get_quotes(self, codes):
             return {c: quotes[c] for c in codes if c in quotes}
 
