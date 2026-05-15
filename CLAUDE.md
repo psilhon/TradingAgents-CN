@@ -1,12 +1,14 @@
-# TradingAgents-CN — Claude Code 项目级配置
+# CLAUDE.md
 
-> 本项目是 fork 自 [hsliuping/TradingAgents-CN](https://github.com/hsliuping/TradingAgents-CN) 的下游副本（`psilhon/TradingAgents-CN`）。本文件只写**本项目特有**的事实——通用规则见 `~/.claude/CLAUDE.md`。
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+> **TradingAgents-CN** — fork 自 [hsliuping/TradingAgents-CN](https://github.com/hsliuping/TradingAgents-CN) 的下游副本（`psilhon/TradingAgents-CN`）。本文件只写**本项目特有**的事实——通用规则见 `~/.claude/CLAUDE.md`。
 
 ## 项目身份
 
 - **定位**：面向中文用户的多智能体股票分析学习平台（FastAPI 后端 + Vue 3 前端 + LangGraph 多智能体 + 多数据源）
 - **当前版本**：`v1.2.1`（fork patch release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
-- **当前阶段**：**v1.2.1 已发布**，`[Unreleased]` 累积大量 Dashboard 模拟账户专业化 + 项目铁律 capabilities，待下次 release 合到 v1.3.0。OpenSpec 累计 **33 条 changes archived**（v1.2.1 后新加 5 条 capability：`paper-realtime-quotes` / `trading-calendar` / `paper-account-snapshots` / `portfolio-fundamentals` + market overview/dashboard 重构系列）。Dashboard 模拟账户 panel 9 处 mock（5 Tier 3 + 4 Tier 4）已全部接入真实数据源（TWRR/Sharpe/回撤/月度收益 + Beta/VaR/加权 PE-PB），新账户首日显示「—」属预期。剩余 follow-up：第三梯队 4 条（cache 层 / app 反向 import / agent state / company resolver）+ 第四梯队 3 条 + Tier 4 扩展（多基准 / 蒙卡 VaR / 板块敞口 / 港股美股 calendar+snapshot）+ 4 处零散 TODO，按需排期，见 `docs/code-review-2026-05-05.md`。
+- **当前阶段**：**v1.2.1 已发布**，`[Unreleased]` 累积 Dashboard 模拟账户专业化 + 项目铁律 capabilities + **native 部署改造**（docker → Homebrew 原生 mongo+redis，资源 -89%）+ 手动刷新行情功能，待下次 release 合到 v1.3.0。OpenSpec 累计 **34 条 changes archived**，当前无活跃 change。⚠️ native 部署改造（commit `c3f91206`）尚未补 OpenSpec capability spec——建议补 `native-local-deployment`。Dashboard 模拟账户 panel 9 处 mock 已全部接入真实数据源（TWRR/Sharpe/回撤/月度收益 + Beta/VaR/加权 PE-PB），新账户首日显示「—」属预期。剩余 follow-up：第三梯队 4 条（cache 层 / app 反向 import / agent state / company resolver）+ 第四梯队 3 条 + Tier 4 扩展，按需排期，见 `docs/code-review-2026-05-05.md`。
 - **技术栈**：Python 3.12（homebrew arm64）+ uv + FastAPI + Uvicorn + Vue 3 + Vite + **原生 MongoDB 7.0 + Redis 8**（Homebrew，不用 Docker）
 - **License 双轨**：根目录 Apache 2.0；`app/`（FastAPI 后端）和 `frontend/`（Vue 前端）为**专有授权**，商业用途必须联系作者 hsliup@163.com
 
@@ -76,7 +78,7 @@ just setup       # 装 pre-commit hook（首次 setup）
 每条覆盖所有 session；与全局软规则冲突时本节优先；HARD-GATE 不可覆盖。
 
 - **Python 版本偏离**：本地用 homebrew **3.12**，与 `.python-version=3.10`（上游锁）不一致。`pyproject.toml` 写 `>=3.10` 形式上接受。**不修改 `.python-version`**（避免上游同步冲突），用环境变量 `UV_PYTHON` 或显式 `--python` 覆盖。
-- **uv.lock 已过时，禁止 `uv sync` 直接重解析**：lock 锁的是旧版 `tradingagents 0.1.0`（25 个直接依赖），现 pyproject 是 v1.1.0（68 个直接依赖含 motor/fastapi/uvicorn 等，已删 streamlit/chainlit）。直接 `uv sync` 会触发 universal resolution，因 `qianfan>=0.4.20` 在 Python 3.13 不可用而失败。**正确流程**：`uv sync --frozen` + `uv pip install -e ".[dev]"`（见命令速查）。
+- **uv.lock 已过时，禁止 `uv sync` 直接重解析**：lock 锁的是旧版 `tradingagents 0.1.0`（25 个直接依赖），现 pyproject 是 v1.2.1（68 个直接依赖含 motor/fastapi/uvicorn 等，已删 streamlit/chainlit）。直接 `uv sync` 会触发 universal resolution，因 `qianfan>=0.4.20` 在 Python 3.13 不可用而失败。**正确流程**：`uv sync --frozen` + `uv pip install -e ".[dev]"`（见命令速查）。
 - **`requirements.txt` 已废弃**：作者明确标注（首行注释），用 `pyproject.toml` 走 uv。
 - **`app/` 和 `frontend/` 是专有授权代码**：可读、可本地改、可个人学习，但商业部署必须取得作者授权。任何"清理 / 重构 / 顺手改"的范围**默认排除这两个目录**，除非用户明确指示。
 - **数据库连接默认值**（原生服务 + business code 均一致）：`admin / tradingagents123`，host=127.0.0.1，port=54302/54303。**这是公开的本地 dev 默认密码**，不是用户 secret，可在响应里直接引用。
@@ -91,10 +93,10 @@ just setup       # 装 pre-commit hook（首次 setup）
 | 文件 | 已 patched 字段 / 段 | 理由 |
 |------|------|------|
 | `frontend/vite.config.ts` | `server.host` / `server.port` / `server.strictPort` / `server.hmr.host` / `server.proxy['/api'].target` | 上游 hardcode `0.0.0.0:3000` + proxy `:8000`，违反端口段位 + loopback 规定 |
-| `pyproject.toml` | `[tool.ruff]` / `[tool.pyright]` / `[tool.pytest.ini_options]` 段（追加在末尾） + dependencies 移除 streamlit/chainlit + version `1.1.0` | init-ci Recipe B 工具配置 + stable-v1-cleanup 删依赖 + v1.1.0 release |
+| `pyproject.toml` | `[tool.ruff]` / `[tool.pyright]` / `[tool.pytest.ini_options]` 段（追加在末尾） + dependencies 移除 streamlit/chainlit + version `1.2.1` | init-ci Recipe B 工具配置 + stable-v1-cleanup 删依赖 + v1.x release |
 | `.pre-commit-config.yaml` | STRICT 模式（ruff/format/pyright pre-commit 阻塞 + pytest -m unit pre-push 阻塞）+ uvx 工具调用 | lint 治理沉淀完成后转 STRICT |
 | `.github/workflows/ci.yml` | `uv sync --frozen` + `uv pip install -e .`（不用 `--locked`） | uv.lock 与 pyproject 不同步已知坑 |
-| `.gitignore` | 末尾追加 `.chainlit/` + `.claude/settings.local.json` | fork-local 自动产物 + 本地权限记录 |
+| `.gitignore` | 末尾追加 `.chainlit/` + `.claude/settings.local.json` + `.dev/` + `backup/` | fork-local 自动产物 + 本地权限记录 + dev.sh 状态 + mongodump 临时输出 |
 | `docs/CHANGELOG.md` / `docs/USAGE.md` / `docs/ai-context/*.md` | 全部新建 + 维护 | Phase 0 prime context HARD-GATE |
 
 **完全不动**（原则 — 改动属于"专有授权范围"或"业务逻辑"）：
