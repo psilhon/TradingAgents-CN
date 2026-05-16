@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **数据源访问层 event loop 桥接 bug**（OpenSpec change `fix-datasource-async-bridge`）：`tradingagents/dataflows/data_source_manager.py` 的 `_get_tushare_data` / `_get_akshare_data` / `_get_baostock_data` 三个方法用 `loop = asyncio.get_event_loop(); loop.run_until_complete(...)` 桥接 async provider（共 7 处），假设调用方永远在「无 running event loop」环境。该假设对 CLI / `propagate` 线程池路径成立，但对 FastAPI「async 函数直接 await」的调用链（股票代码验证 `prepare_stock_data_async`）不成立——在运行中的 event loop 上调 `run_until_complete` 抛 `RuntimeError: this event loop is already running`，导致 Web 端所有股票分析在「股票代码验证」阶段即失败（实测北特科技 603009 弹窗「股票代码无效 无法获取历史数据」）。修复：新增模块级 helper `_run_provider_coro(coro)`——当前线程无 running loop 时直接 `asyncio.run`，有 running loop 时把 coroutine 丢到独立线程跑 `asyncio.run`（独立线程无 running loop，合法）；7 处桥接统一改用 helper，移除手写的 `get_event_loop` / `new_event_loop` / `set_event_loop` 样板。新增 4 个 unit 测试（`tests/dataflows/test_data_source_manager_async_bridge.py`）在 running event loop 环境复现并守护。仅改 Apache 2.0 共享代码，不动 `app/` 专有代码。
+
 - **自选股 stock_code 前导空格导致行情显示 0**：mongo 历史数据中部分 stock_code 含前导空格（如 `" 000776"` 广发证券），`favorites_service` 富集时 `find({code: {$in: codes}})` 用未 strip 的 codes 匹配 `market_quotes` 里 trim 过的 code → miss → current_price 保持 None → 前端 `current_price || 0` 显示 ¥0.00。修复：`_format_favorite` 加 `str(raw_code).strip()`，富集 codes list 也 strip 兜底。
 
 ### Added (continued)
