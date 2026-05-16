@@ -348,7 +348,9 @@ const openResult = async (row:any) => {
   currentRow.value = row
   try {
     const res = await analysisApi.getTaskResult(row.task_id)
-    const body = (res as any)?.data?.data || {}
+    // 后端 /tasks/{id}/result 返回 {success, data: <结果>, message}，结果在 res.data；
+    // 兼容潜在嵌套，?.data?.data 不命中时 fallback 到 ?.data
+    const body = (res as any)?.data?.data || (res as any)?.data || {}
     currentResult.value = body
     resultVisible.value = true
   } catch (e:any) {
