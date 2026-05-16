@@ -59,6 +59,31 @@ class USDataSource(Enum):
     FINNHUB = DataSourceCode.FINNHUB  # Finnhub（备用数据源）
 
 
+def _run_provider_coro(coro):
+    """同步执行一个 async coroutine，在任意 event loop 上下文都安全。
+
+    - 当前线程无 running event loop（CLI / 线程池工作线程）→ 直接 asyncio.run
+    - 当前线程有 running event loop（FastAPI async 路径）→ 丢到独立线程跑 asyncio.run
+      （独立线程无 running loop，run 合法），阻塞等结果
+
+    替代原先各数据源方法里手写的 get_event_loop + run_until_complete 桥接——后者在
+    「调用方位于运行中的 event loop」时抛 RuntimeError: this event loop is already
+    running。见 OpenSpec change fix-datasource-async-bridge。
+    """
+    import asyncio
+    import concurrent.futures
+
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        # 当前线程没有运行中的 event loop —— 直接跑
+        return asyncio.run(coro)
+
+    # 当前线程有运行中的 event loop —— 在独立线程里跑（该线程无 running loop）
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(asyncio.run, coro).result()
+
+
 class DataSourceManager:
     """数据源管理器"""
 
@@ -1268,19 +1293,7 @@ class DataSourceManager:
                 # 获取股票基本信息
                 provider = self._get_tushare_adapter()
                 if provider:
-                    import asyncio
-
-                    try:
-                        loop = asyncio.get_event_loop()
-                        if loop.is_closed():
-                            loop = asyncio.new_event_loop()
-                            asyncio.set_event_loop(loop)
-                    except RuntimeError:
-                        # 在线程池中没有事件循环，创建新的
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
-
-                    stock_info = loop.run_until_complete(provider.get_stock_basic_info(symbol))
+                    stock_info = _run_provider_coro(provider.get_stock_basic_info(symbol))
                     stock_name = stock_info.get("name", f"股票{symbol}") if stock_info else f"股票{symbol}"
                 else:
                     stock_name = f"股票{symbol}"
@@ -1297,26 +1310,14 @@ class DataSourceManager:
                 return "❌ Tushare提供器不可用"
 
             # 使用异步方法获取历史数据
-            import asyncio
-
-            try:
-                loop = asyncio.get_event_loop()
-                if loop.is_closed():
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-            except RuntimeError:
-                # 在线程池中没有事件循环，创建新的
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-
-            data = loop.run_until_complete(provider.get_historical_data(symbol, start_date, end_date))
+            data = _run_provider_coro(provider.get_historical_data(symbol, start_date, end_date))
 
             if data is not None and not data.empty:
                 # 保存到缓存
                 self._save_to_cache(symbol, data, start_date, end_date)
 
                 # 获取股票基本信息（异步）
-                stock_info = loop.run_until_complete(provider.get_stock_basic_info(symbol))
+                stock_info = _run_provider_coro(provider.get_stock_basic_info(symbol))
                 stock_name = stock_info.get("name", f"股票{symbol}") if stock_info else f"股票{symbol}"
 
                 # 格式化返回
@@ -1355,26 +1356,14 @@ class DataSourceManager:
             provider = get_akshare_provider()
 
             # 使用异步方法获取历史数据
-            import asyncio
-
-            try:
-                loop = asyncio.get_event_loop()
-                if loop.is_closed():
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-            except RuntimeError:
-                # 在线程池中没有事件循环，创建新的
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-
-            data = loop.run_until_complete(provider.get_historical_data(symbol, start_date, end_date, period))
+            data = _run_provider_coro(provider.get_historical_data(symbol, start_date, end_date, period))
 
             duration = time.time() - start_time
 
             if data is not None and not data.empty:
                 # 🔧 修复：使用统一的格式化方法，包含技术指标计算
                 # 获取股票基本信息
-                stock_info = loop.run_until_complete(provider.get_stock_basic_info(symbol))
+                stock_info = _run_provider_coro(provider.get_stock_basic_info(symbol))
                 stock_name = stock_info.get("name", f"股票{symbol}") if stock_info else f"股票{symbol}"
 
                 # 调用统一的格式化方法（包含技术指标计算）
@@ -1401,24 +1390,12 @@ class DataSourceManager:
         provider = get_baostock_provider()
 
         # 使用异步方法获取历史数据
-        import asyncio
-
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_closed():
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-        except RuntimeError:
-            # 在线程池中没有事件循环，创建新的
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-
-        data = loop.run_until_complete(provider.get_historical_data(symbol, start_date, end_date, period))
+        data = _run_provider_coro(provider.get_historical_data(symbol, start_date, end_date, period))
 
         if data is not None and not data.empty:
             # 🔧 修复：使用统一的格式化方法，包含技术指标计算
             # 获取股票基本信息
-            stock_info = loop.run_until_complete(provider.get_stock_basic_info(symbol))
+            stock_info = _run_provider_coro(provider.get_stock_basic_info(symbol))
             stock_name = stock_info.get("name", f"股票{symbol}") if stock_info else f"股票{symbol}"
 
             # 调用统一的格式化方法（包含技术指标计算）
