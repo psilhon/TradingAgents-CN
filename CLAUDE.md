@@ -34,10 +34,13 @@ cd frontend && npm install && npm run dev -- --port 54300
 # CLI 多智能体演示（需要 .env 里至少 1 个 LLM key）
 .venv/bin/python main.py
 
-# 测试（conftest.py 已把项目根加进 sys.path）
-.venv/bin/pytest tests/                       # 全跑（部分用例需 .env 里的 LLM/Tushare key）
-.venv/bin/pytest tests/integration/           # 仅集成测试
-.venv/bin/pytest tests/test_xxx.py -v         # 单文件
+# 测试（conftest.py 已把项目根加进 sys.path；marker 体系见 pyproject.toml [tool.pytest.ini_options]）
+.venv/bin/pytest tests/                                          # 全跑（部分用例需 .env 里的 LLM/Tushare key）
+.venv/bin/pytest -m unit                                         # 纯逻辑用例（pre-push hook + just test 跑的就是这套，最快）
+.venv/bin/pytest -m "not requires_env and not requires_network"  # 跳过需 .env key / 公网的用例
+.venv/bin/pytest -m integration                                  # 仅集成测试（需 mongo / redis）
+.venv/bin/pytest tests/test_xxx.py -v                            # 单文件
+.venv/bin/pytest tests/test_xxx.py::test_name -v                 # 单个用例
 
 # 重建 venv（依赖装漂了用）
 rm -rf .venv
