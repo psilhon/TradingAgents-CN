@@ -3,6 +3,7 @@
     <!-- 顶部：代码 / 名称 / 操作 -->
     <div class="header">
       <div class="title">
+        <StockQuickNav :current-code="code" />
         <div class="code">{{ code }}</div>
         <div class="name">{{ stockName || '-' }}</div>
         <el-tag size="small">{{ market || '-' }}</el-tag>
@@ -374,6 +375,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 import type { EChartsOption } from 'echarts'
 import { favoritesApi } from '@/api/favorites'
+import StockQuickNav from './components/StockQuickNav.vue'
 
 
 echartsUse([CandlestickChart, GridComponent, TooltipComponent, DataZoomComponent, LegendComponent, TitleComponent, CanvasRenderer])
