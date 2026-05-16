@@ -855,23 +855,10 @@ const openNewsUrl = (url?: string) => {
   }
 }
 
-// A 股代码 → 东方财富个股页 URL 映射
-// - 6xx → 沪市 (sh)
-// - 4/8/9xx → 北交所 (bj)
-// - 其余 (0/1/2/3xx) → 深市 (sz)
-const getEastMoneyStockUrl = (code: string): string => {
-  const c = String(code).trim().padStart(6, '0')
-  let prefix: string
-  if (c.startsWith('6')) prefix = 'sh'
-  else if (c.startsWith('4') || c.startsWith('8') || c.startsWith('9')) prefix = 'bj'
-  else prefix = 'sz'
-  return `https://quote.eastmoney.com/${prefix}${c}.html`
-}
-
 const viewStockDetail = (stock: any) => {
-  const code = stock?.stock_code
+  const code = String(stock?.stock_code || '').trim()
   if (!code) return
-  window.open(getEastMoneyStockUrl(code), '_blank', 'noopener,noreferrer')
+  router.push({ name: 'StockDetail', params: { code: code.toUpperCase() } })
 }
 
 const getStatusText = (status: string | AnalysisStatus) => {

@@ -10,6 +10,8 @@
 
 ### Changed
 
+- **Dashboard 自选股点击改跳站内股票详情页**：Dashboard「我的自选股」panel 点击某只股票，从原先 `window.open` 跳东方财富外部个股页改为 `router.push` 跳站内 `/stocks/:code` 详情页（与「我的自选股」页 `Favorites/index.vue` 既有行为对齐）。移除随之变 unused 的 `getEastMoneyStockUrl` helper。
+
 - **paper-realtime-quotes 颗粒升频 30s → 3s**（OpenSpec spec amend）：盘中行情刷新 IntervalTrigger 从 30 秒升到 3 秒，配合 v1.2.x 落地的 `realtime-trading-data-flow` capability 的 redis pub/sub + WebSocket push 让前端 SLO 从"最长 30s 看到价格更新"降到"最长 3s"。akshare 配额评估：盘中 5.5h × 60s/3s × 2 ≈ 6600 次/天，单用户场景可接受。修订 `openspec/specs/paper-realtime-quotes/spec.md` Requirement"刷新频率"+ `scheduler_service.py` 的 IntervalTrigger seconds 参数 + misfire_grace_time 10 → 2（适配更短间隔）。
 
 ### Added
