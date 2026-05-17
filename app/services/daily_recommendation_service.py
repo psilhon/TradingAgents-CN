@@ -122,6 +122,11 @@ async def _analyze_one(symbol: str, cfg: dict[str, Any]) -> dict[str, Any]:
     ``risk_level``. ``execute_analysis_background`` is a coroutine; awaiting it
     directly runs the analysis synchronously to completion, after which the
     result is read back via ``get_task_status``.
+
+    ``execute_analysis_background`` does *not* re-raise when an analysis fails —
+    it marks the task ``failed`` and returns normally. Failure is therefore
+    detected by inspecting the task status here and raising, which lets the
+    orchestrator's per-stock ``except`` branch mark the stock ``failed``.
     """
     analysis_cfg = cfg.get("analysis", {})
     request = SingleAnalysisRequest(
@@ -139,6 +144,16 @@ async def _analyze_one(symbol: str, cfg: dict[str, Any]) -> dict[str, Any]:
     await service.execute_analysis_background(task_id, _SYSTEM_USER_ID, request)
 
     status = await service.get_task_status(task_id) or {}
+
+    # get_task_status returns TaskState.to_dict(), whose "status" key holds the
+    # plain TaskStatus value string ("failed" for a failed task). A failed
+    # analysis surfaces here, not as a raised exception.
+    task_status = str(status.get("status") or "").lower()
+    if task_status == "failed":
+        raise RuntimeError(
+            str(status.get("error_message") or f"analysis failed for {symbol}")
+        )
+
     result_data = status.get("result_data") or {}
     return {
         "task_id": task_id,
