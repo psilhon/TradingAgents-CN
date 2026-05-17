@@ -130,3 +130,23 @@
 ```bash
 mongosh "mongodb://admin:tradingagents123@127.0.0.1:54302/tradingagentscn?authSource=admin" --quiet --file /tmp/data_audit.js
 ```
+
+---
+
+## 处置结果（2026-05-17 当日完成，方案 A）
+
+用户充值 tushare 积分后走方案 A，当日完成：
+
+| 问题 | 处置 | 结果 |
+|---|---|---|
+| P0#2 市值缺失 | tushare `daily_basic` 解锁后跑全市场 basics 同步 | `total_mv`/`circ_mv` 覆盖 5495/5517，哨兵值正确（茅台 16692 亿、市值前 5 = 工行/建行/农行/中移动/中石油） |
+| P0#3 pe/pb 不可信 | 统一由 tushare `daily_basic` 单源供给 | pe 覆盖 5464/5517，cross-source 不一致消除 |
+| P0#4 财务数据全 null | tushare `income`/`fina_indicator` 解锁后跑全量财务同步 | `stock_financial_data` 5510 docs，营收/净利覆盖 ~5450，0 错误 |
+| P0#1 三倍重复 | 删除与 tushare 重复的 akshare/baostock 文档 | `stock_basic_info` 16559→5841 docs，零重复（保留 324 条 baostock 独有代码） |
+| 10 条 all-null 财务垃圾 | 定向 `deleteMany` | 已清除 |
+| 静默降级反模式 | `multi_source_basics_sync_service` 加失败告警；`financial_data_service` 加写库前校验闸门（拒绝 all-null）+ 单元测试 | 已落地（commit `cd226369`） |
+| 前端崩溃/误导 | `formatMarketCap` 兜底 + 筛选/每日推荐告警 | 已落地（commit `4651fff1`） |
+
+**未处置（建议后续）**：
+- ③ upsert key `(code,source)` → `code` + 唯一索引调整：属架构小改，重复数据已清、tushare 优先源稳定，暂不影响功能。
+- `data_consistency_checker` 接入写入闸门、`market_quotes` 行情陈旧（eastmoney `clist` 接口连通性问题）。
