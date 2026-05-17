@@ -178,10 +178,12 @@ def _make_analysis_service(results_by_symbol: dict, fail_symbols=None):
     """
     fail_symbols = fail_symbols or set()
     service = MagicMock()
+    service.captured_requests = []
     counter = {"n": 0}
 
     async def _create(user_id, request):
         counter["n"] += 1
+        service.captured_requests.append(request)
         return {"task_id": f"task-{counter['n']}", "status": "pending"}
 
     async def _execute(task_id, user_id, request):
@@ -283,6 +285,32 @@ def test_run_daily_recommendation_happy_path():
     assert by_symbol["600000"]["risk_level"] == "低"
     assert by_symbol["600000"]["task_id"] == "task-1"
     assert all(s["status"] == "completed" for s in stocks)
+
+
+@pytest.mark.unit
+def test_run_daily_recommendation_request_carries_stock_code():
+    """The SingleAnalysisRequest handed to the analysis service must carry the
+    code in the `stock_code` field — simple_analysis_service feeds the analysis
+    graph `request.stock_code` directly, so a request with only `symbol` set
+    leaves the graph analysing a None ticker."""
+    fake_db = _FakeDB()
+    items = [{"code": "603392", "name": "万泰生物"}]
+    screen = MagicMock()
+    screen.screen_stocks = AsyncMock(return_value={"total": 1, "items": items})
+    analysis = _make_analysis_service({"603392": {"recommendation": "买入", "summary": "x", "risk_level": "低"}})
+
+    with (
+        patch.object(svc, "load_config", return_value=_enabled_cfg()),
+        patch.object(svc, "get_mongo_db", return_value=fake_db),
+        patch.object(svc, "get_enhanced_screening_service", return_value=screen),
+        patch.object(svc, "get_simple_analysis_service", return_value=analysis),
+    ):
+        asyncio.run(svc.run_daily_recommendation())
+
+    assert analysis.captured_requests, "expected an analysis request to be captured"
+    req = analysis.captured_requests[0]
+    assert req.stock_code == "603392"
+    assert req.get_symbol() == "603392"
 
 
 @pytest.mark.unit
