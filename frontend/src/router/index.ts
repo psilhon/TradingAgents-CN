@@ -171,6 +171,28 @@ const routes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: '/daily-recommendations',
+    name: 'DailyRecommendation',
+    component: () => import('@/layouts/BasicLayout.vue'),
+    meta: {
+      title: '每日推荐',
+      icon: 'Sunrise',
+      requiresAuth: true,
+      transition: 'slide-up'
+    },
+    children: [
+      {
+        path: '',
+        name: 'DailyRecommendationHome',
+        component: () => import('@/views/DailyRecommendation/index.vue'),
+        meta: {
+          title: '每日推荐',
+          requiresAuth: true
+        }
+      }
+    ]
+  },
+  {
     path: '/reports',
     name: 'Reports',
     component: () => import('@/layouts/BasicLayout.vue'),
