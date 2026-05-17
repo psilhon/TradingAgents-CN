@@ -166,10 +166,17 @@ class _FakeDB:
 
 
 def _make_analysis_service(results_by_symbol: dict, fail_symbols=None):
-    """Build a fake simple-analysis service.
+    """Build a fake simple-analysis service mirroring the real contract.
 
     *results_by_symbol* maps a symbol to the result dict returned by
-    get_task_status; *fail_symbols* is a set of symbols whose analysis raises.
+    get_task_status; *fail_symbols* is a set of symbols whose analysis fails.
+
+    The real ``execute_analysis_background`` swallows analysis errors (it marks
+    the task ``failed`` in state and returns normally — it does NOT re-raise),
+    so the fake ``_execute`` here never raises either. Failure is instead
+    surfaced through ``get_task_status``: for a failed symbol ``_status``
+    returns a FAILED-shaped dict (``status="failed"`` + ``error_message``),
+    matching ``TaskState.to_dict()``.
     """
     fail_symbols = fail_symbols or set()
     service = MagicMock()
@@ -180,15 +187,21 @@ def _make_analysis_service(results_by_symbol: dict, fail_symbols=None):
         return {"task_id": f"task-{counter['n']}", "status": "pending"}
 
     async def _execute(task_id, user_id, request):
-        symbol = request.get_symbol()
-        if symbol in fail_symbols:
-            raise RuntimeError(f"analysis blew up for {symbol}")
+        # Real execute_analysis_background never re-raises on analysis failure;
+        # it marks the task failed and returns. The fake mirrors that.
+        return None
 
     async def _status(task_id):
         # task ids are task-1, task-2, ... in screening order
         idx = int(task_id.split("-")[1]) - 1
         symbols = list(results_by_symbol.keys())
         symbol = symbols[idx]
+        if symbol in fail_symbols:
+            return {
+                "status": "failed",
+                "error_message": f"analysis blew up for {symbol}",
+                "result_data": None,
+            }
         return {"status": "completed", "result_data": results_by_symbol[symbol]}
 
     service.create_analysis_task = AsyncMock(side_effect=_create)
