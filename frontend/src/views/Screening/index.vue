@@ -240,12 +240,13 @@
       <el-table
         :data="paginatedResults"
         @selection-change="handleSelectionChange"
+        @sort-change="handleSortChange"
         stripe
         style="width: 100%"
       >
         <el-table-column type="selection" width="55" />
 
-        <el-table-column prop="code" label="股票代码" width="120">
+        <el-table-column prop="code" label="股票代码" width="120" sortable="custom">
           <template #default="{ row }">
             <el-link type="primary" @click="viewStockDetail(row)">
               {{ row.code }}
@@ -257,14 +258,14 @@
 
         <el-table-column prop="industry" label="行业" width="120" />
 
-        <el-table-column prop="close" label="当前价格" width="100" align="right">
+        <el-table-column prop="close" label="当前价格" width="100" align="right" sortable="custom">
           <template #default="{ row }">
             <span v-if="row.close">¥{{ row.close?.toFixed(2) }}</span>
             <span v-else class="text-gray-400">-</span>
           </template>
         </el-table-column>
 
-        <el-table-column prop="pct_chg" label="涨跌幅" width="100" align="right">
+        <el-table-column prop="pct_chg" label="涨跌幅" width="100" align="right" sortable="custom">
           <template #default="{ row }">
             <span v-if="row.pct_chg !== null && row.pct_chg !== undefined" :class="getChangeClass(row.pct_chg)">
               {{ row.pct_chg > 0 ? '+' : '' }}{{ row.pct_chg?.toFixed(2) }}%
@@ -273,13 +274,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="total_mv" label="市值" width="120" align="right">
+        <el-table-column prop="total_mv" label="市值" width="120" align="right" sortable="custom">
           <template #default="{ row }">
             {{ formatMarketCap(row.total_mv) }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="pe" label="市盈率" width="130" align="right">
+        <el-table-column prop="pe" label="市盈率" width="130" align="right" sortable="custom">
           <template #default="{ row }">
             <span v-if="row.pe">
               {{ row.pe?.toFixed(2) }}
@@ -289,7 +290,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="pb" label="市净率" width="130" align="right">
+        <el-table-column prop="pb" label="市净率" width="130" align="right" sortable="custom">
           <template #default="{ row }">
             <span v-if="row.pb">
               {{ row.pb?.toFixed(2) }}
@@ -298,7 +299,7 @@
             <span v-else class="text-gray-400">-</span>
           </template>
         </el-table-column>
-        <el-table-column prop="roe" label="ROE(%)" width="110" align="right">
+        <el-table-column prop="roe" label="ROE(%)" width="110" align="right" sortable="custom">
           <template #default="{ row }">
             <span v-if="row.roe !== null && row.roe !== undefined">{{ row.roe?.toFixed(2) }}%</span>
             <span v-else class="text-gray-400">-</span>
@@ -705,6 +706,33 @@ const handleSizeChange = (size: number) => {
 
 const handleCurrentChange = (page: number) => {
   currentPage.value = page
+}
+
+// 列排序：el-table 用 sortable="custom" 把排序委托给这里。
+// 因表格数据是分页切片（paginatedResults），必须排全量 screeningResults，
+// 再让分页切片自动刷新；缺失值统一排到末尾。
+const handleSortChange = ({
+  prop,
+  order,
+}: {
+  prop: string | null
+  order: 'ascending' | 'descending' | null
+}) => {
+  if (!prop || !order) return
+  const dir = order === 'ascending' ? 1 : -1
+  screeningResults.value = [...screeningResults.value].sort((a, b) => {
+    const av = (a as any)[prop]
+    const bv = (b as any)[prop]
+    const aMissing = av === null || av === undefined
+    const bMissing = bv === null || bv === undefined
+    if (aMissing && bMissing) return 0
+    if (aMissing) return 1
+    if (bMissing) return -1
+    if (av < bv) return -dir
+    if (av > bv) return dir
+    return 0
+  })
+  currentPage.value = 1
 }
 
 // 获取字段配置
