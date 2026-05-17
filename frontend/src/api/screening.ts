@@ -1,6 +1,19 @@
 import { ApiClient } from './request'
 
 export interface ScreeningOrderBy { field: string; direction: 'asc' | 'desc' }
+
+export interface EnhancedScreeningReq {
+  conditions: Array<{ field: string; operator: string; value: unknown }>
+  order_by?: ScreeningOrderBy[]
+  limit?: number
+  offset?: number
+}
+
+export interface EnhancedScreeningResp {
+  total: number
+  items: Array<Record<string, any>>
+  took_ms?: number
+}
 export interface ScreeningRunReq {
   market?: 'CN'
   date?: string | null
@@ -59,6 +72,8 @@ export const screeningApi = {
   run: (payload: ScreeningRunReq, options?: { timeout?: number }) =>
     ApiClient.post<ScreeningRunResp>('/api/screening/run', payload, { timeout: options?.timeout ?? 120000 }),
   getFields: () => ApiClient.get<FieldConfigResponse>('/api/screening/fields'),
-  getIndustries: () => ApiClient.get<IndustriesResponse>('/api/screening/industries')
+  getIndustries: () => ApiClient.get<IndustriesResponse>('/api/screening/industries'),
+  enhanced: (payload: EnhancedScreeningReq) =>
+    ApiClient.post<EnhancedScreeningResp>('/api/screening/enhanced', payload, { timeout: 60000 }),
 }
 
