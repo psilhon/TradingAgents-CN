@@ -35,6 +35,28 @@ export interface DailyRecommendationDetail {
   completed_at?: string
 }
 
+// 单条筛选条件（对应后端 ScreeningCondition）
+export interface ScreeningConditionItem {
+  field: string
+  operator: string
+  value: number | string | Array<number | string>
+}
+
+// 每日推荐配置（对应 config/daily_recommendation.json）
+export interface DailyRecommendationConfig {
+  enabled: boolean
+  screening: {
+    conditions: ScreeningConditionItem[]
+    order_by: string
+    order_direction: 'asc' | 'desc'
+    limit: number
+  }
+  analysis: {
+    research_depth: string
+    market_type: string
+  }
+}
+
 export const dailyRecommendationApi = {
   /**
    * 获取每日推荐列表（按日期倒序）
@@ -62,4 +84,12 @@ export const dailyRecommendationApi = {
     ApiClient.post<{ date: string } | null>('/api/daily-recommendations/run', {}, {
       skipErrorHandler: true,
     }),
+
+  /** 读取每日推荐配置 */
+  getConfig: () =>
+    ApiClient.get<DailyRecommendationConfig>('/api/daily-recommendations/config'),
+
+  /** 保存每日推荐配置（后端校验失败返回 400 + 错误信息） */
+  saveConfig: (config: DailyRecommendationConfig) =>
+    ApiClient.put<DailyRecommendationConfig>('/api/daily-recommendations/config', config),
 }
