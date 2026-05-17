@@ -16,7 +16,7 @@
 
 ### Added
 
-- **每日推荐股票**：新增配置驱动的选股 + 多智能体分析全流程。`config/daily_recommendation.json` 是调整筛选条件的唯一入口（市值区间 / 最低成交量 / 候选股数量 / 分析深度等均在此配置）。scheduler 在每个交易日 16:30 触发 `DailyRecommendationService`：读取配置 → akshare 拉全市场行情 → 按规则初筛 → 对候选股并发跑标准深度多智能体分析（复用既有 `AnalysisService`）→ 结果写入 mongo `daily_recommendations` collection。REST API 层新增 `GET /api/recommendations/daily`（返回最新一期推荐列表）+ `GET /api/recommendations/daily/history`（历史记录）+ `GET /api/recommendations/daily/{date}`（指定日期）。前端新增「每日推荐」页面（`frontend/src/views/Recommendations/Daily.vue`），侧边栏顶部入口，展示推荐列表 + 分析摘要 + 评级徽章，支持刷新与历史日期切换。
+- **每日推荐股票**：新增配置驱动的选股 + 多智能体分析全流程。`config/daily_recommendation.json` 是调整筛选条件的唯一入口（`screening.conditions` 初始为空列表，可按需补充；`screening.order_by/limit` 控制排序与候选数量；`analysis.research_depth/market_type` 控制分析深度）。APScheduler 每交易日 16:30 触发（内置交易日 guard，非交易日跳过）：读取配置 → 调用 `enhanced_screening_service.screen_stocks` 选出候选股 → 串行对每只股票跑标准档多智能体分析（复用 `simple_analysis_service`）→ 结果写入 mongo `daily_recommendations` collection（`date` 字段有唯一索引，重复触发幂等）。REST API 新增 3 个 endpoint：`GET /api/daily-recommendations`（历史列表，分页）/ `GET /api/daily-recommendations/{date}`（指定日期完整文档）/ `POST /api/daily-recommendations/run`（手动触发，后台异步，当日已存在则返回提示）。前端新增「每日推荐」页面（`frontend/src/views/DailyRecommendation/index.vue`），路由 + 侧边栏入口，支持日期切换查看历史推荐。
 
 - **股票详情页快速导航**：`Stocks/Detail.vue` 的 header 在股票名左侧加「自选股快速切换下拉」+「代码/名称搜索框」（新增组件 `frontend/src/views/Stocks/components/StockQuickNav.vue`）。自选股下拉列出 `favoritesApi.list()` 的自选股、当前股票高亮；搜索框用 `el-select` remote 调 `/api/analysis/search` 实时出候选；两者点选均 `router.push` 到 `/stocks/:code`，详情页已有的 `watch(route.params.code)` 自动切换、不整页重载。补齐「系统无股票详情通用入口」——搜索框即通用入口。仅改 `Detail.vue` 接入 3 行 + 新增组件，不动侧边栏 / 路由。
 
