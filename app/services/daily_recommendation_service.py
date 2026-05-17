@@ -77,8 +77,12 @@ def load_config() -> dict[str, Any]:
     return copy.deepcopy(_SAFE_DEFAULT)
 
 
-def _validate_config(cfg: dict[str, Any]) -> None:
-    """校验配置结构，非法则抛 ValueError（消息面向用户）。"""
+def _validate_config(cfg: Any) -> None:
+    """校验配置结构，非法则抛 ValueError（消息面向用户）。
+
+    形参类型用 Any（非 dict）—— 配置可能来自 PUT 请求的任意 JSON body，
+    非对象（如数组）应被首行 isinstance 守卫拦成 400，而非 500。
+    """
     from app.models.screening import BASIC_FIELDS_INFO, OperatorType
 
     if not isinstance(cfg, dict):
