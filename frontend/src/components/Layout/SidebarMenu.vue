@@ -32,6 +32,11 @@
       <template #title>股票筛选</template>
     </el-menu-item>
 
+    <el-menu-item index="/daily-recommendations">
+      <el-icon><Sunrise /></el-icon>
+      <template #title>每日推荐</template>
+    </el-menu-item>
+
     <el-menu-item index="/favorites">
       <el-icon><Star /></el-icon>
       <template #title>我的自选股</template>
@@ -103,6 +108,7 @@ import {
   Search,
   Star,
   List,
+  Sunrise,
   /* Document 移除：不再使用顶级分析报告菜单图标 */
   Setting,
   InfoFilled,
