@@ -16,7 +16,7 @@
       <div class="action-bar">
         <span class="action-hint">手动触发当日推荐（后台运行，约 30-50 分钟）</span>
         <div class="action-buttons">
-          <el-button :loading="running" @click="triggerRun">
+          <el-button type="primary" :loading="running" @click="triggerRun">
             <el-icon><VideoPlay /></el-icon>
             立即生成
           </el-button>
@@ -217,14 +217,21 @@ const selectDate = async (date: string) => {
   selectedDate.value = date
   detailLoading.value = true
   detail.value = null
+  // Capture the requested date so stale responses can be discarded
+  const requestedDate = date
   try {
     const res = await dailyRecommendationApi.detail(date)
-    detail.value = res.data || null
+    // Discard result if the user has already switched to a different date
+    if (selectedDate.value !== requestedDate) return
+    detail.value = res.data ?? null
   } catch (error) {
     // 404 等错误已由响应拦截器统一提示
     console.error('获取每日推荐详情失败:', error)
   } finally {
-    detailLoading.value = false
+    // Only clear loading state if this is still the active request
+    if (selectedDate.value === requestedDate) {
+      detailLoading.value = false
+    }
   }
 }
 
