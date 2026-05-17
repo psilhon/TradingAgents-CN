@@ -33,7 +33,12 @@
               :value="f.name"
             />
           </el-select>
-          <el-select v-model="cond.operator" placeholder="操作符" style="width: 110px">
+          <el-select
+            v-model="cond.operator"
+            placeholder="操作符"
+            style="width: 110px"
+            @change="onOperatorChange(cond)"
+          >
             <el-option
               v-for="op in operatorsFor(cond.field)"
               :key="op"
@@ -250,6 +255,24 @@ const onFieldChange = (cond: ScreeningConditionItem) => {
   // 换字段后操作符 / 值可能不再适用，重置
   cond.operator = ''
   cond.value = 0
+}
+
+const onOperatorChange = (cond: ScreeningConditionItem) => {
+  // 切换操作符后把 value 归一化成新操作符期望的形状，
+  // 避免遗留上一个操作符的值形状（如 between 的数组）被发往预览/保存。
+  const op = cond.operator
+  const v = cond.value
+  if (op === 'between') {
+    const ok =
+      Array.isArray(v) && v.length === 2 && v.every((x) => typeof x === 'number')
+    cond.value = ok ? v : [0, 0]
+  } else if (op === 'in' || op === 'not_in') {
+    cond.value = Array.isArray(v) ? v : []
+  } else if (op === 'contains') {
+    cond.value = typeof v === 'string' ? v : ''
+  } else {
+    cond.value = typeof v === 'number' ? v : 0
+  }
 }
 
 const addCondition = () => {
