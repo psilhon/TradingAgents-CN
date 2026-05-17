@@ -131,6 +131,10 @@ async def _analyze_one(symbol: str, cfg: dict[str, Any]) -> dict[str, Any]:
     analysis_cfg = cfg.get("analysis", {})
     request = SingleAnalysisRequest(
         symbol=symbol,
+        # stock_code is nominally deprecated, but simple_analysis_service feeds
+        # the analysis graph `request.stock_code` directly — it must be set too,
+        # otherwise the graph analyses a None ticker.
+        stock_code=symbol,
         parameters=AnalysisParameters(
             market_type=analysis_cfg.get("market_type", "A股"),
             research_depth=analysis_cfg.get("research_depth", "标准"),
