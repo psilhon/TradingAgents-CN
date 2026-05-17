@@ -48,6 +48,11 @@ _SAFE_DEFAULT: dict[str, Any] = {
     },
 }
 
+# save_config 校验用的允许值集合
+_VALID_DIRECTIONS = {"asc", "desc"}
+_VALID_RESEARCH_DEPTHS = {"快速", "标准", "深度"}
+_VALID_MARKET_TYPES = {"A股"}
+
 
 def load_config() -> dict[str, Any]:
     """Load the daily-recommendation config from *config/daily_recommendation.json*.
@@ -70,6 +75,72 @@ def load_config() -> dict[str, Any]:
             exc,
         )
     return copy.deepcopy(_SAFE_DEFAULT)
+
+
+def _validate_config(cfg: dict[str, Any]) -> None:
+    """校验配置结构，非法则抛 ValueError（消息面向用户）。"""
+    from app.models.screening import BASIC_FIELDS_INFO, OperatorType
+
+    if not isinstance(cfg, dict):
+        raise ValueError("配置必须是一个对象")
+    if not isinstance(cfg.get("enabled"), bool):
+        raise ValueError("enabled 必须是布尔值")
+
+    screening = cfg.get("screening")
+    if not isinstance(screening, dict):
+        raise ValueError("screening 必须是一个对象")
+
+    limit = screening.get("limit")
+    # bool 是 int 的子类，需显式排除
+    if not isinstance(limit, int) or isinstance(limit, bool) or not (1 <= limit <= 20):
+        raise ValueError("screening.limit 必须是 1-20 的整数")
+
+    if screening.get("order_direction") not in _VALID_DIRECTIONS:
+        raise ValueError("screening.order_direction 必须是 asc 或 desc")
+
+    order_by = screening.get("order_by")
+    valid_order_fields = set(BASIC_FIELDS_INFO) | {"market_cap"}
+    if not isinstance(order_by, str) or order_by not in valid_order_fields:
+        raise ValueError(f"screening.order_by 必须是已知字段名，收到: {order_by!r}")
+
+    conditions = screening.get("conditions")
+    if not isinstance(conditions, list):
+        raise ValueError("screening.conditions 必须是数组")
+    for i, cond in enumerate(conditions, 1):
+        if not isinstance(cond, dict):
+            raise ValueError(f"条件 {i}: 必须是对象")
+        if "value" not in cond:
+            raise ValueError(f"条件 {i}: 缺少 value")
+        field = cond.get("field")
+        if field not in BASIC_FIELDS_INFO:
+            raise ValueError(f"条件 {i}: 不支持的字段 {field!r}")
+        try:
+            op = OperatorType(cond.get("operator"))
+        except ValueError:
+            raise ValueError(f"条件 {i}: 非法操作符 {cond.get('operator')!r}") from None
+        if op not in BASIC_FIELDS_INFO[field].supported_operators:
+            raise ValueError(f"条件 {i}: 字段 {field!r} 不支持操作符 {op.value!r}")
+
+    analysis = cfg.get("analysis")
+    if not isinstance(analysis, dict):
+        raise ValueError("analysis 必须是一个对象")
+    if analysis.get("research_depth") not in _VALID_RESEARCH_DEPTHS:
+        raise ValueError("analysis.research_depth 必须是 快速/标准/深度 之一")
+    if analysis.get("market_type") not in _VALID_MARKET_TYPES:
+        raise ValueError("analysis.market_type 目前仅支持 A股")
+
+
+def save_config(cfg: dict[str, Any]) -> None:
+    """校验 *cfg* 并写入 config/daily_recommendation.json。
+
+    校验不通过抛 ValueError（router 转 400）。写文件用 ensure_ascii=False
+    保持中文可读，与现有文件格式一致。
+    """
+    _validate_config(cfg)
+    with open(_CONFIG_PATH, "w", encoding="utf-8") as fh:
+        json.dump(cfg, fh, ensure_ascii=False, indent=2)
+        fh.write("\n")
+    logger.info("每日推荐配置已保存: %s", _CONFIG_PATH)
 
 
 async def _select_stocks(cfg: dict[str, Any]) -> list[dict[str, str]]:
