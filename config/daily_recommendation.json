@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "screening": {
+    "conditions": [],
+    "order_by": "market_cap",
+    "order_direction": "desc",
+    "limit": 5
+  },
+  "analysis": {
+    "research_depth": "标准",
+    "market_type": "A股"
+  }
+}
