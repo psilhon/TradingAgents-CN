@@ -1,9 +1,14 @@
 {
   "enabled": true,
   "screening": {
-    "conditions": [],
-    "order_by": "market_cap",
-    "order_direction": "desc",
+    "conditions": [
+      {"field": "industry", "operator": "in", "value": ["半导体", "元器件", "IT设备", "互联网", "软件服务", "通信设备"]},
+      {"field": "pe", "operator": "between", "value": [0, 40]},
+      {"field": "pb", "operator": "between", "value": [0, 8]},
+      {"field": "roe", "operator": ">=", "value": 2}
+    ],
+    "order_by": "pe",
+    "order_direction": "asc",
     "limit": 5
   },
   "analysis": {
