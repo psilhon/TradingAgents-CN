@@ -29,7 +29,7 @@ export interface DailyRecommendationStock {
 export interface DailyRecommendationDetail {
   date: string
   status: string
-  config_snapshot?: Record<string, any>
+  config_snapshot?: Record<string, unknown>
   stocks: DailyRecommendationStock[]
   created_at?: string
   completed_at?: string
