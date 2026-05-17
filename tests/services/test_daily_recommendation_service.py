@@ -76,33 +76,31 @@ def test_load_config_parses_values_correctly(tmp_path):
 
 
 @pytest.mark.unit
-def test_load_config_missing_file_returns_safe_default(tmp_path, caplog):
+def test_load_config_missing_file_returns_safe_default(tmp_path):
     """When the config file does not exist, load_config() returns a safe
     default dict with enabled=False and logs a warning."""
     missing_path = tmp_path / "nonexistent.json"
-    with caplog.at_level(logging.WARNING), patch.object(svc, "_CONFIG_PATH", missing_path):
+    with patch.object(svc, "_CONFIG_PATH", missing_path), patch.object(svc.logger, "warning") as mock_warning:
         config = svc.load_config()
     assert isinstance(config, dict)
     assert config["enabled"] is False
     assert "screening" in config
     assert "analysis" in config
-    assert caplog.records, "expected a warning log record but none was emitted"
-    assert any(r.levelno == logging.WARNING for r in caplog.records)
+    assert mock_warning.called, "expected load_config to log a warning"
 
 
 @pytest.mark.unit
-def test_load_config_malformed_file_returns_safe_default(tmp_path, caplog):
+def test_load_config_malformed_file_returns_safe_default(tmp_path):
     """When the config file contains invalid JSON, load_config() returns the
     safe default instead of raising, and logs a warning."""
     bad_file = tmp_path / "bad.json"
     bad_file.write_text("{ not valid json }")
-    with caplog.at_level(logging.WARNING), patch.object(svc, "_CONFIG_PATH", bad_file):
+    with patch.object(svc, "_CONFIG_PATH", bad_file), patch.object(svc.logger, "warning") as mock_warning:
         config = svc.load_config()
     assert config["enabled"] is False
     assert "screening" in config
     assert "analysis" in config
-    assert caplog.records, "expected a warning log record but none was emitted"
-    assert any(r.levelno == logging.WARNING for r in caplog.records)
+    assert mock_warning.called, "expected load_config to log a warning"
 
 
 # ---------------------------------------------------------------------------
