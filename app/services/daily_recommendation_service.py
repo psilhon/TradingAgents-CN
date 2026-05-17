@@ -5,6 +5,7 @@ Loads the feature configuration and will later orchestrate the post-market
 screening + analysis cron job.
 """
 
+import copy
 import json
 import logging
 from pathlib import Path
@@ -52,4 +53,4 @@ def load_config() -> dict[str, Any]:
             "Failed to parse daily_recommendation.json (%s); using safe default",
             exc,
         )
-    return dict(_SAFE_DEFAULT)
+    return copy.deepcopy(_SAFE_DEFAULT)
