@@ -24,6 +24,10 @@
             <el-icon><Refresh /></el-icon>
             刷新
           </el-button>
+          <el-button @click="configVisible = true">
+            <el-icon><Setting /></el-icon>
+            配置
+          </el-button>
         </div>
       </div>
     </el-card>
@@ -142,6 +146,8 @@
         </el-card>
       </el-col>
     </el-row>
+
+    <ConfigDrawer v-model:visible="configVisible" @saved="loadList" />
   </div>
 </template>
 
@@ -149,12 +155,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Sunrise, VideoPlay, Refresh } from '@element-plus/icons-vue'
+import { Sunrise, VideoPlay, Refresh, Setting } from '@element-plus/icons-vue'
 import {
   dailyRecommendationApi,
   type DailyRecommendationSummary,
   type DailyRecommendationDetail,
 } from '@/api/dailyRecommendation'
+import ConfigDrawer from './ConfigDrawer.vue'
 
 type TagType = 'primary' | 'success' | 'warning' | 'info' | 'danger'
 
@@ -166,6 +173,7 @@ const detail = ref<DailyRecommendationDetail | null>(null)
 const listLoading = ref(false)
 const detailLoading = ref(false)
 const running = ref(false)
+const configVisible = ref(false)
 
 // 推荐配置按市值排序，但市值（total_mv）数据当前大面积缺失 —— 用于在详情上方显示告警
 const marketCapWarning = computed(() => {
