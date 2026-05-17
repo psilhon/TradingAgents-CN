@@ -965,7 +965,12 @@ class SchedulerService:
             logger.warning(f"⚠️ 组合基本面 sync 失败: {e}")
 
     async def _ensure_index_history_synced(self):
-        """启动时检查 index_quotes_daily 当年缺则全量同步."""
+        """启动时检查 index_quotes_daily 与 stock_indicators，空则补同步.
+
+        个股 PE/PB 平时只靠 17:30 cron 刷新；个人 dev 环境不会 17:30 挂着，
+        故启动时若 stock_indicators 为空，补一次 PE/PB 同步，与指数历史的
+        启动补漏对称。
+        """
         try:
             from app.services.index_data_service import get_index_data_service
 
@@ -984,6 +989,14 @@ class SchedulerService:
                 logger.info(
                     f"启动检查：index_quotes_daily 已有 {cnt} 条沪深 300"
                 )
+
+            ind_cnt = await ind_svc.db[ind_svc.COLLECTION_NAME].count_documents({})
+            if ind_cnt == 0:
+                logger.info("启动检查：stock_indicators 为空，触发个股 PE/PB 同步")
+                ind_result = await ind_svc.sync_indicators_for_codes()
+                logger.info(f"启动检查：个股 PE/PB 同步完成 {ind_result}")
+            else:
+                logger.info(f"启动检查：stock_indicators 已有 {ind_cnt} 条")
         except Exception as e:
             logger.warning(f"⚠️ index history 启动检查失败: {e}")
 
