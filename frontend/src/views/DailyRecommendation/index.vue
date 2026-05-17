@@ -72,6 +72,16 @@
             </div>
           </template>
 
+          <el-alert
+            v-if="detail && marketCapWarning"
+            type="warning"
+            show-icon
+            :closable="false"
+            class="market-cap-warning"
+            title="市值数据当前不可用"
+            description="本次推荐配置按市值排序，但市值（total_mv）数据缺失，所选股票未必是市值排名前列的股票，仅供参考。"
+          />
+
           <el-empty
             v-if="!detailLoading && !detail"
             description="请从左侧选择一个日期查看推荐股票"
@@ -136,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Sunrise, VideoPlay, Refresh } from '@element-plus/icons-vue'
@@ -156,6 +166,14 @@ const detail = ref<DailyRecommendationDetail | null>(null)
 const listLoading = ref(false)
 const detailLoading = ref(false)
 const running = ref(false)
+
+// 推荐配置按市值排序，但市值（total_mv）数据当前大面积缺失 —— 用于在详情上方显示告警
+const marketCapWarning = computed(() => {
+  const cfg = detail.value?.config_snapshot as
+    | { screening?: { order_by?: string } }
+    | undefined
+  return cfg?.screening?.order_by === 'market_cap'
+})
 
 // 状态 -> 标签颜色
 const statusTagType = (status: string): TagType => {
@@ -358,6 +376,10 @@ onMounted(() => {
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .market-cap-warning {
+      margin-bottom: 16px;
     }
   }
 

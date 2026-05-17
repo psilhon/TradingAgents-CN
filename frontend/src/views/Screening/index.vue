@@ -543,7 +543,13 @@ const performScreening = async () => {
       macd_hist: it.macd_hist,
     }))
 
-    ElMessage.success(`筛选完成，找到 ${screeningResults.value.length} 只股票`)
+    // 市值（total_mv）数据当前大面积缺失，「市值范围」筛选会静默落空。
+    // 用了市值筛选却 0 结果时，明确告知是数据不可用，而非「无股票匹配」。
+    if (cap && screeningResults.value.length === 0) {
+      ElMessage.warning('市值数据当前不可用，「市值范围」筛选未能生效，结果不可靠。请改用其他条件筛选。')
+    } else {
+      ElMessage.success(`筛选完成，找到 ${screeningResults.value.length} 只股票`)
+    }
   } catch (error) {
     ElMessage.error('筛选失败，请重试')
   } finally {
@@ -681,12 +687,15 @@ const getChangeClass = (changePercent: number) => {
   return ''
 }
 
-const formatMarketCap = (marketCap: number) => {
+const formatMarketCap = (marketCap: number | null | undefined) => {
+  // 市值数据可能缺失（数据源未返回 total_mv）——必须兜底，否则 toFixed 抛错导致整列空白
+  if (marketCap === null || marketCap === undefined || Number.isNaN(marketCap)) {
+    return '—'
+  }
   if (marketCap >= 10000) {
     return `${(marketCap / 10000).toFixed(2)}万亿`
-  } else {
-    return `${marketCap.toFixed(2)}亿`
   }
+  return `${marketCap.toFixed(2)}亿`
 }
 
 const handleSizeChange = (size: number) => {
