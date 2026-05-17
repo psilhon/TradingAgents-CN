@@ -745,6 +745,9 @@ class SchedulerService:
         # + 自选股∪持仓 PE/PB indicators
         self._register_portfolio_fundamentals_jobs()
 
+        # 每日推荐：盘后 16:30 筛选 + 多智能体分析
+        self._register_daily_recommendation_jobs()
+
     def _register_realtime_quote_sync_jobs(self):
         """注册实时行情刷新 job — capability paper-realtime-quotes。
 
@@ -983,6 +986,41 @@ class SchedulerService:
                 )
         except Exception as e:
             logger.warning(f"⚠️ index history 启动检查失败: {e}")
+
+    def _register_daily_recommendation_jobs(self):
+        """注册每日推荐 job — 每日盘后筛选 5 只股票并多智能体分析.
+
+        - 16:30 cron job：job body 内做交易日 guard，非交易日跳过
+        """
+        self.scheduler.add_job(
+            self._run_daily_recommendation,
+            "cron",
+            hour=16,
+            minute=30,
+            id="daily_recommendation",
+            name="每日推荐股票筛选 + 分析",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
+        logger.info("✅ 每日推荐 cron 已添加：每日 16:30")
+
+    async def _run_daily_recommendation(self):
+        """16:30 cron 触发：仅交易日真正执行筛选 + 分析."""
+        try:
+            from app.services.trading_calendar_service import (
+                get_trading_calendar_service,
+            )
+            if not await get_trading_calendar_service().is_trading_day():
+                logger.info("每日推荐：今日非交易日，跳过")
+                return
+
+            from app.services.daily_recommendation_service import (
+                run_daily_recommendation,
+            )
+            await run_daily_recommendation()
+        except Exception as e:
+            logger.warning(f"⚠️ 每日推荐执行失败: {e}")
 
     async def _ensure_market_quotes_index(self):
         """ensure unique index on market_quotes.code (启动时一次)."""
