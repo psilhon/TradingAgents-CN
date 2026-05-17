@@ -80,7 +80,7 @@ class PaperSnapshotService:
             code = p.get("code")
             qty = int(p.get("quantity", 0))
             avg_cost = float(p.get("avg_cost", 0.0))
-            last = await _get_last_price(code, "CN")
+            last, _ = await _get_last_price(code, "CN")
             if last is None or last <= 0:
                 continue
             mkt_value = round(last * qty, 2)
