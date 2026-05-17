@@ -13,7 +13,11 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 
 from app.core.database import get_mongo_db
 from app.routers.auth_db import get_current_user
-from app.services.daily_recommendation_service import run_daily_recommendation
+from app.services.daily_recommendation_service import (
+    load_config,
+    run_daily_recommendation,
+    save_config,
+)
 
 router = APIRouter()
 logger = logging.getLogger("webapi")
@@ -60,6 +64,36 @@ async def list_daily_recommendations(
         }
     except Exception as e:
         logger.error(f"❌ 获取每日推荐列表失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/config", response_model=Dict[str, Any])
+async def get_recommendation_config(user: dict = Depends(get_current_user)):
+    """读取每日推荐配置（config/daily_recommendation.json）。
+
+    文件缺失 / JSON 损坏时 load_config 返回安全默认（enabled=False），不报错。
+    """
+    try:
+        cfg = load_config()
+        return {"success": True, "data": cfg, "message": "配置获取成功"}
+    except Exception as e:
+        logger.error(f"❌ 获取每日推荐配置失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/config", response_model=Dict[str, Any])
+async def update_recommendation_config(
+    config: Dict[str, Any],
+    user: dict = Depends(get_current_user),
+):
+    """校验并保存每日推荐配置；校验失败返回 400 + 具体错误。"""
+    try:
+        save_config(config)
+        return {"success": True, "data": config, "message": "配置已保存"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"❌ 保存每日推荐配置失败: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
