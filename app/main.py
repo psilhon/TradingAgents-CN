@@ -54,6 +54,7 @@ from app.routers import (
     model_capabilities,
     cache,
     logs,
+    daily_recommendation,
 )
 from app.routers import sync as sync_router, multi_source_sync
 from app.routers import stocks as stocks_router
@@ -759,6 +760,11 @@ async def test_log():
 app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(analysis.router, prefix="/api/analysis", tags=["analysis"])
+app.include_router(
+    daily_recommendation.router,
+    prefix="/api/daily-recommendations",
+    tags=["daily-recommendations"],
+)
 app.include_router(reports.router, tags=["reports"])
 app.include_router(screening.router, prefix="/api/screening", tags=["screening"])
 app.include_router(queue.router, prefix="/api/queue", tags=["queue"])
