@@ -52,6 +52,7 @@ class SyncStats:
     last_trade_date: Optional[str] = None
     data_sources_used: List[str] = field(default_factory=list)
     source_stats: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    warnings: List[str] = field(default_factory=list)
     message: Optional[str] = None
 
 
@@ -203,6 +204,20 @@ class MultiSourceBasicsSyncService:
                         if ts_code:
                             daily_data_map[ts_code] = row.to_dict()
                     stats.data_sources_used.append(f"daily_data:{daily_source}")
+            else:
+                logger.warning("⚠️ 未能确定最新交易日，跳过估值数据获取")
+
+            # 🔒 估值数据获取失败不能被静默吞掉：没有 daily_basic 数据，
+            # 本次同步的股票就全部缺少 total_mv/circ_mv/pe/pb，必须显式告警
+            # 并落到 sync_status，避免 "success" 掩盖数据缺口。
+            if not daily_data_map:
+                warn = (
+                    "估值数据(daily_basic)未获取到——本次同步的所有股票将缺少 "
+                    "total_mv/circ_mv/pe/pb 等估值字段。常见原因：数据源接口无权限"
+                    "（如 tushare 积分不足）或网络不可达。"
+                )
+                logger.warning(f"⚠️ {warn}")
+                stats.warnings.append(warn)
 
             # Step 5: 处理和更新数据（分批处理）
             ops = []
@@ -310,7 +325,12 @@ class MultiSourceBasicsSyncService:
             stats.inserted = inserted
             stats.updated = updated
             stats.errors = errors
-            stats.status = "success" if errors == 0 else "success_with_errors"
+            # 估值数据缺失（warnings 非空）同样视为"带问题的成功"，
+            # 不能用纯 "success" 掩盖数据缺口
+            stats.status = (
+                "success" if errors == 0 and not stats.warnings
+                else "success_with_errors"
+            )
             stats.finished_at = datetime.now().isoformat()
 
             await self._persist_status(db, stats.__dict__.copy())
