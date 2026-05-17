@@ -112,41 +112,40 @@ class FinancialDataService:
             if not standardized_data:
                 logger.warning(f"⚠️ {symbol} 财务数据标准化后为空")
                 return 0
-            
+
+            # 统一成列表，便于逐期校验
+            items = (
+                standardized_data
+                if isinstance(standardized_data, list)
+                else [standardized_data]
+            )
+
+            # 🔒 写库前校验闸门：拒绝关键字段全为空的财务文档。
+            # 数据源接口失败（如权限不足）时会产出"字段齐全但全是 None"的文档，
+            # 若不拦截就会在 stock_financial_data 里堆积 all-null 垃圾，
+            # 把"接口失败"伪装成"数据已入库"。
+            valid_items = [d for d in items if self._has_meaningful_financials(d)]
+            if not valid_items:
+                logger.warning(
+                    f"⚠️ {symbol} 财务数据关键字段全为空（数据源: {data_source}），"
+                    f"拒绝写入空文档"
+                )
+                return 0
+
             # 批量操作
             operations = []
-            saved_count = 0
-            
-            # 如果是多期数据，分别处理每期
-            if isinstance(standardized_data, list):
-                for data_item in standardized_data:
-                    filter_doc = {
-                        "symbol": data_item["symbol"],
-                        "report_period": data_item["report_period"],
-                        "data_source": data_item["data_source"]
-                    }
-                    
-                    operations.append(ReplaceOne(
-                        filter=filter_doc,
-                        replacement=data_item,
-                        upsert=True
-                    ))
-                    saved_count += 1
-            else:
-                # 单期数据
+            for data_item in valid_items:
                 filter_doc = {
-                    "symbol": standardized_data["symbol"],
-                    "report_period": standardized_data["report_period"],
-                    "data_source": standardized_data["data_source"]
+                    "symbol": data_item["symbol"],
+                    "report_period": data_item["report_period"],
+                    "data_source": data_item["data_source"],
                 }
-                
                 operations.append(ReplaceOne(
                     filter=filter_doc,
-                    replacement=standardized_data,
+                    replacement=data_item,
                     upsert=True
                 ))
-                saved_count = 1
-            
+
             # 执行批量操作
             if operations:
                 result = await collection.bulk_write(operations)
@@ -511,6 +510,23 @@ class FinancialDataService:
             return float(value)
         except (ValueError, TypeError):
             return None
+
+    # 判定一份财务文档是否"有意义"所看的关键字段
+    _MEANINGFUL_FINANCIAL_FIELDS = (
+        "revenue", "net_income", "net_profit", "total_assets",
+        "total_equity", "total_liab", "roe",
+    )
+
+    def _has_meaningful_financials(self, doc: Dict[str, Any]) -> bool:
+        """写库前校验：文档是否含至少一个非空的关键财务数值。
+
+        数据源接口失败时（如权限不足）会产出"字段齐全但全是 None"的文档；
+        本方法用于在写库前把这类 all-null 文档挡掉，避免库里堆积垃圾。
+        """
+        return any(
+            doc.get(field_name) is not None
+            for field_name in self._MEANINGFUL_FINANCIAL_FIELDS
+        )
 
 
 # 全局服务实例
