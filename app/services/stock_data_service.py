@@ -52,7 +52,7 @@ class StockDataService:
 
             if source:
                 # 指定数据源
-                query["source"] = source
+                query["data_source"] = source
                 doc = await db[self.basic_info_collection].find_one(query, {"_id": 0})
             else:
                 # 🔥 未指定数据源，按优先级查询
@@ -61,7 +61,7 @@ class StockDataService:
 
                 for src in source_priority:
                     query_with_source = query.copy()
-                    query_with_source["source"] = src
+                    query_with_source["data_source"] = src
                     doc = await db[self.basic_info_collection].find_one(query_with_source, {"_id": 0})
                     if doc:
                         logger.debug(f"✅ 使用数据源: {src}")
@@ -158,7 +158,7 @@ class StockDataService:
                 source = enabled_sources[0] if enabled_sources else 'tushare'
 
             # 构建查询条件
-            query = {"source": source}  # 🔥 添加数据源筛选
+            query = {"data_source": source}  # 🔥 添加数据源筛选
             if market:
                 query["market"] = market
             if industry:
@@ -215,13 +215,13 @@ class StockDataService:
             if "code" not in update_data:
                 update_data["code"] = symbol6
 
-            # 🔥 确保 source 字段存在
-            if "source" not in update_data:
-                update_data["source"] = source
+            # 🔥 确保 data_source 字段存在
+            if "data_source" not in update_data:
+                update_data["data_source"] = source
 
-            # 🔥 执行更新 (使用 code + source 联合查询)
+            # 🔥 执行更新（data-audit-phase3：code 单一主键）
             result = await db[self.basic_info_collection].update_one(
-                {"code": symbol6, "source": source},
+                {"code": symbol6},
                 {"$set": update_data},
                 upsert=True
             )

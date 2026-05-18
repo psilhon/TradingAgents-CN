@@ -104,7 +104,7 @@ class FavoritesService:
                 # 从 stock_basic_info 获取板块信息（只查询优先级最高的数据源）
                 basic_info_coll = db["stock_basic_info"]
                 cursor = basic_info_coll.find(
-                    {"code": {"$in": codes}, "source": preferred_source},  # 🔥 添加数据源筛选
+                    {"code": {"$in": codes}, "data_source": preferred_source},  # 🔥 添加数据源筛选
                     {"code": 1, "sse": 1, "market": 1, "_id": 0}
                 )
                 basic_docs = await cursor.to_list(length=None)

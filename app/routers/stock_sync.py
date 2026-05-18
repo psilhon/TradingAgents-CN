@@ -443,7 +443,7 @@ async def sync_single_stock(
                                 "list_date": list_date,
                                 "sse": sse,
                                 "sec": "stock_cn",
-                                "source": "tushare",
+                                "data_source": "tushare",
                                 "updated_at": now_iso,
                                 "full_symbol": full_symbol,
                             }
@@ -477,7 +477,7 @@ async def sync_single_stock(
 
                             # Step 4: 更新数据库
                             await db.stock_basic_info.update_one(
-                                {"code": code, "source": "tushare"},
+                                {"code": code},
                                 {"$set": doc},
                                 upsert=True
                             )
@@ -511,12 +511,12 @@ async def sync_single_stock(
                         # 确保必要字段
                         basic_data["code"] = symbol6
                         basic_data["symbol"] = symbol6
-                        basic_data["source"] = "akshare"
+                        basic_data["data_source"] = "akshare"
                         basic_data["updated_at"] = datetime.utcnow().isoformat()
 
                         # 更新到数据库
                         await db.stock_basic_info.update_one(
-                            {"code": symbol6, "source": "akshare"},
+                            {"code": symbol6},
                             {"$set": basic_data},
                             upsert=True
                         )
@@ -692,11 +692,11 @@ async def sync_batch_stocks(
 
                                     # 添加必要字段
                                     basic_info["code"] = symbol6
-                                    basic_info["source"] = "tushare"
+                                    basic_info["data_source"] = "tushare"
                                     basic_info["updated_at"] = datetime.utcnow()
 
                                     await db.stock_basic_info.update_one(
-                                        {"code": symbol6, "source": "tushare"},
+                                        {"code": symbol6},
                                         {"$set": basic_info},
                                         upsert=True
                                     )

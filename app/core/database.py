@@ -203,6 +203,9 @@ async def init_database_views_and_indexes():
     try:
         db = get_mongo_db()
 
+        # 0. stock_basic_info 迁移（去重 + 切换唯一索引 + 字段名统一）——须先于建索引
+        await migrate_stock_basic_info(db)
+
         # 1. 创建股票筛选视图
         await create_stock_screening_view(db)
 
@@ -219,11 +222,11 @@ async def init_database_views_and_indexes():
 async def create_stock_screening_view(db):
     """创建股票筛选视图"""
     try:
-        # 检查视图是否已存在
+        # 视图定义可能随 schema 演进，已存在则先删再重建以应用最新 pipeline
         collections = await db.list_collection_names()
         if "stock_screening_view" in collections:
-            logger.info("📋 视图 stock_screening_view 已存在，跳过创建")
-            return
+            await db.drop_collection("stock_screening_view")
+            logger.info("📋 视图 stock_screening_view 已存在，删除后重建")
 
         # 创建视图：将 stock_basic_info、market_quotes 和 stock_financial_data 关联
         pipeline = [
@@ -235,9 +238,9 @@ async def create_stock_screening_view(db):
             {
                 "$lookup": {
                     "from": "stock_financial_data",
-                    "let": {"stock_code": "$code", "stock_source": "$source"},
+                    "let": {"stock_code": "$code", "stock_data_source": "$data_source"},
                     "pipeline": [
-                        {"$match": {"$expr": {"$and": [{"$eq": ["$code", "$$stock_code"]}, {"$eq": ["$data_source", "$$stock_source"]}]}}},
+                        {"$match": {"$expr": {"$and": [{"$eq": ["$code", "$$stock_code"]}, {"$eq": ["$data_source", "$$stock_data_source"]}]}}},
                         {"$sort": {"report_period": -1}},
                         {"$limit": 1},
                     ],
@@ -256,7 +259,7 @@ async def create_stock_screening_view(db):
                     "area": 1,
                     "market": 1,
                     "list_date": 1,
-                    "source": 1,
+                    "data_source": 1,
                     # 市值信息
                     "total_mv": 1,
                     "circ_mv": 1,
@@ -301,12 +304,128 @@ async def create_stock_screening_view(db):
         logger.warning(f"⚠️ 创建视图失败: {e}")
 
 
+# 数据源优先级：选主时数字大者优先（tushare 主源 > akshare > baostock）
+_BASIC_INFO_SOURCE_PRIORITY = {"tushare": 3, "akshare": 2, "baostock": 1}
+
+
+def merge_duplicate_basic_info_docs(docs):
+    """从同 code 的多份 stock_basic_info 文档中选主并算补丁（纯函数，便于单测）。
+
+    选主：数据源优先级最高者（tushare>akshare>baostock；未知源优先级 0）。
+    补丁：用次文档补全主文档缺失（None / 不存在）的字段，先到先得。
+
+    Args:
+        docs: 同一 code 的文档列表（≥1 份）。
+
+    Returns:
+        (primary, patch, dead_ids)
+        - primary: 选定保留的主文档
+        - patch: 应 $set 进主文档的字段补丁（dict，可能为空）
+        - dead_ids: 应删除的次文档 _id 列表（可能为空）
+    """
+    ordered = sorted(
+        docs,
+        key=lambda d: _BASIC_INFO_SOURCE_PRIORITY.get(d.get("source") or d.get("data_source"), 0),
+        reverse=True,
+    )
+    primary, others = ordered[0], ordered[1:]
+    patch = {}
+    for other in others:
+        for key, value in other.items():
+            if key == "_id":
+                continue
+            if value is not None and primary.get(key) is None and key not in patch:
+                patch[key] = value
+    dead_ids = [d["_id"] for d in others if "_id" in d]
+    return primary, patch, dead_ids
+
+
+async def migrate_stock_basic_info(db):
+    """data-audit-phase3 Item 2 + Item 3：stock_basic_info schema 迁移。
+
+    复合主键 (code, source) 让每个数据源各写一份，造成 ×N 重复（审计实证
+    5841 真实代码 ×3 源 ≈ 16557 docs）；同时数据源标识字段名 source / data_source
+    分裂。本迁移：
+      Step 1 合并同 code 的多份文档为一份（按数据源优先级 tushare>akshare>baostock
+             选主，其余文档用于补全主文档缺失字段后删除）。
+      Step 2 把唯一索引从复合 (code, source) 切换为单字段 code；删旧 source 索引。
+      Step 3 字段名统一 source → data_source（与其余数据集合对齐）。
+
+    幂等：无重复 code 时 Step 1 跳过；无旧索引时 Step 2 跳过；无 source 字段时 Step 3 跳过。
+    顺序锁死：Step 1 必须先于 Step 2 与后续 create_database_indexes 建 code 唯一索引，
+    否则残留重复 code 会让唯一索引创建报 duplicate key。
+    """
+    try:
+        collection = db["stock_basic_info"]
+
+        # --- Step 1: 合并 / 去重同 code 多文档 ---
+        merged = 0
+        dup_groups = await collection.aggregate([
+            {"$group": {"_id": "$code", "ids": {"$push": "$_id"}, "n": {"$sum": 1}}},
+            {"$match": {"n": {"$gt": 1}}},
+        ]).to_list(length=None)
+        for grp in dup_groups:
+            docs = await collection.find({"_id": {"$in": grp["ids"]}}).to_list(length=None)
+            primary, patch, dead_ids = merge_duplicate_basic_info_docs(docs)
+            if patch:
+                await collection.update_one({"_id": primary["_id"]}, {"$set": patch})
+            if dead_ids:
+                await collection.delete_many({"_id": {"$in": dead_ids}})
+            merged += 1
+        if merged:
+            logger.info(f"🔧 stock_basic_info 去重：合并 {merged} 个重复 code")
+
+        # --- Step 2: 切换唯一索引 (code, source) → code，删旧 source 索引 ---
+        index_info = await collection.index_information()
+        for name, spec in index_info.items():
+            keys = [k for k, _ in spec.get("key", [])]
+            # 命中旧复合唯一索引（具名 code_source_unique 或匿名 code_1_source_1）
+            if name == "code_source_unique" or (spec.get("unique") and keys == ["code", "source"]):
+                await collection.drop_index(name)
+                logger.info(f"🔧 stock_basic_info 删除旧复合唯一索引: {name}")
+            # 命中旧的非唯一 code 索引（与将建的 code 唯一索引键冲突，须先删）
+            elif keys == ["code"] and not spec.get("unique"):
+                await collection.drop_index(name)
+                logger.info(f"🔧 stock_basic_info 删除旧非唯一 code 索引: {name}")
+            # 命中旧 source 字段索引（字段将改名为 data_source，旧索引作废）
+            elif keys == ["source"]:
+                await collection.drop_index(name)
+                logger.info(f"🔧 stock_basic_info 删除旧 source 索引: {name}")
+
+        # --- Step 3: 字段名统一 source → data_source ---
+        # $rename 若目标字段已存在会被覆盖：source 与 data_source 同为数据源标识，
+        # 且 source 的取值集合更全（含 akshare/baostock），覆盖 data_source 正确。
+        rename_result = await collection.update_many(
+            {"source": {"$exists": True}},
+            {"$rename": {"source": "data_source"}},
+        )
+        if rename_result.modified_count:
+            logger.info(
+                f"🔧 stock_basic_info 字段统一：{rename_result.modified_count} 个文档 source→data_source"
+            )
+
+        # --- Step 4: 清理历史脏值（负 ps/ps_ttm/total_mv/circ_mv —— 数学上不可能） ---
+        # 写库 sanity 闸门只拦新写入；$set upsert 不会 unset 被闸门剥离的字段，
+        # 故闸门启用前已入库的历史脏值需在此一次性清除。
+        scrubbed = 0
+        for field in ("ps", "ps_ttm", "total_mv", "circ_mv"):
+            res = await collection.update_many({field: {"$lt": 0}}, {"$unset": {field: ""}})
+            scrubbed += res.modified_count
+        if scrubbed:
+            logger.info(f"🔧 stock_basic_info 清理 {scrubbed} 个历史负值脏字段")
+
+        logger.info("✅ stock_basic_info schema 迁移完成")
+
+    except Exception as e:
+        logger.warning(f"⚠️ stock_basic_info schema 迁移失败: {e}")
+
+
 async def create_database_indexes(db):
     """创建数据库索引"""
     try:
         # stock_basic_info 的索引
         basic_info = db["stock_basic_info"]
-        await basic_info.create_index([("code", 1), ("source", 1)], unique=True)
+        await basic_info.create_index([("code", 1)], unique=True, name="code_unique")
         await basic_info.create_index([("industry", 1)])
         await basic_info.create_index([("total_mv", -1)])
         await basic_info.create_index([("pe", 1)])

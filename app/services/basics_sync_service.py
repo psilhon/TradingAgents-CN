@@ -27,6 +27,7 @@ from app.services.basics_sync import (
     find_latest_trade_date as _find_latest_trade_date_util,
     fetch_daily_basic_mv_map as _fetch_daily_basic_mv_map_util,
     fetch_latest_roe_map as _fetch_latest_roe_map_util,
+    sanitize_numeric_fields,
 )
 
 logger = logging.getLogger(__name__)
@@ -40,13 +41,14 @@ JOB_KEY = "stock_basics"
 class SyncStats:
     started_at: Optional[str] = None
     finished_at: Optional[str] = None
-    status: str = "idle"  # idle|running|success|failed
+    status: str = "idle"  # idle|running|success|success_with_errors|failed
     total: int = 0
     inserted: int = 0
     updated: int = 0
     errors: int = 0
     message: str = ""
     last_trade_date: Optional[str] = None  # YYYYMMDD
+    warnings: List[str] = field(default_factory=list)
 
 
 class BasicsSyncService:
@@ -65,17 +67,13 @@ class BasicsSyncService:
             collection = db[DATA_COLLECTION]
             logger.info("📊 检查并创建股票基础信息索引...")
 
-            # 1. 复合唯一索引：股票代码+数据源（用于 upsert）
-            await collection.create_index([
-                ("code", 1),
-                ("source", 1)
-            ], unique=True, name="code_source_unique", background=True)
+            # 1. 股票代码唯一索引（data-audit-phase3：主键 (code,source) → code）
+            await collection.create_index(
+                [("code", 1)], unique=True, name="code_unique", background=True
+            )
 
-            # 2. 股票代码索引（查询所有数据源）
-            await collection.create_index([("code", 1)], name="code_index", background=True)
-
-            # 3. 数据源索引（按数据源筛选）
-            await collection.create_index([("source", 1)], name="source_index", background=True)
+            # 2. 数据源索引（按数据源筛选）
+            await collection.create_index([("data_source", 1)], name="data_source_index", background=True)
 
             # 4. 股票名称索引（按名称搜索）
             await collection.create_index([("name", 1)], name="name_index", background=True)
@@ -218,6 +216,7 @@ class BasicsSyncService:
 
             # Step 3: Upsert into MongoDB (batched bulk writes)
             ops: List[UpdateOne] = []
+            sanity_issues: List[str] = []
             now_iso = datetime.utcnow().isoformat()
             for _, row in stock_df.iterrows():  # type: ignore
                 name = row.get("name") or ""
@@ -282,7 +281,7 @@ class BasicsSyncService:
                     "list_date": list_date,
                     "sse": sse,
                     "sec": category,
-                    "source": "tushare",  # 🔥 数据源标识
+                    "data_source": "tushare",  # 🔥 数据源标识
                     "updated_at": now_iso,
                     "full_symbol": full_symbol,  # 添加完整标准化代码
                 }
@@ -313,9 +312,12 @@ class BasicsSyncService:
                     if field in daily_metrics:
                         doc[field] = daily_metrics[field]
 
-                # 🔥 使用 (code, source) 联合查询条件
+                # 🔒 写库前数值 sanity 闸门：拦截负 ps / 失真 pe 等脏值
+                sanity_issues.extend(sanitize_numeric_fields(doc))
+
+                # 🔥 使用 code 作为 upsert key（data-audit-phase3：单一主键）
                 ops.append(
-                    UpdateOne({"code": code, "source": "tushare"}, {"$set": doc}, upsert=True)
+                    UpdateOne({"code": code}, {"$set": doc}, upsert=True)
                 )
 
             inserted = 0
@@ -334,11 +336,22 @@ class BasicsSyncService:
                     errors += 1
                     logger.error(f"Bulk write error on batch {i//BATCH}")
 
+            if sanity_issues:
+                summary = (
+                    f"数值 sanity 闸门处理 {len(sanity_issues)} 个异常字段值"
+                    f"（示例: {'; '.join(sanity_issues[:3])}）"
+                )
+                logger.warning(f"⚠️ {summary}")
+                stats.warnings.append(summary)
+
             stats.total = len(ops)
             stats.inserted = inserted
             stats.updated = updated
             stats.errors = errors
-            stats.status = "success" if errors == 0 else "success_with_errors"
+            stats.status = (
+                "success" if errors == 0 and not stats.warnings
+                else "success_with_errors"
+            )
             stats.finished_at = datetime.utcnow().isoformat()
             await self._persist_status(db, stats.__dict__.copy())
             logger.info(

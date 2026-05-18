@@ -19,7 +19,10 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo import UpdateOne
 
 from app.core.database import get_mongo_db
-from app.services.basics_sync import add_financial_metrics as _add_financial_metrics_util
+from app.services.basics_sync import (
+    add_financial_metrics as _add_financial_metrics_util,
+    sanitize_numeric_fields,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -221,6 +224,7 @@ class MultiSourceBasicsSyncService:
 
             # Step 5: 处理和更新数据（分批处理）
             ops = []
+            sanity_issues: List[str] = []
             inserted = updated = errors = 0
             batch_size = 500  # 🔥 每批处理 500 只股票，避免超时
             total_stocks = len(stock_df)
@@ -288,15 +292,18 @@ class MultiSourceBasicsSyncService:
                         "sse": sse,
                         "full_symbol": full_symbol,  # 添加 full_symbol 字段
                         "category": category,
-                        "source": data_source,  # 🔥 使用实际数据源
+                        "data_source": data_source,  # 🔥 使用实际数据源
                         "updated_at": datetime.now(),
                     }
 
                     # 添加财务指标
                     self._add_financial_metrics(doc, daily_metrics)
 
-                    # 🔥 使用 (code, source) 联合查询条件
-                    ops.append(UpdateOne({"code": code, "source": data_source}, {"$set": doc}, upsert=True))
+                    # 🔒 写库前数值 sanity 闸门：拦截负 ps / 失真 pe 等脏值
+                    sanity_issues.extend(sanitize_numeric_fields(doc))
+
+                    # 🔥 使用 code 作为 upsert key（data-audit-phase3：单一主键）
+                    ops.append(UpdateOne({"code": code}, {"$set": doc}, upsert=True))
 
                 except Exception as e:
                     logger.error(f"Error processing stock {row.get('ts_code', 'unknown')}: {e}")
@@ -319,6 +326,14 @@ class MultiSourceBasicsSyncService:
                             logger.warning(f"⚠️ 批量写入失败，标记 {len(ops)} 条记录为错误")
 
                         ops = []  # 清空操作列表
+
+            if sanity_issues:
+                summary = (
+                    f"数值 sanity 闸门处理 {len(sanity_issues)} 个异常字段值"
+                    f"（示例: {'; '.join(sanity_issues[:3])}）"
+                )
+                logger.warning(f"⚠️ {summary}")
+                stats.warnings.append(summary)
 
             # Step 7: 更新统计信息
             stats.total = total_stocks  # 🔥 使用总股票数
