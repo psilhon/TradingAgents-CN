@@ -8,6 +8,16 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **数据正确性 Phase 3 防复发**（OpenSpec change `data-audit-phase3`）：2026-05-17 数据审计（`docs/data-audit-2026-05-17.md`）定位的系统性反模式——「数据源失败 → 静默降级 → 错误/不完整数据照写进库」——补上写入侧的根因闸门，四项：
+  - ① **写库前数值 sanity 闸门**：`basics_sync_service` / `multi_source_basics_sync_service` 在 `UpdateOne` 进 `stock_basic_info` 前对数值字段做 sanity 校验——负 `ps`/`ps_ttm`/`total_mv`/`circ_mv`（数学上不可能）拒绝该字段入库，`|pe|` 量级失真（>1000）标记告警；被拒/标记落入 `sync_status.warnings`、同步状态转 `success_with_errors`（复用 `data-quality-gate` 已落地通道）。新增纯函数 `sanitize_numeric_fields`（`basics_sync/processing.py`）+ 单元测试。闸门只拦新写入，`$set` upsert 不会 unset 被剥离字段，故启动迁移另含一次性清理存量历史负值脏字段（`$unset`）。
+  - ② **`stock_basic_info` 主键 `(code, source)` → `code`**：复合主键让每个数据源各写一份造成 ×N 重复（审计实证 11360 docs / 仅 5843 真实代码）；启动迁移 `migrate_stock_basic_info` 把同 `code` 多源文档合并选主（优先级 tushare>akshare>baostock，次文档补全主文档缺失字段）、唯一索引由 `(code,source)` 复合切换为单字段 `code`；全部 `stock_basic_info` 写入点（`basics_sync_service` / `multi_source_basics_sync_service` / `akshare_sync_service` / `baostock_sync_service` / `stock_sync` router 内联 3 处 / `stock_data_service`）upsert key 收敛为 `{"code": code}`。
+  - ③ **字段名统一 `source` → `data_source`**：`stock_basic_info` 的数据源标识字段从 `source` 改为 `data_source`，与 `stock_financial_data` / `market_quotes` / `stock_daily_quotes` 三个数据集合对齐（原先仅 `stock_basic_info` 偏离）；启动迁移 `$rename` 现有文档；`stock_screening_view` 的 `$lookup` join 两侧对齐为同名 `data_source`（消除审计 P1#9 的命名错位）；写入/读取路径（基础同步、worker、`stocks`/`reports` router、`stock_data_service`/`favorites_service`/`database_screening_service`）随之改名。`stock_basic_info_hk`/`_us` 等独立集合不在本次范围。
+  - ④ **审计脚本固化**：一次性 `/tmp/data_audit.js` 固化为 tracked `scripts/data_audit.js`（直连 MongoDB 查字段完整率 + 数值合理性 + 重复 code），作为迁移后验证与定期数据健康复核工具。
+  - **清理**：删除名存实亡的 `data_consistency_checker`——318 行全量实现无人 import（死代码）+ 48 行 no-op stub（`manager.py` 调用永远返回「一致」空转），连同 `manager.get_daily_basic_with_consistency_check`（无生产调用方）与对应测试一并移除。
+  - 迁移实跑验证：`stock_basic_info` 11360→5843 docs（0 重复 code）、`source` 字段 0 残留 / `data_source` 全覆盖、唯一索引切为 `code_unique`。扩展 capability spec `data-quality-gate`（+3 Requirement）/ `audit-tooling`（+1 Requirement）。
+
 ## [1.3.0] — 2026-05-18
 
 **Fork minor release**——v1.2.1 后最大一次累积发布。主线四块：Dashboard 模拟账户专业化（Tier 3+4 mock 全面真实化）、实时交易数据流 push 架构 + 多条铁律 capability、本地部署 native 化（资源 -89%）、每日推荐多配置。另含 2026-05-17 数据正确性系统性修复。新增 capability：`realtime-trading-data-flow` / `trading-calendar` / `paper-account-snapshots` / `portfolio-fundamentals` / `paper-realtime-quotes` / `daily-recommendation` / `native-local-deployment` / `data-quality-gate`。

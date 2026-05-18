@@ -162,7 +162,7 @@ class DatabaseScreeningService:
             query = await self._build_query(conditions)
 
             # 🔥 添加数据源筛选
-            query["source"] = source
+            query["data_source"] = source
 
             logger.info(f"📋 数据库查询条件: {query}")
 
@@ -395,7 +395,7 @@ class DatabaseScreeningService:
             "macd_hist": None,
 
             # 元数据
-            "source": doc.get("source", "database"),
+            "source": doc.get("data_source", "database"),
             "updated_at": doc.get("updated_at"),
         }
         

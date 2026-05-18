@@ -236,13 +236,12 @@ class BaoStockSyncService:
             if "symbol" not in basic_info and "code" in basic_info:
                 basic_info["symbol"] = basic_info["code"]
 
-            # 🔥 确保 source 字段存在
-            if "source" not in basic_info:
-                basic_info["source"] = "baostock"
+            # 🔥 数据源标识统一为 data_source（data-audit-phase3）
+            basic_info["data_source"] = basic_info.pop("source", None) or "baostock"
 
-            # 🔥 使用 (code, source) 联合查询条件
+            # 🔥 使用 code 作为 upsert key（data-audit-phase3：单一主键）
             await collection.update_one(
-                {"code": basic_info["code"], "source": "baostock"},
+                {"code": basic_info["code"]},
                 {"$set": basic_info},
                 upsert=True
             )
