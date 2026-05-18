@@ -286,6 +286,38 @@ def test_run_daily_recommendation_empty_screening():
 
 
 @pytest.mark.unit
+def test_run_daily_recommendation_screening_error_marks_failed():
+    """When screening errors (e.g. DB timeout -> source='error'), the run is
+    persisted as failed — not silently recorded as a completed/0-stock run."""
+    fake_db = _FakeDB()
+    screen = MagicMock()
+    screen.screen_stocks = AsyncMock(
+        return_value={
+            "total": 0,
+            "items": [],
+            "source": "error",
+            "error": "db timeout",
+        }
+    )
+    analysis = _make_analysis_service({})
+
+    with (
+        patch.object(svc, "load_config", return_value=_cfg()),
+        patch.object(svc, "get_mongo_db", return_value=fake_db),
+        patch.object(svc, "get_enhanced_screening_service", return_value=screen),
+        patch.object(svc, "get_simple_analysis_service", return_value=analysis),
+    ):
+        asyncio.run(svc.run_daily_recommendation("abc12345"))
+
+    # a doc is persisted and marked failed (not silently "completed")
+    assert len(fake_db.collection.inserted) == 1
+    _flt, final_update = fake_db.collection.updates[-1]
+    assert final_update["$set"]["status"] == "failed"
+    # no analysis attempted on a failed screening
+    analysis.create_analysis_task.assert_not_awaited()
+
+
+@pytest.mark.unit
 def test_run_daily_recommendation_partial_failure():
     """When one stock's analysis raises, that stock is marked failed, the
     others stay completed, and the overall status is partial."""
