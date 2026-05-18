@@ -232,8 +232,12 @@ const onOpen = async () => {
         market_type: cfg.analysis?.market_type ?? 'A股',
       }
     }
-    fieldList.value = Object.values(fieldsRes.data?.fields ?? {})
-    industryOptions.value = (indRes.data?.industries ?? []).map((i) => i.value)
+    // /api/screening/* 端点直接返回裸响应体（无 {success,data} 包裹），
+    // 与 /api/daily-recommendations/* 不同 —— 防御性解包，兼容两种形态。
+    const fieldsBody = ((fieldsRes as any)?.data ?? fieldsRes) as any
+    const indBody = ((indRes as any)?.data ?? indRes) as any
+    fieldList.value = Object.values(fieldsBody?.fields ?? {})
+    industryOptions.value = (indBody?.industries ?? []).map((i: any) => i.value)
   } catch (error) {
     console.error('加载配置失败:', error)
     ElMessage.error('加载配置失败')
@@ -305,7 +309,8 @@ const doPreview = async () => {
       ],
       limit: form.screening.limit,
     })
-    previewResult.value = res.data?.items ?? []
+    const previewBody = ((res as any)?.data ?? res) as any
+    previewResult.value = previewBody?.items ?? []
     previewed.value = true
   } catch (error) {
     console.error('预览失败:', error)
