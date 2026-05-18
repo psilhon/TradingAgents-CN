@@ -1,12 +1,10 @@
 """
 Tests for daily_recommendation_service:
-- load_config()
-- run_daily_recommendation() orchestration
+- list_configs() real-directory smoke test
+- run_daily_recommendation(config_id) orchestration
 """
 
 import asyncio
-import json
-import logging
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -14,93 +12,18 @@ import pytest
 import app.services.daily_recommendation_service as svc
 
 # ---------------------------------------------------------------------------
-# Real-config smoke test (plan-mandated: proves the shipped JSON is loadable)
+# Real-directory smoke test (proves the shipped config dir is loadable)
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.unit
-def test_load_config_reads_real_config_file():
-    """load_config() can read config/daily_recommendation.json and returns a
-    dict with the three required top-level keys."""
-    config = svc.load_config()
-    assert isinstance(config, dict)
-    assert "enabled" in config
-    assert "screening" in config
-    assert "analysis" in config
-
-
-# ---------------------------------------------------------------------------
-# Value-parsing tests — isolated against a fixture JSON, not the shipped file
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.unit
-def test_load_config_parses_values_correctly(tmp_path):
-    """load_config() correctly parses all expected fields from a known JSON
-    fixture, exercised in isolation from the shipped config file."""
-    fixture = {
-        "enabled": True,
-        "screening": {
-            "conditions": [],
-            "order_by": "market_cap",
-            "order_direction": "desc",
-            "limit": 5,
-        },
-        "analysis": {
-            "research_depth": "标准",
-            "market_type": "A股",
-        },
-    }
-    fixture_path = tmp_path / "daily_recommendation.json"
-    fixture_path.write_text(json.dumps(fixture), encoding="utf-8")
-
-    with patch.object(svc, "_CONFIG_PATH", fixture_path):
-        config = svc.load_config()
-
-    assert config["enabled"] is True
-
-    screening = config["screening"]
-    assert "conditions" in screening
-    assert screening["order_by"] == "market_cap"
-    assert screening["order_direction"] == "desc"
-    assert screening["limit"] == 5
-
-    analysis = config["analysis"]
-    assert analysis["research_depth"] == "标准"
-    assert analysis["market_type"] == "A股"
-
-
-# ---------------------------------------------------------------------------
-# Error-path / safe-default tests
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.unit
-def test_load_config_missing_file_returns_safe_default(tmp_path):
-    """When the config file does not exist, load_config() returns a safe
-    default dict with enabled=False and logs a warning."""
-    missing_path = tmp_path / "nonexistent.json"
-    with patch.object(svc, "_CONFIG_PATH", missing_path), patch.object(svc.logger, "warning") as mock_warning:
-        config = svc.load_config()
-    assert isinstance(config, dict)
-    assert config["enabled"] is False
-    assert "screening" in config
-    assert "analysis" in config
-    assert mock_warning.called, "expected load_config to log a warning"
-
-
-@pytest.mark.unit
-def test_load_config_malformed_file_returns_safe_default(tmp_path):
-    """When the config file contains invalid JSON, load_config() returns the
-    safe default instead of raising, and logs a warning."""
-    bad_file = tmp_path / "bad.json"
-    bad_file.write_text("{ not valid json }")
-    with patch.object(svc, "_CONFIG_PATH", bad_file), patch.object(svc.logger, "warning") as mock_warning:
-        config = svc.load_config()
-    assert config["enabled"] is False
-    assert "screening" in config
-    assert "analysis" in config
-    assert mock_warning.called, "expected load_config to log a warning"
+def test_list_configs_returns_list():
+    """list_configs() can read config/daily_recommendations/ and returns a
+    list; each config (if any) carries the four required top-level keys."""
+    configs = svc.list_configs()
+    assert isinstance(configs, list)
+    for cfg in configs:
+        assert {"id", "name", "screening", "analysis"} <= set(cfg)
 
 
 # ---------------------------------------------------------------------------
@@ -114,10 +37,11 @@ def test_load_config_malformed_file_returns_safe_default(tmp_path):
 # ---------------------------------------------------------------------------
 
 
-def _enabled_cfg(limit: int = 5) -> dict:
-    """A minimal enabled config matching config/daily_recommendation.json."""
+def _cfg(limit: int = 5) -> dict:
+    """A minimal config matching config/daily_recommendations/<id>.json."""
     return {
-        "enabled": True,
+        "id": "abc12345",
+        "name": "测试配置",
         "screening": {
             "conditions": [],
             "order_by": "market_cap",
@@ -136,12 +60,29 @@ class _FakeCollection:
 
     def __init__(self):
         self.created_indexes: list = []
+        self.dropped_indexes: list = []
         self.inserted: list[dict] = []
         self.updates: list[tuple] = []
+        self.update_many_calls: list[tuple] = []
+        self.indexes: list[dict] = []
         self._inserted_id = "fake_object_id"
 
     async def create_index(self, keys, **kwargs):
         self.created_indexes.append((keys, kwargs))
+
+    async def drop_index(self, name):
+        self.dropped_indexes.append(name)
+
+    def list_indexes(self):
+        return self._aiter_indexes()
+
+    async def _aiter_indexes(self):
+        for idx in self.indexes:
+            yield idx
+
+    async def update_many(self, flt, update, **kwargs):
+        self.update_many_calls.append((flt, update))
+        return MagicMock(matched_count=0, modified_count=0)
 
     async def insert_one(self, doc):
         self.inserted.append(doc)
@@ -211,30 +152,9 @@ def _make_analysis_service(results_by_symbol: dict, fail_symbols=None):
 
 
 @pytest.mark.unit
-def test_run_daily_recommendation_disabled_returns_without_writing(caplog):
-    """When enabled=False, run_daily_recommendation() returns early and never
-    touches the screening service or mongo."""
-    fake_db = _FakeDB()
-    with (
-        patch.object(svc, "load_config", return_value={"enabled": False}),
-        patch.object(svc, "get_mongo_db", return_value=fake_db) as mock_db,
-        patch.object(svc, "get_enhanced_screening_service") as mock_screen,
-        patch.object(svc, "get_simple_analysis_service") as mock_analysis,
-        caplog.at_level(logging.INFO),
-    ):
-        result = asyncio.run(svc.run_daily_recommendation())
-
-    assert result is None
-    mock_db.assert_not_called()
-    mock_screen.assert_not_called()
-    mock_analysis.assert_not_called()
-    assert fake_db.collection.inserted == []
-
-
-@pytest.mark.unit
 def test_run_daily_recommendation_happy_path():
     """Screening returns 3 stocks -> 3 analyses run -> one completed doc
-    persisted with each stock filled in and overall status=completed."""
+    persisted, tagged with config_id/config_name and overall status=completed."""
     fake_db = _FakeDB()
     items = [
         {"code": "600000", "name": "浦发银行"},
@@ -252,20 +172,22 @@ def test_run_daily_recommendation_happy_path():
     analysis = _make_analysis_service(results)
 
     with (
-        patch.object(svc, "load_config", return_value=_enabled_cfg()),
+        patch.object(svc, "load_config", return_value=_cfg()),
         patch.object(svc, "get_mongo_db", return_value=fake_db),
         patch.object(svc, "get_enhanced_screening_service", return_value=screen),
         patch.object(svc, "get_simple_analysis_service", return_value=analysis),
     ):
-        asyncio.run(svc.run_daily_recommendation())
+        asyncio.run(svc.run_daily_recommendation("abc12345"))
 
-    # one doc inserted
+    # one doc inserted, tagged with the config identity
     assert len(fake_db.collection.inserted) == 1
     doc = fake_db.collection.inserted[0]
-    assert doc["config_snapshot"] == _enabled_cfg()
+    assert doc["config_snapshot"] == _cfg()
+    assert doc["config_id"] == "abc12345"
+    assert doc["config_name"] == "测试配置"
     assert "date" in doc
-    # unique index on date ensured before write
-    assert fake_db.collection.created_indexes, "expected a unique index on date"
+    # compound (date, config_id) unique index ensured before write
+    assert fake_db.collection.created_indexes, "expected a compound unique index"
 
     # 3 analyses triggered (one create + one execute per stock)
     assert analysis.create_analysis_task.await_count == 3
@@ -300,12 +222,12 @@ def test_run_daily_recommendation_request_carries_stock_code():
     analysis = _make_analysis_service({"603392": {"recommendation": "买入", "summary": "x", "risk_level": "低"}})
 
     with (
-        patch.object(svc, "load_config", return_value=_enabled_cfg()),
+        patch.object(svc, "load_config", return_value=_cfg()),
         patch.object(svc, "get_mongo_db", return_value=fake_db),
         patch.object(svc, "get_enhanced_screening_service", return_value=screen),
         patch.object(svc, "get_simple_analysis_service", return_value=analysis),
     ):
-        asyncio.run(svc.run_daily_recommendation())
+        asyncio.run(svc.run_daily_recommendation("abc12345"))
 
     assert analysis.captured_requests, "expected an analysis request to be captured"
     req = analysis.captured_requests[0]
@@ -326,12 +248,12 @@ def test_run_daily_recommendation_caps_at_limit():
     analysis = _make_analysis_service(results)
 
     with (
-        patch.object(svc, "load_config", return_value=_enabled_cfg(limit=5)),
+        patch.object(svc, "load_config", return_value=_cfg(limit=5)),
         patch.object(svc, "get_mongo_db", return_value=fake_db),
         patch.object(svc, "get_enhanced_screening_service", return_value=screen),
         patch.object(svc, "get_simple_analysis_service", return_value=analysis),
     ):
-        asyncio.run(svc.run_daily_recommendation())
+        asyncio.run(svc.run_daily_recommendation("abc12345"))
 
     assert analysis.create_analysis_task.await_count == 5
     _flt, final_update = fake_db.collection.updates[-1]
@@ -348,12 +270,12 @@ def test_run_daily_recommendation_empty_screening():
     analysis = _make_analysis_service({})
 
     with (
-        patch.object(svc, "load_config", return_value=_enabled_cfg()),
+        patch.object(svc, "load_config", return_value=_cfg()),
         patch.object(svc, "get_mongo_db", return_value=fake_db),
         patch.object(svc, "get_enhanced_screening_service", return_value=screen),
         patch.object(svc, "get_simple_analysis_service", return_value=analysis),
     ):
-        asyncio.run(svc.run_daily_recommendation())
+        asyncio.run(svc.run_daily_recommendation("abc12345"))
 
     assert len(fake_db.collection.inserted) == 1
     analysis.create_analysis_task.assert_not_awaited()
@@ -384,12 +306,12 @@ def test_run_daily_recommendation_partial_failure():
     analysis = _make_analysis_service(results, fail_symbols={"000001"})
 
     with (
-        patch.object(svc, "load_config", return_value=_enabled_cfg()),
+        patch.object(svc, "load_config", return_value=_cfg()),
         patch.object(svc, "get_mongo_db", return_value=fake_db),
         patch.object(svc, "get_enhanced_screening_service", return_value=screen),
         patch.object(svc, "get_simple_analysis_service", return_value=analysis),
     ):
-        asyncio.run(svc.run_daily_recommendation())
+        asyncio.run(svc.run_daily_recommendation("abc12345"))
 
     # all 3 still attempted despite the middle one failing
     assert analysis.create_analysis_task.await_count == 3
@@ -415,12 +337,12 @@ def test_run_daily_recommendation_all_failed():
     analysis = _make_analysis_service({"600000": {}, "000001": {}}, fail_symbols={"600000", "000001"})
 
     with (
-        patch.object(svc, "load_config", return_value=_enabled_cfg()),
+        patch.object(svc, "load_config", return_value=_cfg()),
         patch.object(svc, "get_mongo_db", return_value=fake_db),
         patch.object(svc, "get_enhanced_screening_service", return_value=screen),
         patch.object(svc, "get_simple_analysis_service", return_value=analysis),
     ):
-        asyncio.run(svc.run_daily_recommendation())
+        asyncio.run(svc.run_daily_recommendation("abc12345"))
 
     _flt, final_update = fake_db.collection.updates[-1]
     final_doc = final_update["$set"]
@@ -438,12 +360,12 @@ def test_run_daily_recommendation_translates_order_by():
     analysis = _make_analysis_service({})
 
     with (
-        patch.object(svc, "load_config", return_value=_enabled_cfg()),
+        patch.object(svc, "load_config", return_value=_cfg()),
         patch.object(svc, "get_mongo_db", return_value=fake_db),
         patch.object(svc, "get_enhanced_screening_service", return_value=screen),
         patch.object(svc, "get_simple_analysis_service", return_value=analysis),
     ):
-        asyncio.run(svc.run_daily_recommendation())
+        asyncio.run(svc.run_daily_recommendation("abc12345"))
 
     _args, kwargs = screen.screen_stocks.await_args
     assert kwargs["order_by"] == [{"field": "market_cap", "direction": "desc"}]
