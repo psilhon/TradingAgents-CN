@@ -87,7 +87,7 @@
 - [x] 10.3 `docs/USAGE.md`：同上，每日推荐本就不在 USAGE，跳过新增
 - [x] 10.4 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Changed` 条目
 - [x] 10.5 `just ci` 全绿（lint + typecheck + test，161 passed）
-- [ ] 10.6 后端启动验证 + `POST /run` 手动触发验证（用户执行）
-- [ ] 10.7 前端验证：配置选择器 / 配置管理 / 立即生成（用户执行）
-- [ ] 10.8 archive change → `openspec/changes/archive/<date>-daily-rec-multi-config/`
-- [ ] 10.9 应用 spec → `openspec/specs/daily-recommendation/spec.md`
+- [x] 10.6 后端启动 + `POST /run` 手动触发验证（用户已验证）
+- [x] 10.7 前端验证：配置选择器 / 配置管理 / 立即生成（用户已验证）
+- [x] 10.8 archive change → `openspec/changes/archive/2026-05-18-daily-rec-multi-config/`
+- [x] 10.9 应用 spec → `openspec/specs/daily-recommendation/spec.md`
