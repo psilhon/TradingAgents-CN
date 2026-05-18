@@ -7,16 +7,34 @@
         每日推荐
       </h1>
       <p class="page-description">
-        每个交易日收盘后自动筛选并分析的推荐股票，每日 16:30 生成
+        选择一个配置并手动生成 —— 多智能体筛选 + 分析推荐股票
       </p>
     </div>
 
     <!-- 操作栏 -->
     <el-card class="action-card" shadow="never">
       <div class="action-bar">
-        <span class="action-hint">手动触发当日推荐（后台运行，约 30-50 分钟）</span>
+        <div class="config-selector">
+          <span class="selector-label">配置</span>
+          <el-select
+            v-model="selectedConfigId"
+            placeholder="请选择配置"
+            style="width: 240px"
+            @change="onConfigChange"
+          >
+            <el-option
+              v-for="opt in configOptions"
+              :key="opt.id"
+              :value="opt.id"
+              :label="opt.deleted ? `${opt.name}（已删除）` : opt.name"
+            />
+          </el-select>
+          <span v-if="configOptions.length === 0" class="action-hint">
+            还没有配置，点「配置」新建一个
+          </span>
+        </div>
         <div class="action-buttons">
-          <el-button type="primary" :loading="running" @click="triggerRun">
+          <el-button type="primary" :loading="running" :disabled="!canRun" @click="triggerRun">
             <el-icon><VideoPlay /></el-icon>
             立即生成
           </el-button>
@@ -147,14 +165,14 @@
       </el-col>
     </el-row>
 
-    <ConfigDrawer v-model:visible="configVisible" @saved="loadList" />
+    <ConfigDrawer v-model:visible="configVisible" @changed="onConfigChanged" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Sunrise, VideoPlay, Refresh, Setting } from '@element-plus/icons-vue'
 import {
   dailyRecommendationApi,
@@ -165,8 +183,17 @@ import ConfigDrawer from './ConfigDrawer.vue'
 
 type TagType = 'primary' | 'success' | 'warning' | 'info' | 'danger'
 
+// 配置选择器选项：现存配置 + 仅存在于历史结果中的已删除配置
+interface ConfigOption {
+  id: string
+  name: string
+  deleted: boolean
+}
+
 const router = useRouter()
 
+const configOptions = ref<ConfigOption[]>([])
+const selectedConfigId = ref<string>('')
 const dateList = ref<DailyRecommendationSummary[]>([])
 const selectedDate = ref<string>('')
 const detail = ref<DailyRecommendationDetail | null>(null)
@@ -174,6 +201,12 @@ const listLoading = ref(false)
 const detailLoading = ref(false)
 const running = ref(false)
 const configVisible = ref(false)
+
+// 仅当选中了一个未被删除的配置时才能执行
+const canRun = computed(() => {
+  const opt = configOptions.value.find((o) => o.id === selectedConfigId.value)
+  return !!opt && !opt.deleted
+})
 
 // 推荐配置按市值排序，但市值（total_mv）数据当前大面积缺失 —— 用于在详情上方显示告警
 const marketCapWarning = computed(() => {
@@ -215,11 +248,49 @@ const riskTagType = (risk: string): TagType => {
   return 'info'
 }
 
-// 加载推荐日期列表
+// 加载配置选择器选项：现存配置 ∪ 历史结果中的已删除配置
+const loadConfigs = async () => {
+  try {
+    const [cfgRes, resultRes] = await Promise.all([
+      dailyRecommendationApi.listConfigs(),
+      dailyRecommendationApi.resultConfigs(),
+    ])
+    const current = cfgRes.data ?? []
+    const currentIds = new Set(current.map((c) => c.id))
+    const options: ConfigOption[] = current
+      .filter((c) => !!c.id)
+      .map((c) => ({ id: c.id as string, name: c.name, deleted: false }))
+    for (const rc of resultRes.data ?? []) {
+      if (rc.config_id && !currentIds.has(rc.config_id)) {
+        options.push({
+          id: rc.config_id,
+          name: rc.config_name || rc.config_id,
+          deleted: true,
+        })
+      }
+    }
+    configOptions.value = options
+    // 保持当前选中；失效则优先选第一个未删除的配置
+    if (!options.some((o) => o.id === selectedConfigId.value)) {
+      const fallback = options.find((o) => !o.deleted) ?? options[0]
+      selectedConfigId.value = fallback?.id ?? ''
+    }
+  } catch (error) {
+    console.error('获取配置列表失败:', error)
+  }
+}
+
+// 加载当前配置的推荐日期列表
 const loadList = async () => {
+  if (!selectedConfigId.value) {
+    dateList.value = []
+    selectedDate.value = ''
+    detail.value = null
+    return
+  }
   listLoading.value = true
   try {
-    const res = await dailyRecommendationApi.list(100, 0)
+    const res = await dailyRecommendationApi.list(selectedConfigId.value, 100, 0)
     dateList.value = res.data || []
     // 默认选中最近一个日期
     if (dateList.value.length > 0) {
@@ -238,6 +309,19 @@ const loadList = async () => {
   }
 }
 
+// 切换配置：重置选中日期并重新加载列表
+const onConfigChange = () => {
+  selectedDate.value = ''
+  detail.value = null
+  loadList()
+}
+
+// 配置管理抽屉里增删改后：刷新配置选择器与列表
+const onConfigChanged = async () => {
+  await loadConfigs()
+  await loadList()
+}
+
 // 选择日期并加载详情
 const selectDate = async (date: string) => {
   selectedDate.value = date
@@ -246,7 +330,7 @@ const selectDate = async (date: string) => {
   // Capture the requested date so stale responses can be discarded
   const requestedDate = date
   try {
-    const res = await dailyRecommendationApi.detail(date)
+    const res = await dailyRecommendationApi.detail(date, selectedConfigId.value)
     // Discard result if the user has already switched to a different date
     if (selectedDate.value !== requestedDate) return
     detail.value = res.data ?? null
@@ -266,15 +350,29 @@ const goToStock = (symbol: string) => {
   router.push(`/stocks/${symbol}`)
 }
 
-// 手动触发当日推荐
+// 手动触发当前配置的当日推荐
 const triggerRun = async () => {
+  const opt = configOptions.value.find((o) => o.id === selectedConfigId.value)
+  if (!opt || opt.deleted) {
+    ElMessage.warning('请选择一个有效的配置')
+    return
+  }
+  try {
+    await ElMessageBox.confirm(
+      `确定用配置「${opt.name}」立即生成今日推荐？`,
+      '确认生成',
+      { type: 'info', confirmButtonText: '生成', cancelButtonText: '取消' },
+    )
+  } catch {
+    return // 用户取消
+  }
   running.value = true
   try {
-    const res = await dailyRecommendationApi.run()
+    const res = await dailyRecommendationApi.run(selectedConfigId.value)
     if (res.success) {
       ElMessage.info('已在后台生成，约 30-50 分钟')
     } else {
-      ElMessage.warning(res.message || '今日推荐已生成，请勿重复触发')
+      ElMessage.warning(res.message || '该配置今日推荐已生成，请勿重复触发')
     }
   } catch (error) {
     console.error('触发每日推荐失败:', error)
@@ -284,8 +382,9 @@ const triggerRun = async () => {
   }
 }
 
-onMounted(() => {
-  loadList()
+onMounted(async () => {
+  await loadConfigs()
+  await loadList()
 })
 </script>
 
@@ -317,6 +416,17 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
+    }
+
+    .config-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .selector-label {
+        font-size: 13px;
+        color: var(--el-text-color-regular);
+      }
     }
 
     .action-hint {
