@@ -117,18 +117,19 @@
 - 修 upsert key（要么只用 `code` 单源，要么明确多源设计 + 下游统一去重）。
 - 统一 `source`/`data_source` 字段名、日期格式、交易所后缀。
 
-**Phase 3 — 防复发**
-- 让 `data_consistency_checker` 真正接入写入路径做闸门，cross-source 偏差超阈值告警。
-- 把 `/tmp/data_audit.js` 固化成 `scripts/data_audit.js`，定期跑数据健康检查。
+**Phase 3 — 防复发**（✅ 2026-05-18 完成，OpenSpec change `data-audit-phase3`）
+- ✅ `data_consistency_checker`：经查 318 行全量实现无人 import（纯死代码）+ 48 行 no-op stub 空转——名存实亡，整体删除；改由 `basics_sync_service` / `multi_source_basics_sync_service` 写库前**数值 sanity 闸门**取代（负 `ps`/`total_mv`/`circ_mv` 拒写、`|pe|` 量级失真告警，落 `sync_status.warnings`）。
+- ✅ `/tmp/data_audit.js` 固化为 tracked `scripts/data_audit.js`。
+- ✅ 一并完成 Phase 2 遗留架构项：upsert key `(code,source)` → `code`（启动迁移去重，11360→5843 docs、0 重复 code）、`source` / `data_source` 字段名统一（全仓改名 + 迁移 `$rename`）。
 
 ---
 
 ## 审计脚本
 
-`/tmp/data_audit.js` —— 直连 MongoDB 检查各集合字段完整率 + 数值合理性（neg/zero/null/NaN）。运行：
+`scripts/data_audit.js`（data-audit-phase3 已固化入库）—— 直连 MongoDB 检查各集合字段完整率 + 数值合理性（neg/zero/null/NaN）+ 重复 code。运行：
 
 ```bash
-mongosh "mongodb://admin:tradingagents123@127.0.0.1:54302/tradingagentscn?authSource=admin" --quiet --file /tmp/data_audit.js
+mongosh "mongodb://admin:tradingagents123@127.0.0.1:54302/tradingagentscn?authSource=admin" --quiet --file scripts/data_audit.js
 ```
 
 ---
@@ -148,5 +149,7 @@ mongosh "mongodb://admin:tradingagents123@127.0.0.1:54302/tradingagentscn?authSo
 | 前端崩溃/误导 | `formatMarketCap` 兜底 + 筛选/每日推荐告警 | 已落地（commit `4651fff1`） |
 
 **未处置（建议后续）**：
-- ③ upsert key `(code,source)` → `code` + 唯一索引调整：属架构小改，重复数据已清、tushare 优先源稳定，暂不影响功能。
-- `data_consistency_checker` 接入写入闸门、`market_quotes` 行情陈旧（eastmoney `clist` 接口连通性问题）。
+- `market_quotes` 行情陈旧（eastmoney `clist` 接口连通性问题）。
+- P1 #7/#8/#10：日期格式 / 交易所后缀不统一、`stock_daily_quotes.pre_close` 全 null——schema 一致性的另一面，可后续单列 change。
+
+> Phase 3「防复发」已于 2026-05-18 经 OpenSpec change `data-audit-phase3` 完成（见上「修复路线 Phase 3」）。

@@ -57,7 +57,7 @@ def get_stock_name(stock_code: str) -> str:
         stock_info = None
         for data_source in enabled_sources:
             stock_info = db.stock_basic_info.find_one(
-                {"$or": [{"symbol": code6}, {"code": code6}], "source": data_source}
+                {"$or": [{"symbol": code6}, {"code": code6}], "data_source": data_source}
             )
             if stock_info:
                 logger.debug(f"✅ 使用数据源 {data_source} 获取股票名称 {code6}")

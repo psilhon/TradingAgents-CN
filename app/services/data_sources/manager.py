@@ -1,5 +1,5 @@
 """
-Data source manager that orchestrates multiple adapters with priority and optional consistency checks
+Data source manager that orchestrates multiple adapters with priority and fallback
 """
 from typing import List, Optional, Tuple, Dict
 import logging
@@ -19,7 +19,6 @@ class DataSourceManager:
     数据源管理器
     - 管理多个适配器，基于优先级排序
     - 提供 fallback 获取能力
-    - 可选：一致性检查（若依赖存在）
     """
 
     def __init__(self):
@@ -34,13 +33,6 @@ class DataSourceManager:
 
         # 按优先级排序（数字越大优先级越高，所以降序排列）
         self.adapters.sort(key=lambda x: x.priority, reverse=True)
-
-        try:
-            from .data_consistency_checker import DataConsistencyChecker  # type: ignore
-            self.consistency_checker = DataConsistencyChecker()
-        except Exception:
-            logger.warning("⚠️ 数据一致性检查器不可用")
-            self.consistency_checker = None
 
     def _load_priority_from_database(self):
         """从数据库加载数据源优先级配置（从 datasource_groupings 集合读取 A股市场的优先级）"""
@@ -216,67 +208,6 @@ class DataSourceManager:
                 logger.error(f"Failed to fetch realtime quotes from {adapter.name}: {e}")
                 continue
         return None, None
-
-
-    def get_daily_basic_with_consistency_check(
-        self, trade_date: str
-    ) -> Tuple[Optional[pd.DataFrame], Optional[str], Optional[Dict]]:
-        """
-        使用一致性检查获取每日基础数据
-
-        Returns:
-            Tuple[DataFrame, source_name, consistency_report]
-        """
-        available_adapters = self.get_available_adapters()
-        if len(available_adapters) < 2:
-            df, source = self.get_daily_basic_with_fallback(trade_date)
-            return df, source, None
-        primary_adapter = available_adapters[0]
-        secondary_adapter = available_adapters[1]
-        try:
-            logger.info(
-                f"🔍 获取数据进行一致性检查: {primary_adapter.name} vs {secondary_adapter.name}"
-            )
-            primary_data = primary_adapter.get_daily_basic(trade_date)
-            secondary_data = secondary_adapter.get_daily_basic(trade_date)
-            if primary_data is None or primary_data.empty:
-                logger.warning(f"⚠️ 主数据源{primary_adapter.name}失败，使用fallback")
-                df, source = self.get_daily_basic_with_fallback(trade_date)
-                return df, source, None
-            if secondary_data is None or secondary_data.empty:
-                logger.warning(f"⚠️ 次数据源{secondary_adapter.name}失败，使用主数据源")
-                return primary_data, primary_adapter.name, None
-            if self.consistency_checker:
-                consistency_result = self.consistency_checker.check_daily_basic_consistency(
-                    primary_data,
-                    secondary_data,
-                    primary_adapter.name,
-                    secondary_adapter.name,
-                )
-                final_data, resolution_strategy = self.consistency_checker.resolve_data_conflicts(
-                    primary_data, secondary_data, consistency_result
-                )
-                consistency_report = {
-                    'is_consistent': consistency_result.is_consistent,
-                    'confidence_score': consistency_result.confidence_score,
-                    'recommended_action': consistency_result.recommended_action,
-                    'resolution_strategy': resolution_strategy,
-                    'differences': consistency_result.differences,
-                    'primary_source': primary_adapter.name,
-                    'secondary_source': secondary_adapter.name,
-                }
-                logger.info(
-                    f"📊 数据一致性检查完成: 置信度={consistency_result.confidence_score:.2f}, 策略={consistency_result.recommended_action}"
-                )
-                return final_data, primary_adapter.name, consistency_report
-            else:
-                logger.warning("⚠️ 一致性检查器不可用，使用主数据源")
-                return primary_data, primary_adapter.name, None
-        except Exception as e:
-            logger.error(f"❌ 一致性检查失败: {e}")
-            df, source = self.get_daily_basic_with_fallback(trade_date)
-            return df, source, None
-
 
 
     def get_kline_with_fallback(self, code: str, period: str = "day", limit: int = 120, adj: Optional[str] = None) -> Tuple[Optional[List[Dict]], Optional[str]]:

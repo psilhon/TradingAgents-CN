@@ -138,7 +138,7 @@ async def get_quote(
     # 按优先级查询基础信息
     b = None
     for src in enabled_sources:
-        b = await db["stock_basic_info"].find_one({"code": code6, "source": src}, {"_id": 0})
+        b = await db["stock_basic_info"].find_one({"code": code6, "data_source": src}, {"_id": 0})
         if b:
             break
 
@@ -260,7 +260,7 @@ async def get_fundamentals(
 
     if source:
         # 指定数据源
-        query["source"] = source
+        query["data_source"] = source
         b = await db["stock_basic_info"].find_one(query, {"_id": 0})
         if not b:
             raise HTTPException(
@@ -273,7 +273,7 @@ async def get_fundamentals(
         b = None
 
         for src in source_priority:
-            query_with_source = {"code": code6, "source": src}
+            query_with_source = {"code": code6, "data_source": src}
             b = await db["stock_basic_info"].find_one(query_with_source, {"_id": 0})
             if b:
                 logger.info(f"✅ 使用数据源: {src} 查询股票 {code6}")

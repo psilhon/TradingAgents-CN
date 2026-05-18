@@ -161,17 +161,16 @@ class AKShareSyncService:
                     else:
                         basic_data = basic_info
 
-                    # 🔥 确保 source 字段存在
-                    if "source" not in basic_data:
-                        basic_data["source"] = "akshare"
+                    # 🔥 数据源标识统一为 data_source（data-audit-phase3）
+                    basic_data["data_source"] = basic_data.pop("source", None) or "akshare"
 
                     # 🔥 确保 symbol 字段存在
                     if "symbol" not in basic_data:
                         basic_data["symbol"] = code
 
-                    # 更新到数据库（使用 code + source 联合查询）
+                    # 更新到数据库（data-audit-phase3：code 单一主键）
                     try:
-                        await self.db.stock_basic_info.update_one({"code": code, "source": "akshare"}, {"$set": basic_data}, upsert=True)
+                        await self.db.stock_basic_info.update_one({"code": code}, {"$set": basic_data}, upsert=True)
                         batch_stats["success_count"] += 1
                     except Exception as e:
                         batch_stats["error_count"] += 1
