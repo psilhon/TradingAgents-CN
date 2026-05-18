@@ -8,15 +8,29 @@
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-05-18
+
+**Fork minor release**——v1.2.1 后最大一次累积发布。主线四块：Dashboard 模拟账户专业化（Tier 3+4 mock 全面真实化）、实时交易数据流 push 架构 + 多条铁律 capability、本地部署 native 化（资源 -89%）、每日推荐多配置。另含 2026-05-17 数据正确性系统性修复。新增 capability：`realtime-trading-data-flow` / `trading-calendar` / `paper-account-snapshots` / `portfolio-fundamentals` / `paper-realtime-quotes` / `daily-recommendation` / `native-local-deployment` / `data-quality-gate`。
+
 ### Changed
+
+- **本地部署改造：Homebrew 原生 mongo+redis 取代 Docker**（OpenSpec change `backfill-native-deployment-spec` 回填 capability spec）：本地开发 / 运行环境从 Docker 容器改为 Homebrew 原生进程，业务代码（`app/` / `frontend/` / `tradingagents/`）零改动。删除全部 59 个 Docker 相关文件（`docker-compose.yml` / `Dockerfile.{backend,frontend}` / `docker/` / docker scripts 与 docs）；新增 `config/mongod.conf`（MongoDB 7.0，bind `127.0.0.1:54302`）/ `config/redis.conf`（Redis，bind `127.0.0.1:54303`）/ `scripts/local-services.sh`（原生服务编排，不用 `brew services` 以保持多实例隔离）/ `scripts/setup-native.sh`（一次性安装器）。`scripts/dev.sh` 与 `just up/down/status` 改调 `local-services.sh`；`just audit-binds` 改扫 `config/mongod.conf` + `config/redis.conf`。实测总内存占用 -89%（3.2–6.9 GB → 381 MB），启动 6–12× 加速；端口段位 54300–54309 与 loopback 铁律保持。新建 capability `native-local-deployment` 锁定铁律 ⨯ 4：原生部署不用 Docker / 服务经 `local-services.sh` 编排 / loopback + 端口段位 / 数据目录与 PID 不入库。
 
 - **每日推荐改为多配置 + 全手动触发**（OpenSpec change `daily-rec-multi-config`）：每日推荐从单一全局配置改为多个命名配置。配置存储由单文件 `config/daily_recommendation.json` 改为目录多文件 `config/daily_recommendations/<id>.json`，每个配置 `{id, name, screening, analysis}`（`id` 为 8 位随机串；去掉 `enabled` 字段）；服务启动时 `migrate_legacy_config()` 把旧单文件幂等迁入目录（名「默认配置」）。16:30 APScheduler cron **整体下线**（删 `_register_daily_recommendation_jobs` / `_run_daily_recommendation`），每日推荐改为完全手动触发、触发时选择配置。后端：单数 `GET/PUT /api/daily-recommendations/config` 替换为 `/configs` CRUD 五件套（list / create / get / update / delete）；`POST /run` body 带 `config_id`，查重维度由 `(今日)` 改为 `(今日, config_id)`；新增 `GET /result-configs`（历史结果出现过的配置，含已删除）；列表 / 详情端点加 `config_id` 过滤。结果集合 `daily_recommendations` 唯一索引由单字段 `date` 改为 `(date, config_id)` 复合唯一（同一天不同配置各一份），旧结果文档回填 `config_id="legacy"`。前端：`ConfigDrawer.vue` 改为配置管理抽屉（左侧配置列表新建 / 选中 / 删除 + 右侧编辑表单，表单加「配置名称」字段）；每日推荐页顶部加配置选择器（现存配置 + 仅历史中存在的已删除配置，后者只读标注「已删除」），「立即生成」对选中配置执行并弹确认。删除配置只删配置文件、历史推荐结果保留。`run_daily_recommendation(config_id)` 加参数、去掉 `enabled` 守卫。扩展 `tests/services/test_daily_recommendation_{config,service}.py` 覆盖配置 CRUD / 校验（`name` 非空）/ legacy 迁移 / 带 `config_id` 的 run（29 个 unit test 全过）。新建 capability `daily-recommendation`。
 
 - **Dashboard 自选股点击改跳站内股票详情页**：Dashboard「我的自选股」panel 点击某只股票，从原先 `window.open` 跳东方财富外部个股页改为 `router.push` 跳站内 `/stocks/:code` 详情页（与「我的自选股」页 `Favorites/index.vue` 既有行为对齐）。移除随之变 unused 的 `getEastMoneyStockUrl` helper。
 
-- **paper-realtime-quotes 颗粒升频 30s → 3s**（OpenSpec spec amend）：盘中行情刷新 IntervalTrigger 从 30 秒升到 3 秒，配合 v1.2.x 落地的 `realtime-trading-data-flow` capability 的 redis pub/sub + WebSocket push 让前端 SLO 从"最长 30s 看到价格更新"降到"最长 3s"。akshare 配额评估：盘中 5.5h × 60s/3s × 2 ≈ 6600 次/天，单用户场景可接受。修订 `openspec/specs/paper-realtime-quotes/spec.md` Requirement"刷新频率"+ `scheduler_service.py` 的 IntervalTrigger seconds 参数 + misfire_grace_time 10 → 2（适配更短间隔）。
+- **paper-realtime-quotes 颗粒升频 30s → 3s**（OpenSpec spec amend）：盘中行情刷新 IntervalTrigger 从 30 秒升到 3 秒，配合本 release 落地的 `realtime-trading-data-flow` capability 的 redis pub/sub + WebSocket push 让前端 SLO 从"最长 30s 看到价格更新"降到"最长 3s"。akshare 配额评估：盘中 5.5h × 60s/3s × 2 ≈ 6600 次/天，单用户场景可接受。修订 `openspec/specs/paper-realtime-quotes/spec.md` Requirement"刷新频率"+ `scheduler_service.py` 的 IntervalTrigger seconds 参数 + misfire_grace_time 10 → 2（适配更短间隔）。
 
 ### Added
+
+- **手动刷新行情端点 + Dashboard 刷新按钮**：Dashboard 加「刷新行情」按钮，按需触发自选股 ∪ 持仓的实时行情同步，无需等盘中 scheduler 周期。新增 `POST /api/market/refresh-quotes`，底层 `QuotesService` 扩展按需 sina 批量拉取路径（实测 27s → 200ms）。
+
+- **筛选结果表支持表头排序**：股票筛选结果表格列头可点击排序。
+
+- **持仓明细行加今日浮动盈亏**：Dashboard 持仓明细 list 每行主行中间列展示该持仓今日浮动盈亏。
+
+- **接入 CodeGraph 代码索引**：新增 `.codegraph/` 配置，启用语义代码图加速代码探索（开发期工具，不影响运行时）。
 
 - 每日推荐：新增配置可视化编辑界面（DailyRecommendation 页「配置」按钮 → drawer 结构化表单），可编辑 `config/daily_recommendation.json` 的选股条件 / 排序 / 数量 / 分析深度，带选股结果预览；后端加 `GET/PUT /api/daily-recommendations/config` 端点与 `save_config` 校验。
 
@@ -47,6 +61,14 @@
 - **Watchlist panel 撑满 grid row + 修最后一行被截断**：watchlist-panel `display: flex; flex-direction: column`，watchlist-list 改 `flex: 1; min-height: 0; max-height: none`，让 list 撑满 panel 减 header 后高度（之前固定 max-height: 320px 在 grid stretch 后底部留白 + 第 7 只持仓只显半行）。
 
 ### Fixed
+
+- **🚨 数据正确性系统性修复 + 写库 / 前端双闸门**（OpenSpec change `backfill-data-quality-gate-spec` 回填 capability spec）：2026-05-17 用户反馈「筛选市值字段完全不可用」，`/diagnose` 全链路排查（`docs/data-audit-2026-05-17.md`）确认是系统性数据质量崩塌——总市值 99.9% 缺失、pe/pb cross-source 不一致、`stock_financial_data` 全字段 null、`stock_basic_info` 三倍重复，每日推荐已被污染。共性根因：数据源失败被 adapter 吞异常返回空 → 上游当成正常空数据 → 错误数据照写进库 → 前端不校验照显示。坐实 tushare token 无 `daily_basic` / 财报接口权限（实跑确认）。处置（方案 A，用户充值 tushare 积分）：重跑全市场 basics + 财务同步，`total_mv` / `circ_mv` 覆盖 5495/5517、`stock_financial_data` 5510 docs；清理 `stock_basic_info` 三倍重复 16559 → 5841、清除 10 条 all-null 财务垃圾。代码层补两道闸门：`financial_data_service` 写库前拒绝关键字段全 `None` 的财务文档 + 5 个校验单测；`multi_source_basics_sync_service` 的 `daily_basic` 失败时告警 + 落 `sync_status.warnings` + status 转 `success_with_errors`；前端 `formatMarketCap` 对 null/NaN 兜底显示「—」，筛选 / 每日推荐 在市值数据缺失时显式告警而非误导性 0 结果。新建 capability `data-quality-gate` 锁定铁律 ⨯ 3：写库校验闸门 / 失败告警不掩盖 / 前端兜底告警。data-audit Phase 3 防复发（`data_consistency_checker` 接入写入闸门 / upsert key 重构 / 字段名统一 / 审计脚本固化）作 release 后独立 change。
+
+- **license 边界：`tradingagents/ → app/` 反向 import 22 → 6**（83% 减少）：Apache 2.0 的 `tradingagents/` 反向 import 专有授权 `app/` 的数量从 v1.1.0 后 baseline 22 降到 6，逼近 `license-boundary` spec 要求的「单调不增」终态。
+
+- **misc-bugfix-batch：6 处零散 bug**（code-review 2026-05-05 第四梯队）：`risk_manager` `start_time` UnboundLocal / `process_signal` KeyError 兜底 / 价格估算类型谎报 / mongodb cache adapter `zfill(6)` 跨市场代码错位 / `google_news` query 未 URL-encode / `reddit` 公司名当 regex 未转义。
+
+- **数据源 / 同步 / LLM 链路一批修复**：`get_database()` 与 `get_mongo_db()` 改同源（修数据被分裂到 2 个 db）；`sync_financial_data` 鸭子接口签名对齐 tushare（修 `TypeError`）；DeepSeek embedding 404 + `reasoning_content` 路径强制禁 thinking；Tushare 确认为默认主源、消除降级 warning 噪音；`portfolio` `_fetch_latest_indicator` 改用 `stock_zh_valuation_baidu`；`paper` `take_snapshot` 解包 `_get_last_price` 元组（修持仓快照中止）；`scheduler` `stock_indicators` 加启动补漏。
 
 - **每日推荐选股查询超时致「completed / 0 只」**：`stock_screening_view` 视图的关联 `$lookup`（取 ROE）按 `code` 字段匹配 `stock_financial_data`，但该集合只有 `symbol` 索引、无 `code` 索引 —— 不带 `industry` 等基础字段过滤的筛选（如「价值投资」配置按 roe/pe/pb/total_mv 筛）会对 `stock_financial_data` 全表扫描（外层每条 × 全表），超 60s socket 超时（retryReads 重试 → 120s）。`screen_stocks` 吞掉超时异常返回空列表，`run_daily_recommendation` 把筛选失败误记成一次「completed / 0 只」的成功运行。修复三处：① 给 `stock_financial_data` 加复合索引 `(code, data_source, report_period)`，筛选查询从 120s 超时降到 ~0.1s；② 新增 `DatabaseScreeningService.ensure_indexes()`，`app/main.py` lifespan 启动时确保该索引存在；③ `_select_stocks` 在 `screen_stocks` 返回 `source="error"` 时显式抛错，`run_daily_recommendation` 把整次运行标记为 `failed`（不再静默记成 completed）。
 

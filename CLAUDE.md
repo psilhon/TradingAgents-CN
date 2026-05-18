@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 项目身份
 
 - **定位**：面向中文用户的多智能体股票分析学习平台（FastAPI 后端 + Vue 3 前端 + LangGraph 多智能体 + 多数据源）
-- **当前版本**：`v1.2.1`（fork patch release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
-- **当前阶段**：**v1.2.1 已发布**，`[Unreleased]` 累积 Dashboard 模拟账户专业化 + 项目铁律 capabilities + **native 部署改造**（docker → Homebrew 原生 mongo+redis，资源 -89%）+ 手动刷新行情功能，待下次 release 合到 v1.3.0。OpenSpec 累计 **34 条 changes archived**，当前无活跃 change。⚠️ native 部署改造（commit `c3f91206`）尚未补 OpenSpec capability spec——建议补 `native-local-deployment`。Dashboard 模拟账户 panel 9 处 mock 已全部接入真实数据源（TWRR/Sharpe/回撤/月度收益 + Beta/VaR/加权 PE-PB），新账户首日显示「—」属预期。剩余 follow-up：第三梯队 4 条（cache 层 / app 反向 import / agent state / company resolver）+ 第四梯队 3 条 + Tier 4 扩展，按需排期，见 `docs/code-review-2026-05-05.md`。
+- **当前版本**：`v1.3.0`（fork minor release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
+- **当前阶段**：**v1.3.0 已发布**（2026-05-18，fork minor release）——Dashboard 模拟账户专业化（Tier 3+4 mock 全面真实化，新账户首日 KPI 显示「—」属预期）+ 实时交易数据流 push 架构 + native 部署改造 + 每日推荐多配置 + 2026-05-17 数据正确性系统性修复。`[Unreleased]` 为空。OpenSpec 累计 **38 条 changes archived**，当前无活跃 change（v1.3.0 收口补回 native 部署 + 数据质量两个缺失 capability spec：`native-local-deployment` / `data-quality-gate`）。下一优先项：**data-audit Phase 3 防复发**（`data_consistency_checker` 接入写入闸门 / `stock_basic_info` upsert key 重构 / 字段名统一 / 审计脚本固化，见 `docs/data-audit-2026-05-17.md`）。其余 follow-up：code-review 第三梯队架构重构（cache 层 / 反向 import 剩 6 / agent state / company resolver），按需排期，见 `docs/code-review-2026-05-05.md`。
 - **技术栈**：Python 3.12（homebrew arm64）+ uv + FastAPI + Uvicorn + Vue 3 + Vite + **原生 MongoDB 7.0 + Redis 8**（Homebrew，不用 Docker）
 - **License 双轨**：根目录 Apache 2.0；`app/`（FastAPI 后端）和 `frontend/`（Vue 前端）为**专有授权**，商业用途必须联系作者 hsliup@163.com
 
