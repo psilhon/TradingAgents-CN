@@ -262,6 +262,15 @@ async def lifespan(app: FastAPI):
 
     await init_db()
 
+    # OpenSpec change `daily-rec-multi-config`：把改造前的单配置文件迁入
+    # config/daily_recommendations/ 目录（幂等，已迁移则无操作）
+    try:
+        from app.services.daily_recommendation_service import migrate_legacy_config
+
+        migrate_legacy_config()
+    except Exception as e:
+        logger.warning(f"⚠️  每日推荐配置迁移失败: {e}")
+
     #  配置桥接：将统一配置写入环境变量，供 TradingAgents 核心库使用
     try:
         from app.core.config_bridge import bridge_config_to_env

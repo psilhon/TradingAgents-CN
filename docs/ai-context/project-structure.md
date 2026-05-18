@@ -14,7 +14,7 @@
 | `web/` | streamlit 旧 UI | ⚫ **已废弃**（chainlit/starlette 冲突，不可启动）|
 | `openspec/` | OpenSpec 决策追溯（fork 加）| 🟢 changes / specs |
 | `docs/` | 文档 73+ 文件 | 🟢 散乱无统一索引；上游已有 `QUICK_START.md` `STRUCTURE.md` `architecture/` 等 |
-| `config/` | 原生服务配置（`mongod.conf` / `redis.conf`）| 🟢 fork 加 |
+| `config/` | 原生服务配置（`mongod.conf` / `redis.conf`）+ 每日推荐配置目录 `daily_recommendations/` | 🟢 fork 加 |
 | `scripts/` | 上游一次性脚本（数据导出、迁移等） + fork 新增 `setup-native.sh` / `local-services.sh` | ⚫ 不在 lint 范围 |
 | `data/` | 原生 mongo/redis 数据目录（gitignored）| — |
 | `examples/` | 示例代码 | ⚫ 不在 lint 范围 |
@@ -43,6 +43,7 @@
 | `frontend/package.json` | npm scripts (dev/build/lint/format/type-check) | ✓ |
 | `config/mongod.conf` | MongoDB 7.0 配置（bind 127.0.0.1:54302, 项目本地 dbpath）| ✓ fork 加 |
 | `config/redis.conf` | Redis 配置（bind 127.0.0.1:54303, AOF）| ✓ fork 加 |
+| `config/daily_recommendations/` | 每日推荐多配置目录（每个配置一个 `<id>.json`，启动时由旧单文件迁入）| ✓ fork 加 |
 | `scripts/local-services.sh` | 原生服务编排（替代 docker compose）| ✓ fork 加 |
 | `scripts/setup-native.sh` | 一次性安装脚本（brew install + mongo user 创建）| ✓ fork 加 |
 | `.env` / `.env.example` | 配置（150+ 项；必填 3 处）| `.env` gitignored / `.env.example` tracked |
