@@ -1,0 +1,41 @@
+{
+  "id": "888087d5",
+  "name": "价值投资",
+  "screening": {
+    "conditions": [
+      {
+        "field": "roe",
+        "operator": ">=",
+        "value": 15
+      },
+      {
+        "field": "pe",
+        "operator": "between",
+        "value": [
+          0,
+          30
+        ]
+      },
+      {
+        "field": "pb",
+        "operator": "between",
+        "value": [
+          0,
+          5
+        ]
+      },
+      {
+        "field": "total_mv",
+        "operator": ">=",
+        "value": 100
+      }
+    ],
+    "order_by": "pe",
+    "order_direction": "asc",
+    "limit": 10
+  },
+  "analysis": {
+    "research_depth": "标准",
+    "market_type": "A股"
+  }
+}
