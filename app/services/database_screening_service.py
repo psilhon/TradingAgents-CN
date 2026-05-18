@@ -93,6 +93,21 @@ class DatabaseScreeningService:
         
         return True
     
+    async def ensure_indexes(self) -> None:
+        """确保选股视图依赖的 join 索引存在（幂等）。
+
+        stock_screening_view 的关联 $lookup 按 (code, data_source) 匹配
+        stock_financial_data、再按 report_period 取最新一期。缺这个复合索引时
+        每次筛选都会对 stock_financial_data 全表扫描（外层每条 × 全表），
+        导致筛选查询超过 60s socket 超时 —— 表现为筛选静默返回 0 结果。
+        """
+        db = get_mongo_db()
+        await db["stock_financial_data"].create_index(
+            [("code", 1), ("data_source", 1), ("report_period", -1)],
+            name="code_datasource_period",
+        )
+        logger.info("✅ stock_financial_data 索引 code_datasource_period 已就绪")
+
     async def screen_stocks(
         self,
         conditions: List[Dict[str, Any]],

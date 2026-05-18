@@ -287,6 +287,12 @@ async def _select_stocks(cfg: dict[str, Any]) -> list[dict[str, str]]:
         order_by=order_by,
     )
 
+    # screen_stocks 把数据库异常吞掉、返回 source="error" + items=[]。这里显式
+    # 抛出，让 run_daily_recommendation 把整次运行标记为 failed，而不是把筛选
+    # 失败误记成一次「completed / 0 只」的成功运行。
+    if result.get("source") == "error":
+        raise RuntimeError(f"股票筛选失败: {result.get('error') or '未知错误'}")
+
     items = result.get("items", []) or []
     stocks: list[dict[str, str]] = []
     for item in items[:limit]:
@@ -432,7 +438,18 @@ async def run_daily_recommendation(config_id: str) -> None:
     """
     cfg = load_config(config_id)
 
-    stocks = await _select_stocks(cfg)
+    try:
+        stocks = await _select_stocks(cfg)
+    except Exception as exc:  # noqa: BLE001 - screening failure must be recorded, not lost
+        logger.error(
+            "Daily recommendation [%s]: screening failed, recording failed run: %s",
+            config_id,
+            exc,
+        )
+        failed_doc_id = await _persist_initial(cfg, [])
+        await _persist_final(failed_doc_id, [], "failed")
+        return
+
     logger.info(
         "Daily recommendation [%s]: screened %d stock(s)", config_id, len(stocks)
     )

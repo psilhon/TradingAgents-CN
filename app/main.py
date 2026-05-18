@@ -312,6 +312,16 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning(f"Startup backfill failed (ignored): {e}")
 
+    # 启动期：确保选股视图依赖的 join 索引存在（缺失会导致筛选查询超时）
+    try:
+        from app.services.database_screening_service import (
+            get_database_screening_service,
+        )
+
+        await get_database_screening_service().ensure_indexes()
+    except Exception as e:
+        logger.warning(f"Startup screening index ensure failed (ignored): {e}")
+
     # 启动每日定时任务：可配置
     scheduler: AsyncIOScheduler | None = None
     try:
