@@ -1,0 +1,25 @@
+{
+  "id": "af8892d0",
+  "name": "质量筛选(高ROE)",
+  "screening": {
+    "conditions": [
+      {
+        "field": "roe",
+        "operator": ">=",
+        "value": 15
+      },
+      {
+        "field": "total_mv",
+        "operator": ">=",
+        "value": 100
+      }
+    ],
+    "order_by": "roe",
+    "order_direction": "desc",
+    "limit": 10
+  },
+  "analysis": {
+    "research_depth": "标准",
+    "market_type": "A股"
+  }
+}

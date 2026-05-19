@@ -1,0 +1,25 @@
+{
+  "id": "13a172c3",
+  "name": "做空筛选(持仓排雷)",
+  "screening": {
+    "conditions": [
+      {
+        "field": "pe",
+        "operator": ">",
+        "value": 80
+      },
+      {
+        "field": "pb",
+        "operator": ">",
+        "value": 8
+      }
+    ],
+    "order_by": "pe",
+    "order_direction": "desc",
+    "limit": 10
+  },
+  "analysis": {
+    "research_depth": "标准",
+    "market_type": "A股"
+  }
+}

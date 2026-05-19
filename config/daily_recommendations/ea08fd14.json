@@ -1,0 +1,31 @@
+{
+  "id": "ea08fd14",
+  "name": "价值筛选(低估值)",
+  "screening": {
+    "conditions": [
+      {
+        "field": "pe",
+        "operator": "between",
+        "value": [
+          0,
+          25
+        ]
+      },
+      {
+        "field": "pb",
+        "operator": "between",
+        "value": [
+          0,
+          2.5
+        ]
+      }
+    ],
+    "order_by": "pe",
+    "order_direction": "asc",
+    "limit": 10
+  },
+  "analysis": {
+    "research_depth": "标准",
+    "market_type": "A股"
+  }
+}
