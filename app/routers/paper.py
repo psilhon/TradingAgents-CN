@@ -207,7 +207,9 @@ async def _get_available_quantity(user_id: str, code: str, market: str) -> int:
     return total_qty
 
 
-async def _get_last_price(code: str, market: str) -> tuple[Optional[float], Optional[str]]:
+async def _get_last_price(
+    code: str, market: str
+) -> tuple[Optional[float], Optional[str], Optional[float]]:
     """
     获取股票最新价格 + 数据时间戳（支持多市场）.
 
@@ -219,8 +221,9 @@ async def _get_last_price(code: str, market: str) -> tuple[Optional[float], Opti
         market: 市场类型 (CN/HK/US)
 
     Returns:
-        (price, as_of_ts) tuple；获取失败返回 (None, None)；as_of_ts 为
-        ISO8601 字符串（mongo doc.updated_at）或 None（fallback 路径无 ts）.
+        (price, as_of_ts, pct_chg) tuple；获取失败返回 (None, None, None)。
+        as_of_ts 为 ISO8601 字符串（mongo doc.updated_at）或 None（fallback 路径无 ts）。
+        pct_chg 为当日涨跌幅（%），仅 A 股 hot-path 透出，其余路径为 None。
     """
     # A股：走 quote_snapshot_reader（mongo market_quotes，hot-path 不阻塞）
     if market == "CN":
@@ -231,7 +234,7 @@ async def _get_last_price(code: str, market: str) -> tuple[Optional[float], Opti
         q = result["quotes"].get(code, {})
         close = q.get("close")
         if close is not None and close > 0:
-            return float(close), q.get("last_price_as_of")
+            return float(close), q.get("last_price_as_of"), q.get("pct_chg")
 
         # 回退到 stock_basic_info 的 current_price（无 ts）
         db = get_mongo_db()
@@ -241,12 +244,12 @@ async def _get_last_price(code: str, market: str) -> tuple[Optional[float], Opti
                 price = float(basic_info["current_price"])
                 if price > 0:
                     logger.debug(f"✅ 从 stock_basic_info 获取价格: {code} = {price}")
-                    return price, None
+                    return price, None, None
             except Exception as e:
                 logger.warning(f"⚠️ stock_basic_info 价格转换失败 {code}: {e}")
 
         logger.error(f"❌ 无法从数据库获取A股价格: {code}")
-        return None, None
+        return None, None, None
 
     # 港股/美股：使用 ForeignStockService（out of scope 不动）
     elif market in ["HK", "US"]:
@@ -271,13 +274,13 @@ async def _get_last_price(code: str, market: str) -> tuple[Optional[float], Opti
                             ts_iso = ts_raw.isoformat() if hasattr(ts_raw, "isoformat") else str(ts_raw)
                         except Exception:
                             ts_iso = None
-                    return float(price), ts_iso
+                    return float(price), ts_iso, None
         except Exception as e:
             logger.error(f"❌ 获取{market}股价格失败 {code}: {e}")
-            return None, None
+            return None, None, None
 
     logger.error(f"❌ 无法获取股票价格: {code} (market={market})")
-    return None, None
+    return None, None, None
 
 
 def _zfill_code(code: str) -> str:
@@ -308,8 +311,8 @@ async def get_account(current_user: dict = Depends(get_current_user)):
         avg_cost = float(p.get("avg_cost", 0.0))
         available_qty = p.get("available_qty", qty)
 
-        # 获取最新价 + 数据时间戳（OpenSpec realtime-trading-data-flow Req 2）
-        last, last_as_of = await _get_last_price(code, market)
+        # 获取最新价 + 数据时间戳 + 当日涨跌幅（OpenSpec realtime-trading-data-flow Req 2）
+        last, last_as_of, last_pct_chg = await _get_last_price(code, market)
         mkt_value = round((last or 0.0) * qty, 2)
         positions_value_by_currency[currency] += mkt_value
         if last_as_of:
@@ -326,6 +329,7 @@ async def get_account(current_user: dict = Depends(get_current_user)):
                 "avg_cost": avg_cost,
                 "last_price": last,
                 "last_price_as_of": last_as_of,
+                "pct_chg": last_pct_chg,
                 "market_value": mkt_value,
                 "unrealized_pnl": None if last is None else round((last - avg_cost) * qty, 2),
             }
@@ -397,8 +401,8 @@ async def place_order(payload: PlaceOrderRequest, current_user: dict = Depends(g
     # 3. 获取账户
     acc = await _get_or_create_account(current_user["id"])
 
-    # 4. 获取价格（下单只需 price 不透 as_of_ts；签名变更后丢弃 ts 元素）
-    price, _ = await _get_last_price(normalized_code, market)
+    # 4. 获取价格（下单只需 price 不透 as_of_ts / pct_chg；丢弃其余元素）
+    price, _, _ = await _get_last_price(normalized_code, market)
     if price is None or price <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"无法获取股票 {normalized_code} ({market}) 的最新价格")
 
@@ -548,7 +552,7 @@ async def list_positions(current_user: dict = Depends(get_current_user)):
         available_qty = p.get("available_qty", qty)
         avg_cost = float(p.get("avg_cost", 0.0))
 
-        last, last_as_of = await _get_last_price(code, market)
+        last, last_as_of, _ = await _get_last_price(code, market)
         mkt = round((last or 0.0) * qty, 2)
         if last_as_of:
             last_price_timestamps.append(last_as_of)

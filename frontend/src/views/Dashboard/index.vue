@@ -448,9 +448,9 @@
                           :class="(positionTodayPnl(p) ?? 0) >= 0 ? 'up' : 'down'"
                           :title="`今日浮动盈亏（基于 ws 实时推送 pct_chg 反推昨收价）`"
                         >
-                          今日 {{ (positionTodayPnl(p) ?? 0) >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(positionTodayPnl(p) ?? 0)) }}
+                          {{ (positionTodayPnl(p) ?? 0) >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(positionTodayPnl(p) ?? 0)) }}
                         </span>
-                        <span v-else class="pos-today-pnl muted-small">今日 —</span>
+                        <span v-else class="pos-today-pnl muted-small">—</span>
                         <span
                           class="pos-pnl num"
                           :class="(p.unrealized_pnl ?? 0) >= 0 ? 'up' : 'down'"
@@ -2272,7 +2272,7 @@ onUnmounted(() => {
 /* 今日浮动盈亏（main row 中间，区别于右侧累计盈亏） */
 .pos-today-pnl {
   flex: 1;
-  text-align: center;
+  text-align: left;
   font-size: 11.5px;
   font-weight: 500;
   letter-spacing: 0.02em;
