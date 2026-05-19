@@ -159,10 +159,9 @@ class DatabaseScreeningService:
                 logger.info(f"✅ [database_screening] 最终使用的数据源: {source}")
 
             # 构建查询条件（现在视图已包含实时行情数据，可以直接查询所有字段）
+            # 不按 data_source 过滤：basic_info 已一码一条，按源过滤会因 basic_info
+            # 源(akshare/baostock) ≠ 配置优先级源(tushare) 不一致而清空全部结果。
             query = await self._build_query(conditions)
-
-            # 🔥 添加数据源筛选
-            query["data_source"] = source
 
             logger.info(f"📋 数据库查询条件: {query}")
 
