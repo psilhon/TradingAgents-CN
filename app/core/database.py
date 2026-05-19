@@ -234,13 +234,15 @@ async def create_stock_screening_view(db):
             {"$lookup": {"from": "market_quotes", "localField": "code", "foreignField": "code", "as": "quote_data"}},
             # 第二步：展开 quote_data 数组
             {"$unwind": {"path": "$quote_data", "preserveNullAndEmptyArrays": True}},
-            # 第三步：关联财务数据 (stock_financial_data)
+            # 第三步：关联财务数据 (stock_financial_data)，按 code 取最新一期。
+            # 不按 data_source join：basic_info 是 akshare/baostock、financial_data
+            # 是 tushare，加 data_source 等值条件会让 join 永不命中、roe 全为 null。
             {
                 "$lookup": {
                     "from": "stock_financial_data",
-                    "let": {"stock_code": "$code", "stock_data_source": "$data_source"},
+                    "let": {"stock_code": "$code"},
                     "pipeline": [
-                        {"$match": {"$expr": {"$and": [{"$eq": ["$code", "$$stock_code"]}, {"$eq": ["$data_source", "$$stock_data_source"]}]}}},
+                        {"$match": {"$expr": {"$eq": ["$code", "$$stock_code"]}}},
                         {"$sort": {"report_period": -1}},
                         {"$limit": 1},
                     ],
