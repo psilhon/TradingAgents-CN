@@ -1,84 +1,60 @@
-#!/usr/bin/env python3
-"""
-测试筛选字段映射
+"""筛选字段映射集成测试。
+
+验证 database_screening_service.screen_stocks 的查询 / 排序 / 结果格式化链路：
+按 total_mv 筛选 → 返回结构正确、关键字段齐全、降序排序生效。
+
+需真实 MongoDB（stock_screening_view，akshare 数据源）。属 integration 标记，
+默认 `-m "not integration"` 跳过，用 `pytest -m integration` 显式执行。
 """
 
 import asyncio
-import os
-import sys
 
+import pytest
 from dotenv import load_dotenv
 
-# 加载环境变量
+pytestmark = pytest.mark.integration
+
 load_dotenv()
 
-# 添加项目根目录到Python路径
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+def test_screening_fields():
+    """按 total_mv 筛选：结果结构、关键字段、降序排序均正确。"""
+    from app.core.database import init_db
+    from app.services.database_screening_service import get_database_screening_service
 
-async def test_screening_fields():
-    """测试筛选字段映射"""
-    print("🧪 测试筛选字段映射...")
-
-    try:
-        # 导入服务
-        from app.core.database import init_db
-        from app.models.screening import OperatorType, ScreeningCondition
-        from app.services.database_screening_service import get_database_screening_service
-
-        # 初始化数据库
+    async def _run():
         await init_db()
-        print("✅ 数据库连接成功")
-
-        # 获取服务实例
         service = get_database_screening_service()
 
-        # 测试筛选条件
-        conditions = [
-            ScreeningCondition(
-                field="total_mv",
-                operator=OperatorType.GTE,
-                value=100,  # 总市值 >= 100亿
-            )
-        ]
+        # 显式指定 source，结果不受数据源优先级配置漂移影响
+        results, total = await service.screen_stocks(
+            conditions=[{"field": "total_mv", "operator": ">=", "value": 100}],
+            limit=3,
+            order_by=[{"field": "total_mv", "direction": "desc"}],
+            source="akshare",
+        )
 
-        # 执行筛选
-        results, total = await service.screen_stocks(conditions=conditions, limit=3, order_by=[{"field": "total_mv", "direction": "desc"}])
+        # 结构不变量
+        assert isinstance(total, int)
+        assert isinstance(results, list)
+        assert len(results) <= 3
+        assert len(results) <= total
 
-        print(f"✅ 筛选完成: 总数={total}, 返回={len(results)}")
+        # 回归闸门：total_mv>=100 在 akshare 源下必有数据，0 结果即筛选链路回归
+        assert total > 0, f"total_mv>=100 筛选返回 total={total}，疑似选股链路回归"
+        assert results, "total>0 但 results 为空"
 
-        # 检查字段映射
-        if results:
-            print("\n📋 字段映射检查:")
-            first_result = results[0]
+        # 字段完整性：_format_result 统一输出后端字段名
+        first = results[0]
+        assert isinstance(first, dict)
+        for field in ("code", "name", "total_mv"):
+            assert field in first, f"结果缺字段 {field}，实际字段：{sorted(first)}"
 
-            # 检查前端期望的字段
-            expected_fields = ["code", "name", "industry", "market_cap", "pe_ratio", "pb_ratio", "price", "change_percent"]
+        # 筛选条件必须在结果中体现
+        assert first["total_mv"] >= 100
 
-            print("前端期望的字段:")
-            for field in expected_fields:
-                value = first_result.get(field)
-                status = "✅" if field in first_result else "❌"
-                print(f"  {status} {field}: {value}")
+        # 降序排序生效
+        market_values = [r["total_mv"] for r in results]
+        assert market_values == sorted(market_values, reverse=True)
 
-            print("\n📄 完整结果示例:")
-            print(f"  股票代码: {first_result.get('code')}")
-            print(f"  股票名称: {first_result.get('name')}")
-            print(f"  所属行业: {first_result.get('industry')}")
-            print(f"  市值: {first_result.get('market_cap')}亿")
-            print(f"  市盈率: {first_result.get('pe_ratio')}")
-            print(f"  市净率: {first_result.get('pb_ratio')}")
-            print(f"  当前价格: {first_result.get('price')} (基础筛选为None)")
-            print(f"  涨跌幅: {first_result.get('change_percent')} (基础筛选为None)")
-
-        print("\n🎉 字段映射测试完成！")
-
-    except Exception as e:
-        print(f"❌ 测试失败: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    asyncio.run(test_screening_fields())
+    asyncio.run(_run())
