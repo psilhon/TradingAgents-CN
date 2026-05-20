@@ -83,9 +83,10 @@ def test_take_snapshot_with_cn_holding_writes_snapshot():
     ]
     svc, snapshots = _build_service(account=account, positions=positions)
 
+    # `_get_last_price` 签名升级为 (price, as_of, pct_chg) 3-tuple（commit 31c5a108）
     with patch(
         "app.routers.paper._get_last_price",
-        new=AsyncMock(return_value=(30.0, "2026-05-17T15:00:00")),
+        new=AsyncMock(return_value=(30.0, "2026-05-17T15:00:00", None)),
     ):
         result = asyncio.run(svc.take_snapshot("u1", date(2026, 5, 17)))
 
@@ -116,7 +117,7 @@ def test_take_snapshot_skips_holding_with_unavailable_price():
 
     with patch(
         "app.routers.paper._get_last_price",
-        new=AsyncMock(return_value=(None, None)),
+        new=AsyncMock(return_value=(None, None, None)),
     ):
         result = asyncio.run(svc.take_snapshot("u1", date(2026, 5, 17)))
 
