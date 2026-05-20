@@ -220,6 +220,7 @@
               v-for="stock in favoriteStocks"
               :key="stock.stock_code"
               class="watchlist-item"
+              :class="{ 'is-stale': isStaleQuote(stock) }"
               @click="viewStockDetail(stock)"
             >
               <div class="watchlist-left">
@@ -246,6 +247,13 @@
                   {{ stock.change_percent > 0 ? '▲' : stock.change_percent < 0 ? '▼' : '—' }}
                   <NumberFlip :value="Math.abs(Number(stock.change_percent)).toFixed(2)" />%
                 </div>
+                <!-- 行情时间戳非今日（CN tz）时显示「昨日收盘」灰标，避免误读
+                     昨日涨停板为今日实时（capability realtime-trading-data-flow） -->
+                <div
+                  v-if="isStaleQuote(stock)"
+                  class="watchlist-stale-badge"
+                  title="该行情为非今日数据；交易日盘中 RealtimeQuoteSync 会自动覆盖"
+                >昨日收盘</div>
               </div>
             </div>
           </div>
@@ -910,6 +918,10 @@ const loadFavoriteStocks = async () => {
         stock_name: item.stock_name,
         current_price: item.current_price || 0,
         change_percent: item.change_percent || 0,
+        // 行情时间戳（mongo market_quotes.updated_at ISO 字符串）。
+        // 后端 RealtimeQuoteSync 每 3 秒 sync 自选股 ∪ 持仓，盘中 as_of = 今日；
+        // 但 sync 失败/盘外 / 历史快照场景 as_of 会停在昨日，触发「昨日收盘」灰标。
+        as_of: item.as_of || null,
       }))
     }
   } catch (error) {
@@ -917,6 +929,19 @@ const loadFavoriteStocks = async () => {
   } finally {
     watchlistLoading.value = false
   }
+}
+
+// 判断行情时间戳是否非今日（CN tz）—— 后端 as_of 是 ISO UTC 字符串；
+// 这里取本地（CN）日历日比较，盘外或 sync 中断会让 as_of 停在昨日。
+const isStaleQuote = (stock: any): boolean => {
+  const asOf = stock?.as_of || stock?.last_price_as_of
+  if (!asOf) return false
+  const dt = new Date(asOf)
+  if (isNaN(dt.getTime())) return false
+  // Asia/Shanghai 日历日（UTC+8）对齐
+  const cnDate = new Date(dt.getTime() + 8 * 3600 * 1000).toISOString().slice(0, 10)
+  const todayCn = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)
+  return cnDate !== todayCn
 }
 
 const loadRecentAnalyses = async () => {
@@ -1844,6 +1869,24 @@ onUnmounted(() => {
   margin-top: 1px;
 }
 
+/* 非今日行情灰标（昨日收盘 / 节假日快照），区分于今日实时推送 */
+.watchlist-stale-badge {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 0 5px;
+  font-size: 9.5px;
+  line-height: 14px;
+  color: var(--fg-muted);
+  background: var(--bg-subtle, rgba(0, 0, 0, 0.04));
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+}
+
+/* 整行透明度降低，让今日 vs 昨日数据一眼分得开 */
+.watchlist-item.is-stale {
+  opacity: 0.7;
+}
+
 // =================================================================
 // 模拟账户
 // =================================================================
@@ -2272,7 +2315,7 @@ onUnmounted(() => {
 /* 今日浮动盈亏（main row 中间，区别于右侧累计盈亏） */
 .pos-today-pnl {
   flex: 1;
-  text-align: left;
+  text-align: center;
   font-size: 11.5px;
   font-weight: 500;
   letter-spacing: 0.02em;

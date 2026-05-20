@@ -60,14 +60,19 @@ class RealtimeQuoteSyncService:
     async def _collect_target_codes(self) -> set[str]:
         """收集「自选股 ∪ paper 持仓 (market=CN)」codes 并集去重。
 
-        - `db.user_favorites`: 文档 `{user_id, favorite_stocks: [{stock_code,...}]}`
+        - `db.user_favorites`: 文档 schema 有两套（跟 favorites_service.py 对齐）
+            - 老（ObjectId 用户写入到 users 集合）: `{favorite_stocks: [{stock_code}]}`
+            - 新（字符串 user_id, favorites_service 默认走这条）: `{favorites: [{stock_code}]}`
+          两者都兼容，否则新 schema 下自选股全部漏掉（只剩 paper 持仓那 3 条 sync）。
         - `db.paper_positions`: 文档 `{user_id, code, market, ...}`，仅取 market=CN
         """
         codes: set[str] = set()
 
         # 1. 自选股
-        async for doc in self.db["user_favorites"].find({}, {"favorite_stocks.stock_code": 1, "_id": 0}):
-            for fav in doc.get("favorite_stocks", []) or []:
+        async for doc in self.db["user_favorites"].find(
+            {}, {"favorite_stocks.stock_code": 1, "favorites.stock_code": 1, "_id": 0}
+        ):
+            for fav in (doc.get("favorite_stocks") or doc.get("favorites") or []):
                 code = fav.get("stock_code")
                 if code:
                     codes.add(str(code).strip())
