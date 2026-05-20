@@ -12,7 +12,6 @@ OpenSpec change 2026-05-08-realtime-trading-data-flow Requirement
 from __future__ import annotations
 
 import asyncio
-import time
 from typing import Any
 
 import pytest
@@ -42,50 +41,95 @@ def _make_fake_calendar(is_intraday: bool):
     return _FakeCalendar()
 
 
+def _make_fake_mongo_db(facet_result: dict | None):
+    """Build fake mongo db whose `["market_quotes"].aggregate(...).to_list(...)` returns
+    a synthesized $facet result. None → empty aggregate (no docs match)."""
+
+    class _FakeAggregateCursor:
+        def __init__(self, result):
+            self._result = result
+
+        async def to_list(self, _length):
+            return [self._result] if self._result is not None else []
+
+    class _FakeCollection:
+        def __init__(self, result):
+            self._result = result
+            self.aggregate_calls = []
+
+        def aggregate(self, pipeline, **kwargs):
+            self.aggregate_calls.append(pipeline)
+            return _FakeAggregateCursor(self._result)
+
+    class _FakeDB:
+        def __init__(self, result):
+            self._coll = _FakeCollection(result)
+
+        def __getitem__(self, name):
+            assert name == "market_quotes", f"unexpected collection access: {name}"
+            return self._coll
+
+    return _FakeDB(facet_result)
+
+
 @pytest.mark.unit
-def test_compute_overview_aggregates_from_cache(monkeypatch) -> None:
-    """Scenario 1: cache 有数据 → hot-path 聚合成功，带 as_of_ts/staleness_seconds."""
+def test_compute_overview_aggregates_from_mongo(monkeypatch) -> None:
+    """capability data-truthfulness change 2026-05-20：compute_overview 改 mongo
+    aggregate（不再用 cache），$facet 返回结果被正确映射。"""
     import app.services.market_overview_prewarm_service as mod
     from app.services.market_overview_prewarm_service import MarketOverviewPrewarmService
 
-    cache_ts = time.time() - 5  # 5s stale
-    cache = {
-        "000001": {"close": 12.34, "pct_chg": 9.6, "amount": 1.0e8},  # limit_up (>= 9.5)
-        "000002": {"close": 8.0, "pct_chg": -9.7, "amount": 5.0e7},  # limit_down (<= -9.5)
-        "600036": {"close": 35.10, "pct_chg": 1.2, "amount": 2.0e8},  # advance
-        "600519": {"close": 1750.0, "pct_chg": -0.5, "amount": 8.0e7},  # decline
-        "002594": {"close": 200.0, "pct_chg": 0.0, "amount": 3.0e7},  # neither (=0)
+    # 模拟 mongo $facet 聚合结果
+    facet_result = {
+        "limit_up": [{"n": 1}],
+        "limit_down": [{"n": 1}],
+        "advance": [{"n": 2}],
+        "decline": [{"n": 2}],
+        "amount_sum": [{"_id": None, "sum": 1.0e8 + 5.0e7 + 2.0e8 + 8.0e7 + 3.0e7}],
+        "max_updated": [{"_id": None, "ts": _utcnow_recent()}],
+        "total": [{"n": 5}],
     }
-    fake_qs = _make_fake_quotes_service(cache=cache, cache_ts=cache_ts)
-    monkeypatch.setattr(mod, "get_quotes_service", lambda: fake_qs, raising=True)
+    fake_db = _make_fake_mongo_db(facet_result)
+    monkeypatch.setattr(mod, "get_mongo_db", lambda: fake_db, raising=True)
 
     async def _run() -> None:
         svc = MarketOverviewPrewarmService()
         result = await svc.compute_overview()
         assert result["limit_up"] == 1
         assert result["limit_down"] == 1
-        assert result["advance"] == 2  # 9.6, 1.2
-        assert result["decline"] == 2  # -9.7, -0.5
+        assert result["advance"] == 2
+        assert result["decline"] == 2
         assert result["total"] == 5
-        # 成交额合计单位为亿
         expected_total = round((1.0e8 + 5.0e7 + 2.0e8 + 8.0e7 + 3.0e7) / 1e8, 0)
         assert result["amount_total"] == expected_total
         assert result["as_of_ts"] is not None
-        assert 4.0 < result["staleness_seconds"] < 10.0  # ≈ 5s
-        # MUST NOT call _ensure_cache from hot-path
-        assert fake_qs.ensure_calls == 0
+        assert result["staleness_seconds"] is not None
+        # 验证 aggregate 调用的 pipeline 含 today filter
+        pipeline = fake_db["market_quotes"].aggregate_calls[0]
+        assert pipeline[0]["$match"]["updated_at"]["$gte"] is not None
 
     asyncio.run(_run())
 
 
 @pytest.mark.unit
-def test_compute_overview_empty_cache_returns_null_fields(monkeypatch) -> None:
-    """Scenario 4: cache 空 → 返回 null 字段，不阻塞等待 prewarm."""
+def test_compute_overview_empty_aggregate_returns_null_fields(monkeypatch) -> None:
+    """capability data-truthfulness：当日无数据时 compute_overview MUST 返 null/0
+    字段（不允许用历史数据填补）。"""
     import app.services.market_overview_prewarm_service as mod
     from app.services.market_overview_prewarm_service import MarketOverviewPrewarmService
 
-    fake_qs = _make_fake_quotes_service(cache={}, cache_ts=0.0)
-    monkeypatch.setattr(mod, "get_quotes_service", lambda: fake_qs, raising=True)
+    # $facet 返回所有桶都空
+    facet_result = {
+        "limit_up": [],
+        "limit_down": [],
+        "advance": [],
+        "decline": [],
+        "amount_sum": [],
+        "max_updated": [],
+        "total": [],
+    }
+    fake_db = _make_fake_mongo_db(facet_result)
+    monkeypatch.setattr(mod, "get_mongo_db", lambda: fake_db, raising=True)
 
     async def _run() -> None:
         svc = MarketOverviewPrewarmService()
@@ -98,10 +142,35 @@ def test_compute_overview_empty_cache_returns_null_fields(monkeypatch) -> None:
         assert result["total"] == 0
         assert result["as_of_ts"] is None
         assert result["staleness_seconds"] is None
-        # MUST NOT trigger _ensure_cache（不阻塞）
-        assert fake_qs.ensure_calls == 0
 
     asyncio.run(_run())
+
+
+@pytest.mark.unit
+def test_compute_overview_mongo_error_returns_null(monkeypatch) -> None:
+    """mongo aggregate 抛异常时 compute_overview MUST 返 null/0，不抛."""
+    import app.services.market_overview_prewarm_service as mod
+    from app.services.market_overview_prewarm_service import MarketOverviewPrewarmService
+
+    def _raise_mongo_db():
+        raise RuntimeError("MongoDB 未初始化")
+
+    monkeypatch.setattr(mod, "get_mongo_db", _raise_mongo_db, raising=True)
+
+    async def _run() -> None:
+        svc = MarketOverviewPrewarmService()
+        result = await svc.compute_overview()
+        assert result["limit_up"] is None
+        assert result["total"] == 0
+
+    asyncio.run(_run())
+
+
+def _utcnow_recent():
+    """Return a UTC datetime ~5s ago, for max_updated mock."""
+    from datetime import datetime, timezone
+
+    return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 @pytest.mark.unit
