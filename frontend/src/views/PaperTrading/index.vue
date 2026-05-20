@@ -59,32 +59,44 @@
                 </el-descriptions>
               </el-tab-pane>
 
-              <!-- 港股账户 -->
+              <!-- 港股账户 — C2 fix: ?? null 保留 null + v-if 守卫未启用账户
+                   capability data-quality-gate Req 3 Scenario "null 不得用 || 0 假装为 0":
+                   原 `?.HKD || 0` 把 undefined（未启用账户）和 0 余额视觉混淆 -->
               <el-tab-pane label="🇭🇰 港股" name="HK">
-                <el-descriptions :column="1" border>
-                  <el-descriptions-item label="可用资金">HK${{ fmtAmount(account.cash?.HKD || 0) }}</el-descriptions-item>
-                  <el-descriptions-item label="持仓市值">HK${{ fmtAmount(account.positions_value?.HKD || 0) }}</el-descriptions-item>
-                  <el-descriptions-item label="总资产">HK${{ fmtAmount(account.equity?.HKD || 0) }}</el-descriptions-item>
-                  <el-descriptions-item label="已实现盈亏">
-                    <span :style="{ color: (account.realized_pnl?.HKD || 0) >= 0 ? '#67C23A' : '#F56C6C' }">
-                      HK${{ fmtAmount(account.realized_pnl?.HKD || 0) }}
-                    </span>
-                  </el-descriptions-item>
-                </el-descriptions>
+                <template v-if="account.cash?.HKD != null">
+                  <el-descriptions :column="1" border>
+                    <el-descriptions-item label="可用资金">HK${{ fmtAmount(account.cash.HKD ?? null) }}</el-descriptions-item>
+                    <el-descriptions-item label="持仓市值">HK${{ fmtAmount(account.positions_value?.HKD ?? null) }}</el-descriptions-item>
+                    <el-descriptions-item label="总资产">HK${{ fmtAmount(account.equity?.HKD ?? null) }}</el-descriptions-item>
+                    <el-descriptions-item label="已实现盈亏">
+                      <span :style="{ color: (account.realized_pnl?.HKD ?? 0) >= 0 ? '#67C23A' : '#F56C6C' }">
+                        HK${{ fmtAmount(account.realized_pnl?.HKD ?? null) }}
+                      </span>
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </template>
+                <el-empty v-else description="未启用港股账户" :image-size="80">
+                  <div style="color: var(--fg-muted); font-size: 12px">在港股市场首次下单后自动开通</div>
+                </el-empty>
               </el-tab-pane>
 
-              <!-- 美股账户 -->
+              <!-- 美股账户 — 同港股逻辑 -->
               <el-tab-pane label="🇺🇸 美股" name="US">
-                <el-descriptions :column="1" border>
-                  <el-descriptions-item label="可用资金">${{ fmtAmount(account.cash?.USD || 0) }}</el-descriptions-item>
-                  <el-descriptions-item label="持仓市值">${{ fmtAmount(account.positions_value?.USD || 0) }}</el-descriptions-item>
-                  <el-descriptions-item label="总资产">${{ fmtAmount(account.equity?.USD || 0) }}</el-descriptions-item>
-                  <el-descriptions-item label="已实现盈亏">
-                    <span :style="{ color: (account.realized_pnl?.USD || 0) >= 0 ? '#67C23A' : '#F56C6C' }">
-                      ${{ fmtAmount(account.realized_pnl?.USD || 0) }}
-                    </span>
-                  </el-descriptions-item>
-                </el-descriptions>
+                <template v-if="account.cash?.USD != null">
+                  <el-descriptions :column="1" border>
+                    <el-descriptions-item label="可用资金">${{ fmtAmount(account.cash.USD ?? null) }}</el-descriptions-item>
+                    <el-descriptions-item label="持仓市值">${{ fmtAmount(account.positions_value?.USD ?? null) }}</el-descriptions-item>
+                    <el-descriptions-item label="总资产">${{ fmtAmount(account.equity?.USD ?? null) }}</el-descriptions-item>
+                    <el-descriptions-item label="已实现盈亏">
+                      <span :style="{ color: (account.realized_pnl?.USD ?? 0) >= 0 ? '#67C23A' : '#F56C6C' }">
+                        ${{ fmtAmount(account.realized_pnl?.USD ?? null) }}
+                      </span>
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </template>
+                <el-empty v-else description="未启用美股账户" :image-size="80">
+                  <div style="color: var(--fg-muted); font-size: 12px">在美股市场首次下单后自动开通</div>
+                </el-empty>
               </el-tab-pane>
             </el-tabs>
 
@@ -139,9 +151,14 @@
             </el-table-column>
             <el-table-column label="浮盈" width="120">
               <template #default="{ row }">
-                <span :style="{ color: (Number(row.last_price || 0) - Number(row.avg_cost || 0)) >= 0 ? '#67C23A' : '#F56C6C' }">
-                  {{ getCurrencySymbol(row.currency) }}{{ fmtAmount((Number(row.last_price || 0) - Number(row.avg_cost || 0)) * Number(row.quantity || 0)) }}
-                </span>
+                <!-- C3 fix: 缺 quote 时不渲染假红色亏损（Number(null || 0) - avg_cost = -avg_cost*qty 是错向信号）.
+                     capability data-quality-gate Req 3 Scenario "null 不得用 || 0 假装为 0". -->
+                <template v-if="row.last_price != null">
+                  <span :style="{ color: (Number(row.last_price) - Number(row.avg_cost || 0)) >= 0 ? '#67C23A' : '#F56C6C' }">
+                    {{ getCurrencySymbol(row.currency) }}{{ fmtAmount((Number(row.last_price) - Number(row.avg_cost || 0)) * Number(row.quantity || 0)) }}
+                  </span>
+                </template>
+                <span v-else style="color: var(--fg-muted)">—</span>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="200">
