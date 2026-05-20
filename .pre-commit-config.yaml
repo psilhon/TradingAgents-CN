@@ -36,6 +36,16 @@ repos:
         types: [python]
         pass_filenames: false
 
+      # pre-commit: data-truthfulness 黑名单（mockTrend / Math.random / 演示数据）
+      # capability data-quality-gate Req 3 + change 2026-05-20-data-truthfulness。
+      # 仅拦"低误报 + 高真阳"模式；|| 0 类粗匹配靠 spec + review，不进 hook。
+      # 违规可加 `// data-truthfulness:allow reason: <理由>` 注释豁免，留 git blame 痕迹。
+      - id: data-truthfulness
+        name: data-truthfulness grep blacklist
+        entry: scripts/check-data-truthfulness.sh
+        language: system
+        files: '^frontend/src/(views|components/Layout)/.*\.(vue|ts|tsx|js)$'
+
       # pre-push: unit tests only — STRICT
       # 默认所有未标 marker 的 test auto-mark requires_env（不在此跑），
       # 只有显式 @pytest.mark.unit 的 test 才在 pre-push 跑。
