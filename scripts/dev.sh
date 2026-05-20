@@ -96,7 +96,13 @@ cmd_start() {
         err "缺 .venv/bin/uvicorn——先按 docs/USAGE.md 装环境"; exit 1
     else
         log "启动 backend (uvicorn 127.0.0.1:54301)..."
-        nohup .venv/bin/uvicorn app.main:app \
+        # 剥离 shell 继承的代理环境变量：项目所有数据源（eastmoney/sina/tushare/baostock）
+        # 都在国内不需要代理。如果用户 shell 里有 HTTP_PROXY/HTTPS_PROXY/ALL_PROXY
+        # 但代理软件没在跑，backend 会卡在 ProxyError 让 quotes_ingestion 全军覆没。
+        # .env 里需要走代理的 LLM API 之类自有 NO_PROXY 反向白名单逻辑（config.py 372）。
+        nohup env -u HTTP_PROXY -u HTTPS_PROXY -u http_proxy -u https_proxy \
+                  -u ALL_PROXY  -u all_proxy \
+            .venv/bin/uvicorn app.main:app \
             --host 127.0.0.1 --port 54301 --reload \
             > "$BACKEND_LOG" 2>&1 &
         echo $! > "$BACKEND_PID"
