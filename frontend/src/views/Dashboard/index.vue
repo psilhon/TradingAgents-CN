@@ -33,13 +33,11 @@
         <div class="hero-stat">
           <div class="hero-stat-label">分析任务总数</div>
           <div class="hero-stat-val num">{{ userStats.totalAnalyses }}</div>
-          <Sparkline class="hero-stat-spark" :data="heroTrend.total" color="accent" :width="60" :height="10" :fill="true" />
           <div class="hero-stat-sub">今日 +{{ todayAnalyses }}</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-label">成功率</div>
           <div class="hero-stat-val num down">{{ successRate }}%</div>
-          <Sparkline class="hero-stat-spark" :data="heroTrend.success" color="down" :width="60" :height="10" :fill="true" />
           <div class="hero-stat-sub">
             {{ userStats.successfulAnalyses }} / {{ userStats.totalAnalyses }}
           </div>
@@ -47,13 +45,21 @@
         <div class="hero-stat">
           <div class="hero-stat-label">模拟总资产</div>
           <div class="hero-stat-val num accent">¥{{ formatMoney(totalEquity) }}</div>
-          <Sparkline class="hero-stat-spark" :data="heroTrend.equity" color="accent" :width="60" :height="10" :fill="true" />
+          <!-- 真实账户净值 90 天历史曲线（paper_account_snapshots capability） -->
+          <Sparkline
+            v-if="equitySparkline.length >= 2"
+            class="hero-stat-spark"
+            :data="equitySparkline"
+            color="accent"
+            :width="60"
+            :height="10"
+            :fill="true"
+          />
           <div class="hero-stat-sub">A股账户</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-label">自选股数量</div>
           <div class="hero-stat-val num">{{ favoriteStocks.length }}</div>
-          <Sparkline class="hero-stat-spark" :data="heroTrend.fav" color="flat" :width="60" :height="10" :fill="true" />
           <div class="hero-stat-sub">{{ favUpCount }}涨 {{ favDownCount }}跌</div>
         </div>
       </div>
@@ -220,33 +226,35 @@
               v-for="stock in favoriteStocks"
               :key="stock.stock_code"
               class="watchlist-item"
-              :class="{ 'is-stale': isStaleQuote(stock) }"
+              :class="{
+                'is-stale': isStaleQuote(stock),
+                'is-missing': isMissingQuote(stock),
+              }"
               @click="viewStockDetail(stock)"
             >
               <div class="watchlist-left">
                 <div class="watchlist-code">{{ stock.stock_code }}</div>
                 <div class="watchlist-name">{{ stock.stock_name }}</div>
               </div>
-              <Sparkline
-                class="watchlist-spark"
-                :data="mockTrend(strSeed(stock.stock_code), 14, stock.change_percent > 0 ? 'up' : stock.change_percent < 0 ? 'down' : 'flat')"
-                :color="stock.change_percent > 0 ? 'up' : stock.change_percent < 0 ? 'down' : 'flat'"
-                :width="50"
-                :height="18"
-                :fill="true"
-              />
+              <!-- capability data-quality-gate Req 3：sparkline 走势线必须真实历史
+                   数据；当前后端无个股 14 天 K 线 endpoint，先删除该元素，不允许用
+                   mockTrend / strSeed 等合成生成器伪装走势 -->
               <div class="watchlist-right">
                 <div
+                  v-if="stock.current_price != null"
                   class="watchlist-price num"
                   :class="getPriceChangeClass(stock.change_percent)"
                 >¥<NumberFlip :value="Number(stock.current_price).toFixed(2)" /></div>
+                <div v-else class="watchlist-price num muted">—</div>
                 <div
+                  v-if="stock.change_percent != null"
                   class="watchlist-chg num"
                   :class="getPriceChangeClass(stock.change_percent)"
                 >
                   {{ stock.change_percent > 0 ? '▲' : stock.change_percent < 0 ? '▼' : '—' }}
                   <NumberFlip :value="Math.abs(Number(stock.change_percent)).toFixed(2)" />%
                 </div>
+                <div v-else class="watchlist-chg num muted">—</div>
                 <!-- 行情时间戳非今日（CN tz）时显示「昨日收盘」灰标，避免误读
                      昨日涨停板为今日实时（capability realtime-trading-data-flow） -->
                 <div
@@ -625,33 +633,16 @@ const newsLoading = ref(true)
 // 汇总状态指示灯（暂用静态 ok；真实状态通过展开后的 MultiSourceSyncCard 查看）
 const syncOverall = ref<'ok' | 'warn' | 'err'>('ok')
 
-// 基于 seed 的确定性 mock 趋势数组（sparkline 演示用，没有真实历史 API 时填充）
-const mockTrend = (seed: number, length = 14, direction: 'up' | 'down' | 'flat' = 'flat') => {
-  const arr: number[] = []
-  let value = 50
-  for (let i = 0; i < length; i++) {
-    const noise = Math.sin(seed * 9301 + i * 49297) * 4
-    const trend = direction === 'up' ? i * 1.4 : direction === 'down' ? -i * 1.2 : 0
-    value += noise * 0.3 + trend * 0.4
-    arr.push(value)
-  }
-  return arr
-}
+// capability data-quality-gate Requirement 3 + capability data-truthfulness-enforcement:
+//   2026-05-20 删除 mockTrend / strSeed / heroTrend —— 这些是基于 hash/seed 的合成
+//   走势曲线，给用户看像「真实历史走势」实则全是噪声。一律不允许在交易系统里出现。
+//   sparkline 数据 MUST 来自真实历史 endpoint（如 paper_account_snapshots /
+//   stock_daily_quotes），无对应 endpoint 时 MUST 删除该 sparkline 元素。
 
-// 字符串 → 简单 hash 数字（用作 mockTrend seed）
-const strSeed = (s: string) => {
-  let h = 0
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0
-  return Math.abs(h) % 1000
-}
-
-// Hero 4 个 stat 的 mock 趋势（固定，不随数据变）
-const heroTrend = {
-  total: mockTrend(11, 14, 'up'),
-  success: mockTrend(22, 14, 'flat'),
-  equity: mockTrend(33, 14, 'up'),
-  fav: mockTrend(44, 14, 'flat'),
-}
+// Hero「模拟总资产」sparkline 走真实 paperPerformance.sparkline_points（来自
+// paper-account-snapshots capability，已落地）。其它 3 个 Hero stat（任务总数 /
+// 成功率 / 自选股数量）的"历史曲线"信息量太低且无真实数据源，一并不渲染。
+const equitySparkline = computed<number[]>(() => paperPerformance.value?.sparkline_points ?? [])
 
 // Hero 区鼠标跟随光斑：用 rAF throttle 更新 CSS var（GPU 友好）
 const heroEl = ref<HTMLElement | null>(null)
@@ -916,8 +907,10 @@ const loadFavoriteStocks = async () => {
       favoriteStocks.value = response.data.map((item: any) => ({
         stock_code: item.stock_code,
         stock_name: item.stock_name,
-        current_price: item.current_price || 0,
-        change_percent: item.change_percent || 0,
+        // capability data-quality-gate Req 3：保留 null 不假装为 0。
+        // 「0 元股票」和「无数据股票」对用户决策意义不同；UI 模板用 v-if 区分。
+        current_price: item.current_price ?? null,
+        change_percent: item.change_percent ?? null,
         // 行情时间戳（mongo market_quotes.updated_at ISO 字符串）。
         // 后端 RealtimeQuoteSync 每 3 秒 sync 自选股 ∪ 持仓，盘中 as_of = 今日；
         // 但 sync 失败/盘外 / 历史快照场景 as_of 会停在昨日，触发「昨日收盘」灰标。
@@ -933,6 +926,12 @@ const loadFavoriteStocks = async () => {
 
 // 判断行情时间戳是否非今日（CN tz）—— 后端 as_of 是 ISO UTC 字符串；
 // 这里取本地（CN）日历日比较，盘外或 sync 中断会让 as_of 停在昨日。
+// capability data-quality-gate Req 3：缺数据判定（区分 null vs 0）。
+// 用 v-if 显示「—」+ 行级 is-missing 灰化 0.5，与 isStaleQuote 表现一致。
+const isMissingQuote = (stock: any): boolean => {
+  return stock?.current_price == null && stock?.change_percent == null
+}
+
 const isStaleQuote = (stock: any): boolean => {
   const asOf = stock?.as_of || stock?.last_price_as_of
   if (!asOf) return false
@@ -1838,10 +1837,10 @@ onUnmounted(() => {
   &:hover { background: var(--bg-hover); }
 }
 
-.watchlist-spark {
-  flex-shrink: 0;
-  opacity: 0.8;
-  margin: 0 4px;
+/* 缺数据时 muted 样式（区别于 stale 和正常的 up/down 红绿）— 平淡灰，避免误认为
+   是「0 元跌停板」之类的真实零值数据。capability data-quality-gate Req 3。 */
+.watchlist-price.muted, .watchlist-chg.muted {
+  color: var(--fg-muted);
 }
 
 .watchlist-code {
@@ -1885,6 +1884,11 @@ onUnmounted(() => {
 /* 整行透明度降低，让今日 vs 昨日数据一眼分得开 */
 .watchlist-item.is-stale {
   opacity: 0.7;
+}
+
+/* 缺数据整行更暗（区别 stale 的 0.7），强调「这只股票现在没有可信数据」 */
+.watchlist-item.is-missing {
+  opacity: 0.5;
 }
 
 // =================================================================
