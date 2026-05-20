@@ -148,8 +148,14 @@ def test_compute_pnl_formula(monkeypatch) -> None:
 
 
 @pytest.mark.unit
-def test_compute_pnl_missing_quotes_yields_null_as_of(monkeypatch) -> None:
-    """positions 全缺 quotes 时：as_of_ts = None；unrealized 用 0 占位."""
+def test_compute_pnl_missing_quotes_yields_null_aggregates(monkeypatch) -> None:
+    """positions 全缺 quotes 时：as_of_ts/total_unrealized/total_equity 全 None.
+
+    change 2026-05-20-paper-null-quote-handling — v1.3.1 fix C5：
+    旧契约 "unrealized=0 占位, equity=cash" 是 null-as-0 合成，被前端 store 当
+    真值广播。新契约 partial coverage 时聚合字段整体 None + quote_coverage.partial=true，
+    前端凭此做视觉降级。
+    """
     import app.services.pnl_stream_service as mod
     from app.services.pnl_stream_service import PnLStreamService
 
@@ -168,9 +174,13 @@ def test_compute_pnl_missing_quotes_yields_null_as_of(monkeypatch) -> None:
         svc = PnLStreamService()
         pnl = await svc.compute_pnl("user_A")
         assert pnl["as_of_ts"] is None
-        assert pnl["total_unrealized"] == 0.0
-        # equity = cash 因为 close = None 时 mkt_value=0
-        assert pnl["total_equity"] == 100_000.0
+        # 新契约：缺 quote → None（不允许合成 0 / cash）
+        assert pnl["total_unrealized"] is None
+        assert pnl["total_equity"] is None
+        # quote_coverage 透出 missing 信息让前端做视觉降级
+        assert pnl["quote_coverage"]["partial"] is True
+        assert pnl["quote_coverage"]["missing"] == 1
+        assert pnl["quote_coverage"]["missing_codes"] == ["000001"]
 
     asyncio.run(_run())
 

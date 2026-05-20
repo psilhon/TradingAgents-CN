@@ -29,6 +29,94 @@ PNL_CHANNEL_PREFIX = "channel:pnl:"
 PNL_DIFF_THRESHOLD = 0.01  # unrealized / equity abs diff > 0.01 才 publish
 
 
+def _within_threshold(
+    current: tuple[float | None, float | None],
+    last: tuple[float | None, float | None],
+) -> bool:
+    """Diff 检查 — 任一字段从 None 变为非 None（或反之）视为有变化，需 publish.
+
+    None 表示 partial quote coverage（quote 缺失），状态变化用户可见，
+    必须 publish 给前端做视觉降级切换。
+    """
+    for cur, prev in zip(current, last):
+        if (cur is None) != (prev is None):
+            return False  # None / non-None 状态变化 → 有变化
+        if cur is None and prev is None:
+            continue  # 都是 None → 无变化
+        # 两边都是 float，正常 diff
+        if abs(cur - prev) > PNL_DIFF_THRESHOLD:  # type: ignore[operator]
+            return False
+    return True  # 所有字段在阈值内 → 无实质变化
+
+
+def _aggregate_pnl_positions(
+    positions: list[dict[str, Any]],
+    quotes: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Pure helper: aggregate per-position PnL from positions + quotes snapshot.
+
+    capability data-quality-gate Req 3 + change 2026-05-20-paper-null-quote-handling.
+
+    返回 {
+        position_records: [{code, quantity, avg_cost, last_price, last_price_as_of,
+                            market_value: float|None, unrealized_pnl: float|None}],
+        total_unrealized: float | None,  # None when any quote missing (partial)
+        positions_value: float | None,   # None when any quote missing (partial)
+        quote_coverage: {has_quote, missing, missing_codes, partial},
+    }
+
+    缺 quote 时该 position market_value/unrealized_pnl=None，整体聚合 partial → None
+    （切断 ws push 广播假 0 的污染路径，前端可凭 partial flag 做视觉降级）。
+    """
+    position_records: list[dict[str, Any]] = []
+    positions_value_acc = 0.0
+    total_unrealized_acc = 0.0
+    missing_codes: list[str] = []
+    has_quote = 0
+    for p in positions:
+        code = str(p.get("code", "")).strip()
+        qty = int(p.get("quantity", 0) or 0)
+        avg_cost = float(p.get("avg_cost", 0.0) or 0.0)
+        q = quotes.get(code) or {}
+        last_price = q.get("close")
+        last_price_as_of = q.get("last_price_as_of")
+        if last_price is None:
+            mkt_value: float | None = None
+            unrealized: float | None = None
+            missing_codes.append(code)
+        else:
+            mkt_value = round(float(last_price) * qty, 2)
+            unrealized = round((float(last_price) - avg_cost) * qty, 2)
+            positions_value_acc += mkt_value
+            total_unrealized_acc += unrealized
+            has_quote += 1
+        position_records.append(
+            {
+                "code": code,
+                "quantity": qty,
+                "avg_cost": avg_cost,
+                "last_price": float(last_price) if last_price is not None else None,
+                "last_price_as_of": last_price_as_of,
+                "market_value": mkt_value,
+                "unrealized_pnl": unrealized,
+            }
+        )
+
+    partial = len(missing_codes) > 0
+    return {
+        "position_records": position_records,
+        # partial 时整体 None — 不允许部分合成误导前端
+        "positions_value": None if partial else round(positions_value_acc, 2),
+        "total_unrealized": None if partial else round(total_unrealized_acc, 2),
+        "quote_coverage": {
+            "has_quote": has_quote,
+            "missing": len(missing_codes),
+            "missing_codes": missing_codes,
+            "partial": partial,
+        },
+    }
+
+
 class PnLStreamService:
     """盘中 PnL 聚合 + 推送."""
 
@@ -38,7 +126,8 @@ class PnLStreamService:
     ) -> None:
         self._interval = interval_seconds
         # _last_pnl[user_id] = (total_unrealized, total_equity)
-        self._last_pnl: dict[str, tuple[float, float]] = {}
+        # 任一字段可能 None（partial quote coverage），diff 比较时显式处理
+        self._last_pnl: dict[str, tuple[float | None, float | None]] = {}
         self._publish_failed = False
         self._stopping = asyncio.Event()
         self._task: Optional[asyncio.Task] = None
@@ -88,43 +177,22 @@ class PnLStreamService:
         snapshot = await reader.read_quotes(codes)
         quotes = snapshot["quotes"]
 
-        position_records: list[dict[str, Any]] = []
-        total_unrealized = 0.0
-        positions_value = 0.0
-        for p in positions:
-            code = str(p.get("code", "")).strip()
-            qty = int(p.get("quantity", 0) or 0)
-            avg_cost = float(p.get("avg_cost", 0.0) or 0.0)
-            q = quotes.get(code) or {}
-            last_price = q.get("close")
-            last_price_as_of = q.get("last_price_as_of")
-            if last_price is not None and qty > 0:
-                mkt_value = float(last_price) * qty
-                unrealized = (float(last_price) - avg_cost) * qty
-            else:
-                mkt_value = 0.0
-                unrealized = 0.0
-            positions_value += mkt_value
-            total_unrealized += unrealized
-            position_records.append(
-                {
-                    "code": code,
-                    "quantity": qty,
-                    "avg_cost": avg_cost,
-                    "last_price": float(last_price) if last_price is not None else None,
-                    "last_price_as_of": last_price_as_of,
-                    "market_value": round(mkt_value, 2),
-                    "unrealized_pnl": round(unrealized, 2),
-                }
-            )
-
-        total_equity = cash_cny + positions_value
+        # null-quote 处理：partial coverage 时 positions_value/total_unrealized
+        # 整体 None（不允许部分合成；ws push payload 透出 quote_coverage 让前端
+        # 做视觉降级）。capability data-quality-gate Req 3 Scenario "后端 service
+        # 缺上游数据 MUST 返 None"。
+        aggregates = _aggregate_pnl_positions(positions, quotes)
+        positions_value = aggregates["positions_value"]
+        total_unrealized = aggregates["total_unrealized"]
+        # equity 在 positions_value=None 时也 None（公式分量缺失不可信）
+        total_equity: float | None = None if positions_value is None else round(cash_cny + positions_value, 2)
         return {
             "user_id": user_id,
-            "positions": position_records,
-            "total_unrealized": round(total_unrealized, 2),
+            "positions": aggregates["position_records"],
+            "total_unrealized": total_unrealized,
             "total_realized": round(realized_cny, 2),
-            "total_equity": round(total_equity, 2),
+            "total_equity": total_equity,
+            "quote_coverage": aggregates["quote_coverage"],
             "as_of_ts": snapshot.get("as_of_ts"),
         }
 
@@ -155,11 +223,13 @@ class PnLStreamService:
                 logger.warning(f"PnLStream: compute_pnl({user_id}) 失败 {e!r}")
                 continue
 
-            current = (pnl["total_unrealized"], pnl["total_equity"])
+            current: tuple[float | None, float | None] = (
+                pnl["total_unrealized"],
+                pnl["total_equity"],
+            )
             last = self._last_pnl.get(user_id)
-            if last is not None:
-                if abs(current[0] - last[0]) <= PNL_DIFF_THRESHOLD and abs(current[1] - last[1]) <= PNL_DIFF_THRESHOLD:
-                    continue  # 无实质变化，不 publish
+            if last is not None and _within_threshold(current, last):
+                continue  # 无实质变化，不 publish
 
             self._last_pnl[user_id] = current
             await self._publish_pnl(user_id, pnl)
