@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+## [1.3.1] — 2026-05-21
+
+**Fork patch release**——v1.3.0 后累积的数据正确性收口 + 防复发体系强化。本版本同时把 v1.3.0 发布后 baseline 审计发现的 5 critical + 3 warning 语义层 null-as-0 漏修（grep 防线抓不到的模式）系统性修补，并把"语义层 null-as-0 禁令"+"contract test 覆盖空态契约"两条 Req 沉淀进 capability spec，让未来类似模式被 pre-push 阻塞。同时合入数据正确性 Phase 3 防复发（写库前数值 sanity 闸门 / stock_basic_info 主键收敛 / 字段名统一）+ 全市场行情管线主链 sina hq 化 + Dashboard 顶部 ticker 实时化。
+
 ### Fixed
 
 - **v1.3.1 hotfix：后端 null-quote 写入闸门 + 前端 null-as-0 守卫**（OpenSpec change `2026-05-20-paper-null-quote-handling`）：v1.3.0 release 后用 `data-truthfulness-auditor` subagent 做 baseline 扫描——**grep 防线 0 命中**，但发现 **5 critical + 3 warning 语义层漏修**（grep hook 抓不到的 null-as-0 模式）：C1 `formatMoney(null)='0.00'`（`!value` 把 null 和真 0 混淆）/ C2 PaperTrading HK/USD `?.HKD || 0` 显示假"余额为零"/ C3 浮盈表达式 `null × null` 渲染**假红色亏损**（错向信号）/ C4 `app/routers/paper.py:316,556` 用 `last or 0.0` 污染 mongo `paper_account_snapshots` 写入链路（数据链上游 — 影响 TWRR/Sharpe/回撤等 90 天衍生指标）/ C5 `pnl_stream_service:104-107` ws push 同根因，`total_unrealized=0` 假数据广播 / W1 Dashboard 多个 computed loading/空账户 fall-back 0（与 release notes 「新账户首日 KPI 显示「—」」自相矛盾）/ W2 `portfolio_risk_service:80` `aligned.append(0.0)` 缺失日补 0，让 var(HS300) deflate + cov skew，**Beta 计算用了合成数据** / W3 `stocks.py:545-549,616-621` K 线 OHLC `float(row.get("open", 0))` 缺字段补 0，渲染假阴线影线。
