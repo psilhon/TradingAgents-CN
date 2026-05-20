@@ -238,7 +238,9 @@
               </div>
               <!-- capability data-quality-gate Req 3：sparkline 走势线必须真实历史
                    数据；当前后端无个股 14 天 K 线 endpoint，先删除该元素，不允许用
-                   mockTrend / strSeed 等合成生成器伪装走势 -->
+                   合成生成器伪装走势。
+                   data-truthfulness:allow reason: 此处提及的 generator 关键字仅为
+                   文档说明，已删除实际调用 -->
               <div class="watchlist-right">
                 <div
                   v-if="stock.current_price != null"
