@@ -188,6 +188,29 @@ async def get_quote(
         logger.warning(f"  ❌ 计算振幅失败: {e}")
         amplitude = None
 
+    # 数据时效判定（capability data-truthfulness）：CN tz 日历日比较
+    # market_quotes.updated_at 是 UTC datetime；本机时区为 Asia/Shanghai。
+    # is_stale=true 时前端 MUST 把主价格区灰化 + 显眼标"非今日实时"——
+    # 不能让昨日涨停板 +10% 当成今日大字红色显示糊弄用户。
+    from datetime import datetime as _dt
+    from zoneinfo import ZoneInfo as _ZI
+
+    from app.core.config import settings as _settings
+
+    updated_at_raw = (q or {}).get("updated_at")
+    is_stale: Optional[bool] = None
+    as_of_date: Optional[str] = None
+    if isinstance(updated_at_raw, _dt):
+        _tz = _ZI(_settings.TIMEZONE)
+        _upd = updated_at_raw if updated_at_raw.tzinfo else updated_at_raw.replace(tzinfo=_ZI("UTC"))
+        _upd_cn = _upd.astimezone(_tz)
+        as_of_date = _upd_cn.strftime("%Y-%m-%d")
+        _today_cn = _dt.now(_tz).strftime("%Y-%m-%d")
+        is_stale = as_of_date != _today_cn
+    elif close is not None:
+        # 有价格但没 updated_at 时间戳 → 保守判 stale（不能假装为今日）
+        is_stale = True
+
     data = {
         "code": code6,
         "name": (b or {}).get("name"),
@@ -206,7 +229,11 @@ async def get_quote(
         "turnover_rate_date": turnover_rate_date,  # 🔥 新增：换手率数据日期
         "amplitude_date": amplitude_date,  # 🔥 新增：振幅数据日期
         "trade_date": (q or {}).get("trade_date"),
-        "updated_at": (q or {}).get("updated_at"),
+        "updated_at": updated_at_raw,
+        # 数据时效（capability data-truthfulness）：is_stale=true 时前端
+        # 必须降级显示 + 显眼标记，绝不能假装今日实时
+        "is_stale": is_stale,
+        "as_of_date": as_of_date,
     }
 
     return ok(data)

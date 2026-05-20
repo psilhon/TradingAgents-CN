@@ -32,13 +32,24 @@
 
     <!-- 报价条 -->
     <el-card class="quote-card" shadow="hover">
-      <div class="quote">
+      <div class="quote" :class="{ 'is-stale': quote.isStale }">
+        <!-- capability data-truthfulness：非今日数据时显眼警告条幅，绝不能让
+             昨日涨停板被大字红色当今日实时糊弄用户 -->
+        <div v-if="quote.isStale" class="stale-banner">
+          <el-icon><Warning /></el-icon>
+          <span>
+            <b>非今日实时数据</b> · 当前展示为
+            {{ quote.asOfDate || '历史' }}
+            的快照；今日数据源未更新该股票，请勿据此判断盘中行情
+          </span>
+        </div>
         <div class="price-row">
           <div class="price" :class="changeClass">{{ fmtPrice(quote.price) }}</div>
           <div class="change" :class="changeClass">
             <span>{{ fmtPercent(quote.changePercent) }}</span>
           </div>
-          <el-tag type="info" size="small">{{ refreshText }}</el-tag>
+          <el-tag v-if="quote.isStale" type="warning" size="small">{{ quote.asOfDate || '历史' }} 快照</el-tag>
+          <el-tag v-else type="info" size="small">{{ refreshText }}</el-tag>
           <el-button text size="small" @click="refreshMockQuote" :icon="Refresh">刷新</el-button>
         </div>
         <div class="stats">
@@ -360,7 +371,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { TrendCharts, Star, Refresh, Link, Document, Clock, Reading, CreditCard, Delete } from '@element-plus/icons-vue'
+import { TrendCharts, Star, Refresh, Link, Document, Clock, Reading, CreditCard, Delete, Warning } from '@element-plus/icons-vue'
 import { marked } from 'marked'
 import { stocksApi } from '@/api/stocks'
 import { analysisApi } from '@/api/analysis'
@@ -464,7 +475,12 @@ const quote = reactive({
   tradeDate: null as string | null,  // 交易日期（用于成交量、成交额）
   turnoverDate: null as string | null,  // 换手率数据日期
   amplitudeDate: null as string | null,  // 振幅数据日期
-  updatedAt: null as string | null  // 🔥 数据更新时间
+  updatedAt: null as string | null,  // 🔥 数据更新时间
+  // capability data-truthfulness：后端按 CN tz 日历日比较算出来的时效标记。
+  // is_stale=true 时主价格区 MUST 灰化 + 显眼标"非今日实时"，
+  // 不允许把昨日涨停板 +10% 当今日大字红色显示糊弄用户。
+  isStale: false as boolean,
+  asOfDate: null as string | null,
 })
 
 const lastRefreshAt = ref<Date | null>(null)
@@ -678,6 +694,8 @@ async function fetchQuote() {
     quote.turnoverDate = d.turnover_rate_date || d.trade_date || null
     quote.amplitudeDate = d.amplitude_date || d.trade_date || null
     quote.updatedAt = d.updated_at || null  // 🔥 数据更新时间
+    quote.isStale = Boolean(d.is_stale)     // capability data-truthfulness
+    quote.asOfDate = d.as_of_date || null
 
     if (d.name) stockName.value = d.name
     if (d.market) market.value = d.market
@@ -1242,6 +1260,32 @@ function exportReport() {
 .price-row { display: flex; align-items: center; gap: 12px; }
 .price { font-size: 32px; font-weight: 800; }
 .change { font-size: 16px; font-weight: 700; }
+
+/* capability data-truthfulness：非今日数据时整个报价块灰化，
+   主价格 + 涨跌幅淡化，避免大字红色误导用户 */
+.quote.is-stale {
+  .price, .change { opacity: 0.55; }
+  .price.up, .price.down, .change.up, .change.down {
+    color: var(--fg-secondary) !important;
+  }
+}
+
+.stale-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: var(--warning-bg, rgba(230, 162, 60, 0.12));
+  border: 1px solid var(--warning-border, rgba(230, 162, 60, 0.4));
+  border-radius: 6px;
+  color: var(--warning-color, #b88230);
+  font-size: 13px;
+  line-height: 1.5;
+
+  .el-icon { font-size: 18px; flex-shrink: 0; }
+  b { font-weight: 600; }
+}
 .up { color: #e53935; }
 .down { color: #16a34a; }
 .stats { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; margin-top: 6px; }
