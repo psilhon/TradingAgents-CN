@@ -15,6 +15,112 @@ from typing import Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 
+# =================================================================
+# 指数行情：A股 3 大指数 + 港股恒指（OpenSpec capability `market-indices-ticker`）。
+# 不包含美股 — 美股盘是隔夜数据，时区+stale 标记复杂度高，按 fork 范围跳过。
+# =================================================================
+INDICES_CONFIG: Dict[str, Dict[str, str]] = {
+    # code: 内部稳定 key（前端 / mongo 主键）
+    # sina: hq.sinajs.cn 拉取用的 symbol
+    # label: 前端展示用中文短名
+    # kind: A股指数 vs 港股指数 — parser 按这个分发
+    "sh000001": {"sina": "s_sh000001", "label": "上证",   "kind": "a_index"},
+    "sz399001": {"sina": "s_sz399001", "label": "深证",   "kind": "a_index"},
+    "sz399006": {"sina": "s_sz399006", "label": "创业板", "kind": "a_index"},
+    "HSI":      {"sina": "hkHSI",      "label": "恒指",   "kind": "hk_index"},
+}
+
+
+def _parse_sina_a_index(data_str: str) -> Optional[Dict[str, Optional[float]]]:
+    """A 股指数 sina 返回字段（逗号分隔）：
+        [0]name [1]value [2]change_abs [3]pct_chg [4]volume [5]amount
+
+    例：`上证指数,4152.1005,-17.4373,-0.42,3004685,62759657`
+    """
+    fields = data_str.split(",")
+    if len(fields) < 4:
+        return None
+    return {
+        "value": _safe_float(fields[1]),
+        "change": _safe_float(fields[2]),
+        "pct_chg": _safe_float(fields[3]),
+    }
+
+
+def _parse_sina_hk_index(data_str: str) -> Optional[Dict[str, Optional[float]]]:
+    """港股指数 sina 返回字段（19+ 字段，逗号分隔）：
+        [0]SYMBOL [1]name_cn [2]current [3]open [4]?
+        [5]low [6]prev_close [7]change_abs [8]pct_chg ... [-2]date [-1]time
+
+    例：`HSI,恒生指数,25709.620,25797.850,25713.530,25572.150,25684.289,-113.561,-0.440,...,2026/05/20,10:05`
+    """
+    fields = data_str.split(",")
+    if len(fields) < 9:
+        return None
+    return {
+        "value": _safe_float(fields[2]),
+        "change": _safe_float(fields[7]),
+        "pct_chg": _safe_float(fields[8]),
+    }
+
+
+def _fetch_sina_indices() -> Dict[str, Dict[str, Optional[float]]]:
+    """同步调 sina hq.sinajs.cn 拉 INDICES_CONFIG 配置的全部指数。
+    返回 `{internal_code: {value, change, pct_chg}}`。
+    失败/解析错返回部分结果（不抛）。
+    """
+    import requests
+
+    # 反向映射 sina_symbol → (internal_code, kind)，方便 parse 后落库
+    sina_to_internal: Dict[str, tuple[str, str]] = {
+        cfg["sina"]: (code, cfg["kind"]) for code, cfg in INDICES_CONFIG.items()
+    }
+    sina_list = ",".join(sina_to_internal.keys())
+
+    url = f"https://hq.sinajs.cn/list={sina_list}"
+    headers = {
+        "Referer": "https://finance.sina.com.cn/",
+        "User-Agent": "Mozilla/5.0",
+    }
+    try:
+        resp = requests.get(url, headers=headers, timeout=6.0)
+        resp.encoding = "gbk"
+        if resp.status_code != 200:
+            logger.warning(f"sina indices status={resp.status_code}")
+            return {}
+    except Exception as e:
+        logger.warning(f"sina indices request 异常: {e}")
+        return {}
+
+    result: Dict[str, Dict[str, Optional[float]]] = {}
+    for line in resp.text.splitlines():
+        if "=" not in line or '"' not in line:
+            continue
+        try:
+            sym_part, payload = line.split("=", 1)
+            sym = sym_part.replace("var hq_str_", "").strip()
+            data_str = payload.strip().strip(";").strip('"')
+            if not data_str:
+                continue
+            mapping = sina_to_internal.get(sym)
+            if not mapping:
+                continue
+            internal_code, kind = mapping
+            if kind == "a_index":
+                parsed = _parse_sina_a_index(data_str)
+            elif kind == "hk_index":
+                parsed = _parse_sina_hk_index(data_str)
+            else:
+                parsed = None
+            if parsed is None or parsed.get("value") is None:
+                continue
+            result[internal_code] = parsed
+        except Exception as e:
+            logger.debug(f"sina indices parse 行失败: {e}")
+            continue
+    return result
+
+
 def _to_sina_symbol(code: str) -> Optional[str]:
     """6 位股票代码 → sina hq.sinajs.cn 格式 (sh/sz/bj + 6位)."""
     c = str(code).strip()
@@ -241,6 +347,17 @@ class QuotesService:
                 result[code] = data
         logger.info(f"sina hq batch 拉取完成: {len(result)}/{len(sina_symbols)} 条")
         return result
+
+    async def get_indices_quotes(self) -> Dict[str, Dict[str, Optional[float]]]:
+        """拉 4 个指数实时（A股 3 + 港股 1）。
+
+        返回 `{internal_code: {value, change, pct_chg}}`，
+        code 取自 `INDICES_CONFIG`（sh000001 / sz399001 / sz399006 / HSI）。
+
+        失败 / 部分缺失返回 partial dict，调用方自行处理。复用与 get_quotes_targeted
+        同一个 sina 端点，盘外也返回收盘价 + 时间戳（前端用 as_of 灰化提示）。
+        """
+        return await asyncio.to_thread(_fetch_sina_indices)
 
     async def get_market_overview(self) -> Dict[str, Optional[float]]:
         """全市场统计：涨停 / 跌停 / 上涨 / 下跌家数 + 成交额合计。

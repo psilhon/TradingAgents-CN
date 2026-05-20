@@ -172,6 +172,61 @@ class RealtimeQuoteSyncService:
             "errors": errors,
         }
 
+    async def sync_indices(self) -> dict[str, int]:
+        """Sync 4 个指数（A股 3 + 港股 1）到 mongo `market_indices` collection。
+
+        独立于 sync_favorites_and_paper_positions —— 数据落库到不同的 collection，
+        sina 端点同源但 parser 不同。
+
+        返回 `{total, fetched, updated, errors}`。失败不抛，scheduler 不停。
+        """
+        from app.services.quotes_service import INDICES_CONFIG, get_quotes_service
+
+        total = len(INDICES_CONFIG)
+        try:
+            quotes = await get_quotes_service().get_indices_quotes()
+        except Exception as e:
+            logger.warning(f"RealtimeQuoteSync.sync_indices: sina 拉取异常 {e!r}")
+            return {"total": total, "fetched": 0, "updated": 0, "errors": total}
+
+        if not quotes:
+            logger.warning("RealtimeQuoteSync.sync_indices: sina 返回空")
+            return {"total": total, "fetched": 0, "updated": 0, "errors": total}
+
+        fetched = len(quotes)
+        updated = 0
+        now = datetime.now(timezone.utc)
+
+        for code, quote in quotes.items():
+            value = quote.get("value")
+            if value is None:
+                continue
+            cfg = INDICES_CONFIG.get(code, {})
+            try:
+                await self.db["market_indices"].update_one(
+                    {"code": code},
+                    {
+                        "$set": {
+                            "code": code,
+                            "label": cfg.get("label"),
+                            "kind": cfg.get("kind"),
+                            "value": float(value),
+                            "change": float(quote["change"]) if quote.get("change") is not None else None,
+                            "pct_chg": float(quote["pct_chg"]) if quote.get("pct_chg") is not None else None,
+                            "updated_at": now,
+                        }
+                    },
+                    upsert=True,
+                )
+                updated += 1
+            except Exception as e:
+                logger.warning(f"RealtimeQuoteSync.sync_indices: upsert {code} 失败 {e!r}")
+                continue
+
+        errors = total - updated
+        logger.info(f"RealtimeQuoteSync.sync_indices: total={total} fetched={fetched} updated={updated} errors={errors}")
+        return {"total": total, "fetched": fetched, "updated": updated, "errors": errors}
+
     async def _publish_quote_event(
         self,
         code: str,
