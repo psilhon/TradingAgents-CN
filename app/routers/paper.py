@@ -207,9 +207,7 @@ async def _get_available_quantity(user_id: str, code: str, market: str) -> int:
     return total_qty
 
 
-async def _get_last_price(
-    code: str, market: str
-) -> tuple[Optional[float], Optional[str], Optional[float]]:
+async def _get_last_price(code: str, market: str) -> tuple[Optional[float], Optional[str], Optional[float]]:
     """
     获取股票最新价格 + 数据时间戳（支持多市场）.
 
@@ -290,6 +288,88 @@ def _zfill_code(code: str) -> str:
     return s.zfill(6)
 
 
+# ============================================================
+# Null-quote handling helpers (capability data-quality-gate Req 3 + paper-account-snapshots
+# Scenario "partial quote coverage"). change 2026-05-20-paper-null-quote-handling.
+#
+# Pure functions — extracted for unit testing without HTTP / mongo dependency.
+# ============================================================
+
+
+def _compute_mkt_value(last: float | None, qty: int) -> float | None:
+    """Compute single-position market value.
+
+    Returns None when last is None (no quote available) to preserve null semantics
+    upstream. v1.3.0 漏修的根因是 `round((last or 0.0) * qty, 2)` 把 None 合成
+    为 0，污染 mongo snapshot 写入链路；本 helper 短路返 None 切断该路径。
+    """
+    if last is None:
+        return None
+    return round(last * qty, 2)
+
+
+def _compute_unrealized_pnl(last: float | None, avg_cost: float, qty: int) -> float | None:
+    """Compute single-position unrealized P&L.
+
+    Returns None when last is None — 否则会得到 (0 - avg_cost) * qty = -avg_cost*qty
+    这种假亏损（前端会渲染假红色亏损，错向信号）。
+    """
+    if last is None:
+        return None
+    return round((last - avg_cost) * qty, 2)
+
+
+def _aggregate_positions_by_currency(
+    positions_data: List[Tuple[str, str, float | None, int]],
+) -> Dict[str, Dict[str, Any]]:
+    """Aggregate per-position market values into per-currency buckets.
+
+    positions_data: list of (code, currency, last_price, qty) tuples.
+
+    Returns: {currency: {"value": float|None, "missing_codes": list[str],
+                         "has_quote": int, "missing": int}}
+
+    Partial quote coverage 时该 currency 的 value 整体为 None（不允许部分合成）。
+    Empty positions → 三个 currency 都返 0.0（真零值，不是合成）。
+    """
+    buckets: Dict[str, Dict[str, Any]] = {
+        currency: {"value": 0.0, "missing_codes": [], "has_quote": 0, "missing": 0} for currency in ("CNY", "HKD", "USD")
+    }
+
+    for code, currency, last, qty in positions_data:
+        if currency not in buckets:
+            # 未知 currency 直接跳过（安全保守）
+            continue
+        bucket = buckets[currency]
+        mkt = _compute_mkt_value(last, qty)
+        if mkt is None:
+            bucket["missing"] += 1
+            bucket["missing_codes"].append(code)
+        else:
+            bucket["has_quote"] += 1
+            # 仅在 value 还非 None 时累加；一旦 partial 触发，整 currency value→None
+            if bucket["value"] is not None:
+                bucket["value"] = round(bucket["value"] + mkt, 2)
+
+    # 第二遍：任何 currency missing > 0 → value 整体 None
+    for currency in buckets:
+        if buckets[currency]["missing"] > 0:
+            buckets[currency]["value"] = None
+
+    return buckets
+
+
+def _compute_equity_by_currency(cash: float, positions_value: float | None) -> float | None:
+    """equity = cash + positions_value, 或 None when positions_value is None.
+
+    paper-account-snapshots Scenario "partial=true 时 equity 公式不适用"：
+    positions_value 缺失时 equity 整体不可信，不允许用 cash + 部分累加值合成。
+    """
+    if positions_value is None:
+        return None
+    return round(cash + positions_value, 2)
+
+
 @router.get("/account", response_model=dict)
 async def get_account(current_user: dict = Depends(get_current_user)):
     """获取或创建纸上账户，返回资金与持仓估值汇总（支持多市场）"""
@@ -299,12 +379,12 @@ async def get_account(current_user: dict = Depends(get_current_user)):
     # 聚合持仓估值（按货币分类）
     positions = await db["paper_positions"].find({"user_id": current_user["id"]}).to_list(None)
 
-    positions_value_by_currency = {"CNY": 0.0, "HKD": 0.0, "USD": 0.0}
-
+    # 收集 (code, currency, last, qty) 喂 _aggregate_positions_by_currency
+    positions_data: List[Tuple[str, str, float | None, int]] = []
     detailed_positions: List[Dict[str, Any]] = []
     last_price_timestamps: List[str] = []  # 收集 as_of_ts 算顶层 min
     for p in positions:
-        code = p.get("code")
+        code = p.get("code", "")
         market = p.get("market", "CN")
         currency = p.get("currency", "CNY")
         qty = int(p.get("quantity", 0))
@@ -313,8 +393,11 @@ async def get_account(current_user: dict = Depends(get_current_user)):
 
         # 获取最新价 + 数据时间戳 + 当日涨跌幅（OpenSpec realtime-trading-data-flow Req 2）
         last, last_as_of, last_pct_chg = await _get_last_price(code, market)
-        mkt_value = round((last or 0.0) * qty, 2)
-        positions_value_by_currency[currency] += mkt_value
+        # null-quote 处理：缺 quote 时 mkt_value/unrealized_pnl=None，不合成 0
+        # （capability data-quality-gate Req 3 Scenario "后端 service 缺上游数据 MUST 返 None"）
+        mkt_value = _compute_mkt_value(last, qty)
+        unrealized = _compute_unrealized_pnl(last, avg_cost, qty)
+        positions_data.append((code, currency, last, qty))
         if last_as_of:
             last_price_timestamps.append(last_as_of)
 
@@ -331,9 +414,12 @@ async def get_account(current_user: dict = Depends(get_current_user)):
                 "last_price_as_of": last_as_of,
                 "pct_chg": last_pct_chg,
                 "market_value": mkt_value,
-                "unrealized_pnl": None if last is None else round((last - avg_cost) * qty, 2),
+                "unrealized_pnl": unrealized,
             }
         )
+
+    # 按 currency 聚合 positions_value + quote_coverage（partial coverage 整 currency → None）
+    coverage = _aggregate_positions_by_currency(positions_data)
 
     # 计算总资产（按货币分别显示）
     cash = acc.get("cash", {})
@@ -345,22 +431,34 @@ async def get_account(current_user: dict = Depends(get_current_user)):
     if not isinstance(realized_pnl, dict):
         realized_pnl = {"CNY": float(realized_pnl), "HKD": 0.0, "USD": 0.0}
 
+    cash_by_currency = {
+        "CNY": round(float(cash.get("CNY", 0.0)), 2),
+        "HKD": round(float(cash.get("HKD", 0.0)), 2),
+        "USD": round(float(cash.get("USD", 0.0)), 2),
+    }
+
     summary = {
-        "cash": {
-            "CNY": round(float(cash.get("CNY", 0.0)), 2),
-            "HKD": round(float(cash.get("HKD", 0.0)), 2),
-            "USD": round(float(cash.get("USD", 0.0)), 2),
-        },
+        "cash": cash_by_currency,
         "realized_pnl": {
             "CNY": round(float(realized_pnl.get("CNY", 0.0)), 2),
             "HKD": round(float(realized_pnl.get("HKD", 0.0)), 2),
             "USD": round(float(realized_pnl.get("USD", 0.0)), 2),
         },
-        "positions_value": positions_value_by_currency,
+        # positions_value/equity 在 partial coverage 时整 currency 为 None
+        "positions_value": {currency: coverage[currency]["value"] for currency in ("CNY", "HKD", "USD")},
         "equity": {
-            "CNY": round(float(cash.get("CNY", 0.0)) + positions_value_by_currency["CNY"], 2),
-            "HKD": round(float(cash.get("HKD", 0.0)) + positions_value_by_currency["HKD"], 2),
-            "USD": round(float(cash.get("USD", 0.0)) + positions_value_by_currency["USD"], 2),
+            currency: _compute_equity_by_currency(cash_by_currency[currency], coverage[currency]["value"])
+            for currency in ("CNY", "HKD", "USD")
+        },
+        # 透出 partial coverage 信息让前端做视觉降级
+        "quote_coverage": {
+            currency: {
+                "has_quote": coverage[currency]["has_quote"],
+                "missing": coverage[currency]["missing"],
+                "missing_codes": coverage[currency]["missing_codes"],
+                "partial": coverage[currency]["missing"] > 0,
+            }
+            for currency in ("CNY", "HKD", "USD")
         },
         "updated_at": acc.get("updated_at"),
     }
@@ -553,7 +651,9 @@ async def list_positions(current_user: dict = Depends(get_current_user)):
         avg_cost = float(p.get("avg_cost", 0.0))
 
         last, last_as_of, _ = await _get_last_price(code, market)
-        mkt = round((last or 0.0) * qty, 2)
+        # null-quote 处理（同 get_account）：缺 quote 时不合成 0
+        mkt = _compute_mkt_value(last, qty)
+        unrealized = _compute_unrealized_pnl(last, avg_cost, qty)
         if last_as_of:
             last_price_timestamps.append(last_as_of)
         enriched.append(
@@ -567,7 +667,7 @@ async def list_positions(current_user: dict = Depends(get_current_user)):
                 "last_price": last,
                 "last_price_as_of": last_as_of,
                 "market_value": mkt,
-                "unrealized_pnl": None if last is None else round((last - avg_cost) * qty, 2),
+                "unrealized_pnl": unrealized,
             }
         )
     as_of_ts = min(last_price_timestamps) if last_price_timestamps else None
