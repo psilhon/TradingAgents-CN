@@ -1,0 +1,20 @@
+{
+  "_comment": "Project-level MCP servers for TradingAgents-CN. context7 used for live docs lookup of fastapi/langchain/langgraph/vue/element-plus etc. MongoDB MCP intentionally deferred — pick package + add a readonly user before wiring.",
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  },
+  "_todo_mongodb": {
+    "_note": "TODO: enable when readonly user is created in MongoDB. Suggested approach: create user `claude_ro` with role `read` on db `tradingagents` (NOT admin user). See docs/USAGE.md for connection format. Candidate package: `mongodb-mcp-server` (community).",
+    "_example_when_enabled": {
+      "command": "npx",
+      "args": ["-y", "mongodb-mcp-server"],
+      "env": {
+        "MDB_MCP_CONNECTION_STRING": "mongodb://claude_ro:<PASSWORD>@127.0.0.1:54302/tradingagents?authSource=tradingagents",
+        "MDB_MCP_READ_ONLY": "true"
+      }
+    }
+  }
+}
