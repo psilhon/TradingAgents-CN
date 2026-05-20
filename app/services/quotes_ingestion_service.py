@@ -594,14 +594,41 @@ class QuotesIngestionService:
             logger.error(f"从 {source_type} 获取行情失败: {e}")
             return None, None
 
+    async def _fetch_via_sina_hq(self) -> Optional[Dict]:
+        """主链：sina hq.sinajs.cn 按 code 批量拉全市场（5000+ 只）。
+
+        实测 ~7s/轮，比 tushare rt_k（免费 1/hour 限频）和 akshare 全市场 spot
+        （eastmoney 反爬 RemoteDisconnected / sina spot 反爬 456）都更稳。
+        复用 `quotes_service.get_quotes_targeted` 的 80/batch sequential 路径。
+
+        从 mongo `stock_basic_info` distinct code 拿全市场列表，跳过北交所
+        bj 前缀（quotes_service._to_sina_symbol 会返回 None）。返回字段：
+        `{code: {close, pct_chg, amount}}`，缺 OHLC/pre_close（_bulk_upsert
+        允许这些字段为 None，市场概况只用 pct_chg + amount 不影响）。
+        """
+        try:
+            from app.services.quotes_service import get_quotes_service
+            db = get_mongo_db()
+            codes = await db["stock_basic_info"].distinct("code")
+            codes = [str(c).strip() for c in codes if c]
+            if not codes:
+                logger.warning("sina hq 主链：stock_basic_info 无 code，跳过")
+                return None
+            quotes = await get_quotes_service().get_quotes_targeted(codes)
+            return quotes if quotes else None
+        except Exception as e:
+            logger.warning(f"sina hq 主链拉取异常: {e!r}")
+            return None
+
     async def run_once(self) -> None:
         """
         执行一次采集与入库
 
         核心逻辑：
-        1. 检测 Tushare 权限（首次运行）
-        2. 按轮换顺序尝试获取行情：Tushare → AKShare东方财富 → AKShare新浪财经
-        3. 任意一个接口成功即入库，失败则跳过本次采集
+        1. 检测 Tushare 权限（首次运行，便于日志诊断）
+        2. 主链 sina hq.sinajs.cn 按 code 批量（实测 7s/5500 只可靠）
+        3. 主链空时 fallback 到原有 tushare/akshare 轮换
+        4. 任意一个接口成功即入库，全部失败则跳过本次采集
 
         OpenSpec capability `trading-calendar` 铁律：节假日 / 周末 / 工作日盘外
         不调任何 fetch，避免 akshare 浪费调用 + 写脏数据。优先调
@@ -642,20 +669,27 @@ class QuotesIngestionService:
                         f"当前采集间隔: {settings.QUOTES_INGEST_INTERVAL_SECONDS} 秒"
                     )
 
-            # 获取下一个数据源
-            source_type, akshare_api = self._get_next_source()
+            # 主链：sina hq 按 code 批量（实测 7s/5500 只）
+            logger.info("📊 主链：sina hq.sinajs.cn 全市场批量拉取")
+            quotes_map = await self._fetch_via_sina_hq()
+            source_name: Optional[str] = "sina_hq" if quotes_map else None
 
-            # 尝试获取行情
-            quotes_map, source_name = self._fetch_quotes_from_source(source_type, akshare_api)
+            # Fallback：主链空时尝试 tushare/akshare 轮换链
+            # tushare rt_k 免费用户 1/hour 限频很快用光；akshare eastmoney
+            # 在反爬封锁期会 RemoteDisconnected。两条都可能空，最终一起 fail。
+            if not quotes_map:
+                logger.info("⚠️ sina hq 主链返回空，fallback 到 tushare/akshare 轮换")
+                source_type, akshare_api = self._get_next_source()
+                quotes_map, source_name = self._fetch_quotes_from_source(source_type, akshare_api)
 
             if not quotes_map:
-                logger.warning(f"⚠️ {source_name or source_type} 未获取到行情数据，跳过本次入库")
+                logger.warning(f"⚠️ 所有数据源（主链 sina hq + fallback {source_name}）均未获取到行情，跳过本次入库")
                 # 记录失败状态
                 await self._record_sync_status(
                     success=False,
-                    source=source_name or source_type,
+                    source=source_name or "sina_hq",
                     records_count=0,
-                    error_msg="未获取到行情数据"
+                    error_msg="所有数据源均未获取到行情数据"
                 )
                 return
 
