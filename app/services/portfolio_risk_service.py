@@ -57,10 +57,44 @@ async def _get_account_returns(user_id: str, days: int = 60) -> tuple[list[str],
     return dates, returns
 
 
-async def _get_aligned_index_returns(
-    account_dates: list[str], symbol: str = "000300"
-) -> list[float]:
-    """从 IndexDataService 拿日收益，按 account_dates 对齐返回."""
+def _inner_join_returns(
+    account_dates: list[str],
+    account_returns: list[float],
+    idx_map: dict[str, float],
+) -> tuple[list[float], list[float]]:
+    """Pure helper: inner-join account series and index map on dates.
+
+    capability data-quality-gate Req 3 + change 2026-05-20-paper-null-quote-handling W2.
+
+    返回 (filtered_account_returns, filtered_index_returns)，只保留两边都
+    有数据的日期。
+
+    v1.3.0 漏修：旧实现 `aligned.append(0.0)` 兜底缺失日期让 var(HS300)
+    deflate + cov skew，得到的不是真 β 是带假数据的伪指标。新实现切断 0
+    兜底路径——必须 inner-join 才参与计算。
+    """
+    if not account_dates or not account_returns:
+        return [], []
+    if len(account_dates) != len(account_returns):
+        return [], []  # 防御：调用方误用
+    filtered_a: list[float] = []
+    filtered_h: list[float] = []
+    for d, r in zip(account_dates, account_returns):
+        if d in idx_map:
+            filtered_a.append(r)
+            filtered_h.append(idx_map[d])
+    return filtered_a, filtered_h
+
+
+async def _get_account_index_intersection(
+    account_dates: list[str],
+    account_returns: list[float],
+    symbol: str = "000300",
+) -> tuple[list[float], list[float]]:
+    """Fetch index returns then inner-join with account series.
+
+    返回 (filtered_account_returns, filtered_index_returns)。
+    """
     from app.services.index_data_service import get_index_data_service
 
     svc = get_index_data_service()
@@ -68,17 +102,10 @@ async def _get_aligned_index_returns(
     all_returns = await svc.get_index_returns(symbol, days=len(account_dates) + 30)
     all_dates = await svc.get_index_dates(symbol, days=len(account_dates) + 30)
     if not all_returns or len(all_returns) != len(all_dates):
-        return []
+        return [], []
 
-    # 构建 date → return map
     idx_map = dict(zip(all_dates, all_returns))
-    aligned: list[float] = []
-    for d in account_dates:
-        if d in idx_map:
-            aligned.append(idx_map[d])
-        else:
-            aligned.append(0.0)  # 缺失日期记 0（保守）
-    return aligned
+    return _inner_join_returns(account_dates, account_returns, idx_map)
 
 
 async def calc_beta(user_id: str, days: int = 60) -> dict[str, Any] | None:
@@ -90,12 +117,14 @@ async def calc_beta(user_id: str, days: int = 60) -> dict[str, Any] | None:
     if len(account_returns) < 30:  # 至少 30 天才有意义
         return None
 
-    index_returns = await _get_aligned_index_returns(account_dates)
-    if not index_returns or len(index_returns) != len(account_returns):
+    # inner-join 对齐：账户日期 ∩ 指数日期的交集 — 不允许 0 兜底
+    # （v1.3.0 漏修 W2：旧 _get_aligned_index_returns 用 0.0 兜底污染 cov/var）
+    filtered_account, filtered_index = await _get_account_index_intersection(account_dates, account_returns)
+    if len(filtered_account) < 30:  # 交集至少 30 天才有统计意义
         return None
 
-    a = np.array(account_returns)
-    h = np.array(index_returns)
+    a = np.array(filtered_account)
+    h = np.array(filtered_index)
     if np.var(h) == 0 or math.isnan(np.var(h)):
         return None
 
@@ -111,9 +140,7 @@ async def calc_beta(user_id: str, days: int = 60) -> dict[str, Any] | None:
     return {"value": round(beta, 4), "tag": _beta_tag(beta)}
 
 
-async def calc_var(
-    user_id: str, confidence: float = 0.95, days: int = 252
-) -> dict[str, Any] | None:
+async def calc_var(user_id: str, confidence: float = 0.95, days: int = 252) -> dict[str, Any] | None:
     """历史模拟法 VaR：(account_returns 5% 分位数) × 当前 equity.
 
     返回 `{amount, pct}`（都是负数）。
@@ -146,9 +173,7 @@ async def _get_paper_positions_with_mv(user_id: str) -> list[dict[str, Any]]:
     from app.routers.paper import _get_last_price
 
     db = get_mongo_db()
-    positions = await db["paper_positions"].find(
-        {"user_id": user_id, "market": "CN"}
-    ).to_list(None)
+    positions = await db["paper_positions"].find({"user_id": user_id, "market": "CN"}).to_list(None)
 
     result: list[dict[str, Any]] = []
     for p in positions:

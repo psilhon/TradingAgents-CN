@@ -77,8 +77,8 @@ async def test_calc_beta_index_data_missing():
             new=AsyncMock(return_value=fake_account),
         ),
         patch(
-            "app.services.portfolio_risk_service._get_aligned_index_returns",
-            new=AsyncMock(return_value=[]),
+            "app.services.portfolio_risk_service._get_account_index_intersection",
+            new=AsyncMock(return_value=([], [])),
         ),
     ):
         result = await calc_beta("u1")
@@ -101,8 +101,8 @@ async def test_calc_beta_perfect_correlation():
             new=AsyncMock(return_value=(dates, account_returns)),
         ),
         patch(
-            "app.services.portfolio_risk_service._get_aligned_index_returns",
-            new=AsyncMock(return_value=market_returns),
+            "app.services.portfolio_risk_service._get_account_index_intersection",
+            new=AsyncMock(return_value=(account_returns, market_returns)),
         ),
     ):
         result = await calc_beta("u1")
@@ -128,8 +128,8 @@ async def test_calc_beta_high_elasticity():
             new=AsyncMock(return_value=(dates, account_returns)),
         ),
         patch(
-            "app.services.portfolio_risk_service._get_aligned_index_returns",
-            new=AsyncMock(return_value=market_returns),
+            "app.services.portfolio_risk_service._get_account_index_intersection",
+            new=AsyncMock(return_value=(account_returns, market_returns)),
         ),
     ):
         result = await calc_beta("u1")
