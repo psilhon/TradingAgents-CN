@@ -55,12 +55,14 @@ def test_market_overview_router_does_not_call_akshare(monkeypatch) -> None:
 
 
 @pytest.mark.unit
-def test_market_overview_with_cache_does_not_call_akshare(monkeypatch) -> None:
-    """cache 已有数据时，hot-path 同样 MUST NOT 调 _fetch_spot_akshare."""
-    import time
+def test_market_overview_with_mongo_aggregate_does_not_call_akshare(monkeypatch) -> None:
+    """capability data-truthfulness change 2026-05-20：hot-path 改 mongo aggregate
+    后，warm mongo 路径同样 MUST NOT 触发 _fetch_spot_akshare（SLO 不变）。"""
+    from datetime import datetime, timezone
 
     import app.routers.market as market_router_mod
-    from app.services.quotes_service import QuotesService, get_quotes_service
+    import app.services.market_overview_prewarm_service as prewarm_mod
+    from app.services.quotes_service import QuotesService
 
     fetch_spy_calls: list[int] = []
 
@@ -76,18 +78,36 @@ def test_market_overview_with_cache_does_not_call_akshare(monkeypatch) -> None:
 
     monkeypatch.setattr(market_router_mod, "get_trading_calendar_service", lambda: _FakeCalendar(), raising=True)
 
-    real_qs = get_quotes_service()
-    real_qs._cache = {
-        "000001": {"close": 12.34, "pct_chg": 9.6, "amount": 1.0e8},
-        "600036": {"close": 35.10, "pct_chg": -0.5, "amount": 8.0e7},
+    # mock mongo $facet aggregate 结果（2 条今日 quote）
+    facet_result = {
+        "limit_up": [{"n": 1}],
+        "limit_down": [],
+        "advance": [{"n": 1}],
+        "decline": [{"n": 1}],
+        "amount_sum": [{"_id": None, "sum": 1.0e8 + 8.0e7}],
+        "max_updated": [{"_id": None, "ts": datetime.now(timezone.utc)}],
+        "total": [{"n": 2}],
     }
-    real_qs._cache_ts = time.time() - 10
+
+    class _FakeCursor:
+        async def to_list(self, _length):
+            return [facet_result]
+
+    class _FakeColl:
+        def aggregate(self, pipeline, **kwargs):
+            return _FakeCursor()
+
+    class _FakeDB:
+        def __getitem__(self, name):
+            return _FakeColl()
+
+    monkeypatch.setattr(prewarm_mod, "get_mongo_db", lambda: _FakeDB(), raising=True)
 
     async def _run() -> None:
         result = await market_router_mod.get_market_overview(_user={"id": "u1"})
         assert result["success"] is True
         assert result["data"]["total"] == 2
         assert result["data"]["as_of_ts"] is not None
-        assert fetch_spy_calls == [], "warm cache 路径同样不应调 _fetch_spot_akshare"
+        assert fetch_spy_calls == [], "warm mongo aggregate 路径不应调 _fetch_spot_akshare"
 
     asyncio.run(_run())
