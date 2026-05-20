@@ -11,11 +11,15 @@ cache 空（首启 + prewarm 还未跑过任何一轮）时返回 nullable 字�
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from fastapi import APIRouter, Depends
 
+from app.core.database import get_mongo_db
 from app.routers.auth_db import get_current_user
 from app.services.market_overview_prewarm_service import get_prewarm_service
 from app.services.quote_freshness_monitor import get_freshness_monitor
+from app.services.quotes_service import INDICES_CONFIG
 from app.services.realtime_quote_sync_service import get_realtime_quote_sync_service
 from app.services.trading_calendar_service import get_trading_calendar_service
 
@@ -65,6 +69,41 @@ async def get_market_overview(_user: dict = Depends(get_current_user)) -> dict:
         pass
     overview["is_intraday"] = is_intraday
     return {"success": True, "data": overview}
+
+
+@router.get("/indices/snapshot")
+async def get_indices_snapshot(_user: dict = Depends(get_current_user)) -> dict:
+    """指数行情快照：A 股 3 + 港股 1（上证 / 深证 / 创业板 / 恒指）。
+
+    数据由 scheduler 每 5 秒调 `sync_indices()` 刷新到 mongo `market_indices`。
+    sina hq.sinajs.cn 端点盘外也返回上次收盘价 + 时间戳，前端用 `as_of` 判断
+    今日 vs 隔夜（CN tz 日历日比较），非今日时灰化。
+
+    返回数组（按 INDICES_CONFIG 顺序，前端 ticker 直接渲染）：
+    ```
+    [{code, label, kind, value, change, pct_chg, as_of}, ...]
+    ```
+    缺数据的项 value/change/pct_chg/as_of 为 None，前端显示「—」。
+    """
+    db = get_mongo_db()
+    docs = await db["market_indices"].find({}, {"_id": 0}).to_list(None)
+    by_code = {d.get("code"): d for d in docs}
+
+    result = []
+    for code, cfg in INDICES_CONFIG.items():
+        doc = by_code.get(code) or {}
+        upd = doc.get("updated_at")
+        as_of = upd.isoformat() if isinstance(upd, datetime) else None
+        result.append({
+            "code": code,
+            "label": cfg["label"],
+            "kind": cfg["kind"],
+            "value": doc.get("value"),
+            "change": doc.get("change"),
+            "pct_chg": doc.get("pct_chg"),
+            "as_of": as_of,
+        })
+    return {"success": True, "data": result}
 
 
 @router.post("/refresh-quotes")
