@@ -54,6 +54,9 @@ class FavoritesService:
             "current_price": None,
             "change_percent": None,
             "volume": None,
+            # 行情时间戳（mongo market_quotes.updated_at 透传，ISO 8601）
+            # 前端用来辨识「今日实时 vs 昨日收盘」，避免昨日涨停板被误读为今日
+            "as_of": None,
         }
 
     async def get_user_favorites(self, user_id: str) -> List[Dict[str, Any]]:
@@ -135,7 +138,10 @@ class FavoritesService:
         if codes:
             try:
                 coll = db["market_quotes"]
-                cursor = coll.find({"code": {"$in": codes}}, {"code": 1, "close": 1, "pct_chg": 1, "amount": 1})
+                cursor = coll.find(
+                    {"code": {"$in": codes}},
+                    {"code": 1, "close": 1, "pct_chg": 1, "amount": 1, "updated_at": 1},
+                )
                 docs = await cursor.to_list(length=None)
                 quotes_map = {str(d.get("code")).zfill(6): d for d in (docs or [])}
                 for it in items:
@@ -144,6 +150,10 @@ class FavoritesService:
                     if q:
                         it["current_price"] = q.get("close")
                         it["change_percent"] = q.get("pct_chg")
+                        # 透出行情时间戳，前端用来标记「昨日收盘」灰色 badge
+                        upd = q.get("updated_at")
+                        if isinstance(upd, datetime):
+                            it["as_of"] = upd.isoformat()
             except Exception:
                 # 查询失败时保持占位 None，避免影响基础功能
                 pass
