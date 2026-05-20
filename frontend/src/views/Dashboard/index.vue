@@ -37,7 +37,7 @@
         </div>
         <div class="hero-stat">
           <div class="hero-stat-label">成功率</div>
-          <div class="hero-stat-val num down">{{ successRate }}%</div>
+          <div class="hero-stat-val num down">{{ formatPct(successRate) }}</div>
           <div class="hero-stat-sub">
             {{ userStats.successfulAnalyses }} / {{ userStats.totalAnalyses }}
           </div>
@@ -292,7 +292,8 @@
                       {{ totalPnl >= 0 ? '+' : '−' }}¥{{ formatMoney(Math.abs(totalPnl)) }}
                     </span>
                     <span class="pnl-rate">
-                      ({{ totalPnl >= 0 ? '+' : '' }}{{ pnlRate }}%)
+                      <template v-if="pnlRate != null">({{ totalPnl >= 0 ? '+' : '' }}{{ pnlRate }}%)</template>
+                      <template v-else>(—)</template>
                     </span>
                   </div>
                 </div>
@@ -437,10 +438,11 @@
                   <div class="account-progress account-progress-bottom">
                     <div class="progress-label">
                       <span>持仓比例</span>
-                      <span class="num">{{ positionRatio }}%</span>
+                      <span class="num">{{ formatPct(positionRatio) }}</span>
                     </div>
                     <div class="progress-bar">
-                      <div class="progress-fill" :style="{ width: positionRatio + '%' }"></div>
+                      <!-- positionRatio=null (partial coverage / 无账户) 时 progress 不渲染 -->
+                      <div v-if="positionRatio != null" class="progress-fill" :style="{ width: positionRatio + '%' }"></div>
                     </div>
                   </div>
                 </div>
@@ -678,10 +680,11 @@ const getCurrencyAmount = (
   return amount?.[currency] ?? fallback
 }
 
-// computed
-const successRate = computed(() => {
+// computed — W1 fix: 新账户首日 / loading 时返 null（formatMoney 会渲染「—」），
+// 与 v1.3.0 release notes 「新账户首日 KPI 显示「—」属预期」一致.
+const successRate = computed((): string | null => {
   const t = userStats.value.totalAnalyses
-  if (!t) return 0
+  if (!t) return null
   return ((userStats.value.successfulAnalyses / t) * 100).toFixed(1)
 })
 
@@ -693,9 +696,12 @@ const todayAnalyses = computed(() => {
   }).length
 })
 
-const totalEquity = computed(() => {
-  if (!paperAccount.value) return 0
-  return getCurrencyAmount(paperAccount.value.equity, 'CNY')
+const totalEquity = computed((): number | null => {
+  if (!paperAccount.value) return null
+  // 后端 partial coverage 时 equity_by_currency.CNY 是 null（task 2 fix）
+  // 此处保留 null 让 formatMoney 渲染「—」
+  const v = (paperAccount.value.equity as { CNY?: number | null })?.CNY
+  return v == null ? null : v
 })
 
 const favUpCount = computed(() =>
@@ -705,12 +711,14 @@ const favDownCount = computed(() =>
   favoriteStocks.value.filter((s) => Number(s.change_percent) < 0).length,
 )
 
-const positionRatio = computed(() => {
-  if (!paperAccount.value) return 0
-  const equity = getCurrencyAmount(paperAccount.value.equity, 'CNY')
-  const positions = getCurrencyAmount(paperAccount.value.positions_value, 'CNY')
-  if (!equity) return 0
-  return ((positions / equity) * 100).toFixed(1)
+const positionRatio = computed((): string | null => {
+  if (!paperAccount.value) return null
+  // partial coverage 时 equity / positions_value 可能 null（task 2 fix）
+  const eqRaw = (paperAccount.value.equity as { CNY?: number | null })?.CNY
+  const posRaw = (paperAccount.value.positions_value as { CNY?: number | null })?.CNY
+  if (eqRaw == null || posRaw == null) return null
+  if (!eqRaw) return null  // 真 0 equity 无法计算比例
+  return ((posRaw / eqRaw) * 100).toFixed(1)
 })
 
 // 持仓数 + 累计盈亏 KPI
@@ -783,22 +791,25 @@ const formatPctSigned = (v: number | null | undefined): string => {
   return `${sign}${Math.abs(pct).toFixed(2)}%`
 }
 
-const realizedPnl = computed(() => {
+const realizedPnl = computed((): number => {
   if (!paperAccount.value) return 0
   return getCurrencyAmount(paperAccount.value.realized_pnl, 'CNY')
 })
 
-const unrealizedPnl = computed(() => {
+const unrealizedPnl = computed((): number => {
+  // unrealized_pnl=null position 不参与累加（task 2 后端 fix 后会有 null）
   return paperPositions.value.reduce((sum, p) => sum + (p.unrealized_pnl ?? 0), 0)
 })
 
 const totalPnl = computed(() => realizedPnl.value + unrealizedPnl.value)
 
-const pnlRate = computed(() => {
-  if (!paperAccount.value) return '0.00'
-  const equity = getCurrencyAmount(paperAccount.value.equity, 'CNY')
-  const cost = equity - totalPnl.value
-  if (!cost) return '0.00'
+// pnlRate: 无账户 / equity 缺失 / 真零 cost 时返 null，formatMoney 视觉显示「—」
+const pnlRate = computed((): string | null => {
+  if (!paperAccount.value) return null
+  const eqRaw = (paperAccount.value.equity as { CNY?: number | null })?.CNY
+  if (eqRaw == null) return null  // partial coverage
+  const cost = eqRaw - totalPnl.value
+  if (!cost) return null  // 真 0 cost 无法计算比例
   return ((totalPnl.value / cost) * 100).toFixed(2)
 })
 
@@ -896,9 +907,19 @@ const getPriceChangeClass = (changePercent: number) => {
 import { formatDateTime } from '@/utils/datetime'
 const formatTime = (time: string) => formatDateTime(time)
 
-const formatMoney = (value: number) => {
-  if (!value) return '0.00'
+// capability data-quality-gate Req 3 + change 2026-05-20-paper-null-quote-handling C1：
+// !value 把 null 和真 0 混淆 → 旧实现把 null 渲染为 '0.00'（与真 0 视觉不可区分）.
+// 新契约：null / undefined / NaN → '—'，真 0 → '0.00'.
+const formatMoney = (value: number | null | undefined): string => {
+  if (value == null || Number.isNaN(value)) return '—'
   return value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+// 渲染百分比；null → '—'，否则 'X%' (X 来自 toFixed / 字符串).
+// W1 fix：computed (successRate / positionRatio / pnlRate) 返 null 时模板用此 helper.
+const formatPct = (v: string | number | null | undefined): string => {
+  if (v == null) return '—'
+  return `${v}%`
 }
 
 // data loaders
