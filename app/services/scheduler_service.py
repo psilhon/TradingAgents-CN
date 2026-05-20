@@ -786,6 +786,22 @@ class SchedulerService:
         )
         logger.info("✅ 行情刷新（盘后）已添加：工作日 17:00")
 
+        # 指数行情刷新（A 股 3 + 港股 1）— 5 秒间隔，全天运行。
+        # 不加交易时段 guard：sina 端点很轻 + 盘外返回上次收盘价（前端用 as_of 灰化），
+        # 港股盘到 16:00 北京时间，A 股 15:00 收盘，统一窗口反而漏掉港股 1 小时。
+        self.scheduler.add_job(
+            self._run_indices_sync,
+            'interval',
+            seconds=5,
+            id='indices_sync',
+            name='指数行情刷新（A股+港股）',
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+            misfire_grace_time=3,
+        )
+        logger.info("✅ 指数行情刷新已添加：IntervalTrigger 5s 全天")
+
         # 启动时 ensure unique index on market_quotes.code（异步 fire-and-forget）
         asyncio.create_task(self._ensure_market_quotes_index())
 
@@ -1047,6 +1063,19 @@ class SchedulerService:
             logger.debug(f"行情刷新 [{window}]: {result}")
         except Exception as e:
             logger.warning(f"⚠️ 行情刷新 [{window}] 失败: {e}")
+
+    async def _run_indices_sync(self):
+        """5 秒触发指数行情 sync（A 股 3 + 港股 1）→ market_indices collection。
+        失败 log warn 不抛。
+        """
+        try:
+            from app.services.realtime_quote_sync_service import (
+                get_realtime_quote_sync_service,
+            )
+            result = await get_realtime_quote_sync_service().sync_indices()
+            logger.debug(f"指数行情刷新: {result}")
+        except Exception as e:
+            logger.warning(f"⚠️ 指数行情刷新失败: {e}")
 
     async def _check_zombie_tasks(self):
         """检测僵尸任务（长时间处于running状态的任务）"""
