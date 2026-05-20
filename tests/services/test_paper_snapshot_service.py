@@ -100,9 +100,15 @@ def test_take_snapshot_with_cn_holding_writes_snapshot():
 
 
 @pytest.mark.unit
-def test_take_snapshot_skips_holding_with_unavailable_price():
-    """When `_get_last_price` yields (None, None), that holding is skipped and
-    the snapshot is still written (equity = cash only)."""
+def test_take_snapshot_marks_partial_on_unavailable_price():
+    """When `_get_last_price` yields (None, None, None) for a holding, the snapshot
+    is marked partial=true with the position code in missing_quote_codes; aggregate
+    fields are None (not 0/cash) to avoid polluting historical TWRR/Sharpe.
+
+    change 2026-05-20-paper-null-quote-handling — v1.3.1 fix C4:
+    旧契约 "skip the holding, equity=cash only" 是 null-as-0 合成；新契约 partial
+    coverage 时 positions_value/equity/unrealized_pnl 整体 None + partial 标志。
+    """
     account = {"user_id": "u1", "cash": {"CNY": 1000.0}, "realized_pnl": {"CNY": 0.0}}
     positions = [
         {
@@ -122,6 +128,16 @@ def test_take_snapshot_skips_holding_with_unavailable_price():
         result = asyncio.run(svc.take_snapshot("u1", date(2026, 5, 17)))
 
     assert result["ok"] is True
-    assert result["positions_value"] == pytest.approx(0.0)
-    assert result["equity"] == pytest.approx(1000.0)
+    # 新契约：partial coverage → 聚合字段 None，partial=true + missing_codes 列出
+    assert result["positions_value"] is None
+    assert result["equity"] is None
+    assert result["unrealized_pnl"] is None
+    assert result["partial"] is True
+    assert result["missing_quote_codes"] == ["002428"]
     assert len(snapshots.updates) == 1
+    # mongo 写入 doc 包含新字段
+    written = snapshots.updates[0]["update"]["$set"]
+    assert written["partial"] is True
+    assert written["missing_quote_codes"] == ["002428"]
+    assert written["equity"] is None
+    assert written["positions_value"] is None
