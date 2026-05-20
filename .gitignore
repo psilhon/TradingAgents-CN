@@ -263,3 +263,6 @@ scripts/create_mongodb_admin.py
 
 # dev.sh state (PID + log files for backend / frontend background processes)
 .dev/
+
+# Local marker for active OpenSpec change implementation (allows guard-proprietary bypass)
+openspec/changes/.implementing
