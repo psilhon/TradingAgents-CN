@@ -31,6 +31,28 @@ DEFAULT_RF = 0.02  # 无风险利率：2% 年化（A 股常用基准）
 TRADING_DAYS_PER_YEAR = 252
 
 
+def _filter_valid_snapshots(snapshots: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Drop partial=true snapshots and None-equity snapshots.
+
+    capability paper-account-snapshots Scenario "partial=true 日期被跳过" +
+    backward compat for v1.3.0 文档无 partial 字段（doc.get("partial", False)）.
+
+    change 2026-05-20-paper-null-quote-handling.
+
+    PerformanceService 计算 TWRR/Sharpe/回撤/月度收益时调用本 helper 过滤掉
+    partial=true 的日期——这些日期 equity=None 不可信，参与计算会污染金融指标。
+    """
+    valid: list[dict[str, Any]] = []
+    for s in snapshots:
+        if s.get("partial", False):
+            continue
+        eq = s.get("equity")
+        if eq is None:
+            continue  # 防御：partial=false 但 equity=None（数据异常）
+        valid.append(s)
+    return valid
+
+
 def _calc_daily_returns(equities: list[float]) -> list[float]:
     """从 equity 序列算日收益率 [r_1, r_2, ..., r_{N-1}]."""
     if len(equities) < 2:
@@ -116,13 +138,19 @@ def calc_monthly_returns(snapshots: list[dict[str, Any]]) -> list[dict[str, Any]
 
     snapshots 按 date 升序。返回 [{month: "2026-04", return_pct: 4.8}, ...]
     最近 N 月（不限制，前端自决定截断）。
+
+    capability paper-account-snapshots Scenario "partial=true 日期被跳过"：
+    partial=true 的行不参与月度聚合（含 None equity 会让 float() 抛 TypeError，
+    且这些日期数据不可信）。
     """
-    if len(snapshots) < 2:
+    # 先过滤 partial / None equity，避免下游 float() TypeError
+    valid = _filter_valid_snapshots(snapshots)
+    if len(valid) < 2:
         return []
 
     # 按月分组
     by_month: dict[str, list[tuple[str, float]]] = defaultdict(list)
-    for s in snapshots:
+    for s in valid:
         d = s.get("date", "")
         eq = s.get("equity")
         if not d or eq is None or len(d) < 7:
@@ -156,11 +184,17 @@ def _sample_sparkline_points(equities: list[float], target: int = 11) -> list[fl
 
 
 async def get_overview(user_id: str, days: int = 90) -> dict[str, Any]:
-    """聚合所有指标 + sparkline 11 点供前端使用."""
+    """聚合所有指标 + sparkline 11 点供前端使用.
+
+    capability paper-account-snapshots Scenario "过滤后 snapshot 数不足"：
+    先过滤 partial=true 的日期再判定 < 2，避免 partial 污染金融指标。
+    """
     svc = get_paper_snapshot_service()
     snapshots = await svc.get_snapshots(user_id, days=days)
 
-    if len(snapshots) < 2:
+    # 过滤 partial=true 日期（不可信不参与计算）
+    valid = _filter_valid_snapshots(snapshots)
+    if len(valid) < 2:
         return {
             "twrr": None,
             "sharpe": None,
@@ -170,7 +204,7 @@ async def get_overview(user_id: str, days: int = 90) -> dict[str, Any]:
             "sparkline_points": [],
         }
 
-    equities = [float(s.get("equity", 0.0)) for s in snapshots]
+    equities = [float(s["equity"]) for s in valid]  # equity 已保证非 None（过滤过）
 
     drawdowns = calc_drawdowns(equities)
     return {
