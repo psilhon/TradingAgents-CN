@@ -1,6 +1,7 @@
 # project-structure.md
 
 > AI prime context — 项目目录布局 + 入口文件。简洁优先；详尽见上游 `docs/STRUCTURE.md`。
+> docs/ 子目录详细索引见 [`../README.md`](../README.md)（fork 视角文档中心）。
 
 ## 顶层目录
 
@@ -13,7 +14,7 @@
 | `tests/` | pytest 测试 + debug 脚本 | 🟢 含旧快照 `0.1.14/`（pytest 已 ignore）|
 | `web/` | streamlit 旧 UI | ⚫ **已废弃**（chainlit/starlette 冲突，不可启动）|
 | `openspec/` | OpenSpec 决策追溯（fork 加）| 🟢 changes / specs |
-| `docs/` | 文档 73+ 文件 | 🟢 散乱无统一索引；上游已有 `QUICK_START.md` `STRUCTURE.md` `architecture/` 等 |
+| `docs/` | 文档（v1.3.0 后已固化分层）| 🟢 入口见 `docs/README.md`（fork 视角四角色）；过程性文档已归档到 `docs/archive/` |
 | `config/` | 原生服务配置（`mongod.conf` / `redis.conf`）+ 每日推荐配置目录 `daily_recommendations/` | 🟢 fork 加 |
 | `scripts/` | 上游一次性脚本（数据导出、迁移等） + fork 新增 `setup-native.sh` / `local-services.sh` | ⚫ 不在 lint 范围 |
 | `data/` | 原生 mongo/redis 数据目录（gitignored）| — |
