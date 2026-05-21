@@ -202,11 +202,32 @@
           </div>
         </el-popover>
 
-        <!-- Row 2 右：自选股 Watchlist -->
+        <!-- Row 2 右：自选股 Watchlist (capability watchlist-management) -->
         <div class="panel watchlist-panel ga-watchlist">
           <div class="panel-hdr">
             <div class="sec-title">我的自选股</div>
-            <span class="sec-link" @click="goToFavorites">管理 →</span>
+            <div class="watchlist-hdr-right">
+              <!-- 排序模式 select：自定义/涨跌幅/代码；默认自定义按后端 order 升序 -->
+              <el-select
+                v-model="watchlistSortMode"
+                size="small"
+                class="watchlist-sort-select"
+                :teleported="false"
+              >
+                <el-option label="自定义" value="custom" />
+                <el-option label="涨跌幅↓" value="chg_desc" />
+                <el-option label="涨跌幅↑" value="chg_asc" />
+                <el-option label="代码↑" value="code_asc" />
+              </el-select>
+              <el-tooltip
+                v-if="favoriteStocks.length >= 10"
+                content="已达 10 支上限，请先移除"
+                placement="top"
+              >
+                <span class="sec-link is-disabled">管理 →</span>
+              </el-tooltip>
+              <span v-else class="sec-link" @click="goToFavorites">管理 →</span>
+            </div>
           </div>
           <div v-if="watchlistLoading" class="skeleton-wrap">
             <div v-for="n in 4" :key="n" class="skeleton-row">
@@ -221,17 +242,21 @@
               </el-button>
             </el-empty>
           </div>
-          <div v-else class="watchlist-list scroll-body">
+          <div v-else ref="watchlistContainer" class="watchlist-list scroll-body">
             <div
-              v-for="stock in favoriteStocks"
+              v-for="stock in sortedFavoriteStocks"
               :key="stock.stock_code"
+              :data-code="stock.stock_code"
               class="watchlist-item"
               :class="{
                 'is-stale': isStaleQuote(stock),
                 'is-missing': isMissingQuote(stock),
+                'is-draggable': watchlistSortMode === 'custom',
               }"
               @click="viewStockDetail(stock)"
             >
+              <!-- 拖拽 handle，仅自定义模式 hover 显（仅作视觉提示，整行均可拖） -->
+              <div v-if="watchlistSortMode === 'custom'" class="watchlist-drag-handle" title="拖动重排">⋮⋮</div>
               <div class="watchlist-left">
                 <div class="watchlist-code">{{ stock.stock_code }}</div>
                 <div class="watchlist-name">{{ stock.stock_name }}</div>
@@ -248,22 +273,26 @@
                   :class="getPriceChangeClass(stock.change_percent)"
                 >¥<NumberFlip :value="Number(stock.current_price).toFixed(2)" /></div>
                 <div v-else class="watchlist-price num muted">—</div>
-                <div
-                  v-if="stock.change_percent != null"
-                  class="watchlist-chg num"
-                  :class="getPriceChangeClass(stock.change_percent)"
-                >
-                  {{ stock.change_percent > 0 ? '▲' : stock.change_percent < 0 ? '▼' : '—' }}
-                  <NumberFlip :value="Math.abs(Number(stock.change_percent)).toFixed(2)" />%
+                <!-- 第二行：涨跌幅 + 昨日收盘 badge inline 同行（压缩 vertical
+                     space；badge 简化为「昨日」节省横向） -->
+                <div class="watchlist-chg-row">
+                  <!-- 行情时间戳非今日（CN tz）时显示灰标，避免误读昨日涨停板
+                       为今日实时（capability realtime-trading-data-flow） -->
+                  <div
+                    v-if="isStaleQuote(stock)"
+                    class="watchlist-stale-badge"
+                    title="该行情为非今日数据；交易日盘中 RealtimeQuoteSync 会自动覆盖"
+                  >昨日</div>
+                  <div
+                    v-if="stock.change_percent != null"
+                    class="watchlist-chg num"
+                    :class="getPriceChangeClass(stock.change_percent)"
+                  >
+                    {{ stock.change_percent > 0 ? '▲' : stock.change_percent < 0 ? '▼' : '—' }}
+                    <NumberFlip :value="Math.abs(Number(stock.change_percent)).toFixed(2)" />%
+                  </div>
+                  <div v-else class="watchlist-chg num muted">—</div>
                 </div>
-                <div v-else class="watchlist-chg num muted">—</div>
-                <!-- 行情时间戳非今日（CN tz）时显示「昨日收盘」灰标，避免误读
-                     昨日涨停板为今日实时（capability realtime-trading-data-flow） -->
-                <div
-                  v-if="isStaleQuote(stock)"
-                  class="watchlist-stale-badge"
-                  title="该行情为非今日数据；交易日盘中 RealtimeQuoteSync 会自动覆盖"
-                >昨日收盘</div>
               </div>
             </div>
           </div>
@@ -563,7 +592,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -628,6 +657,14 @@ const betaTagClass = (tag: string): string => {
       return ''
   }
 }
+
+// capability watchlist-management:
+//   - watchlistSortMode 本地 ref 默认「自定义」(后端 order 升序)；刷新回默认（不持久化）
+//   - watchlistContainer 用于 sortablejs 挂载
+//   - 拖拽完成 → favoritesApi.reorder(newCodes)；失败 revert favoriteStocks 到快照
+type WatchlistSortMode = 'custom' | 'chg_desc' | 'chg_asc' | 'code_asc'
+const watchlistSortMode = ref<WatchlistSortMode>('custom')
+const watchlistContainer = ref<HTMLElement | null>(null)
 
 // Loading 状态（首次加载时显示 skeleton shimmer）
 const watchlistLoading = ref(true)
@@ -710,6 +747,39 @@ const favUpCount = computed(() =>
 const favDownCount = computed(() =>
   favoriteStocks.value.filter((s) => Number(s.change_percent) < 0).length,
 )
+
+// capability watchlist-management: 按 watchlistSortMode 渲染 watchlist.
+// custom 模式直接用 favoriteStocks 原顺序（后端已按 order 升序返回）；
+// 其他模式 client-side 排序，不动后端。
+const sortedFavoriteStocks = computed(() => {
+  const list = [...favoriteStocks.value]
+  switch (watchlistSortMode.value) {
+    case 'chg_desc':
+      return list.sort((a, b) => {
+        // null change_percent 排末尾（保留 data-quality-gate Req 3「null 不排在前」）
+        const av = a.change_percent
+        const bv = b.change_percent
+        if (av == null && bv == null) return 0
+        if (av == null) return 1
+        if (bv == null) return -1
+        return Number(bv) - Number(av)
+      })
+    case 'chg_asc':
+      return list.sort((a, b) => {
+        const av = a.change_percent
+        const bv = b.change_percent
+        if (av == null && bv == null) return 0
+        if (av == null) return 1
+        if (bv == null) return -1
+        return Number(av) - Number(bv)
+      })
+    case 'code_asc':
+      return list.sort((a, b) => String(a.stock_code).localeCompare(String(b.stock_code)))
+    case 'custom':
+    default:
+      return list
+  }
+})
 
 const positionRatio = computed((): string | null => {
   if (!paperAccount.value) return null
@@ -1209,12 +1279,89 @@ onMounted(async () => {
   // 等 onopen 后 subscribe；这里直接发，store 在 connected 回调里也会 resub
   refreshQuoteSubscriptions()
   quotesStore.subscribePnl()
+
+  // capability watchlist-management: 初始化 sortablejs 拖拽（仅 custom 模式）
+  await nextTick()
+  initWatchlistSortable()
 })
+
+// =================================================================
+// capability watchlist-management — sortablejs 拖拽 + reorder API
+// =================================================================
+let watchlistSortable: any = null
+
+const initWatchlistSortable = async () => {
+  // 动态 import 避免初次 bundle 体积；sortablejs 已是项目 dep
+  const { default: Sortable } = await import('sortablejs')
+  if (!watchlistContainer.value) return
+  // 销毁旧实例，避免重复绑定
+  if (watchlistSortable) {
+    watchlistSortable.destroy()
+    watchlistSortable = null
+  }
+  // 仅自定义模式启用拖拽
+  if (watchlistSortMode.value !== 'custom') return
+
+  watchlistSortable = Sortable.create(watchlistContainer.value, {
+    animation: 150,
+    ghostClass: 'watchlist-ghost',
+    chosenClass: 'watchlist-chosen',
+    dragClass: 'watchlist-drag',
+    scroll: true,
+    onEnd: async (evt: any) => {
+      if (evt.oldIndex === evt.newIndex || evt.oldIndex == null || evt.newIndex == null) return
+      const container = watchlistContainer.value
+      if (!container) return
+      const items = Array.from(container.querySelectorAll('.watchlist-item'))
+      const newOrderCodes = items
+        .map((el) => (el as HTMLElement).dataset.code)
+        .filter(Boolean) as string[]
+
+      // 快照旧顺序，失败时 revert
+      const snapshot = [...favoriteStocks.value]
+      // 立即更新 favoriteStocks 顺序（按 newOrderCodes 重排）
+      const byCode = new Map(snapshot.map((s: any) => [String(s.stock_code), s]))
+      const reordered = newOrderCodes
+        .map((c) => byCode.get(String(c)))
+        .filter(Boolean) as any[]
+      favoriteStocks.value = reordered
+
+      try {
+        await favoritesApi.reorder(newOrderCodes)
+        // 成功无需做任何事
+      } catch (e) {
+        console.error('[watchlist] reorder failed:', e)
+        // revert UI 顺序
+        favoriteStocks.value = snapshot
+        ElMessage.error('排序保存失败，已回退')
+      }
+    },
+  })
+}
+
+// 切换排序模式时重新初始化 sortable（custom 时启用，其他模式销毁）
+watch(watchlistSortMode, async () => {
+  await nextTick()
+  initWatchlistSortable()
+})
+
+// favoriteStocks 列表变化（如初次加载后）→ 重新初始化 sortable
+watch(
+  () => favoriteStocks.value.length,
+  async () => {
+    await nextTick()
+    initWatchlistSortable()
+  },
+)
 
 onUnmounted(() => {
   heroEl.value?.removeEventListener('mousemove', onHeroMouseMove)
   if (heroRafId !== null) cancelAnimationFrame(heroRafId)
   if (marketOverviewHandle !== null) clearInterval(marketOverviewHandle)
+  if (watchlistSortable) {
+    watchlistSortable.destroy()
+    watchlistSortable = null
+  }
   // 断开 ws + 清空订阅
   quotesStore.disconnect()
 })
@@ -1844,8 +1991,42 @@ onUnmounted(() => {
 }
 
 // =================================================================
-// 自选股 watchlist
+// 自选股 watchlist (capability watchlist-management)
 // =================================================================
+
+// 列表头右侧：排序 select + 管理链接
+.watchlist-hdr-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.watchlist-sort-select {
+  width: 100px;
+  :deep(.el-input__wrapper) {
+    font-size: 11px;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+.sec-link.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+// 列表容器：高度上限 360px，超过滚动；自定义细 scrollbar 与项目 .scroll-body 一致
+.watchlist-list.scroll-body {
+  max-height: 360px;
+  overflow-y: auto;
+  // 自定义 scrollbar（细 + 透明 track）
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-subtle);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
+}
+
 .watchlist-item {
   display: flex;
   align-items: center;
@@ -1855,9 +2036,40 @@ onUnmounted(() => {
   border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
   transition: background 0.15s;
+  position: relative;
 
   &:last-child { border-bottom: none; }
   &:hover { background: var(--bg-hover); }
+
+  // 自定义模式：cursor 提示可拖；handle icon hover 显
+  &.is-draggable { cursor: grab; }
+  &.is-draggable:active { cursor: grabbing; }
+}
+
+// 拖拽 handle：默认半透明，hover 时高亮
+.watchlist-drag-handle {
+  font-size: 10px;
+  color: var(--fg-muted);
+  opacity: 0.3;
+  letter-spacing: -1px;
+  line-height: 1;
+  user-select: none;
+  transition: opacity 0.15s;
+}
+.watchlist-item.is-draggable:hover .watchlist-drag-handle {
+  opacity: 0.8;
+}
+
+// sortablejs 拖拽状态样式
+.watchlist-ghost {
+  opacity: 0.4;
+  background: var(--bg-hover);
+}
+.watchlist-chosen {
+  background: var(--bg-hover);
+}
+.watchlist-drag {
+  opacity: 0.9;
 }
 
 /* 缺数据时 muted 样式（区别于 stale 和正常的 up/down 红绿）— 平淡灰，避免误认为
@@ -1888,13 +2100,20 @@ onUnmounted(() => {
 
 .watchlist-chg {
   font-size: 11px;
+}
+
+/* 涨跌幅 + 昨日 badge 同行 flex 容器（压缩 watchlist-item 高度，从 3 行 → 2 行） */
+.watchlist-chg-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
   margin-top: 1px;
 }
 
 /* 非今日行情灰标（昨日收盘 / 节假日快照），区分于今日实时推送 */
 .watchlist-stale-badge {
   display: inline-block;
-  margin-top: 2px;
   padding: 0 5px;
   font-size: 9.5px;
   line-height: 14px;
