@@ -50,8 +50,10 @@
 2. **MUST NOT 用 `\|\| 0` / `\|\| ''` 等假值兜底把 null 假装为 0**。区分 null（无数据）与 0（真实零值）：用 `?? null` 保留 null 语义，模板层用 `v-if`/`v-show` 判定显示「—」。"0 元股票"和"无数据股票"对用户决策意义完全不同。
 3. **跨时间维度的聚合 endpoint MUST 按 `updated_at` 过滤当日数据**，MUST NOT 把昨日 / 历史数据混入当日聚合。
 4. **任何 quote / 价格 / 盘口类后端 endpoint MUST 返回 `is_stale: bool` + `as_of_date: str` 字段**；前端 MUST 在 `is_stale=true` 时主显示区降级（灰化 / 警告条幅 / 「快照日期 X」chip），MUST NOT 把昨日涨停板当今日大字色块显示。
+5. **后端 service / router 缺上游数据 MUST 返回 None / null，MUST NOT 用 `value or 0` / `last or 0.0` / `default=0` 等等价模式合成假零值**。"算式分量缺失自动当 0"（如 `Number(null) * X = 0` / `(None or 0.0) * qty = 0`）会让上层得到一个看似正常但完全虚假的结果，比纯空白更具误导性。
+6. **每个直接面向 dashboard / portfolio / paper / market 的 endpoint MUST 有 contract test，断言全 null 上游 → endpoint 返 null/None，绝不出现合成 0**。test MUST 标 `@pytest.mark.unit`，pre-push hook 阻塞 commit 直到 test PASS。grep 层防线（`scripts/check-data-truthfulness.sh`）只覆盖词法模式，contract test 覆盖语义层（不可被 grep 抓取的模式如 `formatMoney(null)='0.00'` / `last or 0.0`）。
 
-理由：data-audit 实证——`formatMarketCap` 遇 `undefined` 直接 `.toFixed` 抛错让市值列空白，用户误把相邻的 pe 列当市值；按全 null 的 `total_mv` 排序的每日推荐推出的根本不是市值前 5，而是任意 5 只。2026-05-20 会话又撞到 5 项同源造假（mockTrend sparkline / `|| 0` / 跨日累加 / 002281 昨日涨停板大字红色当今日）——证明缺数据兜底规则要细化到具体禁止行为，不能只说"显示 —"。
+理由：data-audit 实证——`formatMarketCap` 遇 `undefined` 直接 `.toFixed` 抛错让市值列空白，用户误把相邻的 pe 列当市值；按全 null 的 `total_mv` 排序的每日推荐推出的根本不是市值前 5，而是任意 5 只。2026-05-20 会话又撞到 5 项同源造假（mockTrend sparkline / `|| 0` / 跨日累加 / 002281 昨日涨停板大字红色当今日）——证明缺数据兜底规则要细化到具体禁止行为，不能只说"显示 —"。2026-05-20 baseline 审计在 v1.3.0 release **之后** 又发现 5 critical 语义层漏修（`formatMoney(null)='0.00'` / `?.HKD || 0` / 浮盈 `null × null` 假红色亏损 / 后端 `last or 0.0` 污染 mongo snapshot / pnl_stream ws push 同根因），全部 grep 层抓不到——证明语义层必须用 contract test 强约束（change 2026-05-20-paper-null-quote-handling）。
 
 #### Scenario: 市值字段缺失
 
@@ -106,6 +108,27 @@
 - **THEN** 前端 MUST 视觉化降级（灰化 / 警告条幅 / 时效 chip）
 - **AND** MUST NOT 把 stale 数据当 fresh 数据无差别展示
 - **AND** 用户能在不悬停 tooltip 的情况下，**一眼识别**当前展示数据非今日实时
+
+#### Scenario: 后端 service 缺上游数据 MUST 返 None（不得用 `or 0` 等价模式合成）
+
+- **WHEN** 后端 service / router 上游数据源（如 `_get_last_price`、mongo 查询、外部 API 调用）返回 `None`
+- **THEN** 计算结果 MUST 保留 None 语义传递到 endpoint response
+- **AND** MUST NOT 使用 `last or 0.0` / `value or 0` / `obj.get("field", 0)` / `default=0` 等等价模式把 None 合成为 0
+- **AND** 算式中含 None 分量时 MUST 短路返 None（如 `mkt_value = None if last is None else round(last * qty, 2)`），MUST NOT 让 `Number(None) * X = 0` 这类语言级隐式转换产生假零值
+- **AND** 聚合操作 MUST 显式跳过 None 而非用 None 当 0 累加（如 `if mkt_value is not None: positions_value += mkt_value` 而非 `positions_value += (mkt_value or 0)`）
+- **AND** Pydantic / TypedDict 模型字段类型 MUST 用 `Optional[float] = None` 而非 `float = 0.0`，让 mypy / pyright 在编译期捕获 misuse
+- **AND** 当聚合结果存在 partial coverage（部分上游缺失），response MUST 透出 `quote_coverage` / `coverage` / `partial` 类标志字段，让前端知情后做视觉降级
+
+#### Scenario: Contract test MUST 覆盖空态契约
+
+- **WHEN** 实现或修改 dashboard / portfolio / paper / market / stocks 类 endpoint
+- **THEN** MUST 同步加 contract test，文件名形如 `tests/test_<endpoint>_<scenario>_contract.py`
+- **AND** test MUST 标 `@pytest.mark.unit`（pre-push hook 跑这层）
+- **AND** test 覆盖率 MUST 包含：
+  1. **全 null 上游**：mock 所有依赖返 None → 断言 endpoint 返字段全 None（不出现合成 0 / 假数据）
+  2. **部分 null 上游**：mock 部分依赖返 None → 断言聚合字段跳过 None，coverage 字段反映 missing count，partial 标志正确
+  3. **全 valid 上游**（regression guard）：mock 所有依赖返有效值 → 断言数值与既有实现一致，防 fix 破坏既有路径
+- **AND** test PASS 是 commit 进 main 的前提（pre-push `uv run --no-sync pytest -m unit` 阻塞）
 
 ### Requirement: stock_basic_info 写库前 MUST 做数值 sanity 校验
 
