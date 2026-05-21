@@ -27,6 +27,7 @@
 | `migration/` | data directory 重组完成记录 | 2 |
 | `summary/` | 阶段性进展 summary | 3 |
 | `integration/` | 早期数据流集成计划 + summary | 3 |
+| `upstream-fix-reports/` | 上游一次性 fix report（duplicate_logger / logger_position / logging_import / print_to_log_conversion / pip_freeze / syntax_error），2026-05-05 一并归位 | 6 |
 
 ## 顶层 flat 文件
 
