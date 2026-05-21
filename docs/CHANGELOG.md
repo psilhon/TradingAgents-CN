@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+## [1.3.2] — 2026-05-21
+
+**Fork minor release**——固化阶段文档体系重构 + 自选股管理升级，两条 OpenSpec change 一起发版。
+
 ### Added
 
 - **文档分层固化：角色化入口 + SSOT 唯一性 + archive 冻结 + release 维护节奏**（OpenSpec change `2026-05-21-docs-stabilization-v1`，新 capability `documentation-structure`）：v1.3.0 收口后项目进入功能固化阶段，22 个 stable capability spec + 38 archived change 已沉淀功能事实，但 `docs/` 下 ~220 个 markdown 仍堆着开发期过程文档 + 上游遗产（Docker / Streamlit / embedded python / 上游分支策略），AI prime context 被噪声污染，新 contributor 无 fork 视角入口，功能事实双源漂移。本次系统性把 docs/ 折叠成「角色化入口 + archive 隔离过程性文档」，明确 SSOT 让位给 `openspec/specs/`。
