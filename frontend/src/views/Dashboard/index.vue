@@ -2030,7 +2030,6 @@ onUnmounted(() => {
 .watchlist-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   padding: 6px 14px;
   border-bottom: 1px solid var(--border-subtle);
@@ -2046,8 +2045,16 @@ onUnmounted(() => {
   &.is-draggable:active { cursor: grabbing; }
 }
 
-// 拖拽 handle：默认半透明，hover 时高亮
+// watchlist-left 撑开占满 handle 和 right 之间空间，让 code/name 左对齐
+.watchlist-left {
+  flex: 1;
+  min-width: 0;  // 防长名挤出
+}
+
+// 拖拽 handle：固定宽不参与 flex 增长 / 缩小；默认半透明，hover 时高亮
 .watchlist-drag-handle {
+  flex-shrink: 0;
+  width: 12px;
   font-size: 10px;
   color: var(--fg-muted);
   opacity: 0.3;
@@ -2055,6 +2062,7 @@ onUnmounted(() => {
   line-height: 1;
   user-select: none;
   transition: opacity 0.15s;
+  text-align: center;
 }
 .watchlist-item.is-draggable:hover .watchlist-drag-handle {
   opacity: 0.8;
