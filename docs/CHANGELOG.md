@@ -8,6 +8,57 @@
 
 ## [Unreleased]
 
+## [1.3.3] — 2026-05-21
+
+**Fork patch release**——v1.3.2 之后累积的运维基建 + 性能调优一并发版，**无新用户可见功能 / 无 API breaking / 无 bug fix**。基于实测运行 5.7h 数据系统性收口（mongo 2400 conn/h churn + 142K scheduler_executions 累积 + mongod.log 565 MB 无轮转），用最小改动消除根因。
+
+### Performance
+
+- **mongo sync client 单例化（12 处违规收尾）**：v1.3.2 之前业务路径多处 `MongoClient(settings.MONGO_URI)` 每次新建未复用，5.7h 累计创建 13678 connections = 2400 conn/h。本次全仓 grep 排查发现 **12 处违规**，全部改用 `app/core/database.py` 既有 `get_mongo_db_sync()` 单例 helper：
+  - `app/routers/auth_db.py:455`（创建管理员用户写 admin flag）
+  - `app/routers/system_config.py:111`（读 llm_providers 原始数据）
+  - `app/core/config_bridge.py:70 / 158 / 372`（3 处——bridge llm_providers / data_source_configs / system_settings 到 env vars）
+  - `app/services/analysis_service.py:128 / 258`（2 处 LLM 配置查询 hot path，quick + deep）
+  - `app/services/simple_analysis_service.py`（5 处——配置查询 + provider 查询 + analysis_tasks 进度同步 sync 路径）
+  - `app/services/model_capability_service.py:131`（模型能力校验）
+  - `app/services/scheduler_service.py:1340`（`_update_progress_sync` 高频调用——每个 scheduled job 进度更新都跑）
+  - `app/worker/tushare_sync_service.py:1220`（tushare worker 进度同步）
+  - 同时删除所有 `client.close()` / `sync_client.close()` 调用（单例不应被关）
+  - 保留 1 处：`app/services/user_service.py:31` 是 class attribute 有 `close()` + `__del__()` lifecycle 管理，留作 follow-up
+- **scheduler 盘中实时行情刷新 3s → 5s**：`app/services/scheduler_service.py:764` IntervalTrigger seconds=3 → 5。降 `scheduler_executions` 写入率 ~40%（实测 5.7h 累计 142K 行的 88% 来自此 job）。配合 redis pubsub + ws push 体感无差异，akshare 公开 API 配额宽松。
+- **mongo WiredTiger cache 0.25 → 0.5 GB**：`config/mongod.conf` `wiredTiger.engineConfig.cacheSizeGB: 0.5`。原 256 MB 对比 stock_daily_quotes 1.3 GB storage（5 倍差）频繁 eviction（实测 3924 pages/s），上调到 512 MB 让常用索引 / hot pages 留 cache。机器有 2.4 GB inactive 余量，零内存压力。
+- **mongo `scheduler_executions` 加 TTL 7 天**：`db.scheduler_executions.createIndex({timestamp: 1}, {expireAfterSeconds: 604800, name: "ttl_timestamp_7d"})`。原表无 TTL 无限累积（16 天 142K 行 = 31 MB，一年估算 700 MB 纯噪声）。建索引后 mongo 后台 reaper 60s 内开始清。零业务影响（执行历史本质调试用途，非审计来源）。
+
+### Changed
+
+- **mongod 日志治理：reopen → rename 模式 + quiet 抑制**：
+  - `config/mongod.conf` `systemLog.logRotate: reopen → rename`——mongod 自管理 SIGUSR1 / `db.adminCommand({logRotate:1})` 触发的 rename（不再需要外部 logrotate(8) 协调）；fork 未装外部 logrotate，统一 rename 更简洁。
+  - 加 `systemLog.quiet: true`——抑制 connection accepted / disconnected 噪声日志（5.7h mongod.log 累计 565 MB 主因）；slow query / 错误 / 启动信息仍正常记。
+- **新增 `scripts/clean-local-cruft.sh` + `just clean` / `just clean-dry` 一站式本地垃圾清理**：
+  - 调 mongo logRotate 触发 mongod.log 轮转，删 `logs/mongod.log.*` > 7 天
+  - 删 `logs/*.log.[0-9]+` > 3 天（Python RotatingFileHandler 产物）
+  - 删 `__pycache__` / `.ruff_cache` / `.pytest_cache` / `tradingagents.egg-info`
+  - `.env.bak*` 累积 ≥ 3 个时 tar.gz 归档到 `backup/` 再删原文件
+  - 删 `.dev/*.pid` 孤儿（对应进程已死的）
+  - 永不动当前在写日志 / git tracked / `data/` / `.venv/`
+  - 支持 `--dry-run` 看动作不真删；CLAUDE.md macOS bash 3.2 兼容（用 while-read 而非 mapfile）
+- **`docs/operations.md` 增运维章节**：「本地垃圾清理 + 日志归档」+「MongoDB 索引优化」段；统一从 `docs/maintenance/` + `docs/data-audit-2026-05-17.md` 提炼可复用部分。
+- **`docs/archive/` 顶层 5 个 flat 文件归位**：`AUTHENTICATION_FIX_SUMMARY.md` / `BACKEND_STARTUP.md` / `FIXES_SUMMARY.md` / `SOLUTION_SUMMARY.md` → `docs/archive/dev-history/`；`README-ORIGINAL.md` → `docs/archive/legacy-upstream/`。同时 mv 上游 `reports/` 6 个一次性 fix report → `docs/archive/dev-history/upstream-fix-reports/`；删 `.streamlit/config.toml`（streamlit fork 已废弃，与 web/ 旧 UI 不可启动状态一致）。
+
+### Verified
+
+- `just lint` + `just typecheck` 0 errors
+- `just dev-restart` → backend healthz 200 ✓
+- mongo `wiredTiger.cache.maximum: 512 MB` ✓
+- `db.scheduler_executions.getIndexes()` 含 `ttl_timestamp_7d` ✓
+- 12 处 conn pool 改造后全仓 grep 仅剩 `user_service.py:31`（已知 follow-up）+ `app/scripts/*`（一次性脚本）+ `app/core/database.py` 单例 helper 本身
+
+### HARD-GATE 合规
+
+- 全程本地 commit；最后 `git push origin main` + `git push origin v1.3.3` 由用户 1-click 授权后由模型执行
+- `app/` 专有授权范围改动通过 `openspec/changes/.implementing` marker 文件（id: `2026-05-21-perf-quick`）豁免 `guard-proprietary` PreToolUse hook，commit 完成后已删除 marker 恢复硬拦截
+- 零 secret 读取 / 零外部写入 / 零业务逻辑变化（仅性能 + 配置 + 文档 + 工具）
+
 ## [1.3.2] — 2026-05-21
 
 **Fork minor release**——固化阶段文档体系重构 + 自选股管理升级，两条 OpenSpec change 一起发版。
