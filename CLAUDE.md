@@ -101,6 +101,8 @@ just setup       # 装 pre-commit hook（首次 setup）
 | `.github/workflows/ci.yml` | `uv sync --frozen` + `uv pip install -e .`（不用 `--locked`） | uv.lock 与 pyproject 不同步已知坑 |
 | `.gitignore` | 末尾追加 `.chainlit/` + `.claude/settings.local.json` + `.dev/` + `backup/` | fork-local 自动产物 + 本地权限记录 + dev.sh 状态 + mongodump 临时输出 |
 | `docs/CHANGELOG.md` / `docs/USAGE.md` / `docs/ai-context/*.md` | 全部新建 + 维护 | Phase 0 prime context HARD-GATE |
+| `docs/README.md` / `docs/QUICK_START.md` | 重写为 fork 视角（覆盖上游 v1.0.1 README + Docker-first QUICK_START）| docs-stabilization-v1 / 角色化入口 |
+| `docs/operations.md` | 新建 fork-local 文件 | docs-stabilization-v1 / 运维角色 prime |
 
 **完全不动**（原则 — 改动属于"专有授权范围"或"业务逻辑"）：
 
@@ -136,15 +138,21 @@ just setup       # 装 pre-commit hook（首次 setup）
 
 ## AI 上下文入口
 
+**功能事实 SSOT**：以 [`openspec/specs/`](openspec/specs/) 为准（22 条 stable capability spec）；[`docs/ai-context/`](docs/ai-context/) 描述跨 capability 的横切关系；[`docs/`](docs/) 其它目录默认为参考资料或归档。
+
 新会话 prime 优先级：
 
-1. `docs/ai-context/project-structure.md` — 顶层目录 + 入口文件清单
-2. `docs/ai-context/coding-standards.md` — 项目特有 lint/typecheck/排除约定 + 二开原则
-3. `docs/ai-context/architecture.md` — 三层架构 + 多智能体编排 + 数据源链 + LLM 抽象
-4. `docs/USAGE.md` — fork 维护者 / 二开者使用手册（区别于上游 README）
-5. `docs/CHANGELOG.md` — fork 自身改动历史（不含上游 commits）
-6. `docs/ai-context/known-issues.md` — 已知坑（fork 撞过的 + 上游遗留），按需查
-7. 上游详细文档：`README.md` / `docs/QUICK_START.md` / `docs/STRUCTURE.md` / `docs/architecture/`
+1. [`docs/README.md`](docs/README.md) — **fork 视角文档中心 + 四角色入口**（用户 / 二开 / 运维 / AI prime），覆盖上游版本
+2. `docs/ai-context/project-structure.md` — 顶层目录 + 入口文件清单
+3. `docs/ai-context/coding-standards.md` — 项目特有 lint/typecheck/排除约定 + 二开原则
+4. `docs/ai-context/architecture.md` — 三层架构 + 多智能体编排 + 数据源链 + LLM 抽象 + **v1.3.x capability 索引**
+5. `docs/USAGE.md` — fork 维护者 / 二开者使用手册（含功能矩阵）
+6. `docs/operations.md` — **运维角色 prime**（端口段位 / 原生服务 / 备份 / 日志）
+7. `docs/CHANGELOG.md` — fork 自身改动历史（不含上游 commits）
+8. `docs/ai-context/known-issues.md` — 已知坑（fork 撞过的 + 上游遗留），按需查
+9. `openspec/specs/<capability>/spec.md` — 按 capability 按需查（功能事实唯一来源）
+
+> 历史"上游详细文档"入口（`docs/STRUCTURE.md` / `docs/architecture/`）改为按需查；上游原版 README/QUICK_START 已挪到 `docs/archive/legacy-upstream/`。
 
 ## OpenSpec 状态
 
