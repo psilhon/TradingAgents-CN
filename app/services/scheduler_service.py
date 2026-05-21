@@ -6,6 +6,7 @@
 """
 
 import asyncio
+from app.core.database import get_mongo_db_sync
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta, timezone
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -1333,12 +1334,10 @@ async def update_job_progress(
         processed_items: 已处理项数
     """
     try:
-        from pymongo import MongoClient
         from app.core.config import settings
 
         # 使用同步客户端避免事件循环冲突
-        sync_client = MongoClient(settings.MONGO_URI)
-        sync_db = sync_client[settings.MONGO_DB]
+        sync_db = get_mongo_db_sync()
 
         # 查找最近的执行记录
         latest_execution = sync_db.scheduler_executions.find_one(
@@ -1348,7 +1347,6 @@ async def update_job_progress(
         if latest_execution:
             # 检查是否有取消请求
             if latest_execution.get("cancel_requested"):
-                sync_client.close()
                 logger.warning(f"⚠️ 任务 {job_id} 收到取消请求，即将停止")
                 raise TaskCancelledException(f"任务 {job_id} 已被用户取消")
 
@@ -1396,7 +1394,6 @@ async def update_job_progress(
 
             sync_db.scheduler_executions.insert_one(execution_record)
 
-        sync_client.close()
 
     except Exception as e:
         logger.error(f"❌ 更新任务进度失败: {e}")

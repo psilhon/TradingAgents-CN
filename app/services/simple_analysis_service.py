@@ -4,6 +4,7 @@
 """
 
 import asyncio
+from app.core.database import get_mongo_db_sync
 import uuid
 import logging
 import re
@@ -150,12 +151,10 @@ def get_provider_and_url_by_model_sync(model_name: str) -> dict:
     """
     try:
         # 使用同步 MongoDB 客户端直接查询
-        from pymongo import MongoClient
         from app.core.config import settings
         import os
 
-        client = MongoClient(settings.MONGO_URI)
-        db = client[settings.MONGO_DB]
+        db = get_mongo_db_sync()
 
         # 查询最新的活跃配置
         configs_collection = db.system_configs
@@ -203,14 +202,12 @@ def get_provider_and_url_by_model_sync(model_name: str) -> dict:
                     if provider_key == "qwen" and backend_url == "https://dashscope.aliyuncs.com/api/v1":
                         backend_url = default_backend_url(provider_key)
 
-                    client.close()
                     return {
                         "provider": provider_key,
                         "backend_url": backend_url,
                         "api_key": api_key
                     }
 
-        client.close()
 
         # 如果数据库中没有找到模型配置，使用默认映射
         logger.warning(f"⚠️ [同步查询] 数据库中未找到模型 {model_name}，使用默认映射")
@@ -218,8 +215,7 @@ def get_provider_and_url_by_model_sync(model_name: str) -> dict:
 
         # 尝试从厂家配置中获取 default_base_url 和 API Key
         try:
-            client = MongoClient(settings.MONGO_URI)
-            db = client[settings.MONGO_DB]
+            db = get_mongo_db_sync()
             providers_collection = db.llm_providers
             provider_doc = providers_collection.find_one({"name": provider})
 
@@ -249,7 +245,6 @@ def get_provider_and_url_by_model_sync(model_name: str) -> dict:
             if provider_key == "qwen" and backend_url == "https://dashscope.aliyuncs.com/api/v1":
                 backend_url = default_backend_url(provider_key)
 
-            client.close()
             return {
                 "provider": provider_key,
                 "backend_url": backend_url,
@@ -277,8 +272,7 @@ def get_provider_and_url_by_model_sync(model_name: str) -> dict:
             from pymongo import MongoClient
             from app.core.config import settings
 
-            client = MongoClient(settings.MONGO_URI)
-            db = client[settings.MONGO_DB]
+            db = get_mongo_db_sync()
             providers_collection = db.llm_providers
             provider_doc = providers_collection.find_one({"name": provider})
 
@@ -300,7 +294,6 @@ def get_provider_and_url_by_model_sync(model_name: str) -> dict:
             if not api_key:
                 api_key = _get_env_api_key_for_provider(provider)
 
-            client.close()
             return {
                 "provider": provider,
                 "backend_url": backend_url,
@@ -1196,8 +1189,7 @@ class SimpleAnalysisService:
                     from app.core.config import settings
                     from datetime import datetime
 
-                    sync_client = MongoClient(settings.MONGO_URI)
-                    sync_db = sync_client[settings.MONGO_DB]
+                    sync_db = get_mongo_db_sync()
 
                     sync_db.analysis_tasks.update_one(
                         {"task_id": task_id},
@@ -1210,7 +1202,6 @@ class SimpleAnalysisService:
                             }
                         }
                     )
-                    sync_client.close()
 
                 except Exception as e:
                     logger.warning(f"⚠️ 进度更新失败: {e}")
@@ -1502,8 +1493,7 @@ class SimpleAnalysisService:
                                     from app.core.config import settings
 
                                     # 创建同步 MongoDB 客户端
-                                    sync_client = MongoClient(settings.MONGO_URI)
-                                    sync_db = sync_client[settings.MONGO_DB]
+                                    sync_db = get_mongo_db_sync()
 
                                     # 同步更新 MongoDB
                                     sync_db.analysis_tasks.update_one(
@@ -1517,7 +1507,6 @@ class SimpleAnalysisService:
                                             }
                                         }
                                     )
-                                    sync_client.close()
 
                                     # 异步更新内存（创建新的事件循环）
                                     loop = asyncio.new_event_loop()
