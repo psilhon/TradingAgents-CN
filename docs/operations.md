@@ -120,6 +120,27 @@ cp data/redis/appendonly.aof backup/redis-$(date +%Y%m%d_%H%M%S).aof
 
 > `.dev/` 已 gitignored；`logger` 模块输出层级见 [`config/error_log_separation.md`](config/error_log_separation.md)。
 
+## 本地垃圾清理 + 日志归档
+
+`scripts/clean-local-cruft.sh`（`just clean` 调用）一站式清理：
+
+```bash
+just clean         # 实际清理
+just clean-dry     # dry-run 看动作，不真删
+```
+
+清理范围（**不动当前在写日志 / git tracked / data/ / .venv/**）：
+
+| 类别 | 动作 |
+|---|---|
+| mongod 日志 | 调 `db.adminCommand({logRotate:1})` 触发轮转（mongod.conf 配 `rename` 模式自动 mv 当前 log → `.log.<ts>`）；删 `logs/mongod.log.*` > 7 天 |
+| Python 轮转日志 | 删 `logs/*.log.[0-9]+` > 3 天（RotatingFileHandler 产物） |
+| Python cache | `__pycache__` / `.ruff_cache` / `.pytest_cache` / `tradingagents.egg-info` 全删 |
+| `.env.bak*` 备份 | 累积 ≥ 3 个时 `tar.gz` 归档到 `backup/`，再删原文件 |
+| 孤儿 pid | `.dev/*.pid` 对应进程已死的清掉 |
+
+**首次启用注意**：mongod.conf 从 `reopen` 改为 `rename` 模式，需要 `just down && just up` 重启 mongod 才生效。脚本会探测并提示。重启前调 `just clean` 仅清 cache，不归档 mongod.log。
+
 ## MongoDB 索引优化
 
 慢查询排查 / 索引调优详见 [`maintenance/mongodb_index_optimization.md`](maintenance/mongodb_index_optimization.md)。
