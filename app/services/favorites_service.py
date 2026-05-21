@@ -1,21 +1,96 @@
 """
 自选股服务
+
+capability watchlist-management（change 2026-05-21-watchlist-limit-and-ordering）:
+- FAVORITES_LIMIT=10 上限校验 (add_favorite raise FavoritesLimitExceededError)
+- 自定义顺序持久化 (favorites[].order: int + reorder_favorites endpoint)
+- 旧文档 backward compat lazy migration (按 added_at 回填 order，幂等)
 """
 
-from typing import List, Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from bson import ObjectId
 
 from app.core.database import get_mongo_db
 from app.models.user import FavoriteStock
 
+# capability watchlist-management Req "Watchlist 数量上限 10 支"
+FAVORITES_LIMIT = 10
+
+
+class FavoritesLimitExceededError(Exception):
+    """add_favorite 超过 FAVORITES_LIMIT 时 raise; router 转 HTTP 409."""
+
+
+def _compute_next_order(existing: List[Dict[str, Any]]) -> int:
+    """新 favorite 的 order = max(existing.order) + 1.
+
+    空列表 → 0；缺 order 字段的条目视为 -1 不参与 max（防御）。
+    """
+    if not existing:
+        return 0
+    orders = [int(f.get("order", -1)) for f in existing if isinstance(f, dict)]
+    valid = [o for o in orders if o >= 0]
+    if not valid:
+        return 0
+    return max(valid) + 1
+
+
+def _lazy_migrate_order(
+    favorites: List[Dict[str, Any]],
+) -> tuple[List[Dict[str, Any]], bool]:
+    """检测缺 order 字段的文档并按 added_at 升序回填.
+
+    返回 (favorites_list, did_migrate)。did_migrate=True 时调用方应 update mongo
+    持久化；幂等：已全有 order 时直接返回原 list + False。
+
+    缺 order 的条目按 added_at 升序排，分配 order = max(existing_order) + 1, +2, ...
+    缺 added_at 的兜底用 datetime.min（最早），保证顺序稳定。
+    """
+    if not favorites:
+        return [], False
+
+    missing_order = [f for f in favorites if "order" not in f or f.get("order") is None]
+    if not missing_order:
+        return favorites, False
+
+    have_order = [f for f in favorites if "order" in f and f.get("order") is not None]
+    next_order = _compute_next_order(have_order)
+
+    # 缺 order 的按 added_at 升序排
+    def _sort_key(f: Dict[str, Any]):
+        added = f.get("added_at")
+        if isinstance(added, datetime):
+            return added
+        return datetime.min
+
+    missing_sorted = sorted(missing_order, key=_sort_key)
+    for i, fav in enumerate(missing_sorted):
+        fav["order"] = next_order + i
+
+    return favorites, True
+
+
+def _validate_reorder_codes(existing_codes: List[str], ordered_codes: List[str]) -> None:
+    """校验 reorder request 的 codes 数组与现有完全一致.
+
+    raise ValueError if:
+    - 含重复 code
+    - 与 existing_codes 集合不一致（缺/多）
+    """
+    if len(ordered_codes) != len(set(ordered_codes)):
+        raise ValueError("ordered_codes 含重复 code")
+    if set(ordered_codes) != set(existing_codes):
+        raise ValueError(f"ordered_codes 与现有 codes 集合不一致 (existing={sorted(existing_codes)}, ordered={sorted(ordered_codes)})")
+
 
 class FavoritesService:
     """自选股服务类"""
-    
+
     def __init__(self):
         self.db = None
-    
+
     async def _get_db(self):
         """获取数据库连接"""
         if self.db is None:
@@ -30,6 +105,23 @@ class FavoritesService:
         """
         # 强制返回 False，统一使用 user_favorites 集合
         return False
+
+    async def _read_favorites_raw(self, user_id: str) -> List[Dict[str, Any]]:
+        """读 mongo 原始 favorites 数组（不富集行情 / 不 lazy migrate）.
+
+        capability watchlist-management: add_favorite / reorder_favorites 调用此
+        helper 拿到 raw list 做 count / order 计算，不触发外部依赖（quotes service）.
+        兼容两条 storage path（ObjectId / string user）.
+        """
+        db = await self._get_db()
+        if self._is_valid_object_id(user_id):
+            user = await db.users.find_one({"_id": ObjectId(user_id)})
+            if user is None:
+                user = await db.users.find_one({"_id": user_id})
+            return (user or {}).get("favorite_stocks", []) or []
+        else:
+            doc = await db.user_favorites.find_one({"user_id": user_id})
+            return (doc or {}).get("favorites", []) or []
 
     def _format_favorite(self, favorite: Dict[str, Any]) -> Dict[str, Any]:
         """格式化收藏条目（仅基础信息，不包含实时行情）。
@@ -50,6 +142,9 @@ class FavoritesService:
             "notes": favorite.get("notes", ""),
             "alert_price_high": favorite.get("alert_price_high"),
             "alert_price_low": favorite.get("alert_price_low"),
+            # capability watchlist-management：自定义顺序字段，前端按此升序渲染
+            # 旧文档无 order → get_user_favorites lazy migration 已回填
+            "order": favorite.get("order"),
             # 行情占位，稍后填充
             "current_price": None,
             "change_percent": None,
@@ -75,40 +170,52 @@ class FavoritesService:
             doc = await db.user_favorites.find_one({"user_id": user_id})
             favorites = (doc or {}).get("favorites", [])
 
+        # capability watchlist-management：缺 order 字段的旧文档按 added_at 升序
+        # 回填 order，幂等持久化（do once，后续 read 直接走有 order 路径）
+        favorites, did_migrate = _lazy_migrate_order(favorites)
+        if did_migrate:
+            try:
+                await db.user_favorites.update_one(
+                    {"user_id": user_id},
+                    {"$set": {"favorites": favorites}},
+                )
+            except Exception:
+                # migration 失败不影响 read 返回；下次 read 会再尝试
+                pass
+
+        # 按 order 升序排（lazy migration 后保证每条都有 order）
+        favorites = sorted(favorites, key=lambda f: f.get("order", 0))
+
         # 先格式化基础字段
         items = [self._format_favorite(fav) for fav in favorites]
 
         # 批量获取股票基础信息（板块等）
         # strip：兼容 mongo 历史数据中 stock_code 含前导/尾随空格（如 " 000776"），
         # 否则 $in 匹配不到 market_quotes / stock_basic_info 里 trim 过的 code
-        codes = [
-            str(it.get("stock_code")).strip()
-            for it in items
-            if it.get("stock_code")
-        ]
+        codes = [str(it.get("stock_code")).strip() for it in items if it.get("stock_code")]
         if codes:
             try:
                 # 🔥 获取数据源优先级配置
                 from app.core.unified_config import UnifiedConfigManager
+
                 config = UnifiedConfigManager()
                 data_source_configs = await config.get_data_source_configs_async()
 
                 # 提取启用的数据源，按优先级排序
                 enabled_sources = [
-                    ds.type.lower() for ds in data_source_configs
-                    if ds.enabled and ds.type.lower() in ['tushare', 'akshare', 'baostock']
+                    ds.type.lower() for ds in data_source_configs if ds.enabled and ds.type.lower() in ["tushare", "akshare", "baostock"]
                 ]
 
                 if not enabled_sources:
-                    enabled_sources = ['tushare', 'akshare', 'baostock']
+                    enabled_sources = ["tushare", "akshare", "baostock"]
 
-                preferred_source = enabled_sources[0] if enabled_sources else 'tushare'
+                preferred_source = enabled_sources[0] if enabled_sources else "tushare"
 
                 # 从 stock_basic_info 获取板块信息（只查询优先级最高的数据源）
                 basic_info_coll = db["stock_basic_info"]
                 cursor = basic_info_coll.find(
                     {"code": {"$in": codes}, "data_source": preferred_source},  # 🔥 添加数据源筛选
-                    {"code": 1, "sse": 1, "market": 1, "_id": 0}
+                    {"code": 1, "sse": 1, "market": 1, "_id": 0},
                 )
                 basic_docs = await cursor.to_list(length=None)
                 basic_map = {str(d.get("code")).zfill(6): d for d in (basic_docs or [])}
@@ -169,10 +276,11 @@ class FavoritesService:
         tags: List[str] = None,
         notes: str = "",
         alert_price_high: Optional[float] = None,
-        alert_price_low: Optional[float] = None
+        alert_price_low: Optional[float] = None,
     ) -> bool:
         """添加股票到自选股（兼容字符串ID与ObjectId）"""
         import logging
+
         logger = logging.getLogger("webapi")
 
         try:
@@ -180,6 +288,18 @@ class FavoritesService:
 
             db = await self._get_db()
             logger.info(f"🔧 [add_favorite] 数据库连接获取成功")
+
+            # capability watchlist-management Req "Watchlist 数量上限 10 支":
+            # 入口校验现有数量；已达 FAVORITES_LIMIT raise FavoritesLimitExceededError
+            # router 据此转 HTTP 409. grandfather 已有 > 10 支用户不强删，但禁新增.
+            existing = await self._read_favorites_raw(user_id)
+            current_count = len(existing)
+            if current_count >= FAVORITES_LIMIT:
+                logger.warning(f"⚠️ [add_favorite] 已达上限 {FAVORITES_LIMIT} 支 (user_id={user_id}, current={current_count}); 拒绝新增")
+                raise FavoritesLimitExceededError(f"已达自选股上限 {FAVORITES_LIMIT} 支，请先移除")
+
+            # 新条目 order = max(existing.order) + 1（追加到末尾；空列表时为 0）
+            new_order = _compute_next_order(existing)
 
             favorite_stock = {
                 "stock_code": stock_code,
@@ -189,7 +309,8 @@ class FavoritesService:
                 "tags": tags or [],
                 "notes": notes,
                 "alert_price_high": alert_price_high,
-                "alert_price_low": alert_price_low
+                "alert_price_low": alert_price_low,
+                "order": new_order,
             }
 
             logger.info(f"🔧 [add_favorite] 自选股数据构建完成: {favorite_stock}")
@@ -202,24 +323,19 @@ class FavoritesService:
 
                 # 先尝试使用 ObjectId 查询
                 result = await db.users.update_one(
-                    {"_id": ObjectId(user_id)},
-                    {
-                        "$push": {"favorite_stocks": favorite_stock},
-                        "$setOnInsert": {"favorite_stocks": []}
-                    }
+                    {"_id": ObjectId(user_id)}, {"$push": {"favorite_stocks": favorite_stock}, "$setOnInsert": {"favorite_stocks": []}}
                 )
-                logger.info(f"🔧 [add_favorite] ObjectId查询结果: matched_count={result.matched_count}, modified_count={result.modified_count}")
+                logger.info(
+                    f"🔧 [add_favorite] ObjectId查询结果: matched_count={result.matched_count}, modified_count={result.modified_count}"
+                )
 
                 # 如果 ObjectId 查询失败，尝试使用字符串查询
                 if result.matched_count == 0:
                     logger.info(f"🔧 [add_favorite] ObjectId查询失败，尝试使用字符串ID查询")
-                    result = await db.users.update_one(
-                        {"_id": user_id},
-                        {
-                            "$push": {"favorite_stocks": favorite_stock}
-                        }
+                    result = await db.users.update_one({"_id": user_id}, {"$push": {"favorite_stocks": favorite_stock}})
+                    logger.info(
+                        f"🔧 [add_favorite] 字符串ID查询结果: matched_count={result.matched_count}, modified_count={result.modified_count}"
                     )
-                    logger.info(f"🔧 [add_favorite] 字符串ID查询结果: matched_count={result.matched_count}, modified_count={result.modified_count}")
 
                 success = result.matched_count > 0
                 logger.info(f"🔧 [add_favorite] 返回结果: {success}")
@@ -231,16 +347,69 @@ class FavoritesService:
                     {
                         "$setOnInsert": {"user_id": user_id, "created_at": datetime.utcnow()},
                         "$push": {"favorites": favorite_stock},
-                        "$set": {"updated_at": datetime.utcnow()}
+                        "$set": {"updated_at": datetime.utcnow()},
                     },
-                    upsert=True
+                    upsert=True,
                 )
-                logger.info(f"🔧 [add_favorite] 更新结果: matched_count={result.matched_count}, modified_count={result.modified_count}, upserted_id={result.upserted_id}")
+                logger.info(
+                    f"🔧 [add_favorite] 更新结果: matched_count={result.matched_count}, modified_count={result.modified_count}, upserted_id={result.upserted_id}"
+                )
                 logger.info(f"🔧 [add_favorite] 返回结果: True")
                 return True
+        except FavoritesLimitExceededError:
+            # 业务异常（达上限），不当作错误日志；router 转 409
+            raise
         except Exception as e:
             logger.error(f"❌ [add_favorite] 添加自选股异常: {type(e).__name__}: {str(e)}", exc_info=True)
             raise
+
+    async def reorder_favorites(self, user_id: str, ordered_codes: List[str]) -> int:
+        """按 ordered_codes 顺序更新 user_favorites.favorites[].order 字段.
+
+        capability watchlist-management Req "Watchlist 自定义顺序持久化".
+
+        ordered_codes MUST 与现有 codes 集合完全一致（无缺失/多余/重复），不一致
+        raise ValueError. 一致时按 ordered_codes 顺序为每条分配 order = index.
+
+        返回更新的条目数；空账户 + 空请求返 0。
+        """
+        import logging
+
+        logger = logging.getLogger("webapi")
+
+        db = await self._get_db()
+
+        existing = await self._read_favorites_raw(user_id)
+        existing_codes = [str(f.get("stock_code", "")).strip() for f in existing if f.get("stock_code")]
+
+        # 校验 codes 集合一致性（缺 / 多 / 重复 → ValueError）
+        _validate_reorder_codes(existing_codes, ordered_codes)
+
+        if not ordered_codes:
+            return 0
+
+        # 按 ordered_codes 顺序为现有条目分配 order
+        order_by_code = {code: idx for idx, code in enumerate(ordered_codes)}
+        for fav in existing:
+            code = str(fav.get("stock_code", "")).strip()
+            if code in order_by_code:
+                fav["order"] = order_by_code[code]
+
+        # 整数组写回 mongo（避免 arrayFilters 复杂度；单文档写入原子）
+        if self._is_valid_object_id(user_id):
+            # ObjectId path（fork 当前 _is_valid_object_id 强返 False，此分支死代码）
+            await db.users.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$set": {"favorite_stocks": existing}},
+            )
+        else:
+            await db.user_favorites.update_one(
+                {"user_id": user_id},
+                {"$set": {"favorites": existing}},
+            )
+
+        logger.info(f"🔧 [reorder_favorites] user_id={user_id} 更新 {len(existing)} 条 order")
+        return len(existing)
 
     async def remove_favorite(self, user_id: str, stock_code: str) -> bool:
         """从自选股中移除股票（兼容字符串ID与ObjectId）"""
@@ -248,24 +417,14 @@ class FavoritesService:
 
         if self._is_valid_object_id(user_id):
             # 先尝试使用 ObjectId 查询
-            result = await db.users.update_one(
-                {"_id": ObjectId(user_id)},
-                {"$pull": {"favorite_stocks": {"stock_code": stock_code}}}
-            )
+            result = await db.users.update_one({"_id": ObjectId(user_id)}, {"$pull": {"favorite_stocks": {"stock_code": stock_code}}})
             # 如果 ObjectId 查询失败，尝试使用字符串查询
             if result.matched_count == 0:
-                result = await db.users.update_one(
-                    {"_id": user_id},
-                    {"$pull": {"favorite_stocks": {"stock_code": stock_code}}}
-                )
+                result = await db.users.update_one({"_id": user_id}, {"$pull": {"favorite_stocks": {"stock_code": stock_code}}})
             return result.modified_count > 0
         else:
             result = await db.user_favorites.update_one(
-                {"user_id": user_id},
-                {
-                    "$pull": {"favorites": {"stock_code": stock_code}},
-                    "$set": {"updated_at": datetime.utcnow()}
-                }
+                {"user_id": user_id}, {"$pull": {"favorites": {"stock_code": stock_code}}, "$set": {"updated_at": datetime.utcnow()}}
             )
             return result.modified_count > 0
 
@@ -276,7 +435,7 @@ class FavoritesService:
         tags: Optional[List[str]] = None,
         notes: Optional[str] = None,
         alert_price_high: Optional[float] = None,
-        alert_price_low: Optional[float] = None
+        alert_price_low: Optional[float] = None,
     ) -> bool:
         """更新自选股信息（兼容字符串ID与ObjectId）"""
         db = await self._get_db()
@@ -299,31 +458,19 @@ class FavoritesService:
 
         if is_oid:
             result = await db.users.update_one(
-                {
-                    "_id": ObjectId(user_id),
-                    "favorite_stocks.stock_code": stock_code
-                },
-                {"$set": update_fields}
+                {"_id": ObjectId(user_id), "favorite_stocks.stock_code": stock_code}, {"$set": update_fields}
             )
             return result.modified_count > 0
         else:
             result = await db.user_favorites.update_one(
-                {
-                    "user_id": user_id,
-                    "favorites.stock_code": stock_code
-                },
-                {
-                    "$set": {
-                        **update_fields,
-                        "updated_at": datetime.utcnow()
-                    }
-                }
+                {"user_id": user_id, "favorites.stock_code": stock_code}, {"$set": {**update_fields, "updated_at": datetime.utcnow()}}
             )
             return result.modified_count > 0
 
     async def is_favorite(self, user_id: str, stock_code: str) -> bool:
         """检查股票是否在自选股中（兼容字符串ID与ObjectId）"""
         import logging
+
         logger = logging.getLogger("webapi")
 
         try:
@@ -336,33 +483,18 @@ class FavoritesService:
 
             if is_oid:
                 # 先尝试使用 ObjectId 查询
-                user = await db.users.find_one(
-                    {
-                        "_id": ObjectId(user_id),
-                        "favorite_stocks.stock_code": stock_code
-                    }
-                )
+                user = await db.users.find_one({"_id": ObjectId(user_id), "favorite_stocks.stock_code": stock_code})
 
                 # 如果 ObjectId 查询失败，尝试使用字符串查询
                 if user is None:
                     logger.info(f"🔧 [is_favorite] ObjectId查询未找到，尝试使用字符串ID查询")
-                    user = await db.users.find_one(
-                        {
-                            "_id": user_id,
-                            "favorite_stocks.stock_code": stock_code
-                        }
-                    )
+                    user = await db.users.find_one({"_id": user_id, "favorite_stocks.stock_code": stock_code})
 
                 result = user is not None
                 logger.info(f"🔧 [is_favorite] 查询结果: {result}")
                 return result
             else:
-                doc = await db.user_favorites.find_one(
-                    {
-                        "user_id": user_id,
-                        "favorites.stock_code": stock_code
-                    }
-                )
+                doc = await db.user_favorites.find_one({"user_id": user_id, "favorites.stock_code": stock_code})
                 result = doc is not None
                 logger.info(f"🔧 [is_favorite] 字符串ID查询结果: {result}")
                 return result
@@ -380,7 +512,7 @@ class FavoritesService:
                 {"$unwind": "$favorite_stocks"},
                 {"$unwind": "$favorite_stocks.tags"},
                 {"$group": {"_id": "$favorite_stocks.tags"}},
-                {"$sort": {"_id": 1}}
+                {"$sort": {"_id": 1}},
             ]
             result = await db.users.aggregate(pipeline).to_list(None)
         else:
@@ -389,7 +521,7 @@ class FavoritesService:
                 {"$unwind": "$favorites"},
                 {"$unwind": "$favorites.tags"},
                 {"$group": {"_id": "$favorites.tags"}},
-                {"$sort": {"_id": 1}}
+                {"$sort": {"_id": 1}},
             ]
             result = await db.user_favorites.aggregate(pipeline).to_list(None)
 
@@ -400,13 +532,13 @@ class FavoritesService:
         # 基于股票代码生成模拟价格
         base_price = hash(stock_code) % 100 + 10
         return round(base_price + (hash(stock_code) % 1000) / 100, 2)
-    
+
     def _get_mock_change(self, stock_code: str) -> float:
         """获取模拟涨跌幅"""
         # 基于股票代码生成模拟涨跌幅
         change = (hash(stock_code) % 2000 - 1000) / 100
         return round(change, 2)
-    
+
     def _get_mock_volume(self, stock_code: str) -> int:
         """获取模拟成交量"""
         # 基于股票代码生成模拟成交量
