@@ -15,6 +15,11 @@ export interface FavoriteItem {
   current_price?: number | null
   change_percent?: number | null
   volume?: number | null
+  // capability watchlist-management: 自定义顺序字段，前端按 order 升序渲染
+  // 旧文档无 order → 后端 lazy migration 已回填
+  order?: number | null
+  // 行情时间戳（mongo market_quotes.updated_at），前端判定「昨日收盘」灰标
+  as_of?: string | null
 }
 
 export interface AddFavoriteReq {
@@ -77,6 +82,14 @@ export const favoritesApi = {
       symbols: string[]
       data_source: string
       message: string
-    }>('/api/favorites/sync-realtime', { data_source })
+    }>('/api/favorites/sync-realtime', { data_source }),
+
+  /**
+   * 重排自选股自定义顺序（capability watchlist-management）
+   * @param orderedCodes 完整 codes 数组（与现有 codes 集合完全一致，无缺/多/重复）
+   * 400 → codes 集合不一致；409 不会触发（仅 add 才有 limit）
+   */
+  reorder: (orderedCodes: string[]) =>
+    ApiClient.put<{ updated: number }>('/api/favorites/reorder', { order: orderedCodes }),
 }
 

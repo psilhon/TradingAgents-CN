@@ -91,7 +91,18 @@
             <el-button @click="openTagManager">
               标签管理
             </el-button>
-            <el-button type="primary" @click="showAddDialog">
+            <!-- capability watchlist-management: 已达 10 支上限 disable + tooltip -->
+            <el-tooltip
+              v-if="favorites.length >= 10"
+              content="已达自选股上限 10 支，请先移除"
+              placement="top"
+            >
+              <el-button type="primary" disabled>
+                <el-icon><Plus /></el-icon>
+                添加自选股
+              </el-button>
+            </el-tooltip>
+            <el-button v-else type="primary" @click="showAddDialog">
               <el-icon><Plus /></el-icon>
               添加自选股
             </el-button>
@@ -945,7 +956,14 @@ const handleAddFavorite = async () => {
     await loadFavorites()
   } catch (error: any) {
     console.error('添加自选股失败:', error)
-    ElMessage.error(error.message || '添加失败')
+    // capability watchlist-management: 后端 409 → 已达上限，明确提示
+    // axios error response shape: error.response?.status / error.response?.data?.detail
+    const status = error?.response?.status
+    if (status === 409) {
+      ElMessage.error(error?.response?.data?.detail || '已达自选股上限 10 支，请先移除')
+    } else {
+      ElMessage.error(error.message || '添加失败')
+    }
   } finally {
     addLoading.value = false
   }
