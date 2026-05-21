@@ -168,3 +168,22 @@ audit-binds:
         echo "❌ Binding 审计有违规项（见上）"
     fi
     exit $EXIT_CODE
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# 本地垃圾清理 + 日志归档（不动当前在写日志 / git tracked / data/）
+# ────────────────────────────────────────────────────────────────────────────
+
+# 清理本地累积产物（cache / 旧轮转日志 / .env.bak 累积 / 孤儿 pid）
+# - 触发 mongod logRotate（mongod.conf 配 rename 模式，自动 mv 当前 log → .log.<ts>）
+# - 删 logs/mongod.log.* > 7 天 / logs/*.log.[0-9]+ > 3 天
+# - 删 __pycache__ / .ruff_cache / .pytest_cache / tradingagents.egg-info
+# - .env.bak* 累积 ≥ 3 个时 tar.gz 归档到 backup/，再删原文件
+# - 删 .dev/*.pid 已失效的孤儿
+# 永不动当前在写日志 / git tracked / data/ / .venv/
+clean:
+    scripts/clean-local-cruft.sh
+
+# Dry-run：只打印将要做什么，不实际执行
+clean-dry:
+    scripts/clean-local-cruft.sh --dry-run
