@@ -1,6 +1,8 @@
 # architecture.md
 
-> AI prime context — 架构摘要 + 二开关注点。详细见上游 `docs/STRUCTURE.md` + `docs/architecture/`。
+> AI prime context — 架构摘要 + 二开关注点。
+> **本文件描述跨 capability 的横切关系**；单一 capability 的功能事实见 [`openspec/specs/`](../../openspec/specs/)（22 条，下文「capability 索引」给出完整列表）。
+> 详细补充见 [`../architecture/`](../architecture/) 技术参考目录。
 
 ## 三层 + 数据存储 + LLM 抽象
 
@@ -141,7 +143,7 @@ stock_zh_a_hist
 | DeepSeek | OpenAI 兼容 | `DEEPSEEK_API_KEY` + `DEEPSEEK_BASE_URL` |
 | 聚合渠道 | OpenAI 兼容 | `AIHUBMIX_API_KEY`、`ONEAPI_API_KEY`、`SILICONFLOW_API_KEY` 等 |
 
-加新 provider：抄 `docs/LLM_ADAPTER_TEMPLATE.py`，落到 `tradingagents/llm/<provider>/`。
+加新 provider：抄 [`archive/legacy-upstream/LLM_ADAPTER_TEMPLATE.py`](../archive/legacy-upstream/LLM_ADAPTER_TEMPLATE.py)（模板已冻结到 archive，但内容仍可参考），落到 `tradingagents/llm/<provider>/`。详细规则见 [`openspec/specs/llm-abstraction/spec.md`](../../openspec/specs/llm-abstraction/spec.md)。
 
 ## 配置中心（前端可视化）
 
@@ -159,12 +161,40 @@ stock_zh_a_hist
 | 改前端 UI | `frontend/src/` | 🟡 专有授权 + Vue/JS 知识 |
 | 改 DB schema | MongoDB（无 migrations，直接 collection 改）| 🔴 数据迁移自己负责 |
 
-## 上游同步关注点（fork 维护）
+## v1.3.x 已固化 capability 索引
 
-| 文件类型 | 同步策略 |
-|---|---|
-| `tradingagents/` | 通常无冲突（你不会跟上游同时改同函数）|
-| `app/` `frontend/` | **大概率冲突**（上游主开发区），优先 rebase 而非 merge |
-| `pyproject.toml` | 注意 [tool.*] 段（fork 加的）vs 依赖列表（上游改的）|
-| `config/mongod.conf` `config/redis.conf` | fork 加，不会冲突；改端口需同步 `.env` 和业务代码 |
-| `docs/` | 上游加新文档无冲突；fork 加的 `CHANGELOG.md` `USAGE.md` `ai-context/` 上游不会改 |
+> **本节是 architecture.md 到 [`openspec/specs/`](../../openspec/specs/) 的索引**——单一 capability 的 Requirements / Scenarios 见各 `spec.md`，本表只给一句话定位。
+
+| Capability | 一句话定位 | Spec |
+|---|---|---|
+| `audit-tooling` | 审计脚本（数据真实性 / 端口绑定 / 数据一致性）固化为 `just audit-*` 同源命令 | [spec](../../openspec/specs/audit-tooling/spec.md) |
+| `daily-recommendation` | 每日推荐多配置目录化（`config/daily_recommendations/<id>.json`），支持多策略并行 | [spec](../../openspec/specs/daily-recommendation/spec.md) |
+| `data-quality-gate` | mock 数据 / `Math.random` / 同步 fallback 禁止入库，写入路径必须经数据真实性闸门 | [spec](../../openspec/specs/data-quality-gate/spec.md) |
+| `dataflow-integrity` | dataflow 模块禁反向依赖、禁同步阻塞、禁 hot-path import akshare | [spec](../../openspec/specs/dataflow-integrity/spec.md) |
+| `dataflow-performance` | dataflow 性能 SLA（缓存命中 / 单次 sync 耗时上限） | [spec](../../openspec/specs/dataflow-performance/spec.md) |
+| `favorites-performance` | 自选股 panel 性能（批量获取 / 防过频刷新） | [spec](../../openspec/specs/favorites-performance/spec.md) |
+| `frontend-navigation` | 前端路由 + 导航栏 + 顶部菜单约束（Element Plus menu / Vue Router 4） | [spec](../../openspec/specs/frontend-navigation/spec.md) |
+| `license-boundary` | `app/` / `frontend/` 专有授权代码改动边界（个人学习可读可改，商业部署需授权） | [spec](../../openspec/specs/license-boundary/spec.md) |
+| `lint-policy` | pre-commit STRICT 模式（ruff/format/pyright 阻塞 + pytest -m unit pre-push 阻塞） | [spec](../../openspec/specs/lint-policy/spec.md) |
+| `llm-abstraction` | LLM provider 统一抽象（langchain-* + dashscope + OpenAI 兼容渠道） | [spec](../../openspec/specs/llm-abstraction/spec.md) |
+| `loopback-binding-policy` | 所有对外服务强制 `127.0.0.1` loopback；禁止 `0.0.0.0` 监听 | [spec](../../openspec/specs/loopback-binding-policy/spec.md) |
+| `native-local-deployment` | 原生 Homebrew mongo + redis 部署（不用 Docker）；端口段位 54300-54309 | [spec](../../openspec/specs/native-local-deployment/spec.md) |
+| `paper-account-snapshots` | 模拟账户日切快照（每日凌晨写 KPI / 收益曲线） | [spec](../../openspec/specs/paper-account-snapshots/spec.md) |
+| `paper-realtime-quotes` | 持仓 / 自选股近实时价（mongo `market_quotes` ≤ 100 codes，30s sync） | [spec](../../openspec/specs/paper-realtime-quotes/spec.md) |
+| `portfolio-fundamentals` | 组合 / 持仓基本面字段（PE / PB / market cap / industry） | [spec](../../openspec/specs/portfolio-fundamentals/spec.md) |
+| `realtime-trading-data-flow` | 实时数据流 SLO 模型 + push 推送链路（双 hot snapshot + redis pubsub + WS） | [spec](../../openspec/specs/realtime-trading-data-flow/spec.md) |
+| `repository-scope` | fork 独立分叉模式 / 仅 macOS Apple Silicon 支持 / 文档保留范围 | [spec](../../openspec/specs/repository-scope/spec.md) |
+| `secret-handling` | secret / API key 处理约束（不打印不上传 / `.env` gitignored / Claude 不读不写） | [spec](../../openspec/specs/secret-handling/spec.md) |
+| `theme-management` | 前端主题切换（亮/暗模式 / 全局变量） | [spec](../../openspec/specs/theme-management/spec.md) |
+| `trading-calendar` | 交易日历（A 股 / 港股 / 美股；判断 intraday / 节假日） | [spec](../../openspec/specs/trading-calendar/spec.md) |
+| `user-workflow-stability` | 用户核心流程稳定性约束（注册 → 登录 → Dashboard → 分析 → 报告路径不可中断） | [spec](../../openspec/specs/user-workflow-stability/spec.md) |
+| `watchlist-management` | 自选股管理（上限 10 支 / 滚动 / 排序模式 / 拖拽自定义顺序持久化） | [spec](../../openspec/specs/watchlist-management/spec.md) |
+| `documentation-structure` | 文档分层（角色化入口 / SSOT 唯一性 / archive 冻结 / release 维护节奏） | [spec](../../openspec/specs/documentation-structure/spec.md) |
+
+> 新增 capability 时，本表必须同步加一行——见 `documentation-structure` Req 4「文档维护节奏内嵌 release 流程」。
+
+## 上游同步关注点（fork 独立分叉模式）
+
+fork 已声明**独立分叉**（参见 [`repository-scope` spec](../../openspec/specs/repository-scope/spec.md)），不再批量 `git pull upstream/main`。需要上游某项功能 / 修复时手动 cherry-pick 单独决策引入。
+
+罕用 cherry-pick 操作见 [`../operations.md` § 上游 cherry-pick](../operations.md#上游-cherry-pick-罕用)。如果撞冲突涉及 fork-patch 文件（vite.config.ts / pyproject.toml / .pre-commit-config.yaml / ci.yml / .gitignore），参考项目 `CLAUDE.md` § Fork patch 清单。

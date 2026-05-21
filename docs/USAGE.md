@@ -1,6 +1,8 @@
 # TradingAgents-CN (fork) — 二次开发使用手册
 
 > 上游 `README.md` 是产品介绍（面向最终用户）；本文档是 **fork 维护者 + 二次开发者**的使用手册（面向开发者）。
+>
+> **SSOT 指针**：功能事实（每条 capability 的 Requirements / Scenarios）见 [`openspec/specs/`](../openspec/specs/)，22 条 stable spec。本文是面向用户/开发者的操作指引，与 spec 冲突时**以 spec 为准**。文档入口在 [`README.md`](README.md)（fork 视角四角色入口）。
 
 ## 1. 一次性环境搭建（新机器 / 新接手）
 
@@ -9,38 +11,35 @@
 git clone git@github.com:psilhon/TradingAgents-CN.git
 cd TradingAgents-CN
 
-# 2) 配 upstream remote（fork 同步用）
-git remote add upstream https://github.com/hsliuping/TradingAgents-CN.git
-
-# 3) 建 venv（homebrew python@3.12，arm64）
+# 2) 建 venv（homebrew python@3.12，arm64）
 brew install python@3.12 || true   # 已装则跳过
 uv venv --python /opt/homebrew/opt/python@3.12/bin/python3.12 \
         --python-preference only-system
 
-# 4) 装依赖（注意：必须分两步，uv.lock 已知过时）
+# 3) 装依赖（注意：必须分两步，uv.lock 已知过时）
 uv sync --frozen --python .venv/bin/python --python-preference only-system
 uv pip install -e . --python .venv/bin/python
 git status   # ⚠️ uv pip install -e . 会误删 VERSION/requirements*.txt
 git checkout HEAD -- VERSION requirements.txt requirements-lock.txt 2>/dev/null
 
-# 5) 装 CI 工具链
+# 4) 装 CI 工具链
 brew install just
 uv tool install pyright ruff
 just setup   # 装 pre-commit hook（warn-only 模式，不阻塞）
 
-# 6) 配 .env（必填 JWT_SECRET / CSRF_SECRET / 1 个 LLM key）
+# 5) 配 .env（必填 JWT_SECRET / CSRF_SECRET / 1 个 LLM key）
 cp .env.example .env
 python -c "import secrets; print(secrets.token_urlsafe(32))"  # 生成 secret
 # 编辑 .env，填 3 处必填项
 
-# 7) 装原生 mongo + redis 服务（替代 docker，一次性）
+# 6) 装原生 mongo + redis 服务（替代 docker，一次性）
 ./scripts/setup-native.sh
 # 自动：brew install mongodb-community@7.0 / redis / mongosh
 # 自动：创建 admin/tradingagents123 (admin db) + tradingagents/tradingagents123 (业务 db)
 # 自动：在 users 集合插入 admin/admin123（Web 登录用，独立于 DB 凭据）
 # 自动：data/mongodb/, data/redis/, logs/, .dev/ 目录
 
-# 8) 启全栈
+# 7) 启全栈
 just up   # 起原生 mongo+redis + backend + frontend
 # Web 登录: http://127.0.0.1:54300  admin / admin123
 ```
@@ -120,13 +119,36 @@ git remote remove upstream                        # 用完即删，避免误 mer
 
 更多坑见 `CLAUDE.md` 末尾「已知坑」段。
 
-## 6. 文档地图
+## 6. 功能矩阵（v1.3.x 用户可见功能）
+
+每个 capability 的 Requirements / Scenarios 详见 `openspec/specs/<id>/spec.md`。本表给一站式入口。
+
+| 功能 | 描述 | 入口 | Capability spec |
+|---|---|---|---|
+| Dashboard | 大盘概览（涨跌停 / 成交额 / 自选股 / 最近分析 / 模拟账户）| http://127.0.0.1:54300/ | 多个 capability 横切（[realtime-trading-data-flow](../openspec/specs/realtime-trading-data-flow/spec.md) / [paper-realtime-quotes](../openspec/specs/paper-realtime-quotes/spec.md) / [watchlist-management](../openspec/specs/watchlist-management/spec.md)） |
+| 自选股管理 | 10 支上限 / 滚动 / 4 种排序模式 / 拖拽自定义顺序持久化 | Dashboard panel + `/favorites` | [watchlist-management](../openspec/specs/watchlist-management/spec.md) |
+| 模拟账户 | 持仓 / 日切快照 / 实时 PnL / 历史曲线 | Dashboard panel + `/paper-trading` | [paper-account-snapshots](../openspec/specs/paper-account-snapshots/spec.md) / [paper-realtime-quotes](../openspec/specs/paper-realtime-quotes/spec.md) |
+| 实时行情 | 30s sync + redis pubsub + WS push；hot-path ≤ 50ms 读 cache | 后台自动 / `/ws/quotes` 订阅 | [realtime-trading-data-flow](../openspec/specs/realtime-trading-data-flow/spec.md) |
+| 每日推荐 | 多配置目录化（`config/daily_recommendations/<id>.json`），可同时跑多策略 | `/daily-recommendation` | [daily-recommendation](../openspec/specs/daily-recommendation/spec.md) |
+| 组合基本面 | PE / PB / market cap / industry 等基本面字段 | `/portfolio` | [portfolio-fundamentals](../openspec/specs/portfolio-fundamentals/spec.md) |
+| 多智能体股票分析 | LangGraph 编排 analyst / researcher / trader / risk_manager | `/analysis` | [llm-abstraction](../openspec/specs/llm-abstraction/spec.md) + tradingagents/ 主代码 |
+| 数据时效透出 | 所有行情 / PnL 响应顶层带 `as_of_ts` + `staleness_seconds` | UI 角标 + API response | [realtime-trading-data-flow](../openspec/specs/realtime-trading-data-flow/spec.md) |
+| 交易日历 | A 股 / 港股 / 美股 trading day 判断 + 节假日 | 内部使用 | [trading-calendar](../openspec/specs/trading-calendar/spec.md) |
+| 主题切换 | 亮 / 暗模式，前端全局变量 | 右上角切换 | [theme-management](../openspec/specs/theme-management/spec.md) |
+| 数据真实性闸门 | 写入路径禁止 mock / `Math.random` / 同步 fallback | 内部强制 | [data-quality-gate](../openspec/specs/data-quality-gate/spec.md) |
+
+## 7. 文档地图
 
 | 找... | 看... |
 |---|---|
-| 项目概览（产品介绍）| `README.md`（上游）|
-| AI prime context | `docs/ai-context/{project-structure,coding-standards,architecture}.md` |
-| 改动历史（fork 自己的）| `docs/CHANGELOG.md` |
-| OpenSpec specs / changes | `openspec/specs/`、`openspec/changes/` |
-| 上游详细文档 | `docs/QUICK_START.md`、`docs/STRUCTURE.md`、`docs/architecture/`、`docs/database_setup.md` 等 |
-| 端口约定 / 命令速查 / Secrets | `CLAUDE.md` |
+| 项目概览（产品介绍）| `README.md`（仓库根，上游）|
+| **文档中心 / 角色入口** | [`docs/README.md`](README.md)（fork 视角四角色：用户 / 二开 / 运维 / AI prime）|
+| **快速开始**（fork 版本）| [`docs/QUICK_START.md`](QUICK_START.md) |
+| **运维手册**（端口 / 备份 / 日志）| [`docs/operations.md`](operations.md) |
+| AI prime context | `docs/ai-context/{project-structure,coding-standards,architecture,known-issues}.md` |
+| 改动历史（fork 自己的）| [`docs/CHANGELOG.md`](CHANGELOG.md) |
+| **功能事实 SSOT** | [`openspec/specs/`](../openspec/specs/) — 22 条 stable capability spec |
+| OpenSpec changes（活跃）| `openspec/changes/`（archive 历史在 `openspec/changes/archive/`） |
+| 参考资料（仍维护，非 SSOT）| `docs/configuration/` / `docs/llm/` / `docs/data/` / `docs/guides/` 等 |
+| 归档区（v1.3.x 已冻结） | [`docs/archive/`](archive/README.md) |
+| 端口约定 / 命令速查 / Secrets / Fork patch 清单 | [项目根 `CLAUDE.md`](../CLAUDE.md) |
