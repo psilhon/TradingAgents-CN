@@ -8,6 +8,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- **自选股管理升级：10 支上限 + 滚动 + 排序模式 + 拖拽自定义顺序持久化**（OpenSpec change `2026-05-21-watchlist-limit-and-ordering`，新 capability `watchlist-management`）：用户截图反馈自选股 panel 撑高、无显式排序逻辑，本次系统性升级到产品级 watchlist。
+  - **后端**：mongo `user_favorites.favorites[]` 每条加 `order: int` 字段；`FAVORITES_LIMIT = 10` 模块常量 + `FavoritesLimitExceededError` 自定义异常；service 新增 4 pure helper（`_compute_next_order` / `_lazy_migrate_order` / `_validate_reorder_codes` + `_read_favorites_raw`）；`add_favorite` 入口 count >= 10 raise 异常（router 转 HTTP 409 + 文案「已达自选股上限 10 支，请先移除」）；新增 `reorder_favorites(user_id, ordered_codes)` 方法（codes 集合不一致 / 重复 raise ValueError，router 转 400）；`get_user_favorites` 加 lazy migration（旧文档按 `added_at` 升序回填 order 并 update mongo，幂等）；`PUT /api/favorites/reorder` 新 endpoint，body `{"order": [...]}` 校验通过后整数组写回 mongo（避免 arrayFilters 复杂度）。
+  - **前端**：`frontend/src/api/favorites.ts` `FavoriteItem` 加 `order?: number` 类型 + 新 `reorder(orderedCodes)` API 方法。`Dashboard/index.vue` watchlist：`.watchlist-list` `max-height: 360px + overflow-y: auto` + 自定义细 scrollbar；列表头排序 select（自定义/涨跌幅↓/涨跌幅↑/代码↑，默认自定义；client-side 排序不动后端，state 不持久化）；`sortedFavoriteStocks` computed 按 mode 排序（null change_percent 排末尾防 data-quality-gate Req 3 违反）；动态 import sortablejs 仅 custom 模式启用拖拽；拖完成立即 `favoritesApi.reorder(newCodes)`，失败 revert UI 顺序 + el-message.error；整行 `cursor: grab` (custom 时)，左侧 ⋮⋮ handle hover 显；「管理 →」按钮在 length >= 10 disable + tooltip。`Favorites/index.vue` add 按钮同样 disable + 409 status 识别提示。
+  - **API breaking change**：`/api/favorites/` POST 已达上限新返 409（既有 400 已存在保留）；GET response 加 `order` 字段；新增 `PUT /api/favorites/reorder` endpoint。本 fork 仅自用，前端已同步处理。
+  - **Backward compat**：mongo 旧文档无 `order` 字段 → 第一次 GET 时 lazy 回填（按 `added_at` 升序），幂等；已有 > 10 支用户 grandfather 保留不强删，但禁止新增直到删除到 ≤ 10。
+  - **Contract test**：新增 `tests/test_favorites_limit_contract.py`（11 unit case：helpers + limit + format）+ `tests/test_favorites_reorder_contract.py`（14 unit case：validate / migrate / reorder service + lazy migration 集成）+ `tests/test_favorites_router_reorder.py`（7 unit case：POST 409 / reorder ok / 400 不一致 / 500 passes through）。pytest -m unit +32 new → 全 PASS。
+  - **Spec**：新建 capability `watchlist-management` 锁定 4 个 Requirements（数量上限 10 支 / 自定义顺序持久化 / 旧文档 backward compat lazy migration / 前端 Dashboard watchlist UX）+ 共 22 个 Scenarios。
+
 ## [1.3.1] — 2026-05-21
 
 **Fork patch release**——v1.3.0 后累积的数据正确性收口 + 防复发体系强化。本版本同时把 v1.3.0 发布后 baseline 审计发现的 5 critical + 3 warning 语义层 null-as-0 漏修（grep 防线抓不到的模式）系统性修补，并把"语义层 null-as-0 禁令"+"contract test 覆盖空态契约"两条 Req 沉淀进 capability spec，让未来类似模式被 pre-push 阻塞。同时合入数据正确性 Phase 3 防复发（写库前数值 sanity 闸门 / stock_basic_info 主键收敛 / 字段名统一）+ 全市场行情管线主链 sina hq 化 + Dashboard 顶部 ticker 实时化。
