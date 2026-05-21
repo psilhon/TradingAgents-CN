@@ -3,6 +3,7 @@ Tushare数据同步服务
 负责将Tushare数据同步到MongoDB标准化集合
 """
 import asyncio
+from app.core.database import get_mongo_db_sync
 from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Any, Optional
 import logging
@@ -1211,14 +1212,12 @@ class TushareSyncService:
         """
         try:
             from app.services.scheduler_service import TaskCancelledException
-            from pymongo import MongoClient
             from app.core.config import settings
 
             logger.info(f"📊 [进度更新] 开始更新任务 {job_id} 进度: {progress}% - {message}")
 
             # 使用同步 PyMongo 客户端（避免事件循环冲突）
-            sync_client = MongoClient(settings.MONGO_URI)
-            sync_db = sync_client[settings.MONGODB_DATABASE]
+            sync_db = get_mongo_db_sync()
 
             # 查找最新的 running 记录
             execution = sync_db.scheduler_executions.find_one(
@@ -1228,14 +1227,12 @@ class TushareSyncService:
 
             if not execution:
                 logger.warning(f"⚠️ 未找到任务 {job_id} 的执行记录")
-                sync_client.close()
                 return
 
             logger.info(f"📊 [进度更新] 找到执行记录: _id={execution['_id']}, 当前进度={execution.get('progress', 0)}%")
 
             # 检查是否收到取消请求
             if execution.get("cancel_requested"):
-                sync_client.close()
                 raise TaskCancelledException(f"任务 {job_id} 已被用户取消")
 
             # 更新进度（使用 UTC+8 时间）
@@ -1252,7 +1249,6 @@ class TushareSyncService:
 
             logger.info(f"📊 [进度更新] 更新结果: matched={result.matched_count}, modified={result.modified_count}")
 
-            sync_client.close()
             logger.info(f"✅ 任务 {job_id} 进度更新成功: {progress}% - {message}")
 
         except Exception as e:
