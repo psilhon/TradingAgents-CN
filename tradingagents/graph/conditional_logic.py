@@ -207,7 +207,7 @@ class ConditionalLogic:
         """Determine if debate should continue."""
         current_count = state["investment_debate_state"]["count"]
         max_count = 2 * self.max_debate_rounds
-        current_speaker = state["investment_debate_state"]["current_response"]
+        current_speaker = state["investment_debate_state"]["current_speaker"]
 
         # 🔍 详细日志
         logger.info(f"🔍 [投资辩论控制] 当前发言次数: {current_count}, 最大次数: {max_count} (配置轮次: {self.max_debate_rounds})")
@@ -217,7 +217,7 @@ class ConditionalLogic:
             logger.info("✅ [投资辩论控制] 达到最大次数，结束辩论 -> Research Manager")
             return "Research Manager"
 
-        next_speaker = "Bear Researcher" if current_speaker.startswith("Bull") else "Bull Researcher"
+        next_speaker = "Bear Researcher" if current_speaker == "Bull" else "Bull Researcher"
         logger.info(f"🔄 [投资辩论控制] 继续辩论 -> {next_speaker}")
         return next_speaker
 
@@ -236,9 +236,9 @@ class ConditionalLogic:
             return "Risk Judge"
 
         # 确定下一个发言者
-        if latest_speaker.startswith("Risky"):
+        if latest_speaker == "Risky":
             next_speaker = "Safe Analyst"
-        elif latest_speaker.startswith("Safe"):
+        elif latest_speaker == "Safe":
             next_speaker = "Neutral Analyst"
         else:
             next_speaker = "Risky Analyst"

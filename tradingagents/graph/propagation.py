@@ -31,7 +31,7 @@ class Propagator:
             "messages": [HumanMessage(content=analysis_request)],
             "company_of_interest": company_name,
             "trade_date": str(trade_date),
-            "investment_debate_state": InvestDebateState({"history": "", "current_response": "", "count": 0}),
+            "investment_debate_state": InvestDebateState({"history": "", "current_response": "", "current_speaker": "", "count": 0}),
             "risk_debate_state": RiskDebateState(
                 {
                     "history": "",

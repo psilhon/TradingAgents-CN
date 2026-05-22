@@ -88,6 +88,7 @@ def create_bear_researcher(llm, memory):
             "bear_history": bear_history + "\n" + argument,
             "bull_history": investment_debate_state.get("bull_history", ""),
             "current_response": argument,
+            "current_speaker": "Bear",
             "count": new_count,
         }
 
