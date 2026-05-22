@@ -30,22 +30,22 @@
 
 > 每个文件：删除本地 `_get_company_name*` 定义，加 import，调用点改 `get_company_name(ticker, market_info, "<label>")`。
 
-- [ ] 3.1 `analysts/market_analyst.py`：删模块级 `_get_company_name`（L17），call site L123 → label `"市场分析师"`
-- [ ] 3.2 `analysts/social_media_analyst.py`：删 `_get_company_name_for_social_media`（L14），call site L112 → label `"社交媒体分析师"`
-- [ ] 3.3 `analysts/fundamentals_analyst.py`：删 `_get_company_name_for_fundamentals`（L23），call site L167 → label `"基本面分析师"`
-- [ ] 3.4 `analysts/china_market_analyst.py`：删 `_get_company_name_for_china_market`（L12），call site L106 → label `"中国市场分析师"`
-- [ ] 3.5 `analysts/news_analyst.py`：删嵌套 `_get_company_name`（L44），call site L100 → label `"新闻分析师"`
-- [ ] 3.6 `researchers/bull_researcher.py`：删嵌套 `_get_company_name`（L29），call site L77 → label `"多头研究员"`
-- [ ] 3.7 `researchers/bear_researcher.py`：删嵌套 `_get_company_name`（L27），call site L75 → label `"空头研究员"`
-- [ ] 3.8 检查每个文件删函数后是否留下未用 import（如某文件原 `_get_company_name` 用到的 import 现已无引用）→ 清理
-- [ ] 3.9 grep 验证：`tradingagents/agents/` 内 `def _get_company_name` 命中数 = 0
-- [ ] 3.10 `just lint` + `just typecheck` 0 errors
-- [ ] 3.11 `pytest -m unit` 无回归
+- [x] 3.1 `analysts/market_analyst.py` → label `"市场分析师"`
+- [x] 3.2 `analysts/social_media_analyst.py` → label `"社交媒体分析师"`
+- [x] 3.3 `analysts/fundamentals_analyst.py` → label `"基本面分析师"`
+- [x] 3.4 `analysts/china_market_analyst.py` → label `"中国市场分析师"`
+- [x] 3.5 `analysts/news_analyst.py` → label `"新闻分析师"`
+- [x] 3.6 `researchers/bull_researcher.py` → label `"多头研究员"`
+- [x] 3.7 `researchers/bear_researcher.py` → label `"空头研究员"`
+- [x] 3.8 删函数后无遗留未用 import（ruff F401 0 命中）
+- [x] 3.9 grep 验证：`tradingagents/agents/` 内 `def _get_company_name` 命中数 = 0
+- [x] 3.10 `just lint` + `just typecheck` 0 errors
+- [x] 3.11 `pytest -m unit` 无回归（271 passed，含 10 个新增 + 261 既有）
 - [ ] 3.12 commit
 
 ## 4. CHANGELOG + 验证 + Archive — commit 4
 
-- [ ] 4.1 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Changed` 段：「公司名解析逻辑去重」（7 份 `_get_company_name` 拷贝合并为 `company_resolver.get_company_name`，顺带修 news_analyst `stock_info=None` latent TypeError）
+- [ ] 4.1 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Changed` 段
 - [ ] 4.2 `just ci` 通过（lint + typecheck + test）
 - [ ] 4.3 Archive：`mv` change 目录 → `openspec/changes/archive/2026-05-22-extract-company-resolver`
 - [ ] 4.4 Spec sync：`mv specs/agent-company-resolution/spec.md` → `openspec/specs/agent-company-resolution/spec.md`（新 capability，无 merge 冲突）
