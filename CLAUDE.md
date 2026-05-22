@@ -1,14 +1,12 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 > **TradingAgents-CN** — fork 自 [hsliuping/TradingAgents-CN](https://github.com/hsliuping/TradingAgents-CN) 的下游副本（`psilhon/TradingAgents-CN`）。本文件只写**本项目特有**的事实——通用规则见 `~/.claude/CLAUDE.md`。
 
 ## 项目身份
 
 - **定位**：面向中文用户的多智能体股票分析学习平台（FastAPI 后端 + Vue 3 前端 + LangGraph 多智能体 + 多数据源）
 - **当前版本**：`v1.3.4`（fork patch release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
-- **当前阶段**：**功能固化阶段**。v1.3.4 已发布（2026-05-22，fork patch release）——M1「状态对齐 + 收尾」：healthz 版本号修正 + apscheduler 日志降噪 + CLAUDE.md 漂移纠偏。在此之前 v1.3.2（自选股管理升级 + 文档分层固化）/ v1.3.3（运维基建 + 性能调优：mongo cache + TTL + scheduler 3→5s + sync client 12 处单例化）。`[Unreleased]` 为空。OpenSpec 累计 **43 条 changes archived** + **23 条 stable capability spec**，当前无活跃 change。下一优先项：**code-review 第三梯队架构重构剩余 3 条**（每条 1 周量级，属架构优化非固化必须）——`extract-company-resolver`（7 份 `_get_company_name` 拷贝抽取）/ `cache-layer-consolidation`（4 套缓存层合并 + `pickle.load` 去除）/ `agent-state-structured-history`（history plain-str 解析改 list-of-dict）。其余 follow-up：数据正确性余项（`market_quotes` 行情陈旧 / `stock_daily_quotes.pre_close` 全 null / 日期格式统一，见 `docs/data-audit-2026-05-17.md`「未处置」段，低 ROI 依赖外部接口）。**已完成提示**（避免重复规划）：`docs/code-review-2026-05-05.md` 19 条建议中 16 完成 / 1 moot / 仅上述 3 条未做（完成状态总览见该文档顶部「✅ 完成状态总览」块，2026-05-22 回填）；data-audit Phase 3 防复发已于 2026-05-18 经 `data-audit-phase3` change 完成。**完成状态一律以 `openspec/changes/archive/` 为准**——`code-review` / `data-audit` 等是静态快照文档，不反映实施进度。
+- **当前阶段**：**功能固化阶段**。最新 v1.3.4（2026-05-22，fork patch release）；`[Unreleased]` 为空，当前无活跃 OpenSpec change。OpenSpec 累计 **43 条 changes archived** + **23 条 stable capability spec**。下一优先项：code-review 第三梯队架构重构剩余 3 条（`extract-company-resolver` / `cache-layer-consolidation` / `agent-state-structured-history`，每条 1 周量级、属架构优化非固化必须）。**backlog 完成状态一律以 `openspec/changes/archive/` 为准**——`docs/code-review-2026-05-05.md` 顶部「✅ 完成状态总览」块 + `docs/data-audit-2026-05-17.md`「未处置」段是静态快照，查 backlog 看那两处，不在本文件复述（避免漂移）。
 - **技术栈**：Python 3.12（homebrew arm64）+ uv + FastAPI + Uvicorn + Vue 3 + Vite + **原生 MongoDB 7.0 + Redis 8**（Homebrew，不用 Docker）
 - **License 双轨**：根目录 Apache 2.0；`app/`（FastAPI 后端）和 `frontend/`（Vue 前端）为**专有授权**，商业用途必须联系作者 hsliup@163.com
 
@@ -35,12 +33,9 @@ cd frontend && npm install && npm run dev -- --port 54300
 .venv/bin/python main.py
 
 # 测试（conftest.py 已把项目根加进 sys.path；marker 体系见 pyproject.toml [tool.pytest.ini_options]）
-.venv/bin/pytest tests/                                          # 全跑（部分用例需 .env 里的 LLM/Tushare key）
-.venv/bin/pytest -m unit                                         # 纯逻辑用例（pre-push hook + just test 跑的就是这套，最快）
-.venv/bin/pytest -m "not requires_env and not requires_network"  # 跳过需 .env key / 公网的用例
-.venv/bin/pytest -m integration                                  # 仅集成测试（需 mongo / redis）
-.venv/bin/pytest tests/test_xxx.py -v                            # 单文件
-.venv/bin/pytest tests/test_xxx.py::test_name -v                 # 单个用例
+.venv/bin/pytest -m unit          # 纯逻辑用例（pre-push hook + just test 跑这套，最快）
+.venv/bin/pytest -m integration   # 集成测试（需 mongo / redis）
+# 全跑去掉 -m；marker 还有 "not requires_env and not requires_network"（跳 .env key / 公网）；单文件/用例用标准 pytest 语法
 
 # 重建 venv（依赖装漂了用）
 rm -rf .venv
@@ -96,7 +91,7 @@ just setup       # 装 pre-commit hook（首次 setup）
 | 文件 | 已 patched 字段 / 段 | 理由 |
 |------|------|------|
 | `frontend/vite.config.ts` | `server.host` / `server.port` / `server.strictPort` / `server.hmr.host` / `server.proxy['/api'].target` | 上游 hardcode `0.0.0.0:3000` + proxy `:8000`，违反端口段位 + loopback 规定 |
-| `pyproject.toml` | `[tool.ruff]` / `[tool.pyright]` / `[tool.pytest.ini_options]` 段（追加在末尾） + dependencies 移除 streamlit/chainlit + version `1.2.1` | init-ci Recipe B 工具配置 + stable-v1-cleanup 删依赖 + v1.x release |
+| `pyproject.toml` | `[tool.ruff]` / `[tool.pyright]` / `[tool.pytest.ini_options]` 段（追加在末尾） + dependencies 移除 streamlit/chainlit + version 字段 | init-ci 工具链配置（ruff/pyright/pytest）+ stable-v1-cleanup 删依赖 + v1.x release 版本维护 |
 | `.pre-commit-config.yaml` | STRICT 模式（ruff/format/pyright pre-commit 阻塞 + pytest -m unit pre-push 阻塞）+ uvx 工具调用 | lint 治理沉淀完成后转 STRICT |
 | `.github/workflows/ci.yml` | `uv sync --frozen` + `uv pip install -e .`（不用 `--locked`） | uv.lock 与 pyproject 不同步已知坑 |
 | `.gitignore` | 末尾追加 `.chainlit/` + `.claude/settings.local.json` + `.dev/` + `backup/` | fork-local 自动产物 + 本地权限记录 + dev.sh 状态 + mongodump 临时输出 |
@@ -138,7 +133,7 @@ just setup       # 装 pre-commit hook（首次 setup）
 
 ## AI 上下文入口
 
-**功能事实 SSOT**：以 [`openspec/specs/`](openspec/specs/) 为准（22 条 stable capability spec）；[`docs/ai-context/`](docs/ai-context/) 描述跨 capability 的横切关系；[`docs/`](docs/) 其它目录默认为参考资料或归档。
+**功能事实 SSOT**：以 [`openspec/specs/`](openspec/specs/) 为准（23 条 stable capability spec）；[`docs/ai-context/`](docs/ai-context/) 描述跨 capability 的横切关系；[`docs/`](docs/) 其它目录默认为参考资料或归档。
 
 新会话 prime 优先级：
 
@@ -155,6 +150,8 @@ just setup       # 装 pre-commit hook（首次 setup）
 > 历史"上游详细文档"入口（`docs/STRUCTURE.md` / `docs/architecture/`）改为按需查；上游原版 README/QUICK_START 已挪到 `docs/archive/legacy-upstream/`。
 
 ## OpenSpec 状态
+
+> **项目特例（相对全局规则）**：全局规则 v36 起新项目改走 `docs/specs/`，OpenSpec 体系对新项目视为历史档案。本 fork 是 v36 之前的老项目，已深度建成 OpenSpec 工作流（43 changes archived + 23 stable spec），**继续沿用 OpenSpec 作为本项目二开工作流**——这是项目级有意决策，不是待迁移的历史遗留。全局 `templates/project-standards.md` / `rule-maintenance.md` 提到「TradingAgents-CN 的 openspec/ 不动」指的是不强制迁移，不等于冻结使用。
 
 活跃 change `openspec/changes/<id>/` / 稳定 spec `openspec/specs/<capability>/` / 探索 `openspec/explorations/<topic>/`。二开流程：`/opsx:propose <name>` → cross-check → Phase 2 实施 → Phase 3 finishing。
 
