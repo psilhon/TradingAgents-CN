@@ -13,27 +13,17 @@
 - [x] 1.2 写 `proposal.md`
 - [x] 1.3 写 `tasks.md`（本文件）
 - [x] 1.4 写 `specs/agent-company-resolution/spec.md`（新 capability，ADDED Requirements）
-- [ ] 1.5 commit（仅 OpenSpec 文件）
+- [x] 1.5 commit（仅 OpenSpec 文件）
 
 ## 2. 新建 company_resolver + 单元测试 — commit 2
 
-- [ ] 2.1 **RED**：写 `tests/test_company_resolver.py`（`@pytest.mark.unit`，mock `tradingagents.dataflows` 依赖）
-  - test_us_dict_hit（`AAPL` → `苹果公司`）
-  - test_us_dict_miss（`ZZZZ` → `美股ZZZZ`）
-  - test_china_unified_interface_hit（mock 返回含 `股票名称:` 的串 → 解析出名称）
-  - test_china_none_does_not_raise（**回归 news_analyst latent bug**：mock `get_china_stock_info_unified` 返回 `None` → 不抛 `TypeError`，落到降级/缺省）
-  - test_china_fallback_to_data_source_manager（一级 miss → 二级 `data_source_manager` hit）
-  - test_china_all_fail_returns_default（两级都 miss → `f"股票代码{ticker}"`）
-  - test_hk_improved_tool_hit（mock improved_hk → 名称）
-  - test_hk_improved_tool_exception（mock 抛异常 → `f"港股{clean}"`）
-  - test_unknown_market_returns_default（三个 flag 全 False → `f"股票代码{ticker}"`）
-- [ ] 2.2 **GREEN**：写 `tradingagents/agents/utils/company_resolver.py`
+- [x] 2.1 **RED**：写 `tests/test_company_resolver.py`（`@pytest.mark.unit`，sys.modules 注入 fake dataflows，保持纯 unit 无 mongo）— 10 个用例
+- [x] 2.2 **GREEN**：写 `tradingagents/agents/utils/company_resolver.py`
   - `get_company_name(ticker: str, market_info: dict, agent_label: str = "分析师") -> str`
   - canonical 行为：A 股两级降级 + `stock_info and` 空值守卫 / 港股 improved 工具 / 美股 8 项静态字典 / 缺省 `f"股票代码{ticker}"`
-  - 日志前缀用 `agent_label` 注入；自带 `logger = get_logger("default")`
-  - 美股字典：`{AAPL,TSLA,NVDA,MSFT,GOOGL,AMZN,META,NFLX}`（与现有 7 份一致）
-- [ ] 2.3 跑 `pytest tests/test_company_resolver.py` PASS
-- [ ] 2.4 `just lint` + `just typecheck` 0 errors（注意 `tradingagents/` 在 ruff/pyright 范围内）
+  - 日志前缀用 `agent_label` 注入；dataflows 依赖保持函数内惰性 import（避免 import 即连 mongo）
+- [x] 2.3 跑 `pytest tests/test_company_resolver.py` PASS（10 passed, 0.06s）
+- [x] 2.4 `just lint` + `just typecheck` 0 errors
 - [ ] 2.5 commit
 
 ## 3. 迁移 7 个 call site — commit 3
