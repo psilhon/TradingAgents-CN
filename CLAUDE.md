@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 项目身份
 
 - **定位**：面向中文用户的多智能体股票分析学习平台（FastAPI 后端 + Vue 3 前端 + LangGraph 多智能体 + 多数据源）
-- **当前版本**：`v1.3.0`（fork minor release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
-- **当前阶段**：**v1.3.0 已发布**（2026-05-18，fork minor release）——Dashboard 模拟账户专业化（Tier 3+4 mock 全面真实化，新账户首日 KPI 显示「—」属预期）+ 实时交易数据流 push 架构 + native 部署改造 + 每日推荐多配置 + 2026-05-17 数据正确性系统性修复。`[Unreleased]` 为空。OpenSpec 累计 **38 条 changes archived**，当前无活跃 change（v1.3.0 收口补回 native 部署 + 数据质量两个缺失 capability spec：`native-local-deployment` / `data-quality-gate`）。下一优先项：**data-audit Phase 3 防复发**（`data_consistency_checker` 接入写入闸门 / `stock_basic_info` upsert key 重构 / 字段名统一 / 审计脚本固化，见 `docs/data-audit-2026-05-17.md`）。其余 follow-up：code-review 第三梯队架构重构（cache 层 / 反向 import 剩 6 / agent state / company resolver），按需排期，见 `docs/code-review-2026-05-05.md`。
+- **当前版本**：`v1.3.4`（fork patch release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
+- **当前阶段**：**功能固化阶段**。v1.3.4 已发布（2026-05-22，fork patch release）——M1「状态对齐 + 收尾」：healthz 版本号修正 + apscheduler 日志降噪 + mongo sync client 单例化收尾 + CLAUDE.md 漂移纠偏。在此之前 v1.3.2（自选股管理升级 + 文档分层固化）/ v1.3.3（运维基建 + 性能调优：mongo cache + TTL + scheduler 3→5s + sync client 12 处单例化）。`[Unreleased]` 为空。OpenSpec 累计 **43 条 changes archived** + **23 条 stable capability spec**，当前无活跃 change。下一优先项：**M2 安全 / 正确性债**（code-review 第二梯队 6 条——假数据 raise 化 / 反向 import 修复 / secret 日志脱敏 / config lazy 化 / openai key validator bug / 测试清理，见 `docs/code-review-2026-05-05.md`）。其余 follow-up：M3 架构深化（code-review 第三梯队——cache 层 4 套合并 / 反向 import 剩 10 / LLM adapter 层合并 / agent state 结构化 / company resolver / provider 注册表统一）+ 数据正确性余项（`market_quotes` 行情陈旧 / `stock_daily_quotes.pre_close` 全 null / 日期格式统一，见 `docs/data-audit-2026-05-17.md`「未处置」段）。**注**：data-audit Phase 3 防复发已于 2026-05-18 经 `data-audit-phase3` change 完成。
 - **技术栈**：Python 3.12（homebrew arm64）+ uv + FastAPI + Uvicorn + Vue 3 + Vite + **原生 MongoDB 7.0 + Redis 8**（Homebrew，不用 Docker）
 - **License 双轨**：根目录 Apache 2.0；`app/`（FastAPI 后端）和 `frontend/`（Vue 前端）为**专有授权**，商业用途必须联系作者 hsliup@163.com
 
