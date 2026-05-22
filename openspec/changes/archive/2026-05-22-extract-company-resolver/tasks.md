@@ -45,11 +45,11 @@
 
 ## 4. CHANGELOG + 验证 + Archive — commit 4
 
-- [ ] 4.1 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Changed` 段
-- [ ] 4.2 `just ci` 通过（lint + typecheck + test）
-- [ ] 4.3 Archive：`mv` change 目录 → `openspec/changes/archive/2026-05-22-extract-company-resolver`
-- [ ] 4.4 Spec sync：`mv specs/agent-company-resolution/spec.md` → `openspec/specs/agent-company-resolution/spec.md`（新 capability，无 merge 冲突）
-- [ ] 4.5 commit archive + spec sync
+- [x] 4.1 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Changed` + `### Fixed` 段（含 ① 双源消除回填）
+- [x] 4.2 `just ci` 通过（lint + typecheck + 271 unit tests）
+- [x] 4.3 Archive：change 目录 → `openspec/changes/archive/2026-05-22-extract-company-resolver`
+- [x] 4.4 Spec sync：稳定 spec 写入 `openspec/specs/agent-company-resolution/spec.md`（新 capability）
+- [x] 4.5 commit archive + spec sync
 - [ ] 4.6 finishing report；push / tag 决策交用户
 
 ## 测试覆盖小结

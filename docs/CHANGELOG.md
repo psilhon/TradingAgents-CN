@@ -8,6 +8,15 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **VERSION/pyproject 版本号双源消除**：`pyproject.toml` 改用 `[tool.setuptools.dynamic]` 从 `VERSION` 文件派生 `version`，删除静态 `version` 字段——`VERSION` 成为版本号唯一可编辑 SSOT，pyproject 派生后结构上不再可能漂移。同步精简 `utils/check_version_consistency.py`（删已失效的 pyproject 校验分支）。注：v1.3.4 release notes 曾设想反方向（让 `get_version()` 读 pyproject），经评估保留 `VERSION` 为 SSOT 可零改动 `app/`（专有授权）业务代码，故采用本方案。
+- **agent 公司名解析逻辑去重**（OpenSpec change `extract-company-resolver`）：`tradingagents/agents/` 下 7 份近乎相同的 `_get_company_name` 拷贝（4 analyst + 2 researcher + news_analyst）合并为单一入口 `agents/utils/company_resolver.py` 的 `get_company_name`，canonical 行为取 analyst 模块级版本（A 股两级降级 + 空值守卫 / 港股 improved 工具 / 美股静态字典）。净删除 ~467 行。新增 OpenSpec capability `agent-company-resolution` 锁定解析契约。
+
+### Fixed
+
+- **news_analyst `stock_info=None` latent TypeError**：`news_analyst` 原 `_get_company_name` 拷贝缺 `stock_info and` 空值守卫，`get_china_stock_info_unified` 返回 `None` 时 `"股票名称:" in None` 抛 `TypeError`。合并到 `company_resolver` 后获得空值守卫修复（回归测试 `test_china_none_does_not_raise`）。
+
 ## [1.3.4] — 2026-05-22
 
 **Fork patch release**——M1「状态对齐 + 收尾」。功能固化阶段后续规划的第一个里程碑：清理状态漂移 + 收尾遗留小项，**无新功能 / 无 API 变化**。
