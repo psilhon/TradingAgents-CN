@@ -289,6 +289,9 @@ async def lifespan(app: FastAPI):
         setup_logging(log_level=desired_level)
         for name in ("webapi", "worker", "uvicorn", "fastapi"):
             logging.getLogger(name).setLevel(desired_level)
+        # apscheduler 固定 WARNING：每 5s 一次的 "Running job" / "executed
+        # successfully" 是纯调度噪声，不跟随 system log_level（即便 INFO 也不该刷屏）
+        logging.getLogger("apscheduler").setLevel(logging.WARNING)
         try:
             from app.middleware.operation_log_middleware import set_operation_log_enabled
 
