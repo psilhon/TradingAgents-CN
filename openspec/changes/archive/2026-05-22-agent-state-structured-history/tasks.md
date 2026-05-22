@@ -25,9 +25,9 @@
 
 ## 3. CHANGELOG + 验证 + Archive — commit 3
 
-- [ ] 3.1 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Changed` 段
-- [ ] 3.2 `just ci` 通过（lint + typecheck + test）
-- [ ] 3.3 Archive：change 目录 → `openspec/changes/archive/2026-05-22-agent-state-structured-history`
-- [ ] 3.4 Spec sync：稳定 spec 写入 `openspec/specs/agent-debate-routing/spec.md`（新 capability）
-- [ ] 3.5 commit archive + spec sync
+- [x] 3.1 `docs/CHANGELOG.md` `[Unreleased]` `### Changed` 加 ③ 条目
+- [x] 3.2 `just ci` 通过（lint + typecheck + 279 unit tests）
+- [x] 3.3 Archive：change 目录 → `openspec/changes/archive/2026-05-22-agent-state-structured-history`
+- [x] 3.4 Spec sync：稳定 spec 写入 `openspec/specs/agent-debate-routing/spec.md`（新 capability）
+- [x] 3.5 commit archive + spec sync
 - [ ] 3.6 finishing report；push / tag 决策交用户
