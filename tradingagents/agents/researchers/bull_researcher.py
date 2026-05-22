@@ -97,6 +97,7 @@ def create_bull_researcher(llm, memory):
             "bull_history": bull_history + "\n" + argument,
             "bear_history": investment_debate_state.get("bear_history", ""),
             "current_response": argument,
+            "current_speaker": "Bull",
             "count": new_count,
         }
 
