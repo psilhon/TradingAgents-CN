@@ -48,6 +48,8 @@
 - **兼容** → 抽出统一 `make_cache_key()`，两实现共用
 - **不兼容** → Part B 缩为仅抽 TTL 解析 helper（或该子项拆出为后续 change）；不强行合并不兼容的 key scheme
 
+> **实施结论（2026-05-22）**：调查确认 key scheme 不兼容——`file_cache` 产 `{symbol}_{data_type}_{md5[:12]}`（带前缀 + 截断、任意 `**kwargs`），`adaptive` 产完整 32 位 md5（无前缀、固定参数）；TTL 配置的单位（时 vs 秒）与来源（硬编码 vs config）亦不同。无安全的行为保持抽取目标。按「拆出」分支，**Part B 整体 deferred** 到后续「全量收敛」stage（key/TTL 统一须与后端抽象重设计一并做）。stage 1 实际只交付 Part A（删 `db_cache.py`）。
+
 ### 不在范围（后续独立 change）
 
 - `pickle` → JSON/gzip 安全替换（`adaptive.py` 7 处 `pickle.dump/load`）

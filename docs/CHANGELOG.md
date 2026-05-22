@@ -14,6 +14,10 @@
 - **agent 公司名解析逻辑去重**（OpenSpec change `extract-company-resolver`）：`tradingagents/agents/` 下 7 份近乎相同的 `_get_company_name` 拷贝（4 analyst + 2 researcher + news_analyst）合并为单一入口 `agents/utils/company_resolver.py` 的 `get_company_name`，canonical 行为取 analyst 模块级版本（A 股两级降级 + 空值守卫 / 港股 improved 工具 / 美股静态字典）。净删除 ~467 行。新增 OpenSpec capability `agent-company-resolution` 锁定解析契约。
 - **投资辩论 speaker tracking 结构化**（OpenSpec change `agent-state-structured-history`）：`conditional_logic.should_continue_debate` 此前读 `current_response`（上一轮论点文本）并嗅探是否以 `"Bull"` 开头来反推发言者——routing 正确性依赖 `"Bull Analyst: "` 前缀逐字节稳定。改为 `InvestDebateState` 新增 `current_speaker` 结构化字段（`Bull`/`Bear`/`Manager`，由三个发言节点写入），routing 直接读该字段；风险讨论侧 `latest_speaker.startswith` 收紧为相等比较。`current_response` 字段保留（对手 researcher 仍在 prompt 中消费）。新增 OpenSpec capability `agent-debate-routing` 锁定辩论路由契约。
 
+### Removed
+
+- **删除 orphaned 缓存实现 `db_cache.py`**（OpenSpec change `cache-layer-cleanup-stage1`）：`DatabaseCacheManager`（Redis+MongoDB 双写，546 行）已确证孤儿——`get_db_cache()` 工厂零调用方，类仅被 `cache/__init__.py` 重导出而无任何消费者。删除整文件 + `cache/__init__.py` 的 import / `__all__` 相关条目。此为 `cache-layer-consolidation` 分阶段的 stage 1；其 Part B（cache-key / TTL helper 抽取）调查后确认 `file_cache` 与 `adaptive` 两套 key scheme 不兼容、TTL 配置单位与来源亦不同，无安全的行为保持抽取目标，deferred 到后续全量收敛 stage。新增 OpenSpec capability `dataflow-caching`。
+
 ### Fixed
 
 - **news_analyst `stock_info=None` latent TypeError**：`news_analyst` 原 `_get_company_name` 拷贝缺 `stock_info and` 空值守卫，`get_china_stock_info_unified` 返回 `None` 时 `"股票名称:" in None` 抛 `TypeError`。合并到 `company_resolver` 后获得空值守卫修复（回归测试 `test_china_none_does_not_raise`）。
