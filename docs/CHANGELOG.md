@@ -8,6 +8,33 @@
 
 ## [Unreleased]
 
+## [1.3.4] — 2026-05-22
+
+**Fork patch release**——M1「状态对齐 + 收尾」。功能固化阶段后续规划的第一个里程碑：清理状态漂移 + 收尾遗留小项，**无新功能 / 无 API 变化**。
+
+### Fixed
+
+- **healthz 版本号显示错误**：`/api/health` 长期返回 `version: v1.0.1`（上游基线版本号）。根因——`app/routers/health.py` `get_version()` 读根目录 `VERSION` 文件，而该文件自上游 fork 起从未更新（一直是 `v1.0.1`）。本次同步 `VERSION` 文件 → `v1.3.4`，healthz / root endpoint `/` / `app/core/config.py` 三处读 `VERSION` 的地方一并恢复正确。
+  - **已知技术债（follow-up）**：`VERSION` 文件与 `pyproject.toml` `version` 字段构成双版本源，需每次 release 手动同步两处。后续应让 `get_version()` 直接读 `pyproject.toml`（SemVer SSOT），废弃 `VERSION` 文件——归入 M2 技术债清理。
+
+### Changed
+
+- **apscheduler 调度日志降噪**：`app/main.py` 动态 logger 配置循环新增 `logging.getLogger("apscheduler").setLevel(logging.WARNING)`。此前 apscheduler 默认 INFO 级别，每个 scheduled job（盘中实时行情刷新 5s 一次 + 指数刷新 5s 一次等）都打 `Running job ...` + `Job ... executed successfully` 两行，构成 backend 日志主要噪声源（实测 ~5000 行/小时）。固定 WARNING 后这两类纯调度日志静默，错误 / 漏跑（missed）仍正常记。验证：重启后 backend.log 中 `apscheduler ... Running job` 命中 0 行。
+
+### Docs
+
+- **CLAUDE.md「当前阶段」段漂移纠偏**：v1.3.2 / v1.3.3 release 时遗漏同步项目级 `CLAUDE.md`，导致「当前版本」停留在 `v1.3.0`、「下一优先项」仍写已于 2026-05-18 完成的 `data-audit Phase 3`、OpenSpec archived 计数（38 → 实际 43）与反向 import 计数（6 → 实际 10）均失真。本次重写该段：版本对齐 v1.3.4、阶段定位为「功能固化阶段」、下一优先项更新为 M2 安全/正确性债、补充 M3 架构深化 + 数据正确性余项 backlog 索引。
+
+### Verified
+
+- `just lint` + `just typecheck` 0 errors
+- `just dev-restart` → `/api/health` 返回 `version: v1.3.4` ✓
+- 重启后 backend.log apscheduler INFO 噪声 0 行 ✓
+
+### 说明
+
+- 本次原计划含「`user_service.py` mongo client 单例化」一项，排查后确认 `UserService` 已是模块级单例（`user_service.py:417` 单例实例 + `main.py:688` shutdown 显式 `close()`），原 v1.3.3 release notes 将其列为「待 follow-up 违规」属误判——它是正确的单例 + lifecycle 管理，无需改动。v1.3.3 完成的 mongo sync client 单例化 12 处均为真实违规修复，不受影响。
+
 ## [1.3.3] — 2026-05-21
 
 **Fork patch release**——v1.3.2 之后累积的运维基建 + 性能调优一并发版，**无新用户可见功能 / 无 API breaking / 无 bug fix**。基于实测运行 5.7h 数据系统性收口（mongo 2400 conn/h churn + 142K scheduler_executions 累积 + mongod.log 565 MB 无轮转），用最小改动消除根因。
