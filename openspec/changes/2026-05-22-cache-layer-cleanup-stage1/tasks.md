@@ -12,11 +12,11 @@
 
 ## 2. Part A — 删除 db_cache.py 死代码 — commit 2
 
-- [ ] 2.1 **前置复核**：重新 grep 全仓 `DatabaseCacheManager` / `get_db_cache` / `db_cache`（含 `app/` `tests/` `cli/` `scripts/`），确认仍零外部消费者；查 `importlib` / `__import__` / 字符串动态导入
-- [ ] 2.2 删除 `tradingagents/dataflows/cache/db_cache.py` 整文件
-- [ ] 2.3 `cache/__init__.py`：删 `from .db_cache import DatabaseCacheManager` try-import 块（含 `except` 的 `DatabaseCacheManager = None`）+ `__all__` 的 `"DatabaseCacheManager"`
-- [ ] 2.4 `just lint` + `just typecheck` 0 errors（确认无残留引用 / 未用 import）
-- [ ] 2.5 `pytest -m unit` 无回归
+- [x] 2.1 **前置复核**：grep 全仓确认 `DatabaseCacheManager` / `get_db_cache` 零外部消费者；`DB_CACHE_AVAILABLE` 标志亦仅 `__init__.py` 内部、无消费者；无 `importlib` 动态导入
+- [x] 2.2 删除 `tradingagents/dataflows/cache/db_cache.py` 整文件（`git rm`）
+- [x] 2.3 `cache/__init__.py`：删 db_cache try-import 块 + `__all__` 的 `"DatabaseCacheManager"` + `"DB_CACHE_AVAILABLE"`（连带 orphaned 标志）
+- [x] 2.4 `just lint` + `just typecheck` 0 errors
+- [x] 2.5 `pytest -m unit` 无回归（279 passed）
 - [ ] 2.6 commit
 
 ## 3. Part B — 抽公共 helper — commit 3
