@@ -12,6 +12,7 @@
 
 - **VERSION/pyproject 版本号双源消除**：`pyproject.toml` 改用 `[tool.setuptools.dynamic]` 从 `VERSION` 文件派生 `version`，删除静态 `version` 字段——`VERSION` 成为版本号唯一可编辑 SSOT，pyproject 派生后结构上不再可能漂移。同步精简 `utils/check_version_consistency.py`（删已失效的 pyproject 校验分支）。注：v1.3.4 release notes 曾设想反方向（让 `get_version()` 读 pyproject），经评估保留 `VERSION` 为 SSOT 可零改动 `app/`（专有授权）业务代码，故采用本方案。
 - **agent 公司名解析逻辑去重**（OpenSpec change `extract-company-resolver`）：`tradingagents/agents/` 下 7 份近乎相同的 `_get_company_name` 拷贝（4 analyst + 2 researcher + news_analyst）合并为单一入口 `agents/utils/company_resolver.py` 的 `get_company_name`，canonical 行为取 analyst 模块级版本（A 股两级降级 + 空值守卫 / 港股 improved 工具 / 美股静态字典）。净删除 ~467 行。新增 OpenSpec capability `agent-company-resolution` 锁定解析契约。
+- **投资辩论 speaker tracking 结构化**（OpenSpec change `agent-state-structured-history`）：`conditional_logic.should_continue_debate` 此前读 `current_response`（上一轮论点文本）并嗅探是否以 `"Bull"` 开头来反推发言者——routing 正确性依赖 `"Bull Analyst: "` 前缀逐字节稳定。改为 `InvestDebateState` 新增 `current_speaker` 结构化字段（`Bull`/`Bear`/`Manager`，由三个发言节点写入），routing 直接读该字段；风险讨论侧 `latest_speaker.startswith` 收紧为相等比较。`current_response` 字段保留（对手 researcher 仍在 prompt 中消费）。新增 OpenSpec capability `agent-debate-routing` 锁定辩论路由契约。
 
 ### Fixed
 
