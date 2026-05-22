@@ -3,6 +3,7 @@ from datetime import datetime
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # 导入Google工具调用处理器
+from tradingagents.agents.utils.company_resolver import get_company_name
 from tradingagents.agents.utils.google_tool_handler import GoogleToolCallHandler
 from tradingagents.agents.utils.instrument_utils import build_instrument_context
 
@@ -41,63 +42,7 @@ def create_news_analyst(llm, toolkit):
         logger.info(f"[新闻分析师] 股票类型: {market_info['market_name']}")
 
         # 获取公司名称
-        def _get_company_name(ticker: str, market_info: dict) -> str:
-            """根据股票代码获取公司名称"""
-            try:
-                if market_info["is_china"]:
-                    # 中国A股：使用统一接口获取股票信息
-                    from tradingagents.dataflows.interface import get_china_stock_info_unified
-
-                    stock_info = get_china_stock_info_unified(ticker)
-
-                    # 解析股票名称
-                    if "股票名称:" in stock_info:
-                        company_name = stock_info.split("股票名称:")[1].split("\n")[0].strip()
-                        logger.debug(f"📊 [DEBUG] 从统一接口获取中国股票名称: {ticker} -> {company_name}")
-                        return company_name
-                    else:
-                        logger.warning(f"⚠️ [DEBUG] 无法从统一接口解析股票名称: {ticker}")
-                        return f"股票代码{ticker}"
-
-                elif market_info["is_hk"]:
-                    # 港股：使用改进的港股工具
-                    try:
-                        from tradingagents.dataflows.providers.hk.improved_hk import get_hk_company_name_improved
-
-                        company_name = get_hk_company_name_improved(ticker)
-                        logger.debug(f"📊 [DEBUG] 使用改进港股工具获取名称: {ticker} -> {company_name}")
-                        return company_name
-                    except Exception as e:
-                        logger.debug(f"📊 [DEBUG] 改进港股工具获取名称失败: {e}")
-                        # 降级方案：生成友好的默认名称
-                        clean_ticker = ticker.replace(".HK", "").replace(".hk", "")
-                        return f"港股{clean_ticker}"
-
-                elif market_info["is_us"]:
-                    # 美股：使用简单映射或返回代码
-                    us_stock_names = {
-                        "AAPL": "苹果公司",
-                        "TSLA": "特斯拉",
-                        "NVDA": "英伟达",
-                        "MSFT": "微软",
-                        "GOOGL": "谷歌",
-                        "AMZN": "亚马逊",
-                        "META": "Meta",
-                        "NFLX": "奈飞",
-                    }
-
-                    company_name = us_stock_names.get(ticker.upper(), f"美股{ticker}")
-                    logger.debug(f"📊 [DEBUG] 美股名称映射: {ticker} -> {company_name}")
-                    return company_name
-
-                else:
-                    return f"股票{ticker}"
-
-            except Exception as e:
-                logger.error(f"❌ [DEBUG] 获取公司名称失败: {e}")
-                return f"股票{ticker}"
-
-        company_name = _get_company_name(ticker, market_info)
+        company_name = get_company_name(ticker, market_info, "新闻分析师")
         instrument_context = build_instrument_context(ticker)
         logger.info(f"[新闻分析师] 公司名称: {company_name}")
 
