@@ -4,7 +4,6 @@
 确保项目中所有版本号引用都是一致的
 """
 
-import re
 from pathlib import Path
 
 # 导入日志模块
@@ -33,28 +32,10 @@ def normalize_version(v: str) -> str:
 def check_special_files(file_path: Path, content: str, target_version: str):
     """对特定文件做精准校验，减少误报"""
     issues = []
-    target_norm = normalize_version(target_version)
-    target_numeric = target_norm.replace("cn-", "")  # pyproject.toml 使用纯数字版本
 
-    # 1) pyproject.toml: version 字段应与目标数字版本一致
-    if file_path.name == "pyproject.toml":
-        m = re.search(r'(?m)^\s*version\s*=\s*"([^"]+)"', content)
-        if m:
-            found = m.group(1).strip()
-            if found != target_numeric:
-                issues.append(
-                    {
-                        "line": content[: m.start()].count("\n") + 1,
-                        "found": found,
-                        "expected": target_numeric,
-                        "context": content[max(0, m.start() - 20) : m.end() + 20],
-                    }
-                )
-        else:
-            issues.append({"line": 1, "found": "(missing version)", "expected": target_numeric, "context": ""})
-        return issues
+    # pyproject.toml 不再校验：version 已走 [tool.setuptools.dynamic] 从 VERSION 派生，结构上不会漂移
 
-    # 2) README.md: 徽章与“最新版本”提示
+    # README.md: 徽章与“最新版本”提示
     if file_path.name == "README.md":
         # shields 徽章会把单个 - 显示为 --
         badge_text = normalize_version(target_version).replace("cn-", "cn-").replace("-", "--")
@@ -108,7 +89,6 @@ def main():
     # 需要检查的文件
     files_to_check = [
         "README.md",
-        "pyproject.toml",
         "docs/releases/CHANGELOG.md",  # 仅用于存在性校验，内部忽略检查
     ]
 
