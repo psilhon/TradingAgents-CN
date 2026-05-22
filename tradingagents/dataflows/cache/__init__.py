@@ -32,15 +32,6 @@ except ImportError:
     StockDataCache = None
     FILE_CACHE_AVAILABLE = False
 
-# 导入数据库缓存
-try:
-    from .db_cache import DatabaseCacheManager
-
-    DB_CACHE_AVAILABLE = True
-except ImportError:
-    DatabaseCacheManager = None
-    DB_CACHE_AVAILABLE = False
-
 # 导入自适应缓存
 try:
     from .adaptive import AdaptiveCacheSystem
@@ -125,13 +116,11 @@ def get_cache() -> StockDataCache | IntegratedCacheManager:
 __all__ = [
     "ADAPTIVE_CACHE_AVAILABLE",
     "APP_CACHE_AVAILABLE",
-    "DB_CACHE_AVAILABLE",
     # 可用性标志
     "FILE_CACHE_AVAILABLE",
     "INTEGRATED_CACHE_AVAILABLE",
     "MONGODB_CACHE_ADAPTER_AVAILABLE",
     "AdaptiveCacheSystem",
-    "DatabaseCacheManager",
     "IntegratedCacheManager",
     # MongoDB 缓存适配器
     "MongoDBCacheAdapter",
