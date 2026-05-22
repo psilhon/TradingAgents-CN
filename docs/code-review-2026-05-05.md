@@ -8,6 +8,22 @@
 
 ---
 
+## ✅ 完成状态总览（回填于 2026-05-22）
+
+> **本文是 2026-05-05 的静态 audit 快照**，下方梯队表反映当时的待办建议、不随实施更新。
+> 完成状态以 `openspec/changes/archive/` 为准。截至 v1.3.4（2026-05-22），19 条建议中 **16 完成 / 1 moot / 3 未做**：
+
+| 梯队 | 完成 | 状态明细 |
+|---|---|---|
+| 第一梯队（4 条）| ✅ 4/4 | `delete-upstream-sync-workflow` / `docker-compose-loopback-baseline` / `tests-mark-unit-batch-1` / `claude-md-doc-drift` 均已 archive |
+| 第二梯队（6 条）| ✅ 6/6 | `remove-fake-data-fallback` / `move-api-key-utils-to-tradingagents` / `redact-api-key-logs` / `lazy-config-manager` / `fix-openai-key-validator` / `tests-cleanup-debug-scripts` 均于 2026-05-05 archive |
+| 第三梯队（6 条）| 🟡 3/6 | ✅ `consolidate-llm-adapter-layers`（`2026-05-06-consolidate-llm-layers`）/ ✅ `eliminate-akshare-fullmarket-pull` / ✅ `provider-registry-single-source`（被 consolidate-llm-layers 覆盖，4 份注册表已收敛）<br>🔴 **`extract-company-resolver`**（仍 7 份 `_get_company_name` 拷贝）/ 🔴 **`cache-layer-consolidation`**（`cache/` 仍 4 套 + `pickle.load`）/ 🔴 **`agent-state-structured-history`**（`conditional_logic.py` 仍 `startswith("Bull")`）|
+| 第四梯队（3 条）| ✅ 2/2 + 1 moot | ✅ `misc-bugfix-batch`（7 个 bug 代码内均有「已修」注释）/ ✅ `gitignore-fix-corrupted-lines` / ⊘ `dockerfile-python-3.12`（Docker 已随 native 化移除，无 Dockerfile 可升级）|
+
+**真实剩余 = 第三梯队 3 条架构重构**（每条 1 周量级，属架构优化非固化必须）：`extract-company-resolver` / `cache-layer-consolidation` / `agent-state-structured-history`。
+
+---
+
 ## TL;DR — 5 个最严重的发现
 
 1. **🔴 假数据污染 LLM 决策链**（dataflows）：数据源失败时返回 `random.uniform(10, 50)` 假股价 + hardcoded `f"{search_term}相关财经新闻标题"` 假新闻给 agent，模型无法区分降级 vs 真实信号。直接影响交易决策。
