@@ -246,3 +246,32 @@ def test_save_signature_accepts_ttl_seconds_kwarg() -> None:
     envelope = {"data": 1, "metadata": {}, "timestamp": datetime(2026, 5, 23), "backend": "mongodb"}
     backend.save("k", envelope, ttl_seconds=42)
     backend.save("k", envelope)  # 可选
+
+
+# --- 4.8 E4: close() 生命周期 ---
+
+
+def test_close_calls_client_close() -> None:
+    """`close()` MUST 调 mongo_client.close() 释放连接池."""
+    client = MagicMock()
+    backend = MongoBackend(mongodb_client=client)
+    backend.close()
+    assert client.close.called, "close() MUST 调 client.close()"
+    assert client.close.call_count == 1
+
+
+def test_close_with_none_client_no_raise() -> None:
+    """`close()` 在 client=None 时 MUST no-op，不 raise."""
+    backend = MongoBackend(mongodb_client=None)
+    # 不应抛任何异常
+    backend.close()
+
+
+def test_close_swallows_client_close_failure() -> None:
+    """单个 backend close 失败 MUST NOT raise（让 Cache.close 关闭流程能继续）."""
+    client = MagicMock()
+    client.close.side_effect = RuntimeError("network down")
+    backend = MongoBackend(mongodb_client=client)
+    # 不应 raise
+    backend.close()
+    assert client.close.called

@@ -76,3 +76,19 @@ class RedisBackend:
             self._logger.info("redis backend flushed entire DB (max_age_days=0)")
         except Exception:
             self._logger.exception("redis backend flushdb failed")
+
+    def close(self) -> None:
+        """Release the Redis connection pool via `redis_client.close()`.
+
+        `redis_client=None` → no-op (constructor already documents this as
+        a valid "no Redis available" state). Exceptions are swallowed —
+        `Cache.close()` relies on close not breaking the multi-backend
+        cleanup flow if one backend errors out.
+        """
+        if self._client is None:
+            return
+        try:
+            self._client.close()
+            self._logger.debug("redis backend close: client.close() called")
+        except Exception:
+            self._logger.exception("redis backend close failed")

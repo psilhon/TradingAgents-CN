@@ -419,3 +419,100 @@ def test_load_methods_dispatch_through_load_typed(tmp_path: Path) -> None:
     cache.load_fundamentals_data(fund_key)
 
     assert call_count["n"] == 2, f"expected 2 _load_typed calls (1 per public load_*), got {call_count['n']}"
+
+
+# --- 4.8 E4: Cache.close + context manager ---
+
+
+def test_cache_close_dispatches_to_all_backends(tmp_path: Path) -> None:
+    """Cache.close() MUST 调 file/redis/mongo backend 的 close()（如有）."""
+    file_backend = FileBackend(cache_dir=tmp_path)
+    redis_backend = MagicMock()
+    mongo_backend = MagicMock()
+    config = _make_config(primary="redis")
+    cache = Cache(file_backend=file_backend, config=config, redis_backend=redis_backend, mongo_backend=mongo_backend)
+
+    cache.close()
+
+    # mock backends' close MUST 被调
+    assert redis_backend.close.called, "Cache.close MUST 调 redis_backend.close"
+    assert mongo_backend.close.called, "Cache.close MUST 调 mongo_backend.close"
+    # file backend close 是 no-op，难直接断言（无 mock）—— 用源码侧约定即可
+
+
+def test_cache_close_swallows_single_backend_error(tmp_path: Path) -> None:
+    """单个 backend close 失败 MUST NOT 拖垮其它 backend 关闭."""
+    file_backend = FileBackend(cache_dir=tmp_path)
+    redis_backend = MagicMock()
+    redis_backend.close.side_effect = RuntimeError("redis down")
+    mongo_backend = MagicMock()
+    config = _make_config(primary="redis")
+    cache = Cache(file_backend=file_backend, config=config, redis_backend=redis_backend, mongo_backend=mongo_backend)
+
+    # Cache.close MUST NOT raise
+    cache.close()
+
+    # redis_backend.close 抛错了，但 mongo_backend.close 仍 MUST 被调（关闭流程不被打断）
+    assert redis_backend.close.called
+    assert mongo_backend.close.called, "redis close 失败时 mongo close 仍 MUST 被调"
+
+
+def test_cache_close_skips_none_backends(tmp_path: Path) -> None:
+    """只配 file backend（redis/mongo=None）时 close 不 raise."""
+    file_backend = FileBackend(cache_dir=tmp_path)
+    cache = Cache(file_backend=file_backend, config=_make_config(primary="file"))
+    # 不应抛任何异常
+    cache.close()
+
+
+def test_cache_close_handles_backend_without_close_method(tmp_path: Path) -> None:
+    """旧 mock backend 不实现 close() 时 Cache.close MUST duck-type 跳过."""
+    file_backend = FileBackend(cache_dir=tmp_path)
+    # 用 spec 限制只暴露 save/load/clear 三个方法，无 close
+    legacy_redis = MagicMock(spec=["save", "load", "clear"])
+    config = _make_config(primary="redis")
+    cache = Cache(file_backend=file_backend, config=config, redis_backend=legacy_redis)
+
+    # 不应 raise（duck-type 检测后跳过）
+    cache.close()
+    # close 不应被调（legacy mock 没有 close 属性）
+    assert not hasattr(legacy_redis, "close") or not legacy_redis.close.called
+
+
+def test_cache_context_manager_calls_close_on_exit(tmp_path: Path) -> None:
+    """`with Cache(...) as c:` 出 with 块自动调 close()."""
+    file_backend = FileBackend(cache_dir=tmp_path)
+    redis_backend = MagicMock()
+    mongo_backend = MagicMock()
+    config = _make_config(primary="redis")
+
+    with Cache(file_backend=file_backend, config=config, redis_backend=redis_backend, mongo_backend=mongo_backend) as c:
+        # cache 实例可用
+        assert c is not None
+        # backend close 还未调
+        assert not redis_backend.close.called
+
+    # 出 with 块后 close 必调
+    assert redis_backend.close.called
+    assert mongo_backend.close.called
+
+
+def test_cache_context_manager_propagates_exception(tmp_path: Path) -> None:
+    """with 块内异常 MUST 经过 close 仍正常 propagate."""
+    file_backend = FileBackend(cache_dir=tmp_path)
+    redis_backend = MagicMock()
+    config = _make_config(primary="redis")
+
+    # try/except instead of `with pytest.raises(...)` because pyright's
+    # reachability analysis incorrectly narrows pytest.raises to NoReturn,
+    # marking the post-block assertion as unreachable.
+    raised = False
+    try:
+        with Cache(file_backend=file_backend, config=config, redis_backend=redis_backend):
+            raise ValueError("boom")
+    except ValueError:
+        raised = True
+    assert raised, "ValueError should propagate out of with block"
+
+    # 仍应 close（finally 语义）
+    assert redis_backend.close.called

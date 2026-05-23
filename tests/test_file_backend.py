@@ -239,3 +239,22 @@ def test_save_atomic_no_tmp_left_after_success(tmp_path: Path) -> None:
     # 任何 .tmp.* 都 MUST 不存在
     leaked = list(tmp_path.glob(".*.tmp.*"))
     assert leaked == [], f"成功 save 后 MUST 无 tmp 残留，找到: {leaked}"
+
+
+# --- 4.8 E4: close() 生命周期 ---
+
+
+def test_close_is_no_op(tmp_path: Path) -> None:
+    """FileBackend.close() MUST 是 no-op + 不 raise（文件后端无连接资源）."""
+    backend = FileBackend(cache_dir=tmp_path)
+    # 不应抛任何异常；不应改变 cache_dir 状态
+    backend.close()
+    assert tmp_path.exists()  # cache_dir 仍存在
+
+
+def test_close_can_be_called_multiple_times(tmp_path: Path) -> None:
+    """连调 close() 应幂等（不 raise）."""
+    backend = FileBackend(cache_dir=tmp_path)
+    backend.close()
+    backend.close()
+    backend.close()
