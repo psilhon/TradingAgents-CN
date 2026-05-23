@@ -117,3 +117,11 @@ class FileBackend:
             self._logger.exception("file backend clear walk failed")
         if cleared:
             self._logger.info(f"file backend cleared {cleared} files (>{max_age_days}d)")
+
+    def close(self) -> None:
+        """No-op — filesystem backend holds no connection resources.
+
+        Provided so `Cache.close()` can uniformly dispatch to all backends
+        without per-backend type-checking.
+        """
+        self._logger.debug("file backend close (no-op)")

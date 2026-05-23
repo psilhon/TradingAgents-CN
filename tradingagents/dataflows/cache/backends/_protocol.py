@@ -65,3 +65,19 @@ class Backend(Protocol):
         Must not raise.
         """
         ...
+
+    def close(self) -> None:
+        """Release backend-held resources (4.8+, optional method).
+
+        Backend-specific semantics:
+        - File: no-op (no connection to release)
+        - Redis: calls `redis_client.close()` to release the connection pool
+        - Mongo: calls `mongo_client.close()` to release the connection pool
+
+        Documented as optional — callers (`Cache.close()`) use duck-typing
+        via `getattr(b, "close", None)` to stay compatible with mock /
+        legacy backends that don't implement this. Must not raise — a
+        single backend's close failure must not break other backends'
+        cleanup.
+        """
+        ...
