@@ -1,20 +1,19 @@
 """`CacheConfig` — single source of truth for cache layer backend configuration.
 
 Defined per `docs/specs/dataflow-caching/spec.md` Requirement "CacheConfig 单一
-来源" (sub-stage 4.3).
+来源".
 
-Frozen dataclass. Replaces the dict-via-`db_manager.get_config()["cache"]`
-indirection + module-level `TA_CACHE_STRATEGY` env read. Constructors:
+Frozen dataclass with two constructors:
 
 - direct: `CacheConfig(cache_strategy=..., primary_backend=..., ...)` — for
   unit tests where you want to dictate exact backend behavior without
   threading mocks through the db_manager
-- factory: `CacheConfig.from_environment(db_manager)` — production path; reads
-  `TA_CACHE_STRATEGY` env each call (NOT cached at module load) and derives
-  `primary_backend` from `db_manager.is_redis_available()` /
+- factory: `CacheConfig.from_environment(db_manager)` — production path;
+  reads `TA_CACHE_STRATEGY` env each call (not cached at module load) and
+  derives `primary_backend` from `db_manager.is_redis_available()` /
   `is_mongodb_available()`
 
-Out of scope (per 4.3 proposal):
+Out of scope:
 - `TA_USE_APP_CACHE` — dataflow data-source priority switch, orthogonal to
   cache backend selection
 - `cache_dir` / Mongo `db_name` / `collection_name` — constructor args, not
@@ -39,9 +38,9 @@ _VALID_STRATEGIES: frozenset[str] = frozenset({"integrated", "adaptive", "file"}
 _VALID_PRIMARY_BACKENDS: frozenset[str] = frozenset({"redis", "mongodb", "file"})
 _DEFAULT_STRATEGY: CacheStrategy = "integrated"
 
-# TTL defaults — byte-for-byte match with pre-4.3 db_manager.get_config()["cache"]["ttl_settings"].
-# Wrapped in MappingProxyType so the default field value is itself immutable (frozen dataclass
-# only freezes the field assignment, not the underlying mutable container).
+# TTL defaults — wrapped in MappingProxyType so the default field value is
+# itself immutable (frozen dataclass only freezes the field assignment, not
+# the underlying mutable container).
 _DEFAULT_TTL_SETTINGS: Mapping[str, int] = MappingProxyType(
     {
         # 美股数据 TTL（秒）
@@ -102,8 +101,8 @@ class CacheConfig:
           to `"integrated"` (logged at WARNING).
         - `primary_backend`: derived from `db_manager.is_redis_available()` /
           `is_mongodb_available()` — redis preferred, then mongo, then file.
-        - `fallback_enabled`: hardcoded `True` (matches pre-4.3 behavior).
-        - `ttl_settings`: `_DEFAULT_TTL_SETTINGS` (matches pre-4.3 byte-level).
+        - `fallback_enabled`: hardcoded `True`.
+        - `ttl_settings`: `_DEFAULT_TTL_SETTINGS`.
         """
         strategy_raw = os.getenv("TA_CACHE_STRATEGY", _DEFAULT_STRATEGY)
         if strategy_raw not in _VALID_STRATEGIES:

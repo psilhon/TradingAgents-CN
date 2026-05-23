@@ -1,13 +1,12 @@
 """`Backend` Protocol — minimal pluggable interface for cache storage backends.
 
 Defined per `docs/specs/dataflow-caching/spec.md` Requirement "Backend Protocol
-接口". 4.1 introduced `save` / `load`; 4.2 extended `save` with optional
-`ttl_seconds` for backends with native TTL support (Redis `setex` / Mongo
-`expires_at`). FileBackend ignores `ttl_seconds` since the filesystem has no
-native TTL — expiry is enforced by the cache layer above via timestamp checks.
-
-`list_keys` / `delete` remain deferred to whichever sub-stage actually needs
-them.
+接口". `save` accepts an optional `ttl_seconds` for backends with native TTL
+support (Redis `setex` / Mongo `expires_at`); FileBackend accepts the
+parameter for Protocol conformance but ignores it (filesystems have no
+native TTL — expiry is enforced by the cache layer above via timestamp
+checks). `clear(max_age_days)` lets each backend purge aged entries with
+backend-specific semantics (see method docstring).
 
 Backends MUST:
 - Treat envelopes as opaque dicts. Do not inspect `timestamp` / `backend` /

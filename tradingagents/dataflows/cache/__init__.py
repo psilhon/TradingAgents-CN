@@ -1,13 +1,11 @@
 """
 缓存管理模块
 
-4.6 后拓扑：
+拓扑：
 - `Cache` (推荐): 统一公开 API + 3 个 pluggable backends (File / Redis / Mongo) +
   CacheConfig 单一配置
 - `StockDataCache`: file-only 策略备用 (TA_CACHE_STRATEGY=file 路径 + 2 个外部
   import 依赖保留)
-- 老 IntegratedCacheManager / AdaptiveCacheSystem 已在 4.6 删除（4.4-4.5
-  DeprecationWarning 观察期完成）
 
 使用方法：
     from tradingagents.dataflows.cache import get_cache
@@ -34,7 +32,7 @@ except ImportError:
     StockDataCache = None
     FILE_CACHE_AVAILABLE = False
 
-# 4.4 新公开 API：统一 Cache 类
+# 公开 API：统一 Cache 类
 try:
     from ._cache import Cache
 

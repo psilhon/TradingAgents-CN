@@ -6,8 +6,8 @@ have a TTL) and falls back to plain `set` otherwise.
 
 A `redis_client=None` instance is a valid no-op backend — both `save` and
 `load` return falsy without touching the network. This keeps the constructor
-side-effect-free; the caller (`AdaptiveCacheSystem` today) decides whether to
-attempt Redis at all by checking `db_manager.get_redis_client()`.
+side-effect-free; the cache layer above decides whether to attempt Redis at
+all by checking `db_manager.get_redis_client()`.
 
 Implements `Backend` Protocol (`_protocol.py`).
 """
