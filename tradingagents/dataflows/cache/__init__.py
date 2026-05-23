@@ -38,7 +38,7 @@ except ImportError:
     AdaptiveCacheSystem = None
     ADAPTIVE_CACHE_AVAILABLE = False
 
-# 导入集成缓存
+# 导入集成缓存（4.4 后 deprecated，构造时 raise DeprecationWarning）
 try:
     from .integrated import IntegratedCacheManager
 
@@ -46,6 +46,15 @@ try:
 except ImportError:
     IntegratedCacheManager = None
     INTEGRATED_CACHE_AVAILABLE = False
+
+# 4.4 新公开 API：统一 Cache 类
+try:
+    from ._cache import Cache
+
+    UNIFIED_CACHE_AVAILABLE = True
+except ImportError:
+    Cache = None  # type: ignore[assignment,misc]
+    UNIFIED_CACHE_AVAILABLE = False
 
 # 导入应用缓存适配器（函数，非类）
 try:
@@ -70,47 +79,58 @@ except ImportError:
 _cache_instance = None
 
 
-def get_cache() -> StockDataCache | IntegratedCacheManager:
+def get_cache() -> "StockDataCache | Cache":
     """
     获取缓存实例（统一入口）
 
-    根据 CacheConfig.from_environment 决策缓存策略（4.3 起经 CacheConfig 单一来源）：
-    - "file": 使用文件缓存
-    - "integrated" (默认): 使用集成缓存（自动选择 MongoDB/Redis/File）
-    - "adaptive": 使用自适应缓存（同 integrated）
+    根据 CacheConfig.from_environment 决策缓存策略：
+    - "file": 使用 StockDataCache（文件缓存）
+    - "integrated" (默认) / "adaptive": 4.4 起返回新 `Cache` 类，吸收路由 +
+      fallback + envelope 构建。老 IntegratedCacheManager / AdaptiveCacheSystem
+      仍可用但 deprecated（构造时 raise DeprecationWarning），4.6 才删
 
-    环境变量 TA_CACHE_STRATEGY 仍是配置入口（CacheConfig.from_environment
-    内部解析），用法与 4.3 前一致。
+    环境变量 TA_CACHE_STRATEGY 仍是配置入口（CacheConfig.from_environment 解析）。
 
     返回：
-        StockDataCache 或 IntegratedCacheManager 实例
+        StockDataCache 或 Cache 实例
     """
     global _cache_instance
 
     if _cache_instance is None:
-        # 4.3：经 CacheConfig 单一来源派生策略 + backend 配置
+        # 派生 CacheConfig（单一来源）
         try:
+            from pathlib import Path
+
             from tradingagents.config.database_manager import get_database_manager
 
             from ._config import CacheConfig
 
-            cache_config = CacheConfig.from_environment(get_database_manager())
+            db_manager = get_database_manager()
+            cache_config = CacheConfig.from_environment(db_manager)
             strategy = cache_config.cache_strategy
         except Exception as e:
             logger.warning(f"⚠️ CacheConfig 初始化失败，降级到 file 策略: {e}")
             cache_config = None
             strategy = "file"
 
-        if strategy in ("integrated", "adaptive"):
-            if INTEGRATED_CACHE_AVAILABLE:
-                try:
-                    _cache_instance = IntegratedCacheManager(config=cache_config)
-                    logger.info("✅ 使用集成缓存系统（支持 MongoDB/Redis/File 自动选择）")
-                except Exception as e:
-                    logger.warning(f"⚠️ 集成缓存初始化失败，降级到文件缓存: {e}")
-                    _cache_instance = StockDataCache()
-            else:
-                logger.warning("⚠️ 集成缓存不可用，使用文件缓存")
+        if strategy in ("integrated", "adaptive") and UNIFIED_CACHE_AVAILABLE and cache_config is not None:
+            # 4.4：新 Cache 类，注入 3 个 backend
+            try:
+                from .backends import FileBackend, MongoBackend, RedisBackend
+
+                cache_dir = Path("data/cache")
+                file_backend = FileBackend(cache_dir=cache_dir)
+                redis_backend = RedisBackend(redis_client=db_manager.get_redis_client())
+                mongo_backend = MongoBackend(mongodb_client=db_manager.get_mongodb_client())
+                _cache_instance = Cache(
+                    file_backend=file_backend,
+                    config=cache_config,
+                    redis_backend=redis_backend,
+                    mongo_backend=mongo_backend,
+                )
+                logger.info("✅ 使用统一 Cache（4.4，支持 MongoDB/Redis/File 自动路由 + fallback）")
+            except Exception as e:
+                logger.warning(f"⚠️ 统一 Cache 初始化失败，降级到文件缓存: {e}")
                 _cache_instance = StockDataCache()
         else:
             _cache_instance = StockDataCache()
@@ -126,7 +146,11 @@ __all__ = [
     "FILE_CACHE_AVAILABLE",
     "INTEGRATED_CACHE_AVAILABLE",
     "MONGODB_CACHE_ADAPTER_AVAILABLE",
+    "UNIFIED_CACHE_AVAILABLE",
     "AdaptiveCacheSystem",
+    # 4.4 新公开 API（推荐）
+    "Cache",
+    # deprecated（保留兼容，4.6 删）
     "IntegratedCacheManager",
     # MongoDB 缓存适配器
     "MongoDBCacheAdapter",

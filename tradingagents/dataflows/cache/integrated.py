@@ -6,6 +6,7 @@
 """
 
 import logging
+import warnings
 from typing import Any
 
 # 导入统一日志系统
@@ -34,6 +35,12 @@ class IntegratedCacheManager:
     """集成缓存管理器 - 智能选择缓存策略"""
 
     def __init__(self, cache_dir: str | None = None, config: "CacheConfig | None" = None):
+        warnings.warn(
+            "IntegratedCacheManager is deprecated; use Cache from tradingagents.dataflows.cache instead. Will be removed in sub-stage 4.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         self.logger = setup_dataflow_logging()
 
         # 初始化原有缓存系统（作为备用）
