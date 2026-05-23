@@ -30,9 +30,9 @@
 
 ## 4. CHANGELOG + 验证 + Archive — commit 4
 
-- [ ] 4.1 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Security` 段
-- [ ] 4.2 `just ci` 通过
-- [ ] 4.3 Archive：change 目录 → `openspec/changes/archive/`
-- [ ] 4.4 Spec sync：把新 Requirement append 到 `openspec/specs/dataflow-caching/spec.md`
-- [ ] 4.5 commit archive + spec sync
+- [x] 4.1 `docs/CHANGELOG.md` `[Unreleased]` 加 `### Security` 段
+- [x] 4.2 `just ci` 通过（284 tests passed）
+- [x] 4.3 Archive：change 目录 → `openspec/changes/archive/`
+- [x] 4.4 Spec sync：新 Requirement append 到 `openspec/specs/dataflow-caching/spec.md`
+- [x] 4.5 commit archive + spec sync
 - [ ] 4.6 finishing report

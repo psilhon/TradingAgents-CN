@@ -22,6 +22,10 @@
 
 - **news_analyst `stock_info=None` latent TypeError**：`news_analyst` 原 `_get_company_name` 拷贝缺 `stock_info and` 空值守卫，`get_china_stock_info_unified` 返回 `None` 时 `"股票名称:" in None` 抛 `TypeError`。合并到 `company_resolver` 后获得空值守卫修复（回归测试 `test_china_none_does_not_raise`）。
 
+### Security
+
+- **缓存层移除 `pickle` 反序列化攻击面**（OpenSpec change `cache-pickle-replacement`）：`tradingagents/dataflows/cache/adaptive.py` 此前在文件 / Redis / MongoDB 三后端共 7 处用 `pickle.load*` 反序列化缓存数据——`pickle.load` 是 RCE 原语，攻击者只要能向 `data/cache/` 写文件、Redis 注入键、或 MongoDB `tradingagents.cache` 集合写 doc，即可执行任意代码。新增 `cache/_serialize.py`（tagged JSON+gzip，含 `datetime` 与 `pandas.DataFrame` 标签），三后端全部改用 helper；文件扩展 `.pkl → .json.gz`；`clear_expired_cache` 无脑 `unlink()` 老 `.pkl` 文件（**不** `pickle.load`）；老 Redis pickle bytes 经 helper 解析失败 → cache miss；老 MongoDB `data_type="pickle"` doc 加载时 return None + 删 doc。5 个 unit 测试护栏（含 pickle bytes 拒绝路径）。扩 `dataflow-caching` capability 加 Requirement「缓存序列化禁用 pickle」。`cache-layer-consolidation` 的 stage 2。
+
 ## [1.3.4] — 2026-05-22
 
 **Fork patch release**——M1「状态对齐 + 收尾」。功能固化阶段后续规划的第一个里程碑：清理状态漂移 + 收尾遗留小项，**无新功能 / 无 API 变化**。
