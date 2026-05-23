@@ -61,9 +61,10 @@ def test_nested_datetime_in_data():
 
 
 def test_legacy_pickle_bytes_rejected_without_unpickle():
-    """老 pickle bytes 输入 decode → 失败（不调 pickle.loads）。"""
+    """老 pickle bytes 输入 decode → gzip / json 解析失败（不调 pickle.loads）。"""
     pickle_bytes = pickle.dumps({"hostile": "payload"})
-    with pytest.raises(Exception):
+    # pickle bytes 不是 gzip 头 → BadGzipFile (OSError)；理论上若 gzip 通过则 json.loads 抛 ValueError
+    with pytest.raises((OSError, ValueError)):
         decode_envelope(pickle_bytes)
 
 
