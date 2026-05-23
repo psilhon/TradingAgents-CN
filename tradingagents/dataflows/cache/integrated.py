@@ -18,11 +18,13 @@ from .file_cache import StockDataCache
 try:
     from tradingagents.config.database_manager import get_database_manager
 
+    from ._config import CacheConfig
     from .adaptive import AdaptiveCacheSystem
 
     ADAPTIVE_CACHE_AVAILABLE = True
 except ImportError as e:
     ADAPTIVE_CACHE_AVAILABLE = False
+    CacheConfig = None  # type: ignore[assignment,misc]
     import logging
 
     logging.getLogger(__name__).debug(f"自适应缓存不可用: {e}")
@@ -31,7 +33,7 @@ except ImportError as e:
 class IntegratedCacheManager:
     """集成缓存管理器 - 智能选择缓存策略"""
 
-    def __init__(self, cache_dir: str | None = None):
+    def __init__(self, cache_dir: str | None = None, config: "CacheConfig | None" = None):
         self.logger = setup_dataflow_logging()
 
         # 初始化原有缓存系统（作为备用）
@@ -43,7 +45,8 @@ class IntegratedCacheManager:
 
         if ADAPTIVE_CACHE_AVAILABLE:
             try:
-                self.adaptive_cache = AdaptiveCacheSystem(cache_dir)
+                # 4.3 起透传可选 config 到 AdaptiveCacheSystem
+                self.adaptive_cache = AdaptiveCacheSystem(cache_dir, config=config)
                 self.db_manager = get_database_manager()
                 self.use_adaptive = True
                 self.logger.info("✅ 自适应缓存系统已启用")
