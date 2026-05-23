@@ -14,6 +14,7 @@ Implements `Backend` Protocol (`_protocol.py`).
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from tradingagents.dataflows.cache._serialize import decode_envelope, encode_envelope
@@ -46,8 +47,8 @@ class FileBackend:
                 f.write(encode_envelope(envelope))
             self._logger.debug(f"file backend save: {key}")
             return True
-        except Exception as e:
-            self._logger.error(f"file backend save failed for {key}: {e}")
+        except Exception:
+            self._logger.exception(f"file backend save failed for {key}")
             return False
 
     def load(self, key: str) -> dict | None:
@@ -60,6 +61,27 @@ class FileBackend:
                 envelope = decode_envelope(f.read())
             self._logger.debug(f"file backend load: {key}")
             return envelope
-        except Exception as e:
-            self._logger.error(f"file backend load failed for {key}: {e}")
+        except Exception:
+            self._logger.exception(f"file backend load failed for {key}")
             return None
+
+    def clear(self, max_age_days: int) -> None:
+        """Delete `*.json.gz` files older than `max_age_days` (0 = all)."""
+        cutoff = datetime.now() - timedelta(days=max_age_days)
+        cleared = 0
+        try:
+            for f in self._cache_dir.glob("*.json.gz"):
+                try:
+                    mtime = datetime.fromtimestamp(f.stat().st_mtime)
+                    if max_age_days == 0 or mtime < cutoff:
+                        f.unlink()
+                        cleared += 1
+                except FileNotFoundError:
+                    # Concurrent deletion — skip this file, not the whole walk.
+                    continue
+                except Exception:
+                    self._logger.exception(f"file backend clear skip {f}")
+        except Exception:
+            self._logger.exception("file backend clear walk failed")
+        if cleared:
+            self._logger.info(f"file backend cleared {cleared} files (>{max_age_days}d)")

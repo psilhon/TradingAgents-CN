@@ -52,3 +52,17 @@ class Backend(Protocol):
         (must not raise).
         """
         ...
+
+    def clear(self, max_age_days: int) -> None:
+        """Clear cached entries older than `max_age_days` (0 = clear all).
+
+        Backend-specific semantics:
+        - File: delete `*.json.gz` whose mtime predates the cutoff
+        - Redis: `max_age_days=0` calls `flushdb()`; non-zero is a no-op
+          (Redis enforces native TTL itself)
+        - Mongo: `max_age_days=0` calls `delete_many({})`; non-zero
+          calls `delete_many({"timestamp": {"$lt": cutoff}})`
+
+        Must not raise.
+        """
+        ...

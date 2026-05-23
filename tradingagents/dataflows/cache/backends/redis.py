@@ -39,8 +39,8 @@ class RedisBackend:
                 self._client.set(key, payload)
             self._logger.debug(f"redis backend save: {key} (ttl={ttl_seconds})")
             return True
-        except Exception as e:
-            self._logger.error(f"redis backend save failed for {key}: {e}")
+        except Exception:
+            self._logger.exception(f"redis backend save failed for {key}")
             return False
 
     def load(self, key: str) -> dict | None:
@@ -54,6 +54,25 @@ class RedisBackend:
             envelope = decode_envelope(raw)
             self._logger.debug(f"redis backend load: {key}")
             return envelope
-        except Exception as e:
-            self._logger.error(f"redis backend load failed for {key}: {e}")
+        except Exception:
+            self._logger.exception(f"redis backend load failed for {key}")
             return None
+
+    def clear(self, max_age_days: int) -> None:
+        """Flush Redis DB when `max_age_days=0`; no-op otherwise.
+
+        Redis enforces TTL natively (via `setex`), so per-entry age-based
+        cleanup is not needed for non-zero `max_age_days` — entries
+        self-expire. `max_age_days=0` issues `flushdb()` to clear all keys
+        in the current DB.
+        """
+        if self._client is None:
+            return
+        if max_age_days != 0:
+            self._logger.debug(f"redis backend clear no-op for max_age_days={max_age_days} (TTL self-managed)")
+            return
+        try:
+            self._client.flushdb()
+            self._logger.info("redis backend flushed entire DB (max_age_days=0)")
+        except Exception:
+            self._logger.exception("redis backend flushdb failed")
