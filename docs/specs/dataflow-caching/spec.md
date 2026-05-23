@@ -262,13 +262,13 @@ Protocol MUST NOT 包含：
 `tradingagents/dataflows/cache/_cache.py` 的 `Cache` 类 MUST 是 cache 层公开 API 的单一实现。具体：
 
 - `__init__(file_backend: FileBackend, config: CacheConfig, redis_backend: RedisBackend | None = None, mongo_backend: MongoBackend | None = None)` — 显式注入 backends 实例 + CacheConfig
-- 公开方法 MUST 覆盖 10 个真实消费方法签名（与 4.4 前 `IntegratedCacheManager` 字节级对齐）：
-  - `save_stock_data(symbol, data, start_date='', end_date='', data_source='default') -> str`
+- 公开方法 MUST 覆盖 10 个真实消费方法签名（与 4.4 前 `IntegratedCacheManager` 字节级对齐）。所有 `start_date` / `end_date` / `data_source` 参数 MUST 接受 `None`，内部 normalize 到默认值（`start_date or ""` / `end_date or ""` / `data_source or "default"`），与 4.4 前 IntegratedCacheManager 行为字节级一致：
+  - `save_stock_data(symbol, data, start_date: str | None = None, end_date: str | None = None, data_source: str | None = None) -> str`
   - `load_stock_data(cache_key) -> Any | None`
-  - `find_cached_stock_data(symbol, start_date=None, end_date=None, data_source=None, max_age_hours=None) -> str | None`
-  - `save_fundamentals_data(symbol, data, data_source='unknown') -> str`
+  - `find_cached_stock_data(symbol, start_date: str | None = None, end_date: str | None = None, data_source: str | None = None, max_age_hours: int | None = None) -> str | None`
+  - `save_fundamentals_data(symbol, data, data_source: str | None = None) -> str`
   - `load_fundamentals_data(cache_key) -> Any | None`
-  - `find_cached_fundamentals_data(symbol, data_source=None, max_age_hours=None) -> str | None`
+  - `find_cached_fundamentals_data(symbol, data_source: str | None = None, max_age_hours: int | None = None) -> str | None`
   - `is_cache_valid(cache_key, symbol=None, data_type=None) -> bool`
   - `get_cache_stats() -> dict`
   - `clear_old_cache(max_age_days=7) -> None`
@@ -318,6 +318,16 @@ Protocol MUST NOT 包含：
 - **THEN** `is_cache_valid(key)` MUST 返 True
 - **WHEN** envelope `timestamp = now - 25h`，TTL = 24h
 - **THEN** MUST 返 False
+
+#### Scenario: Cache 公开 API None-safe 字节级兼容
+
+- **WHEN** 调用 `Cache.save_stock_data("AAPL", data, None, None, None)`（显式传 None）
+- **THEN** 返回的 cache_key MUST 与 `Cache.save_stock_data("AAPL", data, "", "", "default")` 字节级相同
+- **AND** MUST NOT raise（callsite 真实形式：data_source_manager._save_to_cache 以 `start_date: str | None = None` 传入）
+- **WHEN** 调用 `Cache.save_fundamentals_data("AAPL", data)` 不传 data_source
+- **THEN** 返回的 cache_key MUST 与 `Cache.save_fundamentals_data("AAPL", data, "default")` 字节级相同（**不是** "unknown" 或其它）
+- **WHEN** 调用 `Cache.find_cached_stock_data("AAPL")` 仅传 symbol（其它 optional 全 None）
+- **THEN** MUST NOT raise + 走与 `(symbol, "", "", "default", None)` 等价路径
 
 ### Requirement: IntegratedCacheManager / AdaptiveCacheSystem 标记 deprecated
 
