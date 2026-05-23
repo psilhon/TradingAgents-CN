@@ -7,20 +7,13 @@
 - [x] 1.1 写 `proposal.md`
 - [x] 1.2 写 `tasks.md`
 - [x] 1.3 写 `specs/dataflow-caching/spec.md`（ADDED Requirements，扩 capability）
-- [ ] 1.4 commit
+- [x] 1.4 commit（`c943f543`）
 
 ## 2. Serializer helper + TDD — commit 2
 
-- [ ] 2.1 **RED**：写 `tests/test_cache_serialize.py`（`@pytest.mark.unit`，纯逻辑无外部依赖）
-  - dict round-trip
-  - 嵌套 datetime 保留
-  - pandas.DataFrame round-trip（`to_json orient='split'`，shape + dtypes 等价）
-  - 老 pickle bytes 输入 → `decode_envelope` 抛异常（不调 pickle.loads）
-- [ ] 2.2 **GREEN**：新建 `tradingagents/dataflows/cache/_serialize.py`
-  - `encode_envelope(envelope: dict) -> bytes`：tagged JSON + gzip
-  - `decode_envelope(blob: bytes) -> dict`：反向
-  - 标签：`__dt__` / `__df_split__`
-- [ ] 2.3 `pytest tests/test_cache_serialize.py` PASS
+- [x] 2.1 **RED**：写 `tests/test_cache_serialize.py`（5 用例，spec_from_file_location 隔离加载保持纯 unit）
+- [x] 2.2 **GREEN**：新建 `tradingagents/dataflows/cache/_serialize.py`
+- [x] 2.3 `pytest tests/test_cache_serialize.py` PASS（5 passed, 0.27s）
 - [ ] 2.4 commit
 
 ## 3. 替换 adaptive.py 的 7 处 pickle — commit 3
