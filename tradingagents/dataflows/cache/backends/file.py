@@ -27,8 +27,14 @@ class FileBackend:
         self._cache_dir = Path(cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
 
-    def save(self, key: str, envelope: dict) -> bool:
-        """Persist `envelope` under `key` as `{cache_dir}/{key}.json.gz`."""
+    def save(self, key: str, envelope: dict, ttl_seconds: int | None = None) -> bool:
+        """Persist `envelope` under `key` as `{cache_dir}/{key}.json.gz`.
+
+        `ttl_seconds` is accepted to satisfy the Backend Protocol but ignored —
+        the filesystem has no native TTL. Expiry is enforced by the cache layer
+        above via envelope timestamp + TTL config.
+        """
+        del ttl_seconds  # accepted per Protocol; no-op for file backend
         try:
             cache_file = self._cache_dir / f"{key}.json.gz"
             with open(cache_file, "wb") as f:

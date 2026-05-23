@@ -37,10 +37,12 @@ MongoBackend = _mongo_backend_mod.MongoBackend
 
 
 def _mock_client_collection() -> tuple[MagicMock, MagicMock]:
-    """返回 (mock_client, mock_collection) — client.<db_name>.<collection_name> 指到同一 mock_collection."""
+    """返回 (mock_client, mock_collection) — client[<db>][<collection>] 与 client.<db>.<collection> 都指到同一 mock_collection."""
     client = MagicMock()
     collection = MagicMock()
+    # 同时 wire attribute + __getitem__ chain（pymongo 两种 API 都返回同一 Collection 对象）
     client.tradingagents.cache = collection
+    client.__getitem__.return_value.__getitem__.return_value = collection
     return client, collection
 
 
