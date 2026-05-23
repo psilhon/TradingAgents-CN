@@ -256,3 +256,82 @@ Protocol MUST NOT 包含：
 - **AND** `instance.primary_backend == config.primary_backend`
 - **WHEN** `AdaptiveCacheSystem(cache_dir=tmp)`（config 未传）
 - **THEN** 实例 MUST 走 `CacheConfig.from_environment(self.db_manager)` 路径（向后兼容）
+
+### Requirement: 统一 Cache 类（公开 API 单一实现）
+
+`tradingagents/dataflows/cache/_cache.py` 的 `Cache` 类 MUST 是 cache 层公开 API 的单一实现。具体：
+
+- `__init__(file_backend: FileBackend, config: CacheConfig, redis_backend: RedisBackend | None = None, mongo_backend: MongoBackend | None = None)` — 显式注入 backends 实例 + CacheConfig
+- 公开方法 MUST 覆盖 10 个真实消费方法签名（与 4.4 前 `IntegratedCacheManager` 字节级对齐）：
+  - `save_stock_data(symbol, data, start_date='', end_date='', data_source='default') -> str`
+  - `load_stock_data(cache_key) -> Any | None`
+  - `find_cached_stock_data(symbol, start_date=None, end_date=None, data_source=None, max_age_hours=None) -> str | None`
+  - `save_fundamentals_data(symbol, data, data_source='unknown') -> str`
+  - `load_fundamentals_data(cache_key) -> Any | None`
+  - `find_cached_fundamentals_data(symbol, data_source=None, max_age_hours=None) -> str | None`
+  - `is_cache_valid(cache_key, symbol=None, data_type=None) -> bool`
+  - `get_cache_stats() -> dict`
+  - `clear_old_cache(max_age_days=7) -> None`
+  - `get_cache_backend_info() -> dict`
+
+`Cache` 负责（cache 层职责）：
+
+- envelope 构建（`{data, metadata, timestamp, backend}` dict）
+- 路由：按 `config.primary_backend` 选 primary backend 调 save/load
+- fallback：primary 失败时 if `config.fallback_enabled` 降到 `file_backend`
+- TTL 推断：`config.ttl_settings.get(f"{market}_{data_type}", 7200)`
+- cache_key 生成：md5 hash(symbol + dates + data_source + data_type)
+
+`Cache` MUST NOT：
+
+- 依赖 `IntegratedCacheManager` / `AdaptiveCacheSystem` / `StockDataCache`（行为合并而非包装）
+- 直接调 `db_manager.get_config()` / 读 env（config 由构造方传入）
+
+#### Scenario: get_cache() 返新 Cache 实例
+
+- **WHEN** `cache_strategy ∈ {"integrated", "adaptive"}`
+- **THEN** `get_cache()` MUST 返 `Cache` 实例（**不再**返 `IntegratedCacheManager`）
+- **WHEN** `cache_strategy == "file"`
+- **THEN** `get_cache()` MUST 返 `StockDataCache` 实例（与 4.4 前一致）
+
+#### Scenario: Cache 路由 — primary 直走
+
+- **WHEN** `Cache(file_backend=fb, redis_backend=rb, config=CacheConfig(primary_backend="redis", ...))` save_stock_data 调用，rb.save 返 True
+- **THEN** MUST 调 `rb.save(...)`
+- **AND** MUST NOT 调 `fb.save(...)`
+
+#### Scenario: Cache fallback — primary 失败降到 file
+
+- **WHEN** `Cache(file_backend=fb, redis_backend=rb, config=CacheConfig(primary_backend="redis", fallback_enabled=True, ...))` save_stock_data 调用，rb.save 返 False
+- **THEN** MUST 调 `fb.save(...)` 作为降级路径
+- **AND** save_stock_data 返非空 cache_key
+
+#### Scenario: Cache fallback 关闭
+
+- **WHEN** primary=redis + rb.save 返 False + `fallback_enabled=False`
+- **THEN** save_stock_data 返 `""`（empty string，与 4.4 前 AdaptiveCacheSystem.save_data 失败语义一致）
+- **AND** MUST NOT 调 fb.save
+
+#### Scenario: Cache is_cache_valid TTL 判定
+
+- **WHEN** backend.load 返 envelope with `timestamp = now - 1h`，TTL 配置 = 2h
+- **THEN** `is_cache_valid(key)` MUST 返 True
+- **WHEN** envelope `timestamp = now - 25h`，TTL = 24h
+- **THEN** MUST 返 False
+
+### Requirement: IntegratedCacheManager / AdaptiveCacheSystem 标记 deprecated
+
+`IntegratedCacheManager.__init__` 与 `AdaptiveCacheSystem.__init__` MUST 触发 `DeprecationWarning`（`stacklevel=2`，message 指向 `Cache` 作为迁移目标）。两类保留可用 + 行为不变；4.6 才删。
+
+#### Scenario: DeprecationWarning 触发
+
+- **WHEN** 调用 `IntegratedCacheManager()`
+- **THEN** MUST raise `DeprecationWarning`（可用 `pytest.warns(DeprecationWarning)` 捕获）
+- **AND** message MUST 含字符串 `"Cache"`（指向新 API 迁移目标）
+- **WHEN** 调用 `AdaptiveCacheSystem()`
+- **THEN** 同样触发 DeprecationWarning
+
+#### Scenario: deprecated 类行为不变
+
+- **WHEN** 警告触发后，对实例调 `save_stock_data` / `load_stock_data` 等方法
+- **THEN** 行为 MUST 与 4.4 前完全一致（仅多了一条 deprecated 警告）
