@@ -5,6 +5,7 @@ AKShare统一数据提供器
 
 import asyncio
 import logging
+import threading
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -58,7 +59,14 @@ class AKShareProvider(BaseStockDataProvider):
             # AKShare的stock_news_em()函数没有设置必要的headers，导致API返回空响应
             if not hasattr(requests, "_akshare_headers_patched"):
                 original_get = requests.get
-                last_request_time = {"time": 0}  # 使用字典以便在闭包中修改
+                last_request_time = {"time": 0.0}  # 闭包共享状态
+                # Lock 保护 last_request_time 的 read-check-sleep-write 原子性
+                # （dataflows-reliability stage 1.2）。FastAPI multi-worker 场景
+                # 下并发到 eastmoney.com 时，read 与 write 之间若无锁，多线程会
+                # 同时读到旧 time → 都判定 since > 0.5s 不 sleep → 同时写 → 限流
+                # 完全失效，触发反爬封禁。time.sleep 故意放在 with 块内 — 要的
+                # 就是「其它线程等到我 sleep 完」的串行限流语义。
+                rate_limit_lock = threading.Lock()
 
                 def patched_get(url, **kwargs):
                     """
@@ -69,11 +77,12 @@ class AKShareProvider(BaseStockDataProvider):
                     # 添加请求延迟，避免被反爬虫封禁
                     # 只对东方财富网的请求添加延迟
                     if "eastmoney.com" in url:
-                        current_time = time.time()
-                        time_since_last_request = current_time - last_request_time["time"]
-                        if time_since_last_request < 0.5:  # 至少间隔0.5秒
-                            time.sleep(0.5 - time_since_last_request)
-                        last_request_time["time"] = time.time()
+                        with rate_limit_lock:
+                            current_time = time.time()
+                            time_since_last_request = current_time - last_request_time["time"]
+                            if time_since_last_request < 0.5:  # 至少间隔0.5秒
+                                time.sleep(0.5 - time_since_last_request)
+                            last_request_time["time"] = time.time()
 
                     # 如果是东方财富网的请求，且 curl_cffi 可用，使用它来绕过反爬虫
                     if use_curl_cffi and "eastmoney.com" in url:
