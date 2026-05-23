@@ -329,19 +329,4 @@ Protocol MUST NOT 包含：
 - **WHEN** 调用 `Cache.find_cached_stock_data("AAPL")` 仅传 symbol（其它 optional 全 None）
 - **THEN** MUST NOT raise + 走与 `(symbol, "", "", "default", None)` 等价路径
 
-### Requirement: IntegratedCacheManager / AdaptiveCacheSystem 标记 deprecated
-
-`IntegratedCacheManager.__init__` 与 `AdaptiveCacheSystem.__init__` MUST 触发 `DeprecationWarning`（`stacklevel=2`，message 指向 `Cache` 作为迁移目标）。两类保留可用 + 行为不变；4.6 才删。
-
-#### Scenario: DeprecationWarning 触发
-
-- **WHEN** 调用 `IntegratedCacheManager()`
-- **THEN** MUST raise `DeprecationWarning`（可用 `pytest.warns(DeprecationWarning)` 捕获）
-- **AND** message MUST 含字符串 `"Cache"`（指向新 API 迁移目标）
-- **WHEN** 调用 `AdaptiveCacheSystem()`
-- **THEN** 同样触发 DeprecationWarning
-
-#### Scenario: deprecated 类行为不变
-
-- **WHEN** 警告触发后，对实例调 `save_stock_data` / `load_stock_data` 等方法
-- **THEN** 行为 MUST 与 4.4 前完全一致（仅多了一条 deprecated 警告）
+> **历史注记**：4.4 加入「Requirement: IntegratedCacheManager / AdaptiveCacheSystem 标记 deprecated」+ 2 个相关 Scenario；4.6（commit pending）随删除两个 deprecated 类一并删除该 Requirement。两个类在 4.6 后从 cache 层彻底拆除——见 `docs/specs/cache-backend-unification/4.6-remove-deprecated-layers/proposal.md`。`StockDataCache` 在 4.4 未 deprecate，4.6 保留（`TA_CACHE_STRATEGY=file` 路径 + 2 个外部 import 依赖）。
