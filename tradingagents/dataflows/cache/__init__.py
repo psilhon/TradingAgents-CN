@@ -15,9 +15,6 @@
     export TA_CACHE_STRATEGY=file        # 使用文件缓存（默认）
 """
 
-import os
-from typing import Union  # noqa: F401
-
 # 导入日志模块
 from tradingagents.utils.logging_manager import get_logger
 
@@ -72,22 +69,18 @@ except ImportError:
 # 全局缓存实例
 _cache_instance = None
 
-# 默认缓存策略（改为 integrated，优先使用 MongoDB/Redis 缓存）
-DEFAULT_CACHE_STRATEGY = os.getenv("TA_CACHE_STRATEGY", "integrated")
-
 
 def get_cache() -> StockDataCache | IntegratedCacheManager:
     """
     获取缓存实例（统一入口）
 
-    根据环境变量 TA_CACHE_STRATEGY 选择缓存策略：
-    - "file" (默认): 使用文件缓存
-    - "integrated": 使用集成缓存（自动选择 MongoDB/Redis/File）
+    根据 CacheConfig.from_environment 决策缓存策略（4.3 起经 CacheConfig 单一来源）：
+    - "file": 使用文件缓存
+    - "integrated" (默认): 使用集成缓存（自动选择 MongoDB/Redis/File）
     - "adaptive": 使用自适应缓存（同 integrated）
 
-    环境变量设置：
-        export TA_CACHE_STRATEGY=integrated  # Linux/Mac
-        set TA_CACHE_STRATEGY=integrated     # Windows
+    环境变量 TA_CACHE_STRATEGY 仍是配置入口（CacheConfig.from_environment
+    内部解析），用法与 4.3 前一致。
 
     返回：
         StockDataCache 或 IntegratedCacheManager 实例
@@ -95,10 +88,23 @@ def get_cache() -> StockDataCache | IntegratedCacheManager:
     global _cache_instance
 
     if _cache_instance is None:
-        if DEFAULT_CACHE_STRATEGY in ["integrated", "adaptive"]:
+        # 4.3：经 CacheConfig 单一来源派生策略 + backend 配置
+        try:
+            from tradingagents.config.database_manager import get_database_manager
+
+            from ._config import CacheConfig
+
+            cache_config = CacheConfig.from_environment(get_database_manager())
+            strategy = cache_config.cache_strategy
+        except Exception as e:
+            logger.warning(f"⚠️ CacheConfig 初始化失败，降级到 file 策略: {e}")
+            cache_config = None
+            strategy = "file"
+
+        if strategy in ("integrated", "adaptive"):
             if INTEGRATED_CACHE_AVAILABLE:
                 try:
-                    _cache_instance = IntegratedCacheManager()
+                    _cache_instance = IntegratedCacheManager(config=cache_config)
                     logger.info("✅ 使用集成缓存系统（支持 MongoDB/Redis/File 自动选择）")
                 except Exception as e:
                     logger.warning(f"⚠️ 集成缓存初始化失败，降级到文件缓存: {e}")

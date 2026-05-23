@@ -15,6 +15,7 @@ from tradingagents.config.database_manager import get_database_manager
 # `decode_envelope` is still needed by `clear_expired_cache` which iterates
 # files directly (the FileBackend has no `list_keys` yet — that's 4.4 / when
 # the Cache class needs it). Direct `_serialize` import retained transitionally.
+from ._config import CacheConfig
 from ._serialize import decode_envelope
 from .backends import FileBackend, MongoBackend, RedisBackend
 
@@ -22,7 +23,7 @@ from .backends import FileBackend, MongoBackend, RedisBackend
 class AdaptiveCacheSystem:
     """自适应缓存系统"""
 
-    def __init__(self, cache_dir: str | None = None):
+    def __init__(self, cache_dir: str | None = None, config: CacheConfig | None = None):
         self.logger = logging.getLogger(__name__)
 
         # 获取数据库管理器
@@ -41,13 +42,14 @@ class AdaptiveCacheSystem:
         self.redis_backend = RedisBackend(redis_client=self.db_manager.get_redis_client())
         self.mongo_backend = MongoBackend(mongodb_client=self.db_manager.get_mongodb_client())
 
-        # 获取配置
-        self.config = self.db_manager.get_config()
-        self.cache_config = self.config["cache"]
+        # CacheConfig — sub-stage 4.3 单一来源（替代 db_manager.get_config()["cache"]
+        # dict 读取）。config 是可选参数，None 时走 from_environment 向后兼容。
+        self.config: CacheConfig = config if config is not None else CacheConfig.from_environment(self.db_manager)
 
-        # 初始化缓存后端
-        self.primary_backend = self.cache_config["primary_backend"]
-        self.fallback_enabled = self.cache_config["fallback_enabled"]
+        # 保留 primary_backend / fallback_enabled 属性兼容 IntegratedCacheManager
+        # 等外部消费（_log_cache_status / get_cache_stats 仍读这两个属性）
+        self.primary_backend = self.config.primary_backend
+        self.fallback_enabled = self.config.fallback_enabled
 
         self.logger.info(f"自适应缓存系统初始化 - 主要后端: {self.primary_backend}")
 
@@ -66,9 +68,9 @@ class AdaptiveCacheSystem:
         else:
             market = "us"
 
-        # 获取TTL配置
+        # 获取TTL配置（4.3 起经 CacheConfig 单一来源）
         ttl_key = f"{market}_{data_type}"
-        ttl_seconds = self.cache_config["ttl_settings"].get(ttl_key, 7200)
+        ttl_seconds = self.config.ttl_settings.get(ttl_key, 7200)
         return ttl_seconds
 
     def _is_cache_valid(self, cache_time: datetime, ttl_seconds: int) -> bool:
