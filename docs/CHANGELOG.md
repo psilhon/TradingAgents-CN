@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **stock_basic_info full_symbol invariant 守护（epic 收尾）**（change `dataflows-schema-consistency-hardening` sub-stage 2.3）：audit-2026-05-23 复检初判 stock_basic_info 5846 docs 缺 `full_symbol`，深入查后确认是 grep 误命中 `ts_code` 字段（已废弃 alias 全 null）—— **`full_symbol` 字段实际全部存在且全为 `.SH/.SZ/.BJ` canonical**（mongo 实跑 `db.stock_basic_info.countDocuments({full_symbol: /^\d{6}\.(SH|SZ|BJ)$/})` = 5846/5846）。两个 writer 早已就位：`app/services/basics_sync_service.py:265-280` + `multi_source_basics_sync_service.py:259-281` 均经 `_generate_full_symbol(code)` 派生 + 写入 doc，stage 2.1 后 helper 返 canonical form。**本 sub-stage 实质零代码改造**——加 7 个 spec invariant 测试（4 source-level grep × 两个 writer 含 `"full_symbol":` field + `_generate_full_symbol` helper；2 行为测试验证 helper 返 `.SH/.SZ/.BJ`；1 audit script 存在性测试）+ `scripts/migrations/2.3_audit_full_symbol.js` audit-only script（mongo 实跑断 0 anomalies，CI gate 友好 exit code）。`just ci` 493 passed（+7 vs 2.2 baseline 486）。**epic dataflows-schema-consistency-hardening 收尾**：3 sub-stage 累计 +29 测试（2.1×14 + 2.2×8 + 2.3×7），schema 漂移 root cause 全清；mongo 端待用户 1-click 跑 2.1 / 2.2 migration 完成数据 backfill。
+
 ### Changed
 
 - **yfinance.Ticker LRU 缓存**（change `dataflows-reliability-hardening` sub-stage 1.4）：`tradingagents/dataflows/providers/us/yfinance.py` 此前 3 处构造 `yf.Ticker(symbol)`——`init_ticker` decorator wrapping `YFinanceUtils` 全部方法（line 46）+ `get_YFin_data_online`（line 163）+ 技术指标函数（line 272）——每次方法调用重建 ticker，yfinance 内部 session setup（HTTP client / cookie / proxy detection）每次重做。同一 agent 请求会对同 ticker 调多个方法（fetch price + info + dividends + financials），重复构造开销可观。引入 module-level `_get_ticker(symbol)` helper 走 `functools.lru_cache(maxsize=128)` 缓存 + 内部 normalize 模式（`_get_ticker_cached(normalized_symbol)` 真正缓存，`_get_ticker` 先 `.upper()` 后委派——避免 `"aapl"`/`"AAPL"`/`"AaPl"` 占 3 个 cache 槽）。3 处构造点全部改调 helper；公开 API 行为零变化（yfinance Ticker 内部数据 lazy load + 自带 TTL，复用安全）。grep 守护：`yf.Ticker(` 全文件命中 MUST = 1（仅在 `_get_ticker_cached` helper 内）。7 个新 unit test（helper 存在 + lru_cache 装饰 + 同 symbol cache hit + 不同 symbol 独立 + case-insensitive 合并 + init_ticker decorator 路由 + source-level grep 守护防回归），`just ci` 448 passed（+7 vs 1.1 baseline 441）。
