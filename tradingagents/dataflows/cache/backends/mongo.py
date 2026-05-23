@@ -180,3 +180,18 @@ class MongoBackend:
             self._logger.info(f"mongo backend cleared {result.deleted_count} docs older than {max_age_days}d")
         except Exception:
             self._logger.exception("mongo backend clear failed")
+
+    def close(self) -> None:
+        """Release the MongoDB connection pool via `mongo_client.close()`.
+
+        `mongodb_client=None` → no-op. Exceptions are swallowed —
+        `Cache.close()` relies on close not breaking the multi-backend
+        cleanup flow if one backend errors out.
+        """
+        if self._client is None:
+            return
+        try:
+            self._client.close()
+            self._logger.debug("mongo backend close: client.close() called")
+        except Exception:
+            self._logger.exception("mongo backend close failed")

@@ -481,3 +481,58 @@ class Cache:
                 self.mongo_backend.clear(max_age_days)
             except Exception:
                 self._logger.exception("clear_old_cache: mongo backend clear failed")
+
+    # ----- public API: lifecycle (4.8) -----
+
+    def close(self) -> None:
+        """Release backend-held resources (FastAPI shutdown / pytest teardown).
+
+        Dispatches `close()` to file / redis / mongo backends via duck-type
+        check (`getattr(b, "close", None)`) so mock backends that don't
+        implement the optional method don't break the cleanup flow. Each
+        backend's exception is caught + logged with traceback so a single
+        backend's failure can't prevent the others from closing — leaving
+        a leaked redis pool because mongo close raised is unacceptable.
+
+        Cache instance state is **not** reset by close — subsequent backend
+        operations on a closed Cache will return False / None per the
+        existing error contract; we don't try to make close + reuse work.
+        """
+        for name, backend in (
+            ("file", self.file_backend),
+            ("redis", self.redis_backend),
+            ("mongo", self.mongo_backend),
+        ):
+            if backend is None:
+                continue
+            close_fn = getattr(backend, "close", None)
+            if close_fn is None:
+                # Backend doesn't implement the optional close() (e.g. legacy
+                # mock backends in older tests) — skip silently.
+                self._logger.debug(f"cache close: {name} backend has no close() method")
+                continue
+            try:
+                close_fn()
+            except Exception:
+                self._logger.exception(f"cache close: {name} backend close failed")
+
+    def __enter__(self) -> Cache:
+        """Context manager entry — returns self so `with Cache(...) as c:` binds c.
+
+        Provided primarily for FastAPI shutdown hooks and pytest fixtures
+        that benefit from automatic close on scope exit. Production cache
+        is a module-level singleton (via `get_cache()`), so the with-stmt
+        idiom isn't the common case — `close()` is also fine to call
+        directly.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Context manager exit — always calls close().
+
+        Returns None (not True) so any exception raised inside the with
+        block propagates normally; close() failures are still swallowed
+        per its contract.
+        """
+        del exc_type, exc_val, exc_tb  # signal "intentionally unused" to type checker
+        self.close()
