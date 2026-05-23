@@ -63,6 +63,7 @@
 - `save(key: str, envelope: dict, ttl_seconds: int | None = None) -> bool` — 将 envelope dict 写入后端；`ttl_seconds` 是 backend native TTL（redis `setex` / mongo `expires_at`），`None` 表示不设过期或后端无 native TTL（file 后端忽略）；成功返回 `True`，失败返回 `False`（不 raise）
 - `load(key: str) -> dict | None` — 从后端读取 envelope dict；不存在 / 读取失败返回 `None`（不 raise）
 - `clear(max_age_days: int) -> None` — 清理过期数据（4.7 起加入）：`max_age_days=0` 表示清空全部；非 0 表示删除超过 `max_age_days` 天的条目。各后端语义：File 删 mtime 早于 cutoff 的 `*.json.gz`；Redis `max_age_days=0` 调 `flushdb()`，非 0 时 no-op（Redis 自有 native TTL）；Mongo `max_age_days=0` 调 `delete_many({})`，非 0 时 `delete_many({"timestamp": {"$lt": cutoff}})`
+- `close() -> None` — 释放后端持有的连接资源（4.8 起加入，**可选方法**）。File 后端 no-op；Redis 后端调 `redis_client.close()`；Mongo 后端调 `mongo_client.close()`。MUST NOT raise——调用方（`Cache.close()`）以 duck-type 方式 `getattr(b, "close", None)` 检测后调用，因此符合旧 Protocol 不实现 `close` 的 mock backend 仍可用
 
 Protocol MUST NOT 包含：
 
@@ -86,8 +87,9 @@ Protocol MUST NOT 包含：
 `tradingagents/dataflows/cache/backends/file.py` 的 `FileBackend` 类 MUST 仅负责文件 IO，符合 `Backend` Protocol。具体：
 
 - `__init__(cache_dir: Path)` — 接收缓存目录，MUST `mkdir(parents=True, exist_ok=True)` 确保存在
-- `save(key, envelope) -> bool` — 写入 `{cache_dir}/{key}.json.gz`，经 `encode_envelope` 编码；失败返回 `False`
+- `save(key, envelope) -> bool` — 写入 `{cache_dir}/{key}.json.gz`，经 `encode_envelope` 编码；失败返回 `False`。**4.8 起 MUST 原子写入**：先写临时文件 `{cache_dir}/.{key}.json.gz.tmp.{pid}`，写完后调 `os.replace(tmp, final)` 原子换名；写入中途异常时 MUST 清理残留临时文件（finally 块 unlink）。临时文件名以 `.` 开头让 `glob("*.json.gz")` 自然跳过；带 `pid` 让多进程并行写不同 key 不互冲。POSIX 保证 same-filesystem `os.replace` 原子（项目仅支持 macOS/Linux）
 - `load(key) -> dict | None` — 读取 `{cache_dir}/{key}.json.gz`，经 `decode_envelope` 解码；文件不存在或解码失败返回 `None`
+- `close() -> None` — no-op（4.8 起加入，无连接资源需要释放）
 
 `FileBackend` MUST NOT：
 
@@ -123,6 +125,7 @@ Protocol MUST NOT 包含：
 - `__init__(redis_client)` — 接收 redis 客户端实例（可为 `None`，由 `db_manager.get_redis_client()` 决定）；MUST 无副作用（不 connect / 不 ping）
 - `save(key, envelope, ttl_seconds=None) -> bool` — `redis_client=None` 立即 return `False`；否则 `encode_envelope(envelope)` → `setex(key, ttl_seconds, payload)` 若 `ttl_seconds` 非 None，否则 `set(key, payload)`；异常 catch 返 `False`
 - `load(key) -> dict | None` — `redis_client=None` 立即 return `None`；否则 `redis_client.get(key)` → `decode_envelope`；未命中 / 解码失败返 `None`
+- `close() -> None` — 4.8 起加入。`redis_client=None` 时 no-op；否则调 `redis_client.close()` 释放连接池。异常 catch 不 raise（破坏关闭流程不可接受——其它 backend 仍需关闭）
 
 `RedisBackend` MUST NOT：
 
@@ -169,6 +172,7 @@ Protocol MUST NOT 包含：
   - `data_type="pickle"`（legacy） → 删 doc + log + 返 `None`，**MUST NOT** 调任何 `pickle.load*` / `pickle.loads`
   - 未识别 `data_type`（其它值） → 4.7 起 MUST `delete_one` + warn + 返 `None`（消除 zombie 累积；4.6 前仅 warn 不删）
   - 重建为 envelope `{data, metadata, timestamp, backend="mongodb"}` 返回
+- `close() -> None` — 4.8 起加入。`mongodb_client=None` 时 no-op；否则调 `mongo_client.close()` 释放连接池。异常 catch 不 raise
 
 `MongoBackend` MUST：
 
@@ -278,6 +282,8 @@ Protocol MUST NOT 包含：
   - `get_cache_stats() -> dict`
   - `clear_old_cache(max_age_days=7) -> None`
   - `get_cache_backend_info() -> dict`
+  - `close() -> None` — 4.8 起加入。委派 file/redis/mongo backend 的 `close()`（duck-typed via `getattr(b, "close", None)`），各 backend 异常 catch 单条 logger.exception，不 raise——一个 backend 关闭失败 MUST NOT 拖垮其它 backend 关闭。Cache 实例 close 后再用 backend 操作返 False/None（既有错误约定）；不重置 state
+  - `__enter__() -> Cache` / `__exit__(...) -> None` — 4.8 起加入，让 `with Cache(...) as c:` 出 with 块自动调 `close()`
 
 `Cache` 负责（cache 层职责）：
 
@@ -444,3 +450,103 @@ Protocol MUST NOT 包含：
 - **AND** 调 `hash(config)`
 - **THEN** MUST 返 int（不 raise TypeError）
 - **AND** 两个字段相等的 CacheConfig 实例 MUST hash 相等
+
+### Requirement: FileBackend 原子写入
+
+`FileBackend.save` 4.8 起 MUST 原子写入——磁盘满 / 进程 SIGKILL / OOM 等中断 MUST NOT 在 `cache_dir` 留下 truncated 的 `*.json.gz` 终态文件。具体：
+
+- 写入 MUST 落到 `{cache_dir}/.{key}.json.gz.tmp.{pid}` 临时文件（前导 `.` 让 `glob("*.json.gz")` 自然跳过；带 `pid` 后缀让多进程并行写不同 key 不互冲）
+- 临时文件写完 + close 后调 `os.replace(tmp, final)` 完成原子换名（POSIX same-filesystem rename 原子性）
+- 写入中途异常 MUST 经 try/finally 路径清理临时文件 → unlink（best-effort，吞 FileNotFoundError）
+- 最终路径 `{cache_dir}/{key}.json.gz` 在任何时刻 MUST 要么不存在要么为完整 gzip(JSON) envelope；不允许 partial-write 终态
+
+#### Scenario: FileBackend 写入异常不留临时残留
+
+- **WHEN** mock `encode_envelope` 抛异常，调 `FileBackend.save(key, envelope)`
+- **THEN** MUST 返 `False`
+- **AND** `cache_dir` 内 MUST NOT 留任何 `.{key}.json.gz.tmp.*` 临时文件（finally 已清理）
+- **AND** `{cache_dir}/{key}.json.gz` MUST NOT 存在（从未 replace 上去）
+
+#### Scenario: FileBackend 写入成功后无临时残留
+
+- **WHEN** 正常 `FileBackend.save(key, envelope)` 返 `True`
+- **THEN** `cache_dir` 内 MUST 只有 `{key}.json.gz`（替换完成后 tmp 名已不存在）
+- **AND** glob `.*.tmp.*` MUST 返空
+
+### Requirement: 缓存目录可由 env 覆盖
+
+4.8 起 `get_cache()` MUST 通过 env `TA_CACHE_DIR` 决定 `FileBackend` 的 `cache_dir` 参数；env 未设 fallback 到 `"data/cache"` 相对路径（保持 4.7 行为）。env 值 MUST 经 `Path(...).expanduser()` 处理，允许 `~/.cache/tradingagents` 这类用户家目录路径。
+
+#### Scenario: TA_CACHE_DIR 控制 FileBackend.cache_dir
+
+- **WHEN** monkeypatch env `TA_CACHE_DIR=/tmp/test_cache`
+- **AND** 调 `get_cache()`
+- **THEN** 返回的 `Cache.file_backend.cache_dir == Path("/tmp/test_cache")`
+
+#### Scenario: TA_CACHE_DIR expanduser
+
+- **WHEN** monkeypatch env `TA_CACHE_DIR=~/.cache/ta`
+- **AND** 调 `get_cache()`
+- **THEN** `Cache.file_backend.cache_dir` MUST 已 expand `~`（不含字面 `~` 字符）
+
+#### Scenario: TA_CACHE_DIR 未设默认 data/cache
+
+- **WHEN** delete env `TA_CACHE_DIR`
+- **AND** 调 `get_cache()`
+- **THEN** `Cache.file_backend.cache_dir == Path("data/cache")`
+
+### Requirement: Cache.close + Backend.close 生命周期
+
+4.8 起 `Cache` MUST 暴露 `close() -> None` 方法 + context manager 协议（`__enter__` / `__exit__`），让 FastAPI shutdown hook / pytest teardown 主动释放 redis / mongo 客户端连接池。具体：
+
+- `Cache.close()` MUST 遍历 `file_backend` / `redis_backend` / `mongo_backend`，对每个非 None backend duck-type 检测 `getattr(b, "close", None)` 后调用（兼容旧 mock backend 不实现 close 的情况）
+- 单个 backend close 抛异常 MUST 经 `logger.exception` 记录但**不 raise**，确保剩余 backend 仍被关闭
+- `Cache.__exit__(...)` MUST 调 `self.close()` 并返 None（不抑制异常）
+- 各 backend close 语义见 Backend Protocol（File no-op；Redis / Mongo 调 client.close()）
+
+#### Scenario: Cache.close 委派三个 backend
+
+- **WHEN** 构造 Cache(file_backend=fb, redis_backend=rb, mongo_backend=mb, config=...)
+- **AND** 调 `cache.close()`
+- **THEN** MUST 调 `fb.close()` + `rb.close()` + `mb.close()` 各一次（顺序不限）
+
+#### Scenario: Cache.close 单 backend 失败不影响其它
+
+- **WHEN** mock `rb.close` raise RuntimeError
+- **AND** 调 `cache.close()`
+- **THEN** MUST NOT raise（异常吞）
+- **AND** MUST 仍调 `fb.close()` + `mb.close()`（关闭流程不被一个 backend 故障打断）
+- **AND** logger MUST 记录 exception（含 traceback）
+
+#### Scenario: Cache 支持 with 语法
+
+- **WHEN** `with Cache(file_backend=fb, ...) as c: pass`
+- **THEN** 出 with 块时 MUST 调 `c.close()`
+- **AND** `fb.close()` MUST 被调
+
+#### Scenario: RedisBackend.close 调 client.close
+
+- **WHEN** mock_client = MagicMock(), `RedisBackend(mock_client).close()`
+- **THEN** mock_client.close MUST 被调一次
+- **WHEN** `RedisBackend(None).close()`（client=None）
+- **THEN** MUST NOT raise
+
+#### Scenario: MongoBackend.close 调 client.close
+
+- **WHEN** mock_client = MagicMock(), `MongoBackend(mock_client).close()`
+- **THEN** mock_client.close MUST 被调一次
+- **WHEN** `MongoBackend(None).close()`（client=None）
+- **THEN** MUST NOT raise
+
+### Requirement: Cache typed dispatch helper（内部 dedup）
+
+4.8 起 `Cache._save_typed` / `Cache._load_typed` / `Cache._find_typed` 私有 helper MUST 承载 stock_data / fundamentals_data 路径的共同逻辑（envelope 构建 + cache_key 派生 + TTL 推断 + 路由调用）。公开 API（`save_stock_data` / `save_fundamentals_data` / `load_*` / `find_cached_*`）MUST 改为对 helper 的 thin 调用，但**公开 API 签名 + cache_key 派生 + envelope 形状 + TTL bucket 派生 MUST 字节级保持** 4.7 行为（守护 4.7 修订汇总下的所有 Scenario 仍绿）。
+
+#### Scenario: 公开 save 方法路由经 _save_typed
+
+- **WHEN** spy `Cache._save_typed`
+- **AND** 调 `cache.save_stock_data("AAPL", df, "2024-01-01", "2024-12-31", "yfinance")`
+- **AND** 调 `cache.save_fundamentals_data("AAPL", report, "finnhub")`
+- **THEN** `_save_typed` MUST 各被调一次（共 2 次）
+- **AND** 第一次 call_args MUST 含 `data_type="stock_data"` + id_fields 含 start_date/end_date/data_source
+- **AND** 第二次 call_args MUST 含 `data_type="fundamentals_data"` + id_fields 含 data_source（无 start_date/end_date）
