@@ -5,16 +5,15 @@ fallback selection, TTL inference, and persistence-format-specific tagging
 (stock_data vs fundamentals_data vs news_data). Three pluggable backends
 (File / Redis / Mongo) implement the `Backend` Protocol for actual storage.
 
-Cache key format is byte-compatible with the historical
-`IntegratedCacheManager`+`AdaptiveCacheSystem` chain so that pre-existing
-cache files remain readable after upgrade:
+Cache key formula:
 
     md5(f"{symbol}_{start_date}_{end_date}_{data_source}_{data_type}")
 
-with `data_type` ∈ {"stock_data", "news_data", "fundamentals_data"} — note
-the `_data` suffix on the non-stock variants, kept for that compatibility.
-TTL lookup strips the `_data` suffix because the configured TTL keys use
-the stem form (`us_fundamentals`, `china_news`, etc.).
+with `data_type` ∈ {"stock_data", "news_data", "fundamentals_data"} — the
+`_data` suffix on the non-stock variants is required for byte-compat with
+existing cache entries written by earlier versions. TTL lookup strips the
+`_data` suffix because the configured TTL keys use the stem form
+(`us_fundamentals`, `china_news`, etc.).
 
 Defined per `docs/specs/dataflow-caching/spec.md` Requirement "统一 Cache 类
 （公开 API 单一实现）".
@@ -76,13 +75,12 @@ class Cache:
     def _get_ttl_seconds(self, symbol: str, data_type: str = "stock_data") -> int:
         # A-share code: 6 pure digits → china market; otherwise us.
         market = "china" if (len(symbol) == 6 and symbol.isdigit()) else "us"
-        # Cache key uses suffixed data_type values ("fundamentals_data", "news_data")
-        # for byte-compat with the historical IntegratedCacheManager, but the
-        # TTL config keys (_DEFAULT_TTL_SETTINGS) use the stem form
-        # ("us_fundamentals", "china_news"). Strip the _data suffix when
-        # looking up so fundamentals/news get their configured TTL instead of
-        # the 7200s default — fixes a pre-existing bug in AdaptiveCacheSystem
-        # where data_type="fundamentals_data" silently fell back to 7200s.
+        # Cache keys carry data_type values with a "_data" suffix
+        # ("fundamentals_data", "news_data") so existing cache entries
+        # remain readable. The configured TTL keys (_DEFAULT_TTL_SETTINGS)
+        # use the stem form ("us_fundamentals", "china_news"). Strip the
+        # suffix here so fundamentals/news get their configured TTL instead
+        # of the 7200s default.
         stem = data_type[:-5] if data_type.endswith("_data") and data_type != "stock_data" else data_type
         ttl_key = f"{market}_{stem}"
         return self.config.ttl_settings.get(ttl_key, 7200)
@@ -181,8 +179,10 @@ class Cache:
         end_date: str | None = None,
         data_source: str | None = None,
     ) -> str:
-        # Normalize None → defaults (与 4.4 前 IntegratedCacheManager `or ""` 路径
-        # 字节级一致；callsite 真实形式 _save_to_cache 透传 None — 见 4.5 proposal)
+        # Normalize None → defaults. Some real callers (e.g.
+        # `data_source_manager._save_to_cache`) pass `start_date: str | None`
+        # straight through, and f-string formatting of `None` would otherwise
+        # leak the literal string "None" into the cache key.
         start_date = start_date or ""
         end_date = end_date or ""
         data_source = data_source or "default"
@@ -235,8 +235,8 @@ class Cache:
         if env is None:
             return None
         # max_age_hours, if given, overrides the configured TTL. Otherwise we
-        # enforce the same TTL the load path uses (4.7 修订: pre-4.7 a None
-        # max_age_hours silently returned arbitrarily old keys).
+        # enforce the same TTL the load path uses, so callers don't get a
+        # cache_key back for an envelope `load_stock_data` would then reject.
         if max_age_hours is not None:
             if not self._is_fresh(env.get("timestamp"), max_age_hours * 3600):
                 return None
@@ -252,9 +252,8 @@ class Cache:
         data: Any,
         data_source: str | None = None,
     ) -> str:
-        # data_type uses the "_data" suffix to stay byte-compatible with
-        # the historical IntegratedCacheManager → AdaptiveCacheSystem.save_data
-        # cache key formula. TTL lookup strips the suffix (see _get_ttl_seconds).
+        # data_type carries the "_data" suffix so cache keys stay readable
+        # across upgrades. TTL lookup strips the suffix (see _get_ttl_seconds).
         data_source = data_source or "default"
         cache_key = self._get_cache_key(symbol, "", "", data_source, "fundamentals_data")
         metadata = {
@@ -363,7 +362,7 @@ class Cache:
         fundamentals_count = 0
         for f in cache_dir.glob("*.json.gz"):
             # Per-file try so one concurrently-deleted entry doesn't abort
-            # the whole walk (4.7 修订: pre-4.7 had try around the loop).
+            # the whole walk.
             try:
                 total_files += 1
                 total_size_bytes += f.stat().st_size
@@ -393,7 +392,8 @@ class Cache:
             "total_files": total_files,
             # Both keys point at the same number — `total_size_bytes` is the
             # explicit-unit name; `total_size` is the legacy alias the admin
-            # router reads (kept for byte-compat with the pre-4.4 contract).
+            # router reads (kept for backwards compatibility with the
+            # `app/routers/cache.py` schema contract).
             "total_size": total_size_bytes,
             "total_size_bytes": total_size_bytes,
             "total_size_mb": round(total_size_bytes / (1024 * 1024), 2),
@@ -420,11 +420,10 @@ class Cache:
         """Clear aged cache across all configured backends.
 
         Delegates per-backend cleanup via the Backend Protocol's `clear`
-        method (added in 4.7) so Redis (flushdb on max_age_days=0) and
-        Mongo (delete_many) are also touched, not just the file backend.
-        Pre-4.7 `clear_old_cache` only walked `*.json.gz` files — the
-        `/api/cache/clear` admin endpoint promised "清空所有缓存" but
-        left Redis + Mongo entries alive.
+        method so Redis (flushdb on max_age_days=0) and Mongo (delete_many)
+        are touched, not just file storage. The `/api/cache/clear` admin
+        endpoint relies on this multi-backend dispatch for its "清空所有
+        缓存" guarantee.
         """
         # File backend: always
         try:
