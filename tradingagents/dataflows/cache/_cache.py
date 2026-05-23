@@ -111,10 +111,15 @@ class Cache:
         self,
         symbol: str,
         data: Any,
-        start_date: str = "",
-        end_date: str = "",
-        data_source: str = "default",
+        start_date: str | None = None,
+        end_date: str | None = None,
+        data_source: str | None = None,
     ) -> str:
+        # Normalize None → defaults (与 4.4 前 IntegratedCacheManager `or ""` 路径
+        # 字节级一致；callsite 真实形式 _save_to_cache 透传 None — 见 4.5 proposal)
+        start_date = start_date or ""
+        end_date = end_date or ""
+        data_source = data_source or "default"
         cache_key = self._get_cache_key(symbol, start_date, end_date, data_source, "stock_data")
         metadata = {
             "symbol": symbol,
@@ -173,8 +178,11 @@ class Cache:
         self,
         symbol: str,
         data: Any,
-        data_source: str = "unknown",
+        data_source: str | None = None,
     ) -> str:
+        # 4.5: 默认 "default"（与 IntegratedCacheManager.save_fundamentals_data
+        # 默认值字节级对齐，不是 4.4 时写的 "unknown"）
+        data_source = data_source or "default"
         cache_key = self._get_cache_key(symbol, "", "", data_source, "fundamentals")
         metadata = {
             "symbol": symbol,
@@ -207,7 +215,8 @@ class Cache:
         data_source: str | None = None,
         max_age_hours: int | None = None,
     ) -> str | None:
-        cache_key = self._get_cache_key(symbol, "", "", data_source or "unknown", "fundamentals")
+        # 4.5: 与 save_fundamentals_data 默认对齐（"default"，不是 4.4 时写的 "unknown"）
+        cache_key = self._get_cache_key(symbol, "", "", data_source or "default", "fundamentals")
         env = self._load_routed(cache_key)
         if env is None:
             return None
