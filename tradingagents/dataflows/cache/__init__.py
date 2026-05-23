@@ -16,6 +16,7 @@
     export TA_CACHE_STRATEGY=file        # 使用 StockDataCache 文件缓存
 """
 
+import os
 import threading
 
 # 导入日志模块
@@ -115,7 +116,11 @@ def get_cache() -> "StockDataCache | Cache":
             try:
                 from .backends import FileBackend, MongoBackend, RedisBackend
 
-                cache_dir = Path("data/cache")
+                # 4.8+: TA_CACHE_DIR env override (default "data/cache"; ~ expanded
+                # so ops can set TA_CACHE_DIR=~/.cache/tradingagents). Hardcoded
+                # relative path otherwise picks up CWD — drifts when uvicorn is
+                # launched outside the project root (systemd / docker).
+                cache_dir = Path(os.getenv("TA_CACHE_DIR", "data/cache")).expanduser()
                 file_backend = FileBackend(cache_dir=cache_dir)
                 redis_backend = RedisBackend(redis_client=db_manager.get_redis_client())
                 mongo_backend = MongoBackend(mongodb_client=db_manager.get_mongodb_client())
