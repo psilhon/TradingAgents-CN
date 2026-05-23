@@ -6,6 +6,8 @@ BaoStock统一数据提供器
 
 import asyncio
 import logging
+import threading
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -14,6 +16,62 @@ import pandas as pd
 from ..base_provider import BaseStockDataProvider
 
 logger = logging.getLogger(__name__)
+
+
+class _BaoStockSession:
+    """Process-level baostock session lifecycle manager (refcount + lock).
+
+    baostock 模块级登录 / 登出 API 共享一个进程级 session。并发调用而无
+    协调时，T1 在 query 过程中 T2 调 logout 会让 T1 session 失效（即
+    dataflows-reliability stage 1.3 解决的 root cause）。
+
+    本 manager 用 class-level threading.Lock + refcount 让多 caller 共享
+    一个 session：
+    - 首次 `scope()` acquire 触发登录调用
+    - 后续 `scope()` acquire（concurrent 或 nested）复用同 session，refcount++
+    - 最后 `scope()` release（refcount→0）触发登出调用
+    - 登录失败抛 Exception + refcount 不增
+    - 登出失败仅 logger.warning 不 raise（不破坏 with 块退出）
+
+    设计为 class（非 instance）level state 因为 baostock session 是模块级
+    单例语义——跨 BaoStockProvider 实例也应共享同一 session。
+    """
+
+    _lock = threading.Lock()
+    _refcount = 0
+    _logged_in = False
+
+    @classmethod
+    @contextmanager
+    def scope(cls, bs):
+        """Acquire session for the duration of this `with` block.
+
+        Raises:
+            Exception: 首次 acquire 时 baostock login 失败（error_code != "0"），
+                error message 含 baostock 返回的 error_msg
+        """
+        # Acquire — protected by lock to prevent two threads from both
+        # seeing refcount=0 and racing to login
+        with cls._lock:
+            if cls._refcount == 0:
+                lg = bs.login()
+                if lg.error_code != "0":
+                    # login 失败 → refcount 不增、不进入 try/yield，raise 给调用方
+                    raise Exception(f"BaoStock登录失败: {lg.error_msg}")
+                cls._logged_in = True
+            cls._refcount += 1
+        try:
+            yield
+        finally:
+            # Release — protected by lock; last refcount→0 触发 logout
+            with cls._lock:
+                cls._refcount -= 1
+                if cls._refcount == 0 and cls._logged_in:
+                    try:
+                        bs.logout()
+                    except Exception as e:
+                        logger.warning(f"baostock logout error (ignored): {e}")
+                    cls._logged_in = False
 
 
 class BaoStockProvider(BaseStockDataProvider):
@@ -51,13 +109,10 @@ class BaoStockProvider(BaseStockDataProvider):
             return False
 
         try:
-            # 异步测试登录
+            # 异步测试登录 (1.3: via _BaoStockSession.scope refcount + lock)
             def test_login():
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-                self.bs.logout()
-                return True
+                with _BaoStockSession.scope(self.bs):
+                    return True
 
             await asyncio.to_thread(test_login)
             logger.info("✅ BaoStock连接测试成功")
@@ -74,12 +129,8 @@ class BaoStockProvider(BaseStockDataProvider):
         try:
             logger.info("📋 获取BaoStock股票列表（同步）...")
 
-            lg = self.bs.login()
-            if lg.error_code != "0":
-                logger.error(f"BaoStock登录失败: {lg.error_msg}")
-                return None
-
-            try:
+            # 1.3: session lifecycle via _BaoStockSession.scope (refcount + lock)
+            with _BaoStockSession.scope(self.bs):
                 rs = self.bs.query_stock_basic()
                 if rs.error_code != "0":
                     logger.error(f"BaoStock查询失败: {rs.error_msg}")
@@ -104,9 +155,6 @@ class BaoStockProvider(BaseStockDataProvider):
                 logger.info(f"✅ BaoStock股票列表获取成功: {len(df)}只股票")
                 return df
 
-            finally:
-                self.bs.logout()
-
         except Exception as e:
             logger.error(f"❌ BaoStock获取股票列表失败: {e}")
             return None
@@ -125,11 +173,7 @@ class BaoStockProvider(BaseStockDataProvider):
             logger.info("📋 获取BaoStock股票列表...")
 
             def fetch_stock_list():
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     rs = self.bs.query_stock_basic()
                     if rs.error_code != "0":
                         raise Exception(f"查询失败: {rs.error_msg}")
@@ -139,8 +183,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         data_list.append(rs.get_row_data())
 
                     return data_list, rs.fields
-                finally:
-                    self.bs.logout()
 
             data_list, _fields = await asyncio.to_thread(fetch_stock_list)
 
@@ -232,11 +274,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_valuation_data():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     # 🔥 获取估值指标：peTTM, pbMRQ, psTTM, pcfNcfTTM
                     rs = self.bs.query_history_k_data_plus(
                         code=bs_code,
@@ -255,8 +293,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         data_list.append(rs.get_row_data())
 
                     return data_list, rs.fields
-                finally:
-                    self.bs.logout()
 
             data_list, _fields = await asyncio.to_thread(fetch_valuation_data)
 
@@ -291,11 +327,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_stock_info():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     rs = self.bs.query_stock_basic(code=bs_code)
                     if rs.error_code != "0":
                         return {"code": code, "name": f"股票{code}"}
@@ -315,8 +347,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         "industry": "未知",  # BaoStock基础信息不包含行业
                         "area": "未知",  # BaoStock基础信息不包含地区
                     }
-                finally:
-                    self.bs.logout()
 
             return await asyncio.to_thread(fetch_stock_info)
 
@@ -374,11 +404,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_latest_kline():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     # 获取最近5天的数据
                     end_date = datetime.now().strftime("%Y-%m-%d")
                     start_date = (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d")
@@ -416,8 +442,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         "change_percent": self._safe_float(latest_row[9]),
                         "change": self._safe_float(latest_row[5]) - self._safe_float(latest_row[6]),
                     }
-                finally:
-                    self.bs.logout()
 
             return await asyncio.to_thread(fetch_latest_kline)
 
@@ -564,11 +588,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_historical_data():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     # 根据频率选择不同的字段（周线和月线支持的字段较少）
                     if bs_frequency == "d":
                         fields_str = "date,code,open,high,low,close,preclose,volume,amount,adjustflag,turn,tradestatus,pctChg,isST"
@@ -593,8 +613,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         data_list.append(rs.get_row_data())
 
                     return data_list, rs.fields
-                finally:
-                    self.bs.logout()
 
             data_list, fields = await asyncio.to_thread(fetch_historical_data)
 
@@ -719,11 +737,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_profit_data():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     rs = self.bs.query_profit_data(code=bs_code, year=year, quarter=quarter)
                     if rs.error_code != "0":
                         return None
@@ -733,8 +747,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         data_list.append(rs.get_row_data())
 
                     return data_list, rs.fields
-                finally:
-                    self.bs.logout()
 
             result = await asyncio.to_thread(fetch_profit_data)
             if not result or not result[0]:
@@ -754,11 +766,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_operation_data():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     rs = self.bs.query_operation_data(code=bs_code, year=year, quarter=quarter)
                     if rs.error_code != "0":
                         return None
@@ -768,8 +776,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         data_list.append(rs.get_row_data())
 
                     return data_list, rs.fields
-                finally:
-                    self.bs.logout()
 
             result = await asyncio.to_thread(fetch_operation_data)
             if not result or not result[0]:
@@ -789,11 +795,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_growth_data():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     rs = self.bs.query_growth_data(code=bs_code, year=year, quarter=quarter)
                     if rs.error_code != "0":
                         return None
@@ -803,8 +805,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         data_list.append(rs.get_row_data())
 
                     return data_list, rs.fields
-                finally:
-                    self.bs.logout()
 
             result = await asyncio.to_thread(fetch_growth_data)
             if not result or not result[0]:
@@ -824,11 +824,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_balance_data():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     rs = self.bs.query_balance_data(code=bs_code, year=year, quarter=quarter)
                     if rs.error_code != "0":
                         return None
@@ -838,8 +834,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         data_list.append(rs.get_row_data())
 
                     return data_list, rs.fields
-                finally:
-                    self.bs.logout()
 
             result = await asyncio.to_thread(fetch_balance_data)
             if not result or not result[0]:
@@ -859,11 +853,7 @@ class BaoStockProvider(BaseStockDataProvider):
 
             def fetch_cash_flow_data():
                 bs_code = self._to_baostock_code(code)
-                lg = self.bs.login()
-                if lg.error_code != "0":
-                    raise Exception(f"登录失败: {lg.error_msg}")
-
-                try:
+                with _BaoStockSession.scope(self.bs):
                     rs = self.bs.query_cash_flow_data(code=bs_code, year=year, quarter=quarter)
                     if rs.error_code != "0":
                         return None
@@ -873,8 +863,6 @@ class BaoStockProvider(BaseStockDataProvider):
                         data_list.append(rs.get_row_data())
 
                     return data_list, rs.fields
-                finally:
-                    self.bs.logout()
 
             result = await asyncio.to_thread(fetch_cash_flow_data)
             if not result or not result[0]:
