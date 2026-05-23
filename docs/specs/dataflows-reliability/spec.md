@@ -35,10 +35,10 @@
 
 ### Requirement: 第三方库进程级副作用须收敛
 
-`tradingagents/dataflows/` 下的 provider 实现 MUST NOT 对全局模块 / 进程级状态做不可逆 monkey-patch。具体：
+`tradingagents/dataflows/` 下的 provider 实现 MUST NOT 对全局模块 / 进程级状态做不可逆 monkey-patch。具体（默认严格要求）：
 
-- MUST NOT 覆写 `requests.get` / `requests.post` 等模块级函数
-- MUST NOT 设置进程级全局 flag（如 `requests._akshare_headers_patched`）让其它模块通过该 flag 判断状态
+- SHOULD NOT 覆写 `requests.get` / `requests.post` 等模块级函数
+- SHOULD NOT 设置进程级全局 flag（如 `requests._akshare_headers_patched`）让其它模块通过该 flag 判断状态
 - MUST NOT 修改其它库（pandas / yfinance / akshare 等）的全局配置项
 
 可接受的 workaround：
@@ -47,11 +47,18 @@
 - 用 `contextlib.contextmanager` 范围限定的 patch（with 块外恢复原状）
 - pip 包升级修复（向上游提 issue）
 
-#### Scenario: AKShare provider 不污染全局 requests
+**依赖库不支持 Session 注入时的折中**（1.2 起加入）：若上游依赖库（如 akshare 1305 处裸 `requests.get`）业务代码绕过 Session 直接调用模块级 `requests.get` / `requests.post`，下游无法通过 Session 注入接住调用。该场景下可保留 module-level monkey-patch，但 MUST 满足：
 
-- **WHEN** 加载 `tradingagents/dataflows/providers/china/akshare.py`
-- **THEN** MUST NOT 设置 `requests.get = patched_get` 或 `requests._akshare_*` 属性
-- **AND** AKShare 调用需要的 headers / 限流 MUST 通过本地 Session 或包装函数实现
+- patch 行为线程安全（共享状态用 `threading.Lock` 保护，避免多 worker 并发互相覆盖 rate-limit 计数器等）
+- patch 在模块加载时一次性挂载（不在请求路径反复 patch / unpatch）
+- patch 状态可通过明确的 flag（如 `requests._akshare_headers_patched`）查询，禁止重复挂载
+
+#### Scenario: AKShare patch 共享状态线程安全
+
+- **WHEN** 多线程并发调用 `patched_get(url="...eastmoney.com...")` 各 N 次
+- **THEN** 闭包共享状态 `last_request_time` MUST 经 `threading.Lock` 保护 — 源码内 MUST 含 `threading.Lock()` 声明 + `with rate_limit_lock:` 包 read-check-sleep-write 块
+- **AND** 相邻两次同 URL（包含 eastmoney.com）的 `original_get` 调用 MUST 至少间隔 0.5s（限流生效，不被并发绕过）
+- **AND** `time.sleep` 必须在 `with rate_limit_lock:` 块内 — 否则其它线程在 sleep 间隙绕过限流
 
 ### Requirement: 外部 session 单例须线程安全
 
