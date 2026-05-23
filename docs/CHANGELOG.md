@@ -8,8 +8,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- **缓存 Backend Protocol + FileBackend 抽出**（change `cache-backend-unification` sub-stage 4.1）：`tradingagents/dataflows/cache/backends/` 新子包，定义 `Backend` Protocol（`save / load` 最小契约）+ `FileBackend` 类（文件 IO 薄层，写 `{cache_dir}/{key}.json.gz`）。`AdaptiveCacheSystem._save_to_file` / `_load_from_file` 改为薄包装委托 `FileBackend`，envelope 构建（`timestamp` / `backend` 标签）保留在上层。Redis / Mongo 路径不动（4.2）。公开 API + `.json.gz` 文件格式 + `_serialize.py` 零变更，40+ 调用方零改动。10 个新 unit test 覆盖 round-trip / DataFrame envelope / datetime envelope / 不存在 key 返 None / 路径扩展名 / `backends/` 目录依赖洁净度（grep MUST NOT 含 `import pandas` / `pickle`）。
+
 ### Changed
 
+- **spec 工作流切换到 docs/specs/**（2026-05-23）：对齐全局 v36 OpenSpec 降级，本项目自 cache-backend-unification 归档后停止在 `openspec/` 写新 change，新 spec / change 落 `docs/specs/`。`openspec/` 整体冻结为只读决策档案（47 changes archived + 26 stable capability spec 全部保留），仍是「2026-05-23 前」事实的 SSOT。`dataflow-caching` capability 经「老 openspec 加 SUPERSEDED 头注 + 新 docs/specs/ 唯一编辑点」迁移模板搬到新位置；CLAUDE.md 同步重写「OpenSpec 状态」段为「spec 工作流（2026-05-23 切换）」。
 - **VERSION/pyproject 版本号双源消除**：`pyproject.toml` 改用 `[tool.setuptools.dynamic]` 从 `VERSION` 文件派生 `version`，删除静态 `version` 字段——`VERSION` 成为版本号唯一可编辑 SSOT，pyproject 派生后结构上不再可能漂移。同步精简 `utils/check_version_consistency.py`（删已失效的 pyproject 校验分支）。注：v1.3.4 release notes 曾设想反方向（让 `get_version()` 读 pyproject），经评估保留 `VERSION` 为 SSOT 可零改动 `app/`（专有授权）业务代码，故采用本方案。
 - **agent 公司名解析逻辑去重**（OpenSpec change `extract-company-resolver`）：`tradingagents/agents/` 下 7 份近乎相同的 `_get_company_name` 拷贝（4 analyst + 2 researcher + news_analyst）合并为单一入口 `agents/utils/company_resolver.py` 的 `get_company_name`，canonical 行为取 analyst 模块级版本（A 股两级降级 + 空值守卫 / 港股 improved 工具 / 美股静态字典）。净删除 ~467 行。新增 OpenSpec capability `agent-company-resolution` 锁定解析契约。
 - **投资辩论 speaker tracking 结构化**（OpenSpec change `agent-state-structured-history`）：`conditional_logic.should_continue_debate` 此前读 `current_response`（上一轮论点文本）并嗅探是否以 `"Bull"` 开头来反推发言者——routing 正确性依赖 `"Bull Analyst: "` 前缀逐字节稳定。改为 `InvestDebateState` 新增 `current_speaker` 结构化字段（`Bull`/`Bear`/`Manager`，由三个发言节点写入），routing 直接读该字段；风险讨论侧 `latest_speaker.startswith` 收紧为相等比较。`current_response` 字段保留（对手 researcher 仍在 prompt 中消费）。新增 OpenSpec capability `agent-debate-routing` 锁定辩论路由契约。
