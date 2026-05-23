@@ -490,9 +490,9 @@ class BaoStockProvider(BaseStockDataProvider):
         # 标准化为字符串
         code = str(code).strip()
 
-        # 根据代码前缀判断交易所
+        # 根据代码前缀判断交易所 (2.1: canonical `.SH/.SZ/.BJ` tushare 风格)
         if code.startswith(("6", "9")):  # 上海证券交易所（增加9开头的B股）
-            return f"{code}.SS"
+            return f"{code}.SH"
         elif code.startswith(("0", "3", "2")):  # 深圳证券交易所（增加2开头的B股）
             return f"{code}.SZ"
         elif code.startswith(("8", "4")):  # 北京证券交易所（增加4开头的新三板）

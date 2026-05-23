@@ -317,15 +317,10 @@ class RealtimeNewsAggregator:
                 if "." in ticker and any(suffix in ticker for suffix in [".US", ".N", ".O", ".NYSE", ".NASDAQ"]):
                     logger.info(f"[中文财经新闻] 检测到美股代码 {ticker}，跳过东方财富新闻获取")
                 else:
-                    # 处理A股和港股代码
-                    clean_ticker = (
-                        ticker.replace(".SH", "")
-                        .replace(".SZ", "")
-                        .replace(".SS", "")
-                        .replace(".HK", "")
-                        .replace(".XSHE", "")
-                        .replace(".XSHG", "")
-                    )
+                    # 处理A股和港股代码 (2.1: writer 端统一 .SH/.SZ/.BJ canonical，
+                    # 移除 `.replace(".SS", "")` defensive normalize；
+                    # 保留 .XSHE/.XSHG 兼容外部 ISO ISIN 来源)
+                    clean_ticker = ticker.replace(".SH", "").replace(".SZ", "").replace(".HK", "").replace(".XSHE", "").replace(".XSHG", "")
 
                     # 获取东方财富新闻
                     logger.info(f"[中文财经新闻] 开始获取 {clean_ticker} 的东方财富新闻")
@@ -721,7 +716,8 @@ def get_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6) ->
 
     if "." in ticker:
         logger.info("[新闻分析] 检测到ticker包含点号，进行后缀匹配")
-        if any(suffix in ticker for suffix in [".SH", ".SZ", ".SS", ".XSHE", ".XSHG"]):
+        # 2.1: writer 端统一 .SH/.SZ/.BJ canonical，从 suffix 列表移除 .SS
+        if any(suffix in ticker for suffix in [".SH", ".SZ", ".BJ", ".XSHE", ".XSHG"]):
             stock_type = "A股"
             is_china_stock = True
             logger.info(f"[新闻分析] 匹配到A股后缀，股票类型: {stock_type}")
@@ -769,7 +765,8 @@ def get_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6) ->
             logger.info("[新闻分析] 成功创建 AKShare Provider 实例")
 
             # 处理A股代码
-            clean_ticker = ticker.replace(".SH", "").replace(".SZ", "").replace(".SS", "").replace(".XSHE", "").replace(".XSHG", "")
+            # 2.1: writer 端统一 .SH/.SZ/.BJ canonical，移除 `.replace(".SS", "")` defensive normalize
+            clean_ticker = ticker.replace(".SH", "").replace(".SZ", "").replace(".XSHE", "").replace(".XSHG", "")
             logger.info(f"[新闻分析] 原始ticker: {ticker} -> 清理后ticker: {clean_ticker}")
 
             logger.info(f"[新闻分析] 准备调用 provider.get_stock_news_sync({clean_ticker})")
@@ -936,7 +933,8 @@ def get_realtime_stock_news(ticker: str, curr_date: str, hours_back: int = 6) ->
         # 根据股票类型构建搜索查询
         if stock_type == "A股":
             # A股使用中文关键词
-            clean_ticker = ticker.replace(".SH", "").replace(".SZ", "").replace(".SS", "").replace(".XSHE", "").replace(".XSHG", "")
+            # 2.1: writer 端统一 .SH/.SZ/.BJ canonical，移除 `.replace(".SS", "")` defensive normalize
+            clean_ticker = ticker.replace(".SH", "").replace(".SZ", "").replace(".XSHE", "").replace(".XSHG", "")
             search_query = f"{clean_ticker} 股票 公司 财报 新闻"
             logger.info(f"[新闻分析] 开始从Google获取A股 {clean_ticker} 的中文新闻数据，查询: {search_query}")
         elif stock_type == "港股":

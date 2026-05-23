@@ -147,15 +147,17 @@ def create_filtered_realtime_news_function():
                 return original_report
 
             # 如果启用过滤且是A股，尝试重新获取并过滤
-            if any(suffix in ticker for suffix in [".SH", ".SZ", ".SS", ".XSHE", ".XSHG"]) or ("." not in ticker and ticker.isdigit()):
+            # 2.1: writer 端统一 .SH/.SZ/.BJ canonical，从 suffix 列表移除 .SS；保留
+            # .XSHE/.XSHG 兼容外部 ISO ISIN-style 来源
+            if any(suffix in ticker for suffix in [".SH", ".SZ", ".XSHE", ".XSHG"]) or ("." not in ticker and ticker.isdigit()):
                 logger.info("[增强实时新闻] 检测到A股代码，尝试使用过滤版东方财富新闻")
 
                 try:
                     # 注意：akshare_utils 已废弃，使用 AKShareProvider 替代
                     from tradingagents.dataflows.providers.china.akshare import get_akshare_provider
 
-                    # 清理股票代码
-                    ticker.replace(".SH", "").replace(".SZ", "").replace(".SS", "").replace(".XSHE", "").replace(".XSHG", "")
+                    # 清理股票代码 (2.1: 移除 `.replace(".SS", "")` defensive normalize)
+                    ticker.replace(".SH", "").replace(".SZ", "").replace(".XSHE", "").replace(".XSHG", "")
 
                     # 使用 AKShareProvider 获取新闻（如果有相应方法）
                     get_akshare_provider()
