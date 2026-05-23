@@ -1,12 +1,12 @@
 """FileBackend — filesystem `Backend` implementation.
 
 Persists envelope dicts as gzip(JSON) files under `{cache_dir}/{key}.json.gz`,
-per the `_serialize.py` envelope format established by stage 2
-(`cache-pickle-replacement`).
+using the `_serialize.py` envelope format (gzip-compressed JSON with tagged
+encoding for `datetime` and `pandas.DataFrame` values).
 
 Single-responsibility: file IO only. Builds nothing, routes nothing, decides
-nothing about TTL. The caller (`AdaptiveCacheSystem` in 4.1, future unified
-`Cache` class in 4.4) owns those concerns.
+nothing about TTL — the cache layer above (`Cache` in `_cache.py`) owns
+those concerns.
 
 Implements `Backend` Protocol (`_protocol.py`).
 """

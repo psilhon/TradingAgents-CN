@@ -7,17 +7,19 @@ backend interprets the envelope's `data` field to drive a doc schema:
 - `pandas.DataFrame` data → `df.to_json(orient='split')` + `data_type="dataframe"`
 - Other data → `json.dumps(default=str)` + `data_type="json"`
 
-The doc shape is sealed by stage 2 (`cache-pickle-replacement`). A
-re-design to store envelope bytes as Binary fields would unify all three
-backends to pure round-trip, but would break compatibility with existing
-docs — deferred to 4.4 / 4.6.
+This typed-doc shape is the long-term contract — preserved to keep existing
+docs readable across upgrades. A pure envelope-bytes-as-Binary redesign was
+considered but rejected because it would invalidate all pre-existing docs
+without a tangible win (the typed schema is queryable from `mongosh` for
+debugging, the Binary alternative is not).
 
-**Legacy pickle 降级**: docs with `data_type="pickle"` from before stage 2
-MUST be deleted on load + return cache miss. We never call `pickle.loads` —
-the load path uses string equality on the `data_type` field to detect legacy
-docs. This is enforced by the spec Requirement "MongoBackend 单一职责
-（含 legacy pickle 降级）" and by `test_mongo_backend.py` patching
-`pickle.loads` / `pickle.load` to verify they are never invoked.
+**Legacy pickle drop-on-load**: docs with `data_type="pickle"` from before
+the cache-pickle-replacement work MUST be deleted on load + return cache
+miss. We never call `pickle.loads` — the load path uses string equality on
+the `data_type` field to detect legacy docs. Enforced by the spec
+Requirement "MongoBackend 单一职责（含 legacy pickle 降级）" and by
+`test_mongo_backend.py` patching `pickle.loads` / `pickle.load` to verify
+they are never invoked.
 
 Implements `Backend` Protocol (`_protocol.py`).
 """
@@ -144,7 +146,7 @@ class MongoBackend:
             else:
                 # Unknown data_type — could be a future-schema doc or a corrupted
                 # entry from an aborted write. Drop it so it doesn't accumulate as
-                # a zombie that misses+warns on every read (4.7 修订: 4.6 仅 warn).
+                # a zombie that misses+warns on every read.
                 collection.delete_one({"_id": key})
                 self._logger.warning(f"dropped unknown data_type {data_type!r} mongo cache entry: {key}")
                 return None
