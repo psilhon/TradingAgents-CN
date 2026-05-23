@@ -1,18 +1,21 @@
 """
 缓存管理模块
 
-支持多种缓存策略：
-- 文件缓存（默认）- 简单稳定，不依赖外部服务
-- 数据库缓存（可选）- MongoDB + Redis，性能更好
-- 自适应缓存（推荐）- 自动选择最佳后端
+4.6 后拓扑：
+- `Cache` (推荐): 统一公开 API + 3 个 pluggable backends (File / Redis / Mongo) +
+  CacheConfig 单一配置
+- `StockDataCache`: file-only 策略备用 (TA_CACHE_STRATEGY=file 路径 + 2 个外部
+  import 依赖保留)
+- 老 IntegratedCacheManager / AdaptiveCacheSystem 已在 4.6 删除（4.4-4.5
+  DeprecationWarning 观察期完成）
 
 使用方法：
     from tradingagents.dataflows.cache import get_cache
     cache = get_cache()  # 自动选择最佳缓存策略
 
 配置缓存策略：
-    export TA_CACHE_STRATEGY=integrated  # 启用集成缓存（MongoDB/Redis）
-    export TA_CACHE_STRATEGY=file        # 使用文件缓存（默认）
+    export TA_CACHE_STRATEGY=integrated  # 启用统一 Cache（MongoDB/Redis/File）
+    export TA_CACHE_STRATEGY=file        # 使用 StockDataCache 文件缓存
 """
 
 # 导入日志模块
@@ -28,24 +31,6 @@ try:
 except ImportError:
     StockDataCache = None
     FILE_CACHE_AVAILABLE = False
-
-# 导入自适应缓存
-try:
-    from .adaptive import AdaptiveCacheSystem
-
-    ADAPTIVE_CACHE_AVAILABLE = True
-except ImportError:
-    AdaptiveCacheSystem = None
-    ADAPTIVE_CACHE_AVAILABLE = False
-
-# 导入集成缓存（4.4 后 deprecated，构造时 raise DeprecationWarning）
-try:
-    from .integrated import IntegratedCacheManager
-
-    INTEGRATED_CACHE_AVAILABLE = True
-except ImportError:
-    IntegratedCacheManager = None
-    INTEGRATED_CACHE_AVAILABLE = False
 
 # 4.4 新公开 API：统一 Cache 类
 try:
@@ -85,9 +70,8 @@ def get_cache() -> "StockDataCache | Cache":
 
     根据 CacheConfig.from_environment 决策缓存策略：
     - "file": 使用 StockDataCache（文件缓存）
-    - "integrated" (默认) / "adaptive": 4.4 起返回新 `Cache` 类，吸收路由 +
-      fallback + envelope 构建。老 IntegratedCacheManager / AdaptiveCacheSystem
-      仍可用但 deprecated（构造时 raise DeprecationWarning），4.6 才删
+    - "integrated" (默认) / "adaptive": 返回新 `Cache` 类，吸收路由 + fallback +
+      envelope 构建（4.4 引入，4.6 拆除 deprecated 老类）
 
     环境变量 TA_CACHE_STRATEGY 仍是配置入口（CacheConfig.from_environment 解析）。
 
@@ -114,7 +98,7 @@ def get_cache() -> "StockDataCache | Cache":
             strategy = "file"
 
         if strategy in ("integrated", "adaptive") and UNIFIED_CACHE_AVAILABLE and cache_config is not None:
-            # 4.4：新 Cache 类，注入 3 个 backend
+            # 统一 Cache 类，注入 3 个 backend
             try:
                 from .backends import FileBackend, MongoBackend, RedisBackend
 
@@ -128,7 +112,7 @@ def get_cache() -> "StockDataCache | Cache":
                     redis_backend=redis_backend,
                     mongo_backend=mongo_backend,
                 )
-                logger.info("✅ 使用统一 Cache（4.4，支持 MongoDB/Redis/File 自动路由 + fallback）")
+                logger.info("✅ 使用统一 Cache（支持 MongoDB/Redis/File 自动路由 + fallback）")
             except Exception as e:
                 logger.warning(f"⚠️ 统一 Cache 初始化失败，降级到文件缓存: {e}")
                 _cache_instance = StockDataCache()
@@ -140,21 +124,16 @@ def get_cache() -> "StockDataCache | Cache":
 
 
 __all__ = [
-    "ADAPTIVE_CACHE_AVAILABLE",
     "APP_CACHE_AVAILABLE",
     # 可用性标志
     "FILE_CACHE_AVAILABLE",
-    "INTEGRATED_CACHE_AVAILABLE",
     "MONGODB_CACHE_ADAPTER_AVAILABLE",
     "UNIFIED_CACHE_AVAILABLE",
-    "AdaptiveCacheSystem",
-    # 4.4 新公开 API（推荐）
+    # 公开 API（推荐）
     "Cache",
-    # deprecated（保留兼容，4.6 删）
-    "IntegratedCacheManager",
     # MongoDB 缓存适配器
     "MongoDBCacheAdapter",
-    # 缓存类（供高级用户直接使用）
+    # 缓存类（file 策略备用 + 外部依赖兼容）
     "StockDataCache",
     # 应用缓存适配器
     "get_basics_from_cache",
