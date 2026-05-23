@@ -323,3 +323,99 @@ def test_clear_old_cache_preserves_fresh_files(tmp_path: Path) -> None:
     cache.clear_old_cache(max_age_days=7)
     # 文件刚创建，不应被删
     assert any(tmp_path.glob("*.json.gz"))
+
+
+# --- 4.8 E3: typed dispatch helper (公开方法 → _save_typed / _find_typed) ---
+
+
+def test_save_methods_dispatch_through_save_typed(tmp_path: Path) -> None:
+    """Public `save_stock_data` / `save_fundamentals_data` MUST funnel through `_save_typed`.
+
+    Spy on `_save_typed`, exercise both public methods, verify each was
+    routed with the expected `data_type` + identity-field shape.
+    Failing this means a future refactor accidentally re-duplicated the
+    dispatch logic — defeating the 4.8 dedup goal.
+    """
+    file_backend = FileBackend(cache_dir=tmp_path)
+    cache = Cache(file_backend=file_backend, config=_make_config(primary="file"))
+
+    original = cache._save_typed
+    calls: list[dict] = []
+
+    def spy(symbol, data, data_type, id_fields):
+        calls.append({"symbol": symbol, "data_type": data_type, "id_fields": dict(id_fields)})
+        return original(symbol, data, data_type, id_fields)
+
+    cache._save_typed = spy  # type: ignore[method-assign]
+
+    cache.save_stock_data("AAPL", {"x": 1}, "2024-01-01", "2024-12-31", "yfinance")
+    cache.save_fundamentals_data("AAPL", {"y": 2}, "finnhub")
+
+    assert len(calls) == 2, f"expected 2 dispatch calls, got {len(calls)}"
+
+    # stock_data path
+    assert calls[0]["data_type"] == "stock_data"
+    assert calls[0]["id_fields"] == {
+        "start_date": "2024-01-01",
+        "end_date": "2024-12-31",
+        "data_source": "yfinance",
+    }
+
+    # fundamentals_data path — no start_date/end_date in id_fields (preserves
+    # metadata shape; envelope.metadata MUST NOT carry empty-string date columns)
+    assert calls[1]["data_type"] == "fundamentals_data"
+    assert calls[1]["id_fields"] == {"data_source": "finnhub"}
+
+
+def test_find_methods_dispatch_through_find_typed(tmp_path: Path) -> None:
+    """Public `find_cached_*` MUST funnel through `_find_typed`."""
+    file_backend = FileBackend(cache_dir=tmp_path)
+    cache = Cache(file_backend=file_backend, config=_make_config(primary="file"))
+
+    original = cache._find_typed
+    calls: list[dict] = []
+
+    def spy(symbol, data_type, id_fields, max_age_hours=None):
+        calls.append({"symbol": symbol, "data_type": data_type, "id_fields": dict(id_fields), "max_age_hours": max_age_hours})
+        return original(symbol, data_type, id_fields, max_age_hours)
+
+    cache._find_typed = spy  # type: ignore[method-assign]
+
+    cache.find_cached_stock_data("AAPL", "2024-01-01", "2024-12-31", "yfinance")
+    cache.find_cached_fundamentals_data("AAPL", "finnhub", max_age_hours=12)
+
+    assert len(calls) == 2
+    assert calls[0]["data_type"] == "stock_data"
+    assert calls[0]["id_fields"]["start_date"] == "2024-01-01"
+    assert calls[1]["data_type"] == "fundamentals_data"
+    assert calls[1]["max_age_hours"] == 12
+    assert "start_date" not in calls[1]["id_fields"]
+
+
+def test_load_methods_dispatch_through_load_typed(tmp_path: Path) -> None:
+    """Public `load_*` MUST funnel through `_load_typed` (the dedup target)."""
+    file_backend = FileBackend(cache_dir=tmp_path)
+    cache = Cache(file_backend=file_backend, config=_make_config(primary="file"))
+
+    cache.save_stock_data("AAPL", {"x": 1}, "2024-01-01", "2024-12-31", "yfinance")
+    cache.save_fundamentals_data("AAPL", {"y": 2}, "finnhub")
+
+    original = cache._load_typed
+    call_count = {"n": 0}
+
+    def spy(cache_key):
+        call_count["n"] += 1
+        return original(cache_key)
+
+    cache._load_typed = spy  # type: ignore[method-assign]
+
+    # Look up cache_keys to feed into load_*; both should route via _load_typed
+    stock_key = cache.find_cached_stock_data("AAPL", "2024-01-01", "2024-12-31", "yfinance")
+    fund_key = cache.find_cached_fundamentals_data("AAPL", "finnhub")
+    assert stock_key is not None
+    assert fund_key is not None
+
+    cache.load_stock_data(stock_key)
+    cache.load_fundamentals_data(fund_key)
+
+    assert call_count["n"] == 2, f"expected 2 _load_typed calls (1 per public load_*), got {call_count['n']}"

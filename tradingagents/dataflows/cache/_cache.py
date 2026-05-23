@@ -169,6 +169,97 @@ class Cache:
             return self.file_backend.load(key)
         return None
 
+    # ----- internal typed-dispatch helpers (4.8) -----
+
+    def _save_typed(
+        self,
+        symbol: str,
+        data: Any,
+        data_type: str,
+        id_fields: dict[str, str],
+    ) -> str:
+        """Internal: save `data` under `data_type` with identity fields.
+
+        `id_fields` is a dict of the per-type identity columns that
+        participate in the cache_key + metadata:
+        - stock_data: {start_date, end_date, data_source}
+        - fundamentals_data: {data_source}
+
+        Cache_key derivation passes the 5 historical columns to
+        `_get_cache_key` for byte-compat with pre-4.8 entries; missing
+        columns default to "" / "default" so the formula matches what the
+        old per-type methods produced.
+
+        Returns the cache_key on success, "" on failure (preserves
+        AdaptiveCacheSystem.save_data failure semantics — callers branch
+        on `if cache_key: ...`).
+        """
+        start_date = id_fields.get("start_date", "")
+        end_date = id_fields.get("end_date", "")
+        data_source = id_fields.get("data_source", "default")
+        cache_key = self._get_cache_key(symbol, start_date, end_date, data_source, data_type)
+        # Metadata is the union of {symbol, data_type} and id_fields. Per-type
+        # shape preserved: stock_data carries start_date/end_date, fundamentals
+        # does not (since they aren't in id_fields for that path).
+        metadata = {"symbol": symbol, "data_type": data_type, **id_fields}
+        envelope = {
+            "data": data,
+            "metadata": metadata,
+            "timestamp": datetime.now(),
+            "backend": self.config.primary_backend,
+        }
+        ttl_seconds = self._get_ttl_seconds(symbol, data_type)
+        ok = self._save_routed(cache_key, envelope, ttl_seconds)
+        if ok:
+            self._logger.debug(f"cache save {data_type}: {symbol} -> {cache_key}")
+            return cache_key
+        self._logger.warning(f"cache save {data_type} failed: {symbol}")
+        return ""
+
+    def _load_typed(self, cache_key: str) -> Any | None:
+        """Internal: load + TTL-enforced unwrap.
+
+        Used by `load_stock_data` / `load_fundamentals_data` since both
+        load paths are identical — envelope is the only thing that knows
+        the per-type symbol/data_type needed for TTL bucket lookup
+        (see `_envelope_is_fresh`).
+        """
+        env = self._load_routed(cache_key)
+        if env is None:
+            return None
+        if not self._envelope_is_fresh(env):
+            return None
+        return env.get("data")
+
+    def _find_typed(
+        self,
+        symbol: str,
+        data_type: str,
+        id_fields: dict[str, str],
+        max_age_hours: int | None = None,
+    ) -> str | None:
+        """Internal: derive cache_key + TTL-enforced existence check.
+
+        Returns `cache_key` only if a fresh envelope exists. The
+        `max_age_hours` override takes precedence over the configured
+        per-type TTL; if None, falls back to `_envelope_is_fresh` so
+        callers don't get a cache_key back for an entry the load path
+        would then reject as stale.
+        """
+        start_date = id_fields.get("start_date", "")
+        end_date = id_fields.get("end_date", "")
+        data_source = id_fields.get("data_source", "default")
+        cache_key = self._get_cache_key(symbol, start_date, end_date, data_source, data_type)
+        env = self._load_routed(cache_key)
+        if env is None:
+            return None
+        if max_age_hours is not None:
+            if not self._is_fresh(env.get("timestamp"), max_age_hours * 3600):
+                return None
+        elif not self._envelope_is_fresh(env):
+            return None
+        return cache_key
+
     # ----- public API: stock_data -----
 
     def save_stock_data(
@@ -179,42 +270,22 @@ class Cache:
         end_date: str | None = None,
         data_source: str | None = None,
     ) -> str:
-        # Normalize None → defaults. Some real callers (e.g.
-        # `data_source_manager._save_to_cache`) pass `start_date: str | None`
-        # straight through, and f-string formatting of `None` would otherwise
-        # leak the literal string "None" into the cache key.
-        start_date = start_date or ""
-        end_date = end_date or ""
-        data_source = data_source or "default"
-        cache_key = self._get_cache_key(symbol, start_date, end_date, data_source, "stock_data")
-        metadata = {
-            "symbol": symbol,
-            "start_date": start_date,
-            "end_date": end_date,
-            "data_source": data_source,
-            "data_type": "stock_data",
-        }
-        envelope = {
-            "data": data,
-            "metadata": metadata,
-            "timestamp": datetime.now(),
-            "backend": self.config.primary_backend,
-        }
-        ttl_seconds = self._get_ttl_seconds(symbol, "stock_data")
-        ok = self._save_routed(cache_key, envelope, ttl_seconds)
-        if ok:
-            self._logger.debug(f"cache save stock_data: {symbol} -> {cache_key}")
-            return cache_key
-        self._logger.warning(f"cache save stock_data failed: {symbol}")
-        return ""
+        # Normalize None → defaults (callers like `data_source_manager._save_to_cache`
+        # pass `start_date: str | None` straight through; f-string formatting of
+        # `None` would leak the literal string "None" into the cache key).
+        return self._save_typed(
+            symbol,
+            data,
+            "stock_data",
+            {
+                "start_date": start_date or "",
+                "end_date": end_date or "",
+                "data_source": data_source or "default",
+            },
+        )
 
     def load_stock_data(self, cache_key: str) -> Any | None:
-        env = self._load_routed(cache_key)
-        if env is None:
-            return None
-        if not self._envelope_is_fresh(env):
-            return None
-        return env.get("data")
+        return self._load_typed(cache_key)
 
     def find_cached_stock_data(
         self,
@@ -224,25 +295,16 @@ class Cache:
         data_source: str | None = None,
         max_age_hours: int | None = None,
     ) -> str | None:
-        cache_key = self._get_cache_key(
+        return self._find_typed(
             symbol,
-            start_date or "",
-            end_date or "",
-            data_source or "default",
             "stock_data",
+            {
+                "start_date": start_date or "",
+                "end_date": end_date or "",
+                "data_source": data_source or "default",
+            },
+            max_age_hours,
         )
-        env = self._load_routed(cache_key)
-        if env is None:
-            return None
-        # max_age_hours, if given, overrides the configured TTL. Otherwise we
-        # enforce the same TTL the load path uses, so callers don't get a
-        # cache_key back for an envelope `load_stock_data` would then reject.
-        if max_age_hours is not None:
-            if not self._is_fresh(env.get("timestamp"), max_age_hours * 3600):
-                return None
-        elif not self._envelope_is_fresh(env):
-            return None
-        return cache_key
 
     # ----- public API: fundamentals_data -----
 
@@ -254,34 +316,15 @@ class Cache:
     ) -> str:
         # data_type carries the "_data" suffix so cache keys stay readable
         # across upgrades. TTL lookup strips the suffix (see _get_ttl_seconds).
-        data_source = data_source or "default"
-        cache_key = self._get_cache_key(symbol, "", "", data_source, "fundamentals_data")
-        metadata = {
-            "symbol": symbol,
-            "data_source": data_source,
-            "data_type": "fundamentals_data",
-        }
-        envelope = {
-            "data": data,
-            "metadata": metadata,
-            "timestamp": datetime.now(),
-            "backend": self.config.primary_backend,
-        }
-        ttl_seconds = self._get_ttl_seconds(symbol, "fundamentals_data")
-        ok = self._save_routed(cache_key, envelope, ttl_seconds)
-        if ok:
-            self._logger.debug(f"cache save fundamentals_data: {symbol} -> {cache_key}")
-            return cache_key
-        self._logger.warning(f"cache save fundamentals_data failed: {symbol}")
-        return ""
+        return self._save_typed(
+            symbol,
+            data,
+            "fundamentals_data",
+            {"data_source": data_source or "default"},
+        )
 
     def load_fundamentals_data(self, cache_key: str) -> Any | None:
-        env = self._load_routed(cache_key)
-        if env is None:
-            return None
-        if not self._envelope_is_fresh(env):
-            return None
-        return env.get("data")
+        return self._load_typed(cache_key)
 
     def find_cached_fundamentals_data(
         self,
@@ -289,16 +332,12 @@ class Cache:
         data_source: str | None = None,
         max_age_hours: int | None = None,
     ) -> str | None:
-        cache_key = self._get_cache_key(symbol, "", "", data_source or "default", "fundamentals_data")
-        env = self._load_routed(cache_key)
-        if env is None:
-            return None
-        if max_age_hours is not None:
-            if not self._is_fresh(env.get("timestamp"), max_age_hours * 3600):
-                return None
-        elif not self._envelope_is_fresh(env):
-            return None
-        return cache_key
+        return self._find_typed(
+            symbol,
+            "fundamentals_data",
+            {"data_source": data_source or "default"},
+            max_age_hours,
+        )
 
     # ----- public API: is_cache_valid -----
 
