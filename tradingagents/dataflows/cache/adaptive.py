@@ -17,6 +17,7 @@ import pandas as pd
 from tradingagents.config.database_manager import get_database_manager
 
 from ._serialize import decode_envelope, encode_envelope
+from .backends import FileBackend
 
 
 class AdaptiveCacheSystem:
@@ -34,6 +35,9 @@ class AdaptiveCacheSystem:
             cache_dir = "data/cache"
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # File backend — sub-stage 4.1 抽出。Redis / Mongo 路径 4.2 再拆。
+        self.file_backend = FileBackend(cache_dir=self.cache_dir)
 
         # 获取配置
         self.config = self.db_manager.get_config()
@@ -74,37 +78,13 @@ class AdaptiveCacheSystem:
         return datetime.now() < expiry_time
 
     def _save_to_file(self, cache_key: str, data: Any, metadata: dict) -> bool:
-        """保存到文件缓存"""
-        try:
-            cache_file = self.cache_dir / f"{cache_key}.json.gz"
-            cache_data = {"data": data, "metadata": metadata, "timestamp": datetime.now(), "backend": "file"}
-
-            with open(cache_file, "wb") as f:
-                f.write(encode_envelope(cache_data))
-
-            self.logger.debug(f"文件缓存保存成功: {cache_key}")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"文件缓存保存失败: {e}")
-            return False
+        """保存到文件缓存（envelope 在此层构建，IO 委托 FileBackend）"""
+        envelope = {"data": data, "metadata": metadata, "timestamp": datetime.now(), "backend": "file"}
+        return self.file_backend.save(cache_key, envelope)
 
     def _load_from_file(self, cache_key: str) -> dict | None:
-        """从文件缓存加载"""
-        try:
-            cache_file = self.cache_dir / f"{cache_key}.json.gz"
-            if not cache_file.exists():
-                return None
-
-            with open(cache_file, "rb") as f:
-                cache_data = decode_envelope(f.read())
-
-            self.logger.debug(f"文件缓存加载成功: {cache_key}")
-            return cache_data
-
-        except Exception as e:
-            self.logger.error(f"文件缓存加载失败: {e}")
-            return None
+        """从文件缓存加载（IO 委托 FileBackend，返回 envelope 由上层解释）"""
+        return self.file_backend.load(cache_key)
 
     def _save_to_redis(self, cache_key: str, data: Any, metadata: dict, ttl_seconds: int) -> bool:
         """保存到Redis缓存"""
