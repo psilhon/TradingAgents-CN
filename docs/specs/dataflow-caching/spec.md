@@ -60,21 +60,24 @@
 
 `tradingagents/dataflows/cache/backends/_protocol.py` MUST 定义 `Backend` Protocol（`typing.Protocol`），作为可拔插缓存后端的最小契约。Protocol 接口 MUST 覆盖：
 
-- `save(key: str, envelope: dict) -> bool` — 将 envelope dict 写入后端，成功返回 `True`，失败返回 `False`（不 raise）
+- `save(key: str, envelope: dict, ttl_seconds: int | None = None) -> bool` — 将 envelope dict 写入后端；`ttl_seconds` 是 backend native TTL（redis `setex` / mongo `expires_at`），`None` 表示不设过期或后端无 native TTL（file 后端忽略）；成功返回 `True`，失败返回 `False`（不 raise）
 - `load(key: str) -> dict | None` — 从后端读取 envelope dict；不存在 / 读取失败返回 `None`（不 raise）
 
 Protocol MUST NOT 包含：
 
-- TTL 判定逻辑（由调用方 `AdaptiveCacheSystem` / 未来的 `Cache` 类负责）
 - 后端路由 / fallback 选择（由 cache 顶层负责）
 - envelope 构建（`timestamp` / `backend` 标签等元数据由调用方填充）
+- 缓存策略判定（哪个 backend 优先 / 何时降级 / TTL 配置来源等——这些是 cache 层职责，backend 只接收 `ttl_seconds` 数值参数）
 
-后端实现 MUST 保持「字节进字节出」的薄层职责——把 envelope dict 经 `_serialize.py` 的 `encode_envelope` / `decode_envelope` 与底层存储介质双向转换，不解释 envelope 内部结构。
+> 注：4.1 阶段 Protocol 不含 `ttl_seconds`；4.2 扩入该参数因 Redis / Mongo 都需要 native TTL 而 File 后端无该需求（仍 ignore 参数保持 4.1 行为）。`list_keys` / `delete` 仍 deferred 到实际需要的 sub-stage。
+
+后端实现 MUST 保持「字节进字节出」的薄层职责——把 envelope dict 经 `_serialize.py` 的 `encode_envelope` / `decode_envelope` 与底层存储介质双向转换，不解释 envelope 内部结构（**MongoBackend 例外**：见下方 Requirement，因 mongo doc schema 要求 `data` 字段为 typed string 而非 raw bytes）。
 
 #### Scenario: Protocol 接口最小性
 
 - **WHEN** 检查 `Backend` Protocol 定义
-- **THEN** MUST 仅含 `save` / `load` 方法签名（4.1 阶段），不含 TTL / 路由 / envelope 构建相关方法
+- **THEN** MUST 仅含 `save` / `load` 方法签名（4.2 阶段），不含路由 / envelope 构建 / 缓存策略相关方法
+- **AND** `save` 签名 MUST 含 `ttl_seconds: int | None = None` 参数；`load` 签名不变
 - **AND** 任何 backend 实现 MUST 通过 `isinstance(impl, Backend)` 结构性检查（Protocol 鸭子类型）
 
 ### Requirement: FileBackend 单一职责
@@ -106,6 +109,95 @@ Protocol MUST NOT 包含：
 
 #### Scenario: backends/ 目录依赖洁净度
 
-- **WHEN** 在 `tradingagents/dataflows/cache/backends/` 全目录 grep `import pandas` / `import pickle`
-- **THEN** 命中数 MUST = 0
+- **WHEN** 在 `tradingagents/dataflows/cache/backends/` 全目录 grep `import pandas`
+- **THEN** 命中数 MUST ≤ 1，且唯一允许位置为 `backends/mongo.py`（DataFrame `to_json()` / `pd.read_json` 是 mongo doc schema 转换的存储介质要求；redis / file 后端仍是纯 envelope bytes round-trip，不允许 import pandas）
+- **WHEN** 在同目录 grep `import pickle`
+- **THEN** 命中数 MUST = 0（mongo.py 的 legacy 降级路径用 `data_type == "pickle"` 字符串比较，不 import / 调用 pickle）
 - **AND** 在该目录 grep `from tradingagents.dataflows` 命中 MUST 仅指向 `tradingagents.dataflows.cache._serialize`（serialize helper 是允许的依赖）
+
+### Requirement: RedisBackend 单一职责
+
+`tradingagents/dataflows/cache/backends/redis.py` 的 `RedisBackend` 类 MUST 仅负责 Redis IO，符合 `Backend` Protocol。具体：
+
+- `__init__(redis_client)` — 接收 redis 客户端实例（可为 `None`，由 `db_manager.get_redis_client()` 决定）；MUST 无副作用（不 connect / 不 ping）
+- `save(key, envelope, ttl_seconds=None) -> bool` — `redis_client=None` 立即 return `False`；否则 `encode_envelope(envelope)` → `setex(key, ttl_seconds, payload)` 若 `ttl_seconds` 非 None，否则 `set(key, payload)`；异常 catch 返 `False`
+- `load(key) -> dict | None` — `redis_client=None` 立即 return `None`；否则 `redis_client.get(key)` → `decode_envelope`；未命中 / 解码失败返 `None`
+
+`RedisBackend` MUST NOT：
+
+- import `pandas` / `pickle`
+- 解释 envelope 内字段（同 FileBackend，envelope 为 opaque dict）
+
+#### Scenario: RedisBackend save with TTL
+
+- **WHEN** 调用 `RedisBackend(client).save(key, envelope, ttl_seconds=3600)`
+- **THEN** MUST 调 `client.setex(key, 3600, encoded_bytes)`
+- **AND** MUST NOT 调 `client.set`
+
+#### Scenario: RedisBackend save without TTL
+
+- **WHEN** 调用 `RedisBackend(client).save(key, envelope)`（ttl_seconds 默认 None）
+- **THEN** MUST 调 `client.set(key, encoded_bytes)`
+- **AND** MUST NOT 调 `client.setex`
+
+#### Scenario: RedisBackend 无客户端降级
+
+- **WHEN** 调用 `RedisBackend(None).save(...)`
+- **THEN** MUST 返 `False`
+- **AND** MUST NOT raise
+- **WHEN** 调用 `RedisBackend(None).load(...)`
+- **THEN** MUST 返 `None`
+- **AND** MUST NOT raise
+
+### Requirement: MongoBackend 单一职责（含 legacy pickle 降级）
+
+`tradingagents/dataflows/cache/backends/mongo.py` 的 `MongoBackend` 类 MUST 仅负责 MongoDB IO，符合 `Backend` Protocol。具体：
+
+- `__init__(mongodb_client, db_name="tradingagents", collection_name="cache")` — 接收 mongo 客户端实例（可为 `None`）
+- `save(key, envelope, ttl_seconds=None) -> bool` — envelope schema 拆解 → 构造 doc：
+  - DataFrame `data` 字段 → `df.to_json(orient='split')` + `data_type="dataframe"`
+  - 其它 `data` 字段 → `json.dumps(default=str)` + `data_type="json"`
+  - 含 `_id=key` / `metadata` / `timestamp` / `expires_at`（仅 `ttl_seconds` 非 None 时设置）/ `backend="mongodb"`
+  - `replace_one({"_id": key}, doc, upsert=True)`
+- `load(key) -> dict | None` — `find_one({"_id": key})`：
+  - doc 不存在 → 返 `None`
+  - `expires_at` 已过期 → 删 doc + 返 `None`
+  - `data_type="dataframe"` → `pd.read_json(StringIO(data))` 重建 DataFrame
+  - `data_type="json"` → `json.loads(data)` 重建
+  - `data_type="pickle"`（legacy） → 删 doc + log + 返 `None`，**MUST NOT** 调任何 `pickle.load*` / `pickle.loads`
+  - 重建为 envelope `{data, metadata, timestamp, backend="mongodb"}` 返回
+
+`MongoBackend` MUST：
+
+- import `pandas`（DataFrame `to_json` / `pd.read_json` 是 doc schema 转换内部细节）
+- 处理 schema 字段（`data_type` / `expires_at`）——这与 FileBackend 的 opaque envelope 模式不同，是 mongo 存储介质特有
+
+`MongoBackend` MUST NOT：
+
+- import `pickle`（legacy 降级用字符串比较即可）
+- 调用 `pickle.loads` / `pickle.load`（对 legacy pickle doc 直接删 + cache miss）
+
+#### Scenario: MongoBackend save DataFrame envelope
+
+- **WHEN** 调用 `MongoBackend(client).save(key, envelope_with_dataframe, ttl_seconds=3600)`
+- **THEN** mock collection MUST 收到 `replace_one({"_id": key}, doc, upsert=True)`
+- **AND** doc MUST 含 `data_type="dataframe"`
+- **AND** doc MUST 含 `expires_at ≈ now + 3600s`（±2s 容差）
+
+#### Scenario: MongoBackend save 普通 dict envelope
+
+- **WHEN** 调用 `MongoBackend(client).save(key, envelope_with_dict)`
+- **THEN** doc MUST 含 `data_type="json"`
+
+#### Scenario: MongoBackend load 过期 doc
+
+- **WHEN** 调用 `MongoBackend(client).load(key)`，mock find_one 返 doc with `expires_at < now`
+- **THEN** MUST 调 `collection.delete_one({"_id": key})`
+- **AND** MUST 返 `None`
+
+#### Scenario: MongoBackend load legacy pickle doc
+
+- **WHEN** 调用 `MongoBackend(client).load(key)`，mock find_one 返 doc with `data_type="pickle"`
+- **THEN** MUST 调 `collection.delete_one({"_id": key})`
+- **AND** MUST 返 `None`
+- **AND** MUST NOT 调用 `pickle.loads` / `pickle.load` 或任何 pickle 模块方法
