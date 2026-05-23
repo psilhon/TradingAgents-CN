@@ -36,6 +36,7 @@ CacheStrategy = Literal["integrated", "adaptive", "file"]
 PrimaryBackend = Literal["redis", "mongodb", "file"]
 
 _VALID_STRATEGIES: frozenset[str] = frozenset({"integrated", "adaptive", "file"})
+_VALID_PRIMARY_BACKENDS: frozenset[str] = frozenset({"redis", "mongodb", "file"})
 _DEFAULT_STRATEGY: CacheStrategy = "integrated"
 
 # TTL defaults — byte-for-byte match with pre-4.3 db_manager.get_config()["cache"]["ttl_settings"].
@@ -55,14 +56,43 @@ _DEFAULT_TTL_SETTINGS: Mapping[str, int] = MappingProxyType(
 )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class CacheConfig:
-    """Cache layer backend configuration — single source of truth."""
+    """Cache layer backend configuration — single source of truth.
+
+    `frozen=True` blocks field reassignment. The auto-derived `__hash__` from
+    `@dataclass` would raise TypeError at runtime because `ttl_settings`
+    (a `Mapping`) isn't hashable; we override `__hash__` below to hash a
+    sorted tuple snapshot instead.
+    """
 
     cache_strategy: CacheStrategy
     primary_backend: PrimaryBackend
     fallback_enabled: bool
     ttl_settings: Mapping[str, int] = field(default_factory=lambda: _DEFAULT_TTL_SETTINGS)
+
+    def __post_init__(self) -> None:
+        # Runtime Literal validation: Python doesn't enforce Literal at runtime.
+        # Direct construction like CacheConfig(primary_backend="postgres", ...)
+        # would otherwise silently propagate an invalid value into routing.
+        if self.cache_strategy not in _VALID_STRATEGIES:
+            raise ValueError(f"CacheConfig.cache_strategy={self.cache_strategy!r} not in {sorted(_VALID_STRATEGIES)}")
+        if self.primary_backend not in _VALID_PRIMARY_BACKENDS:
+            raise ValueError(f"CacheConfig.primary_backend={self.primary_backend!r} not in {sorted(_VALID_PRIMARY_BACKENDS)}")
+
+    def __hash__(self) -> int:
+        # Hash a snapshot tuple so the config can go in sets / dict keys /
+        # @lru_cache parameters. ttl_settings is a Mapping (potentially a
+        # mutable dict) — snapshot via sorted items() so equal configs hash
+        # equal regardless of caller-side dict iteration order.
+        return hash(
+            (
+                self.cache_strategy,
+                self.primary_backend,
+                self.fallback_enabled,
+                tuple(sorted(self.ttl_settings.items())),
+            )
+        )
 
     @classmethod
     def from_environment(cls, db_manager: Any) -> CacheConfig:
