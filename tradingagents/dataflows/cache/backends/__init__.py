@@ -16,5 +16,7 @@ from __future__ import annotations
 
 from ._protocol import Backend
 from .file import FileBackend
+from .mongo import MongoBackend
+from .redis import RedisBackend
 
-__all__ = ["Backend", "FileBackend"]
+__all__ = ["Backend", "FileBackend", "MongoBackend", "RedisBackend"]

@@ -5,19 +5,18 @@
 """
 
 import hashlib
-import json
 import logging
 from datetime import datetime, timedelta
-from io import StringIO
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
-
 from tradingagents.config.database_manager import get_database_manager
 
-from ._serialize import decode_envelope, encode_envelope
-from .backends import FileBackend
+# `decode_envelope` is still needed by `clear_expired_cache` which iterates
+# files directly (the FileBackend has no `list_keys` yet — that's 4.4 / when
+# the Cache class needs it). Direct `_serialize` import retained transitionally.
+from ._serialize import decode_envelope
+from .backends import FileBackend, MongoBackend, RedisBackend
 
 
 class AdaptiveCacheSystem:
@@ -36,8 +35,11 @@ class AdaptiveCacheSystem:
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-        # File backend — sub-stage 4.1 抽出。Redis / Mongo 路径 4.2 再拆。
+        # Backend instances — sub-stage 4.1 (File) + 4.2 (Redis/Mongo) 拆出。
+        # IO 委托各 backend，envelope 构建 + 路由 + fallback + TTL 判定仍在本类。
         self.file_backend = FileBackend(cache_dir=self.cache_dir)
+        self.redis_backend = RedisBackend(redis_client=self.db_manager.get_redis_client())
+        self.mongo_backend = MongoBackend(mongodb_client=self.db_manager.get_mongodb_client())
 
         # 获取配置
         self.config = self.db_manager.get_config()
@@ -87,118 +89,22 @@ class AdaptiveCacheSystem:
         return self.file_backend.load(cache_key)
 
     def _save_to_redis(self, cache_key: str, data: Any, metadata: dict, ttl_seconds: int) -> bool:
-        """保存到Redis缓存"""
-        redis_client = self.db_manager.get_redis_client()
-        if not redis_client:
-            return False
-
-        try:
-            cache_data = {"data": data, "metadata": metadata, "timestamp": datetime.now(), "backend": "redis"}
-
-            redis_client.setex(cache_key, ttl_seconds, encode_envelope(cache_data))
-
-            self.logger.debug(f"Redis缓存保存成功: {cache_key}")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Redis缓存保存失败: {e}")
-            return False
+        """保存到Redis缓存（envelope 在此层构建，IO 委托 RedisBackend）"""
+        envelope = {"data": data, "metadata": metadata, "timestamp": datetime.now(), "backend": "redis"}
+        return self.redis_backend.save(cache_key, envelope, ttl_seconds=ttl_seconds)
 
     def _load_from_redis(self, cache_key: str) -> dict | None:
-        """从Redis缓存加载"""
-        redis_client = self.db_manager.get_redis_client()
-        if not redis_client:
-            return None
-
-        try:
-            serialized_data = redis_client.get(cache_key)
-            if not serialized_data:
-                return None
-
-            cache_data = decode_envelope(serialized_data)
-
-            self.logger.debug(f"Redis缓存加载成功: {cache_key}")
-            return cache_data
-
-        except Exception as e:
-            self.logger.error(f"Redis缓存加载失败: {e}")
-            return None
+        """从Redis缓存加载（IO 委托 RedisBackend）"""
+        return self.redis_backend.load(cache_key)
 
     def _save_to_mongodb(self, cache_key: str, data: Any, metadata: dict, ttl_seconds: int) -> bool:
-        """保存到MongoDB缓存"""
-        mongodb_client = self.db_manager.get_mongodb_client()
-        if not mongodb_client:
-            return False
-
-        try:
-            db = mongodb_client.tradingagents
-            collection = db.cache
-
-            # 序列化数据
-            if isinstance(data, pd.DataFrame):
-                serialized_data = data.to_json()
-                data_type = "dataframe"
-            else:
-                serialized_data = json.dumps(data, default=str)
-                data_type = "json"
-
-            cache_doc = {
-                "_id": cache_key,
-                "data": serialized_data,
-                "data_type": data_type,
-                "metadata": metadata,
-                "timestamp": datetime.now(),
-                "expires_at": datetime.now() + timedelta(seconds=ttl_seconds),
-                "backend": "mongodb",
-            }
-
-            collection.replace_one({"_id": cache_key}, cache_doc, upsert=True)
-
-            self.logger.debug(f"MongoDB缓存保存成功: {cache_key}")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"MongoDB缓存保存失败: {e}")
-            return False
+        """保存到MongoDB缓存（envelope 在此层构建，schema 转换由 MongoBackend 内部完成）"""
+        envelope = {"data": data, "metadata": metadata, "timestamp": datetime.now(), "backend": "mongodb"}
+        return self.mongo_backend.save(cache_key, envelope, ttl_seconds=ttl_seconds)
 
     def _load_from_mongodb(self, cache_key: str) -> dict | None:
-        """从MongoDB缓存加载"""
-        mongodb_client = self.db_manager.get_mongodb_client()
-        if not mongodb_client:
-            return None
-
-        try:
-            db = mongodb_client.tradingagents
-            collection = db.cache
-
-            doc = collection.find_one({"_id": cache_key})
-            if not doc:
-                return None
-
-            # 检查是否过期
-            if doc.get("expires_at") and doc["expires_at"] < datetime.now():
-                collection.delete_one({"_id": cache_key})
-                return None
-
-            # 反序列化数据
-            if doc["data_type"] == "dataframe":
-                data = pd.read_json(StringIO(doc["data"]))
-            elif doc["data_type"] == "json":
-                data = json.loads(doc["data"])
-            else:
-                # legacy data_type == "pickle"：禁止 unpickle，删 doc 后 cache miss
-                collection.delete_one({"_id": cache_key})
-                self.logger.info(f"删除 legacy pickle MongoDB 缓存条目: {cache_key}")
-                return None
-
-            cache_data = {"data": data, "metadata": doc["metadata"], "timestamp": doc["timestamp"], "backend": "mongodb"}
-
-            self.logger.debug(f"MongoDB缓存加载成功: {cache_key}")
-            return cache_data
-
-        except Exception as e:
-            self.logger.error(f"MongoDB缓存加载失败: {e}")
-            return None
+        """从MongoDB缓存加载（IO 委托 MongoBackend，legacy pickle 降级在 backend 内）"""
+        return self.mongo_backend.load(cache_key)
 
     def save_data(
         self, symbol: str, data: Any, start_date: str = "", end_date: str = "", data_source: str = "default", data_type: str = "stock_data"
