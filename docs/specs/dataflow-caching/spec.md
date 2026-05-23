@@ -1,9 +1,5 @@
 # dataflow-caching Specification
 
-> **⚠️ SUPERSEDED — 2026-05-23**：本文件冻结为 2026-05-22 前的事实档案。新事实 / 修改请落 [`docs/specs/dataflow-caching/spec.md`](../../../docs/specs/dataflow-caching/spec.md)。详见项目根 `CLAUDE.md` 「spec 工作流」段。
->
-> 本文件内容不删不改，作为 `cache-layer-cleanup-stage1` / `cache-pickle-replacement` archive 的 SSOT 锚点保留。
-
 ## Purpose
 
 锁定 `tradingagents/dataflows/cache/` 缓存层的模块清单与共用约束。本 capability 由 `cache-layer-consolidation` 的 stage 1（`cache-layer-cleanup-stage1`）起头——确立「无孤儿缓存实现」基线。缓存层的全量收敛（cache-key / TTL 统一、`pickle` 安全替换、4 套实现合并为单一后端抽象）为后续阶段，届时扩充本 capability。
