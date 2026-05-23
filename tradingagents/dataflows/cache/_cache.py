@@ -129,23 +129,36 @@ class Cache:
         return None
 
     def _save_routed(self, key: str, envelope: dict, ttl_seconds: int) -> bool:
-        """Save via primary backend; fall back to file if enabled."""
+        """Save via primary backend; fall back to file if enabled.
+
+        Emits an INFO log when the primary failed and the file fallback is
+        engaged so operators can tell when the configured primary backend
+        silently dropped out of the write path.
+        """
         primary = self._primary_backend()
-        # Primary 写：file 后端是 primary 时直接走 file，不再 fallback（同实例）
+        # File primary: direct write, no fallback (would be a same-instance retry).
         if primary is self.file_backend:
             return self.file_backend.save(key, envelope, ttl_seconds=ttl_seconds)
-        # Primary 是 redis / mongo
+        # Redis / Mongo primary
         if primary is not None:
             ok = primary.save(key, envelope, ttl_seconds=ttl_seconds)
             if ok:
                 return True
-        # Primary 失败或不可用 → 视 fallback_enabled 决定是否降级到 file
+            self._logger.info(f"cache save: primary={self.config.primary_backend} returned False; using file fallback")
+        else:
+            self._logger.info(f"cache save: primary={self.config.primary_backend} backend unavailable; using file fallback")
+        # Primary failed or unavailable → fall back to file if enabled
         if self.config.fallback_enabled:
             return self.file_backend.save(key, envelope, ttl_seconds=ttl_seconds)
         return False
 
     def _load_routed(self, key: str) -> dict | None:
-        """Load via primary backend; fall back to file if enabled and primary miss."""
+        """Load via primary backend; fall back to file if enabled and primary miss.
+
+        Emits a DEBUG log when fallback fires — verbose enough to debug a
+        cache-coherence issue, quiet enough not to flood under normal use
+        (miss is common; promoting to INFO would be noisy).
+        """
         primary = self._primary_backend()
         if primary is self.file_backend:
             return self.file_backend.load(key)
@@ -154,6 +167,7 @@ class Cache:
             if env is not None:
                 return env
         if self.config.fallback_enabled and primary is not self.file_backend:
+            self._logger.debug(f"cache load: primary={self.config.primary_backend} miss for {key}; trying file fallback")
             return self.file_backend.load(key)
         return None
 
