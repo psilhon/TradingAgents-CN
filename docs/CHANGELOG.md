@@ -10,6 +10,7 @@
 
 ### Added
 
+- **缓存 Redis/Mongo Backend 抽出**（change `cache-backend-unification` sub-stage 4.2）：`tradingagents/dataflows/cache/backends/redis.py` + `mongo.py` 新建。`Backend` Protocol 扩 `save` 签名加 `ttl_seconds: int | None = None`（file ignore / redis setex vs set / mongo expires_at）。`AdaptiveCacheSystem._save/load_to/from_redis` + `_save/load_to/from_mongodb` 4 个方法改薄包装委托 backend；adaptive.py 净删 ~80 行（schema 转换 + json/pd/StringIO import 全部迁入 MongoBackend）。MongoBackend 内部封装 legacy pickle 降级路径：`data_type="pickle"` 触发 `delete_one + None`，**MUST NOT** 调 `pickle.load*`（test 用 `patch('pickle.loads/load')` 守护）。`backends/` 目录 grep `import pandas` 仅 mongo.py 1 命中（spec 例外，DataFrame schema 转换的存储介质要求）；grep `import pickle` 0 命中。Redis bytes / MongoDB doc schema 字节级兼容，40+ 调用方零改动。28 个新 unit test 覆盖 TTL 路径分支 / 无客户端降级 / DataFrame 与 datetime envelope round-trip / 过期 doc 删除 / legacy pickle 降级断言。
 - **缓存 Backend Protocol + FileBackend 抽出**（change `cache-backend-unification` sub-stage 4.1）：`tradingagents/dataflows/cache/backends/` 新子包，定义 `Backend` Protocol（`save / load` 最小契约）+ `FileBackend` 类（文件 IO 薄层，写 `{cache_dir}/{key}.json.gz`）。`AdaptiveCacheSystem._save_to_file` / `_load_from_file` 改为薄包装委托 `FileBackend`，envelope 构建（`timestamp` / `backend` 标签）保留在上层。Redis / Mongo 路径不动（4.2）。公开 API + `.json.gz` 文件格式 + `_serialize.py` 零变更，40+ 调用方零改动。10 个新 unit test 覆盖 round-trip / DataFrame envelope / datetime envelope / 不存在 key 返 None / 路径扩展名 / `backends/` 目录依赖洁净度（grep MUST NOT 含 `import pandas` / `pickle`）。
 
 ### Changed
