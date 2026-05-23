@@ -201,3 +201,58 @@ Protocol MUST NOT 包含：
 - **THEN** MUST 调 `collection.delete_one({"_id": key})`
 - **AND** MUST 返 `None`
 - **AND** MUST NOT 调用 `pickle.loads` / `pickle.load` 或任何 pickle 模块方法
+
+### Requirement: CacheConfig 单一来源
+
+`tradingagents/dataflows/cache/_config.py` MUST 定义 `CacheConfig` dataclass 作为 cache 层 backend 配置的单一来源。具体：
+
+- `@dataclass(frozen=True)` 修饰，构造后字段不可变（赋值 MUST raise `dataclasses.FrozenInstanceError`）
+- 字段：
+  - `cache_strategy: Literal["integrated", "adaptive", "file"]` — 顶层 instantiation 决策（`get_cache()` 用），folded `TA_CACHE_STRATEGY` env
+  - `primary_backend: Literal["redis", "mongodb", "file"]` — `AdaptiveCacheSystem` 首选 backend，由 db_manager 检测可用性派生
+  - `fallback_enabled: bool` — 主 backend 失败时是否降级到 file
+  - `ttl_settings: Mapping[str, int]` — `{market}_{data_type}` → TTL seconds，MUST 含 6 个标准 key（`us_stock_data` / `us_news` / `us_fundamentals` / `china_stock_data` / `china_news` / `china_fundamentals`）
+- `from_environment(db_manager) -> CacheConfig` classmethod：从 env + db_manager 检测结果构造 CacheConfig 的产线工厂
+
+`CacheConfig` MUST NOT 含：
+
+- `TA_USE_APP_CACHE`（dataflow 数据源优先级开关，与 cache backend 配置正交）
+- `cache_dir` 路径 / MongoBackend 的 `db_name` / `collection_name`（构造参数而非配置）
+
+#### Scenario: CacheConfig 不可变
+
+- **WHEN** 构造 `config = CacheConfig(cache_strategy="integrated", primary_backend="redis", fallback_enabled=True, ttl_settings={...})`
+- **AND** 尝试 `config.primary_backend = "file"`
+- **THEN** MUST raise `dataclasses.FrozenInstanceError`
+
+#### Scenario: from_environment 后端推断三路径
+
+- **WHEN** `db_manager.is_redis_available()` 返 True
+- **THEN** `from_environment(db_manager).primary_backend == "redis"`
+- **WHEN** redis 不可用但 `db_manager.is_mongodb_available()` 返 True
+- **THEN** `from_environment(db_manager).primary_backend == "mongodb"`
+- **WHEN** 两者都不可用
+- **THEN** `from_environment(db_manager).primary_backend == "file"`
+
+#### Scenario: from_environment 读 TA_CACHE_STRATEGY
+
+- **WHEN** env `TA_CACHE_STRATEGY` 未设置
+- **THEN** `from_environment(db_manager).cache_strategy == "integrated"`（默认）
+- **WHEN** `TA_CACHE_STRATEGY=file`
+- **THEN** `cache_strategy == "file"`
+- **WHEN** `TA_CACHE_STRATEGY=invalid_value`（非 integrated / adaptive / file）
+- **THEN** `cache_strategy == "integrated"`（fallback 默认，MUST NOT raise）
+
+#### Scenario: ttl_settings 默认含 6 个 key
+
+- **WHEN** `from_environment(db_manager).ttl_settings`
+- **THEN** MUST 含 6 个 key：`us_stock_data` (7200) / `us_news` (21600) / `us_fundamentals` (86400) / `china_stock_data` (3600) / `china_news` (14400) / `china_fundamentals` (43200)
+- **AND** 数值字节级与 4.3 前的 `db_manager.get_config()["cache"]["ttl_settings"]` 一致
+
+#### Scenario: AdaptiveCacheSystem 支持 config 注入
+
+- **WHEN** `AdaptiveCacheSystem(cache_dir=tmp, config=CacheConfig(...))`
+- **THEN** 实例 MUST 使用传入的 config，**MUST NOT** 调 `db_manager.get_config()`
+- **AND** `instance.primary_backend == config.primary_backend`
+- **WHEN** `AdaptiveCacheSystem(cache_dir=tmp)`（config 未传）
+- **THEN** 实例 MUST 走 `CacheConfig.from_environment(self.db_manager)` 路径（向后兼容）
