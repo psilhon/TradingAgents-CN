@@ -13,6 +13,42 @@ from app.services.data_sources.manager import DataSourceManager
 logger = logging.getLogger(__name__)
 
 
+def _to_iso_date(raw) -> str:
+    """Normalize trade_date input to canonical ISO 8601 `yyyy-mm-dd`.
+
+    Accepts:
+    - `"20260521"` (yyyymmdd, tushare API style) → `"2026-05-21"`
+    - `"2026-05-21"` (yyyy-mm-dd, idempotent) → unchanged
+    - `datetime` / `date` object → formatted as `"%Y-%m-%d"`
+    - Anything else (None / garbage / unrecognized) → today's ISO date
+
+    Defined per `docs/specs/dataflows-schema-consistency/spec.md`
+    Requirement「trade_date canonical ISO 8601 格式」(stage 2.2).
+    """
+    # datetime / date object
+    if hasattr(raw, "strftime"):
+        return raw.strftime("%Y-%m-%d")
+    # string handling
+    if isinstance(raw, str):
+        s = raw.strip()
+        if len(s) == 10 and s[4] == "-" and s[7] == "-":
+            # Already ISO; validate then return
+            try:
+                datetime.strptime(s, "%Y-%m-%d")
+                return s
+            except ValueError:
+                pass
+        if len(s) == 8 and s.isdigit():
+            # yyyymmdd → yyyy-mm-dd
+            try:
+                dt = datetime.strptime(s, "%Y%m%d")
+                return dt.strftime("%Y-%m-%d")
+            except ValueError:
+                pass
+    # Fallback: today (caller will see fresh date but no crash)
+    return datetime.now().strftime("%Y-%m-%d")
+
+
 class QuotesIngestionService:
     """
     定时从数据源适配层获取全市场近实时行情，入库到 MongoDB 集合 `market_quotes`。
@@ -23,7 +59,13 @@ class QuotesIngestionService:
     - 智能限流：Tushare免费用户每小时最多2次，付费用户自动切换到高频模式（5秒）
     - 休市时间：跳过任务，保持上次收盘数据；必要时执行一次性兜底补数
     - 字段：code(6位)、close、pct_chg、amount、open、high、low、pre_close、trade_date、updated_at
+      (2.2: trade_date 写入前经 `_to_iso_date` normalize 为 canonical yyyy-mm-dd ISO 8601)
     """
+
+    # Expose module helper as class attr so callers can access via
+    # `QuotesIngestionService._to_iso_date(...)`. Wrapping in staticmethod
+    # so it doesn't get bound to instance on attribute access.
+    _to_iso_date = staticmethod(_to_iso_date)
 
     def __init__(self, collection_name: str = "market_quotes") -> None:
         from collections import deque
@@ -69,15 +111,15 @@ class QuotesIngestionService:
         # 如果代码长度超过6位，去掉前面的交易所前缀（如 sz, sh）
         if len(code_str) > 6:
             # 提取所有数字字符
-            code_str = ''.join(filter(str.isdigit, code_str))
+            code_str = "".join(filter(str.isdigit, code_str))
 
         # 如果是纯数字，补齐到6位
         if code_str.isdigit():
-            code_clean = code_str.lstrip('0') or '0'  # 移除前导0，如果全是0则保留一个0
+            code_clean = code_str.lstrip("0") or "0"  # 移除前导0，如果全是0则保留一个0
             return code_clean.zfill(6)  # 补齐到6位
 
         # 如果不是纯数字，尝试提取数字部分
-        code_digits = ''.join(filter(str.isdigit, code_str))
+        code_digits = "".join(filter(str.isdigit, code_str))
         if code_digits:
             return code_digits.zfill(6)
 
@@ -94,11 +136,7 @@ class QuotesIngestionService:
             logger.warning(f"创建行情表索引失败（忽略）: {e}")
 
     async def _record_sync_status(
-        self,
-        success: bool,
-        source: Optional[str] = None,
-        records_count: int = 0,
-        error_msg: Optional[str] = None
+        self, success: bool, source: Optional[str] = None, records_count: int = 0, error_msg: Optional[str] = None
     ) -> None:
         """
         记录同步状态
@@ -127,11 +165,7 @@ class QuotesIngestionService:
                 "updated_at": now,
             }
 
-            await status_coll.update_one(
-                {"job": "quotes_ingestion"},
-                {"$set": status_doc},
-                upsert=True
-            )
+            await status_coll.update_one({"job": "quotes_ingestion"}, {"$set": status_doc}, upsert=True)
 
         except Exception as e:
             logger.warning(f"记录同步状态失败（忽略）: {e}")
@@ -167,7 +201,7 @@ class QuotesIngestionService:
                     "data_source": None,
                     "success": None,
                     "records_count": 0,
-                    "error_message": "尚未执行过同步"
+                    "error_message": "尚未执行过同步",
                 }
 
             # 移除 _id 字段
@@ -201,7 +235,7 @@ class QuotesIngestionService:
                 "data_source": None,
                 "success": None,
                 "records_count": 0,
-                "error_message": f"获取状态失败: {str(e)}"
+                "error_message": f"获取状态失败: {str(e)}",
             }
 
     def _check_tushare_permission(self) -> bool:
@@ -217,6 +251,7 @@ class QuotesIngestionService:
 
         try:
             from app.services.data_sources.tushare_adapter import TushareAdapter
+
             adapter = TushareAdapter()
 
             if not adapter.is_available():
@@ -227,8 +262,8 @@ class QuotesIngestionService:
 
             # 尝试调用 rt_k 接口测试权限
             try:
-                df = adapter._provider.api.rt_k(ts_code='000001.SZ')
-                if df is not None and not getattr(df, 'empty', True):
+                df = adapter._provider.api.rt_k(ts_code="000001.SZ")
+                if df is not None and not getattr(df, "empty", True):
                     logger.info("✅ 检测到 Tushare rt_k 接口权限（付费用户）")
                     self._tushare_has_premium = True
                 else:
@@ -274,10 +309,7 @@ class QuotesIngestionService:
 
         # 检查是否超过限制
         if len(self._tushare_call_times) >= self._tushare_hourly_limit:
-            logger.warning(
-                f"⚠️ Tushare rt_k 接口已达到每小时调用限制 ({self._tushare_hourly_limit}次)，"
-                f"跳过本次调用，使用 AKShare 备用接口"
-            )
+            logger.warning(f"⚠️ Tushare rt_k 接口已达到每小时调用限制 ({self._tushare_hourly_limit}次)，跳过本次调用，使用 AKShare 备用接口")
             return False
 
         return True
@@ -369,6 +401,10 @@ class QuotesIngestionService:
         coll = db[self.collection_name]
         ops = []
         updated_at = datetime.now(self.tz)
+        # 2.2: normalize trade_date to canonical ISO 8601 yyyy-mm-dd before
+        # storage; upstream callers may pass yyyymmdd (tushare API style) or
+        # already-canonical yyyy-mm-dd — both supported via `_to_iso_date`
+        iso_trade_date = self._to_iso_date(trade_date)
         for code, q in quotes_map.items():
             if not code:
                 continue
@@ -385,20 +421,22 @@ class QuotesIngestionService:
             ops.append(
                 UpdateOne(
                     {"code": code6},
-                    {"$set": {
-                        "code": code6,
-                        "symbol": code6,  # 添加 symbol 字段，与 code 保持一致
-                        "close": q.get("close"),
-                        "pct_chg": q.get("pct_chg"),
-                        "amount": q.get("amount"),
-                        "volume": volume,
-                        "open": q.get("open"),
-                        "high": q.get("high"),
-                        "low": q.get("low"),
-                        "pre_close": q.get("pre_close"),
-                        "trade_date": trade_date,
-                        "updated_at": updated_at,
-                    }},
+                    {
+                        "$set": {
+                            "code": code6,
+                            "symbol": code6,  # 添加 symbol 字段，与 code 保持一致
+                            "close": q.get("close"),
+                            "pct_chg": q.get("pct_chg"),
+                            "amount": q.get("amount"),
+                            "volume": volume,
+                            "open": q.get("open"),
+                            "high": q.get("high"),
+                            "low": q.get("low"),
+                            "pre_close": q.get("pre_close"),
+                            "trade_date": iso_trade_date,
+                            "updated_at": updated_at,
+                        }
+                    },
                     upsert=True,
                 )
             )
@@ -445,10 +483,7 @@ class QuotesIngestionService:
 
             # 从 stock_daily_quotes 集合查询最新交易日的数据
             daily_quotes_collection = db["stock_daily_quotes"]
-            cursor = daily_quotes_collection.find({
-                "trade_date": latest_trade_date,
-                "period": "daily"
-            })
+            cursor = daily_quotes_collection.find({"trade_date": latest_trade_date, "period": "daily"})
 
             docs = await cursor.to_list(length=None)
 
@@ -495,6 +530,7 @@ class QuotesIngestionService:
         except Exception as e:
             logger.error(f"❌ 从历史数据导入失败: {e}")
             import traceback
+
             logger.error(f"堆栈跟踪:\n{traceback.format_exc()}")
 
     async def backfill_last_close_snapshot(self) -> None:
@@ -552,6 +588,7 @@ class QuotesIngestionService:
                     return None, None
 
                 from app.services.data_sources.tushare_adapter import TushareAdapter
+
                 adapter = TushareAdapter()
 
                 if not adapter.is_available():
@@ -570,6 +607,7 @@ class QuotesIngestionService:
 
             elif source_type == "akshare":
                 from app.services.data_sources.akshare_adapter import AKShareAdapter
+
                 adapter = AKShareAdapter()
 
                 if not adapter.is_available():
@@ -608,6 +646,7 @@ class QuotesIngestionService:
         """
         try:
             from app.services.quotes_service import get_quotes_service
+
             db = get_mongo_db()
             codes = await db["stock_basic_info"].distinct("code")
             codes = [str(c).strip() for c in codes if c]
@@ -639,6 +678,7 @@ class QuotesIngestionService:
             from app.services.trading_calendar_service import (
                 get_trading_calendar_service,
             )
+
             if not await get_trading_calendar_service().is_intraday_now():
                 if settings.QUOTES_BACKFILL_ON_OFFHOURS:
                     await self.backfill_last_close_snapshot_if_needed()
@@ -660,9 +700,7 @@ class QuotesIngestionService:
                 has_premium = self._check_tushare_permission()
 
                 if has_premium:
-                    logger.info(
-                        "✅ 检测到 Tushare 付费权限！建议将 QUOTES_INGEST_INTERVAL_SECONDS 设置为 5-60 秒以充分利用权限"
-                    )
+                    logger.info("✅ 检测到 Tushare 付费权限！建议将 QUOTES_INGEST_INTERVAL_SECONDS 设置为 5-60 秒以充分利用权限")
                 else:
                     logger.info(
                         f"ℹ️ Tushare 免费用户，每小时最多调用 {self._tushare_hourly_limit} 次 rt_k 接口。"
@@ -686,10 +724,7 @@ class QuotesIngestionService:
                 logger.warning(f"⚠️ 所有数据源（主链 sina hq + fallback {source_name}）均未获取到行情，跳过本次入库")
                 # 记录失败状态
                 await self._record_sync_status(
-                    success=False,
-                    source=source_name or "sina_hq",
-                    records_count=0,
-                    error_msg="所有数据源均未获取到行情数据"
+                    success=False, source=source_name or "sina_hq", records_count=0, error_msg="所有数据源均未获取到行情数据"
                 )
                 return
 
@@ -704,20 +739,9 @@ class QuotesIngestionService:
             await self._bulk_upsert(quotes_map, trade_date, source_name)
 
             # 记录成功状态
-            await self._record_sync_status(
-                success=True,
-                source=source_name,
-                records_count=len(quotes_map),
-                error_msg=None
-            )
+            await self._record_sync_status(success=True, source=source_name, records_count=len(quotes_map), error_msg=None)
 
         except Exception as e:
             logger.error(f"❌ 行情入库失败: {e}")
             # 记录失败状态
-            await self._record_sync_status(
-                success=False,
-                source=None,
-                records_count=0,
-                error_msg=str(e)
-            )
-
+            await self._record_sync_status(success=False, source=None, records_count=0, error_msg=str(e))
