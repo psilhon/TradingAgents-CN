@@ -159,7 +159,10 @@ class RealtimeNewsAggregator:
                 "token": self.finnhub_key,
             }
 
-            response = requests.get(url, params=params, headers=self.headers)
+            # timeout=(connect=10s, read=30s) — `docs/specs/dataflows-reliability/spec.md`
+            # Requirement「HTTP 请求必须设 timeout」。FinnHub 故障路径触发 requests.Timeout
+            # → 已被下方 `except Exception` 接住 → 返 [] 空列表（与现有 fallback 一致）。
+            response = requests.get(url, params=params, headers=self.headers, timeout=(10, 30))
             response.raise_for_status()
 
             news_data = response.json()
@@ -201,7 +204,8 @@ class RealtimeNewsAggregator:
             url = "https://www.alphavantage.co/query"
             params = {"function": "NEWS_SENTIMENT", "tickers": ticker, "apikey": self.alpha_vantage_key, "limit": 50}
 
-            response = requests.get(url, params=params, headers=self.headers)
+            # timeout=(10, 30) — `dataflows-reliability` Requirement「HTTP 请求必须设 timeout」
+            response = requests.get(url, params=params, headers=self.headers, timeout=(10, 30))
             response.raise_for_status()
 
             data = response.json()
@@ -257,7 +261,8 @@ class RealtimeNewsAggregator:
                 "apiKey": self.newsapi_key,
             }
 
-            response = requests.get(url, params=params, headers=self.headers)
+            # timeout=(10, 30) — `dataflows-reliability` Requirement「HTTP 请求必须设 timeout」
+            response = requests.get(url, params=params, headers=self.headers, timeout=(10, 30))
             response.raise_for_status()
 
             data = response.json()

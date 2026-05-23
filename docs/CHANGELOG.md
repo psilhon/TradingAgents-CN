@@ -8,7 +8,9 @@
 
 ## [Unreleased]
 
-（v1.3.5 后留空待累积。）
+### Fixed
+
+- **realtime_news 3 处 requests.get 加 timeout**（change `dataflows-reliability-hardening` sub-stage 1.1）：`tradingagents/dataflows/news/realtime_news.py` 内 `RealtimeNewsAggregator._get_finnhub_realtime_news` (line 162) / `_get_alpha_vantage_news` (line 204) / `_get_newsapi_news` (line 260) 三处 `requests.get(url, params=params, headers=self.headers)` 均缺 `timeout` 参数——FinnHub / Alpha Vantage / NewsAPI 故障 / 网络分区 / DNS 失败时 `requests.get` 默认无限阻塞，作为 user-facing 路径（agent 节点直接调用）会拖死整条 agent 链。每处加 `timeout=(10, 30)` 元组（与 `news/google_news.py:46` 同惯例：connect 10s + read 30s）；超时触发的 `requests.Timeout` 已被原有 `except Exception` 接住 → 返 `[]` 空列表（fallback 语义不变）。新建 capability spec `docs/specs/dataflows-reliability/spec.md`（4 Requirement + 7 Scenario：HTTP timeout / 进程级副作用收敛 / session 单例线程安全 / client 实例缓存），立 epic `dataflows-reliability-hardening`（4 sub-stage 蓝本，本项为 1.1）。新增 4 个 unit test（含 source-level grep 守护，防新增 fetch 方法漏 timeout 回归）；`just ci` 441 passed / 2 skipped（+4 vs v1.3.5 baseline 437）。
 
 ## [1.3.5] — 2026-05-23
 
