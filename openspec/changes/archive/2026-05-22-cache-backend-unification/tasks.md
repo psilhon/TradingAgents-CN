@@ -15,7 +15,8 @@
 
 ## 2. Epic 归档时机
 
-- [ ] 2.1 **当 sub-stage 4.1 立项**（独立 OpenSpec change 开出）→ 本 epic change 归档到 `openspec/changes/archive/`。在此之前作为 active change 锚点。
+- [x] 2.1 **当 sub-stage 4.1 立项**（独立 change 开出）→ 本 epic change 归档到 `openspec/changes/archive/`。在此之前作为 active change 锚点。
+  - **2026-05-23 切换**：对齐全局 v36 OpenSpec 降级（详见 `CLAUDE.md` 「spec 工作流」段），sub-stage 4.1 起改落 `docs/specs/cache-backend-unification/4.1-protocol-and-filebackend/{proposal,tasks}.md`。本 epic change 随该切换归档；后续 4.2–4.6 全部在 `docs/specs/` 体系内推进，不再回到 `openspec/changes/`。`openspec/specs/dataflow-caching/spec.md` 已 superseded 到 `docs/specs/dataflow-caching/spec.md`，新 spec delta 落新位置。
 
 ## 3. Sub-stage 索引（不在本 change 实施）
 

@@ -6,7 +6,7 @@
 
 - **定位**：面向中文用户的多智能体股票分析学习平台（FastAPI 后端 + Vue 3 前端 + LangGraph 多智能体 + 多数据源）
 - **当前版本**：`v1.3.4`（fork patch release；`pyproject.toml` 已对齐；上游 `v1.0.1`）
-- **当前阶段**：**功能固化阶段**。最新 v1.3.4（2026-05-22，fork patch release）；`[Unreleased]` 为空，当前无活跃 OpenSpec change。OpenSpec 累计 **43 条 changes archived** + **23 条 stable capability spec**。下一优先项：code-review 第三梯队架构重构剩余 3 条（`extract-company-resolver` / `cache-layer-consolidation` / `agent-state-structured-history`，每条 1 周量级、属架构优化非固化必须）。**backlog 完成状态一律以 `openspec/changes/archive/` 为准**——`docs/code-review-2026-05-05.md` 顶部「✅ 完成状态总览」块 + `docs/data-audit-2026-05-17.md`「未处置」段是静态快照，查 backlog 看那两处，不在本文件复述（避免漂移）。
+- **当前阶段**：**功能固化阶段**，本地缓存层架构收敛进行中。最新 v1.3.4（2026-05-22，fork patch release），`[Unreleased]` 累积 5 条改动（VERSION 双源消除 / company resolver 去重 / 辩论路由结构化 / cache stage1 死代码清理 / cache pickle 替换）。**2026-05-23 起对齐全局 v36 OpenSpec 降级**：`openspec/` 冻结为只读档案（47 changes archived + 26 stable capability spec），新 spec / change 改走 `docs/specs/`。最后一条活跃 OpenSpec change `2026-05-22-cache-backend-unification`（cache-layer-consolidation stage 4 epic 蓝本）随切换归档；后续 sub-stage 4.1–4.6 在 `docs/specs/` 体系内推进。**backlog 完成状态一律以 `openspec/changes/archive/` 为准**——`docs/code-review-2026-05-05.md` 顶部「✅ 完成状态总览」块 + `docs/data-audit-2026-05-17.md`「未处置」段是静态快照，查 backlog 看那两处，不在本文件复述（避免漂移）。
 - **技术栈**：Python 3.12（homebrew arm64）+ uv + FastAPI + Uvicorn + Vue 3 + Vite + **原生 MongoDB 7.0 + Redis 8**（Homebrew，不用 Docker）
 - **License 双轨**：根目录 Apache 2.0；`app/`（FastAPI 后端）和 `frontend/`（Vue 前端）为**专有授权**，商业用途必须联系作者 hsliup@163.com
 
@@ -69,6 +69,10 @@ just typecheck   # 仅 pyright
 just test        # 仅 pytest
 just fix         # 自动修复 ruff lint/format
 just setup       # 装 pre-commit hook（首次 setup）
+just audit-ports # 验证端口段位 54300-54309
+just audit-binds # 验证 loopback 绑定，改 fork-local 配置后必跑
+just clean-dry   # 预览将清理的 dev 产物（.dev/ / data/ / logs/）
+just clean       # 实际清理
 ```
 
 ## 项目特殊约定（永恒事实）
@@ -133,7 +137,7 @@ just setup       # 装 pre-commit hook（首次 setup）
 
 ## AI 上下文入口
 
-**功能事实 SSOT**：以 [`openspec/specs/`](openspec/specs/) 为准（23 条 stable capability spec）；[`docs/ai-context/`](docs/ai-context/) 描述跨 capability 的横切关系；[`docs/`](docs/) 其它目录默认为参考资料或归档。
+**功能事实 SSOT**（2026-05-23 起切换）：优先 [`docs/specs/<capability>/spec.md`](docs/specs/) 若存在（新事实）→ 回退 [`openspec/specs/<capability>/spec.md`](openspec/specs/)（2026-05-23 前 26 条 stable capability spec 档案，不删不改）。[`docs/ai-context/`](docs/ai-context/) 描述跨 capability 的横切关系；[`docs/`](docs/) 其它目录默认为参考资料或归档。
 
 新会话 prime 优先级：
 
@@ -145,15 +149,21 @@ just setup       # 装 pre-commit hook（首次 setup）
 6. `docs/operations.md` — **运维角色 prime**（端口段位 / 原生服务 / 备份 / 日志）
 7. `docs/CHANGELOG.md` — fork 自身改动历史（不含上游 commits）
 8. `docs/ai-context/known-issues.md` — 已知坑（fork 撞过的 + 上游遗留），按需查
-9. `openspec/specs/<capability>/spec.md` — 按 capability 按需查（功能事实唯一来源）
+9. `docs/specs/<capability>/spec.md`（如存在）→ 回退 `openspec/specs/<capability>/spec.md` — 按 capability 按需查（功能事实 SSOT，按上述优先级）
 
 > 历史"上游详细文档"入口（`docs/STRUCTURE.md` / `docs/architecture/`）改为按需查；上游原版 README/QUICK_START 已挪到 `docs/archive/legacy-upstream/`。
 
-## OpenSpec 状态
+## spec 工作流（2026-05-23 切换）
 
-> **项目特例（相对全局规则）**：全局规则 v36 起新项目改走 `docs/specs/`，OpenSpec 体系对新项目视为历史档案。本 fork 是 v36 之前的老项目，已深度建成 OpenSpec 工作流（43 changes archived + 23 stable spec），**继续沿用 OpenSpec 作为本项目二开工作流**——这是项目级有意决策，不是待迁移的历史遗留。全局 `templates/project-standards.md` / `rule-maintenance.md` 提到「TradingAgents-CN 的 openspec/ 不动」指的是不强制迁移，不等于冻结使用。
+> **对齐全局 v36 OpenSpec 降级**：本项目从 cache-backend-unification 归档之后停止在 `openspec/` 写新 change，新工作流落 `docs/specs/`。`openspec/` 整体冻结为只读决策档案——47 changes archived + 26 stable capability spec 全部保留，仍是「2026-05-23 前」事实的 SSOT，不删不改。
 
-活跃 change `openspec/changes/<id>/` / 稳定 spec `openspec/specs/<capability>/` / 探索 `openspec/explorations/<topic>/`。二开流程：`/opsx:propose <name>` → cross-check → Phase 2 实施 → Phase 3 finishing。
+**新 change 工作流**：
+
+- 新 capability spec 落 `docs/specs/<capability>/spec.md`
+- 既有 26 条 openspec capability 如需修改，**先 copy 到 `docs/specs/` 再改**，老文件加 `> superseded by docs/specs/<...>` 头注
+- change proposal 落 `docs/specs/<change-id>/{proposal,tasks}.md`（沿用 OpenSpec 的 proposal/tasks 双文件结构，Phase 2/3 流程不变，只改位置）
+- 不再走 `/opsx:propose` / `/opsx:apply` / `/opsx:archive` slash 命令——它们对 `openspec/` 历史档案仍有意义，但新 change 用普通文件 + git commit 即可
+- explorations 仍落 `openspec/explorations/`（无降级争议；亦可改 `docs/explorations/`）
 
 ## Secrets / 凭据
 
