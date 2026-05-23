@@ -8,6 +8,12 @@
 
 ## [Unreleased]
 
+（v1.3.5 后留空待累积。）
+
+## [1.3.5] — 2026-05-23
+
+**Fork patch release**——M2「cache-layer-consolidation epic 收尾 + 累积发版」。功能固化阶段第二个里程碑：完成 cache 层 4 套实现合并为单一 `Cache` 公开 API + 3 个 pluggable backends 的全量收敛（8 个 sub-stage：4.1-4.8），并打包前期累积的 agent 去重 / 辩论路由结构化 / VERSION 双源消除 / pickle 安全替换等独立项一并发版。**无 API breaking / 用户可见 API 行为字节级保持**。
+
 ### Added
 
 - **缓存层 design refinement 4 项**（change `cache-backend-unification` sub-stage 4.8，post-4.7 P4 收尾）：4.7 两轮 code review 剩余的非关键改进一次性落地，每项独立可验证、互不依赖。**E1 FileBackend 原子写入**：`save` 改为「写 `.{key}.json.gz.tmp.{pid}` 临时文件 → `os.replace` 原子换名」模式，进程被 SIGKILL / OOM / 磁盘满中断时 final `.json.gz` 要么不存在要么是完整 envelope，永不留 truncated 字节让下次 gzip decode 静默 cache miss + 累积 zombie；finally 路径 unlink tmp 防垃圾累积。**E2 TA_CACHE_DIR env 覆盖**：`get_cache()` 之前 hardcode 相对 `Path("data/cache")` 落 CWD，systemd / docker 启动 uvicorn 在 `/` 时缓存漂到 `/data/cache`；引入 env 读取 + `Path.expanduser()`，运维可 `TA_CACHE_DIR=~/.cache/ta` 一键纠正。**E3 typed dispatch dedup**：`Cache` 类的 6 个公开方法（save/load/find × stock+fundamentals）抽出 `_save_typed` / `_load_typed` / `_find_typed` 三个私有 helper 承载共同逻辑（envelope 构建 + cache_key 派生 + TTL 推断 + 路由），公开 API 字节级保持；未来扩 news_data / report_data 只要 `(data_type, id_fields)` 两参，不再 +30 行 boilerplate。**E4 close + context manager 生命周期**：`Backend` Protocol 加可选 `close()`，三 backend 各自实现（File no-op / Redis / Mongo 调 `client.close()` 释放连接池，异常吞）；`Cache.close()` duck-type 委派三 backend 单条 `logger.exception` 不打断流程；加 `__enter__` / `__exit__` 让 FastAPI shutdown hook / pytest teardown 主动 `with Cache(...)` 自动 cleanup，告别 GC 兜底 ResourceWarning。spec 修订：dataflow-caching 加 4 个新 Requirement + 10 个 Scenario。24 个新测试（E1×4 + E2×3 + E3×3 + E4×14），`just ci` 437 passed / 2 skipped（4.7 收尾 413 → +24）。
@@ -46,6 +52,19 @@
 ### Security
 
 - **缓存层移除 `pickle` 反序列化攻击面**（OpenSpec change `cache-pickle-replacement`）：`tradingagents/dataflows/cache/adaptive.py` 此前在文件 / Redis / MongoDB 三后端共 7 处用 `pickle.load*` 反序列化缓存数据——`pickle.load` 是 RCE 原语，攻击者只要能向 `data/cache/` 写文件、Redis 注入键、或 MongoDB `tradingagents.cache` 集合写 doc，即可执行任意代码。新增 `cache/_serialize.py`（tagged JSON+gzip，含 `datetime` 与 `pandas.DataFrame` 标签），三后端全部改用 helper；文件扩展 `.pkl → .json.gz`；`clear_expired_cache` 无脑 `unlink()` 老 `.pkl` 文件（**不** `pickle.load`）；老 Redis pickle bytes 经 helper 解析失败 → cache miss；老 MongoDB `data_type="pickle"` doc 加载时 return None + 删 doc。5 个 unit 测试护栏（含 pickle bytes 拒绝路径）。扩 `dataflow-caching` capability 加 Requirement「缓存序列化禁用 pickle」。`cache-layer-consolidation` 的 stage 2。
+
+### Verified
+
+- `just ci`：437 passed / 2 skipped / 4 warnings（lint 0 errors + typecheck 0 errors + unit；4 warnings 为上游 `datetime.utcnow()` DeprecationWarning + ConfigManager v2.0 deprecation，已知非本 release 引入）
+- `VERSION` = `v1.3.5`；`pyproject.toml` 经 `[tool.setuptools.dynamic]` 派生（v1.3.4 双源消除项落地）
+- cache epic 全 8 个 sub-stage 落 `docs/specs/cache-backend-unification/{4.1-protocol-and-filebackend, 4.2-redis-mongo-backends, 4.3-cache-config-dataclass, 4.4-unified-cache-class, 4.5-callsite-compatibility, 4.6-remove-deprecated-layers, 4.7-callsite-hotfix-and-hardening, 4.8-design-refinements}`
+- `tradingagents/dataflows/cache/` grep `pickle` 0 命中、grep `AdaptiveCacheSystem`/`IntegratedCacheManager` 0 命中（spec `dataflow-caching` Requirement「缓存序列化禁用 pickle」+「无孤儿缓存实现」守护）
+
+### HARD-GATE 合规
+
+- 全程本地 commit；最后 `git push origin main` + `git tag v1.3.5` + `git push origin refs/tags/v1.3.5` 由用户 1-click 授权
+- 全 release 仅触及 Apache 2.0 范围（`tradingagents/dataflows/cache/` 主代码 + `tradingagents/agents/utils/company_resolver.py` + `tradingagents/agents/managers/{research,risk}_manager.py` 等 + `tests/` + `docs/`）；零 `app/` 专有授权范围改动
+- spec 工作流自 2026-05-23 切换：`openspec/` 冻结只读档案（47 archived + 26 stable capability spec），新 spec / change 落 `docs/specs/`；cache 4.1-4.8 全部走 `docs/specs/cache-backend-unification/`，不创建新 OpenSpec change
 
 ## [1.3.4] — 2026-05-22
 
