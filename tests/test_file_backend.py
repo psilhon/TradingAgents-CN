@@ -154,3 +154,88 @@ def test_filebackend_satisfies_backend_protocol() -> None:
     backend = FileBackend(cache_dir=Path("/tmp"))
     assert callable(getattr(backend, "save", None))
     assert callable(getattr(backend, "load", None))
+
+
+# --- 4.8 E1: 原子写入（temp + os.replace）---
+
+
+def test_save_atomic_uses_temp_then_replace(tmp_path: Path, monkeypatch) -> None:
+    """正常 save 路径 MUST 经过 os.replace 原子换名，且 tmp 命名为 `.{key}.json.gz.tmp.{pid}`."""
+    backend = FileBackend(cache_dir=tmp_path)
+    captured: dict[str, tuple] = {}
+    real_replace = _file_backend_mod.os.replace
+
+    def spy_replace(src, dst):
+        captured["call"] = (src, dst)
+        return real_replace(src, dst)
+
+    monkeypatch.setattr(_file_backend_mod.os, "replace", spy_replace)
+
+    envelope = {"data": "x", "metadata": {}, "timestamp": datetime(2026, 5, 23), "backend": "file"}
+    assert backend.save("key_atomic", envelope) is True
+
+    # os.replace MUST 被调一次
+    assert "call" in captured, "save MUST 调用 os.replace（atomic rename）"
+    src, dst = captured["call"]
+    src_path = Path(src)
+    dst_path = Path(dst)
+
+    # tmp 命名约定：前导 . + key + .json.gz.tmp.{pid}
+    assert src_path.name.startswith("."), f"tmp 文件 MUST 以 . 开头（避免被 glob('*.json.gz') 收）: {src_path.name}"
+    assert ".json.gz.tmp." in src_path.name, f"tmp 命名 MUST 含 .json.gz.tmp.{{pid}}: {src_path.name}"
+    assert "key_atomic" in src_path.name, f"tmp 命名 MUST 含 key: {src_path.name}"
+    # final 路径
+    assert dst_path == tmp_path / "key_atomic.json.gz"
+
+
+def test_save_atomic_no_partial_final_on_encode_failure(tmp_path: Path, monkeypatch) -> None:
+    """encode_envelope raise 时 final `.json.gz` MUST 不存在 + 无 tmp 残留."""
+    backend = FileBackend(cache_dir=tmp_path)
+
+    def broken_encode(envelope):
+        del envelope  # signal "intentionally unused" to type checker
+        raise RuntimeError("encode boom")
+
+    monkeypatch.setattr(_file_backend_mod, "encode_envelope", broken_encode)
+
+    envelope = {"data": "x", "metadata": {}, "timestamp": datetime(2026, 5, 23), "backend": "file"}
+    assert backend.save("key_fail", envelope) is False
+
+    # final 不存在
+    assert not (tmp_path / "key_fail.json.gz").exists()
+    # tmp 不残留
+    leaked = list(tmp_path.glob(".key_fail.json.gz.tmp.*"))
+    assert leaked == [], f"encode 失败 MUST 清理 tmp 残留，找到: {leaked}"
+
+
+def test_save_atomic_cleans_tmp_on_replace_failure(tmp_path: Path, monkeypatch) -> None:
+    """os.replace raise 时 tmp 文件 MUST 被清理 + final 不存在."""
+    backend = FileBackend(cache_dir=tmp_path)
+
+    def broken_replace(src, dst):
+        del src, dst  # signal "intentionally unused" to type checker
+        raise OSError("replace boom")
+
+    monkeypatch.setattr(_file_backend_mod.os, "replace", broken_replace)
+
+    envelope = {"data": "x", "metadata": {}, "timestamp": datetime(2026, 5, 23), "backend": "file"}
+    assert backend.save("key_replace_fail", envelope) is False
+
+    # final 不存在
+    assert not (tmp_path / "key_replace_fail.json.gz").exists()
+    # tmp 不残留（finally 清理）
+    leaked = list(tmp_path.glob(".key_replace_fail.json.gz.tmp.*"))
+    assert leaked == [], f"replace 失败 MUST 清理 tmp 残留，找到: {leaked}"
+
+
+def test_save_atomic_no_tmp_left_after_success(tmp_path: Path) -> None:
+    """正常 save 完成后 cache_dir 内 MUST 只有 final `.json.gz`，无 .tmp.* 残留."""
+    backend = FileBackend(cache_dir=tmp_path)
+    envelope = {"data": "x", "metadata": {}, "timestamp": datetime(2026, 5, 23), "backend": "file"}
+    assert backend.save("key_clean", envelope) is True
+
+    # final 存在
+    assert (tmp_path / "key_clean.json.gz").exists()
+    # 任何 .tmp.* 都 MUST 不存在
+    leaked = list(tmp_path.glob(".*.tmp.*"))
+    assert leaked == [], f"成功 save 后 MUST 无 tmp 残留，找到: {leaked}"
