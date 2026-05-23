@@ -1,11 +1,12 @@
 """
 Multi-source stock basics synchronization service
 - Supports multiple data sources with fallback mechanism
-- Priority: Tushare > AKShare > BaoStock 
+- Priority: Tushare > AKShare > BaoStock
 - Fetches A-share stock basic info with extended financial metrics
 - Upserts into MongoDB collection `stock_basic_info`
 - Provides unified interface for different data sources
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -35,6 +36,7 @@ JOB_KEY = "stock_basics_multi_source"
 
 class DataSourcePriority(Enum):
     """数据源优先级枚举"""
+
     TUSHARE = 1
     AKSHARE = 2
     BAOSTOCK = 3
@@ -43,6 +45,7 @@ class DataSourcePriority(Enum):
 @dataclass
 class SyncStats:
     """同步统计信息"""
+
     job: str = JOB_KEY
     data_type: str = "stock_basics"  # 添加data_type字段以符合数据库索引要求
     status: str = "idle"
@@ -86,25 +89,13 @@ class MultiSourceBasicsSyncService:
 
         # 使用 upsert 来避免重复键错误
         # 基于 data_type 和 job 进行更新或插入
-        filter_query = {
-            "data_type": stats.get("data_type", "stock_basics"),
-            "job": JOB_KEY
-        }
+        filter_query = {"data_type": stats.get("data_type", "stock_basics"), "job": JOB_KEY}
 
-        await db[STATUS_COLLECTION].update_one(
-            filter_query,
-            {"$set": stats},
-            upsert=True
-        )
+        await db[STATUS_COLLECTION].update_one(filter_query, {"$set": stats}, upsert=True)
 
         self._last_status = {k: v for k, v in stats.items() if k != "_id"}
 
-    async def _execute_bulk_write_with_retry(
-        self,
-        db: AsyncIOMotorDatabase,
-        operations: List,
-        max_retries: int = 3
-    ) -> Tuple[int, int]:
+    async def _execute_bulk_write_with_retry(self, db: AsyncIOMotorDatabase, operations: List, max_retries: int = 3) -> Tuple[int, int]:
         """
         执行批量写入，带重试机制
 
@@ -131,7 +122,7 @@ class MultiSourceBasicsSyncService:
             except asyncio.TimeoutError as e:
                 retry_count += 1
                 if retry_count < max_retries:
-                    wait_time = 2 ** retry_count  # 指数退避：2秒、4秒、8秒
+                    wait_time = 2**retry_count  # 指数退避：2秒、4秒、8秒
                     logger.warning(f"⚠️ 批量写入超时 (第{retry_count}次重试)，等待{wait_time}秒后重试...")
                     await asyncio.sleep(wait_time)
                 else:
@@ -167,6 +158,7 @@ class MultiSourceBasicsSyncService:
         try:
             # Step 1: 获取数据源管理器
             from app.services.data_sources.manager import DataSourceManager
+
             manager = DataSourceManager()
             available_adapters = manager.get_available_adapters()
 
@@ -180,9 +172,7 @@ class MultiSourceBasicsSyncService:
                 logger.info(f"Using preferred data sources: {preferred_sources}")
 
             # Step 2: 尝试从数据源获取股票列表
-            stock_df, source_used = await asyncio.to_thread(
-                manager.get_stock_list_with_fallback, preferred_sources
-            )
+            stock_df, source_used = await asyncio.to_thread(manager.get_stock_list_with_fallback, preferred_sources)
             if stock_df is None or getattr(stock_df, "empty", True):
                 raise RuntimeError("All data sources failed to provide stock list")
 
@@ -190,9 +180,7 @@ class MultiSourceBasicsSyncService:
             logger.info(f"Successfully fetched {len(stock_df)} stocks from {source_used}")
 
             # Step 3: 获取最新交易日期和财务数据
-            latest_trade_date = await asyncio.to_thread(
-                manager.find_latest_trade_date_with_fallback, preferred_sources
-            )
+            latest_trade_date = await asyncio.to_thread(manager.find_latest_trade_date_with_fallback, preferred_sources)
             stats.last_trade_date = latest_trade_date
 
             daily_data_map = {}
@@ -320,7 +308,9 @@ class MultiSourceBasicsSyncService:
                         if batch_inserted > 0 or batch_updated > 0:
                             inserted += batch_inserted
                             updated += batch_updated
-                            logger.info(f"✅ 批量写入完成: 新增 {batch_inserted}, 更新 {batch_updated} | 累计: 新增 {inserted}, 更新 {updated}, 错误 {errors}")
+                            logger.info(
+                                f"✅ 批量写入完成: 新增 {batch_inserted}, 更新 {batch_updated} | 累计: 新增 {inserted}, 更新 {updated}, 错误 {errors}"
+                            )
                         else:
                             errors += len(ops)
                             logger.warning(f"⚠️ 批量写入失败，标记 {len(ops)} 条记录为错误")
@@ -328,10 +318,7 @@ class MultiSourceBasicsSyncService:
                         ops = []  # 清空操作列表
 
             if sanity_issues:
-                summary = (
-                    f"数值 sanity 闸门处理 {len(sanity_issues)} 个异常字段值"
-                    f"（示例: {'; '.join(sanity_issues[:3])}）"
-                )
+                summary = f"数值 sanity 闸门处理 {len(sanity_issues)} 个异常字段值（示例: {'; '.join(sanity_issues[:3])}）"
                 logger.warning(f"⚠️ {summary}")
                 stats.warnings.append(summary)
 
@@ -342,10 +329,7 @@ class MultiSourceBasicsSyncService:
             stats.errors = errors
             # 估值数据缺失（warnings 非空）同样视为"带问题的成功"，
             # 不能用纯 "success" 掩盖数据缺口
-            stats.status = (
-                "success" if errors == 0 and not stats.warnings
-                else "success_with_errors"
-            )
+            stats.status = "success" if errors == 0 and not stats.warnings else "success_with_errors"
             stats.finished_at = datetime.now().isoformat()
 
             await self._persist_status(db, stats.__dict__.copy())
@@ -365,8 +349,6 @@ class MultiSourceBasicsSyncService:
         finally:
             async with self._lock:
                 self._running = False
-
-
 
     def _add_financial_metrics(self, doc: Dict, daily_metrics: Dict) -> None:
         """委托到 basics_sync.processing.add_financial_metrics"""
@@ -393,12 +375,12 @@ class MultiSourceBasicsSyncService:
         if len(code) != 6:
             return code
 
-        # 根据代码前缀判断交易所
-        if code.startswith(('60', '68', '90')):  # 上海证券交易所
-            return f"{code}.SS"
-        elif code.startswith(('00', '30', '20')):  # 深圳证券交易所
+        # 根据代码前缀判断交易所 (2.1: canonical `.SH/.SZ/.BJ` tushare 风格)
+        if code.startswith(("60", "68", "90")):  # 上海证券交易所
+            return f"{code}.SH"
+        elif code.startswith(("00", "30", "20")):  # 深圳证券交易所
             return f"{code}.SZ"
-        elif code.startswith(('8', '4')):  # 北京证券交易所
+        elif code.startswith(("8", "4")):  # 北京证券交易所
             return f"{code}.BJ"
         else:
             # 无法识别的代码，返回原始代码（确保不为空）
@@ -407,6 +389,7 @@ class MultiSourceBasicsSyncService:
 
 # 全局服务实例
 _multi_source_sync_service = None
+
 
 def get_multi_source_sync_service() -> MultiSourceBasicsSyncService:
     """获取多数据源同步服务实例"""

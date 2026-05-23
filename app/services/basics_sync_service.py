@@ -8,6 +8,7 @@ Stock basics synchronization service
 
 This module is async-friendly and offloads blocking IO (Tushare/pandas) to a thread.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -68,9 +69,7 @@ class BasicsSyncService:
             logger.info("📊 检查并创建股票基础信息索引...")
 
             # 1. 股票代码唯一索引（data-audit-phase3：主键 (code,source) → code）
-            await collection.create_index(
-                [("code", 1)], unique=True, name="code_unique", background=True
-            )
+            await collection.create_index([("code", 1)], unique=True, name="code_unique", background=True)
 
             # 2. 数据源索引（按数据源筛选）
             await collection.create_index([("data_source", 1)], name="data_source_index", background=True)
@@ -125,12 +124,7 @@ class BasicsSyncService:
         await db[STATUS_COLLECTION].update_one({"job": JOB_KEY}, {"$set": stats}, upsert=True)
         self._last_status = {k: v for k, v in stats.items() if k != "_id"}
 
-    async def _execute_bulk_write_with_retry(
-        self,
-        db: AsyncIOMotorDatabase,
-        operations: List,
-        max_retries: int = 3
-    ) -> tuple:
+    async def _execute_bulk_write_with_retry(self, db: AsyncIOMotorDatabase, operations: List, max_retries: int = 3) -> tuple:
         """
         执行批量写入，带重试机制
 
@@ -157,7 +151,7 @@ class BasicsSyncService:
             except asyncio.TimeoutError as e:
                 retry_count += 1
                 if retry_count < max_retries:
-                    wait_time = 2 ** retry_count  # 指数退避：2秒、4秒、8秒
+                    wait_time = 2**retry_count  # 指数退避：2秒、4秒、8秒
                     logger.warning(f"⚠️ 批量写入超时 (第{retry_count}次重试)，等待{wait_time}秒后重试...")
                     await asyncio.sleep(wait_time)
                 else:
@@ -316,9 +310,7 @@ class BasicsSyncService:
                 sanity_issues.extend(sanitize_numeric_fields(doc))
 
                 # 🔥 使用 code 作为 upsert key（data-audit-phase3：单一主键）
-                ops.append(
-                    UpdateOne({"code": code}, {"$set": doc}, upsert=True)
-                )
+                ops.append(UpdateOne({"code": code}, {"$set": doc}, upsert=True))
 
             inserted = 0
             updated = 0
@@ -334,13 +326,10 @@ class BasicsSyncService:
                     updated += batch_updated
                 else:
                     errors += 1
-                    logger.error(f"Bulk write error on batch {i//BATCH}")
+                    logger.error(f"Bulk write error on batch {i // BATCH}")
 
             if sanity_issues:
-                summary = (
-                    f"数值 sanity 闸门处理 {len(sanity_issues)} 个异常字段值"
-                    f"（示例: {'; '.join(sanity_issues[:3])}）"
-                )
+                summary = f"数值 sanity 闸门处理 {len(sanity_issues)} 个异常字段值（示例: {'; '.join(sanity_issues[:3])}）"
                 logger.warning(f"⚠️ {summary}")
                 stats.warnings.append(summary)
 
@@ -348,10 +337,7 @@ class BasicsSyncService:
             stats.inserted = inserted
             stats.updated = updated
             stats.errors = errors
-            stats.status = (
-                "success" if errors == 0 and not stats.warnings
-                else "success_with_errors"
-            )
+            stats.status = "success" if errors == 0 and not stats.warnings else "success_with_errors"
             stats.finished_at = datetime.utcnow().isoformat()
             await self._persist_status(db, stats.__dict__.copy())
             logger.info(
@@ -408,12 +394,12 @@ class BasicsSyncService:
         if len(code) != 6:
             return code
 
-        # 根据代码判断交易所
-        if code.startswith(('60', '68', '90')):
-            return f"{code}.SS"  # 上海证券交易所
-        elif code.startswith(('00', '30', '20')):
+        # 根据代码判断交易所 (2.1: canonical `.SH/.SZ/.BJ` tushare 风格)
+        if code.startswith(("60", "68", "90")):
+            return f"{code}.SH"  # 上海证券交易所
+        elif code.startswith(("00", "30", "20")):
             return f"{code}.SZ"  # 深圳证券交易所
-        elif code.startswith(('8', '4')):
+        elif code.startswith(("8", "4")):
             return f"{code}.BJ"  # 北京证券交易所
         else:
             # 无法识别的代码，返回原始代码（确保不为空）
@@ -429,4 +415,3 @@ def get_basics_sync_service() -> BasicsSyncService:
     if _basics_sync_service is None:
         _basics_sync_service = BasicsSyncService()
     return _basics_sync_service
-
