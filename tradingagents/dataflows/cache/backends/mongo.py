@@ -26,11 +26,34 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from io import StringIO
 from typing import Any
 
 import pandas as pd
+
+
+def _utcnow() -> datetime:
+    """Return current time as timezone-aware UTC datetime.
+
+    Wrapped so tests can monkeypatch a single seam, and so MongoBackend
+    never accidentally drops back to naive `datetime.now()`.
+    """
+    return datetime.now(timezone.utc)
+
+
+def _to_utc_aware(dt: datetime | None) -> datetime | None:
+    """Normalize a datetime to timezone-aware UTC.
+
+    PyMongo's default tz_aware=False returns naive UTC datetimes; this
+    helper attaches UTC so comparison against `_utcnow()` is consistent
+    on hosts in non-UTC timezones.
+    """
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 class MongoBackend:
@@ -70,11 +93,11 @@ class MongoBackend:
                 "data": serialized,
                 "data_type": data_type,
                 "metadata": envelope.get("metadata", {}),
-                "timestamp": envelope.get("timestamp", datetime.now()),
+                "timestamp": _to_utc_aware(envelope.get("timestamp")) or _utcnow(),
                 "backend": "mongodb",
             }
             if ttl_seconds is not None:
-                doc["expires_at"] = datetime.now() + timedelta(seconds=ttl_seconds)
+                doc["expires_at"] = _utcnow() + timedelta(seconds=ttl_seconds)
 
             collection = self._collection()
             if collection is None:
@@ -82,8 +105,8 @@ class MongoBackend:
             collection.replace_one({"_id": key}, doc, upsert=True)
             self._logger.debug(f"mongo backend save: {key} (ttl={ttl_seconds})")
             return True
-        except Exception as e:
-            self._logger.error(f"mongo backend save failed for {key}: {e}")
+        except Exception:
+            self._logger.exception(f"mongo backend save failed for {key}")
             return False
 
     def load(self, key: str) -> dict | None:
@@ -99,9 +122,11 @@ class MongoBackend:
             if not doc:
                 return None
 
-            # Expiry check
-            expires_at = doc.get("expires_at")
-            if expires_at is not None and expires_at < datetime.now():
+            # Expiry check — normalize stored datetime to UTC-aware before comparing
+            # against current UTC wall clock (PyMongo defaults to naive UTC; without
+            # this normalization, hosts in non-UTC timezones drift by their offset).
+            expires_at = _to_utc_aware(doc.get("expires_at"))
+            if expires_at is not None and expires_at < _utcnow():
                 collection.delete_one({"_id": key})
                 return None
 
@@ -117,17 +142,39 @@ class MongoBackend:
                 self._logger.info(f"dropped legacy pickle mongo cache entry: {key}")
                 return None
             else:
-                self._logger.warning(f"unknown data_type {data_type!r} for {key}, treating as miss")
+                # Unknown data_type — could be a future-schema doc or a corrupted
+                # entry from an aborted write. Drop it so it doesn't accumulate as
+                # a zombie that misses+warns on every read (4.7 修订: 4.6 仅 warn).
+                collection.delete_one({"_id": key})
+                self._logger.warning(f"dropped unknown data_type {data_type!r} mongo cache entry: {key}")
                 return None
 
             envelope = {
                 "data": data,
                 "metadata": doc.get("metadata", {}),
-                "timestamp": doc.get("timestamp"),
+                "timestamp": _to_utc_aware(doc.get("timestamp")),
                 "backend": "mongodb",
             }
             self._logger.debug(f"mongo backend load: {key}")
             return envelope
-        except Exception as e:
-            self._logger.error(f"mongo backend load failed for {key}: {e}")
+        except Exception:
+            self._logger.exception(f"mongo backend load failed for {key}")
             return None
+
+    def clear(self, max_age_days: int) -> None:
+        """Delete cache docs older than `max_age_days` (0 = all docs)."""
+        if self._client is None:
+            return
+        try:
+            collection = self._collection()
+            if collection is None:
+                return
+            if max_age_days == 0:
+                result = collection.delete_many({})
+                self._logger.info(f"mongo backend cleared {result.deleted_count} docs (max_age_days=0)")
+                return
+            cutoff = _utcnow() - timedelta(days=max_age_days)
+            result = collection.delete_many({"timestamp": {"$lt": cutoff}})
+            self._logger.info(f"mongo backend cleared {result.deleted_count} docs older than {max_age_days}d")
+        except Exception:
+            self._logger.exception("mongo backend clear failed")

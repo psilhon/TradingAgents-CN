@@ -248,10 +248,11 @@ class OptimizedChinaDataProvider:
             # 生成基本面分析报告
             fundamentals_data = self._generate_fundamentals_report(symbol, stock_basic_info)
 
-            # 保存到缓存
+            # 保存到缓存（用位置参数避免新 Cache.save_fundamentals_data(data=...) vs
+            # StockDataCache.save_fundamentals_data(fundamentals_data=...) 的 kwarg 名差异）
             self.cache.save_fundamentals_data(
-                symbol=symbol,
-                fundamentals_data=fundamentals_data,
+                symbol,
+                fundamentals_data,
                 data_source="unified_analysis",  # 统一数据源分析
             )
 

@@ -75,15 +75,19 @@ def test_save_plain_dict_envelope_sets_data_type_json() -> None:
 
 
 def test_save_with_ttl_sets_expires_at() -> None:
+    from datetime import timezone
+
     client, collection = _mock_client_collection()
     backend = MongoBackend(mongodb_client=client)
     envelope = {"data": "x", "metadata": {}, "timestamp": datetime(2026, 5, 23), "backend": "mongodb"}
-    before = datetime.now()
+    # 4.7: MongoBackend uses tz-aware UTC; bookends MUST also be tz-aware to compare
+    before = datetime.now(timezone.utc)
     backend.save("k_ttl", envelope, ttl_seconds=3600)
-    after = datetime.now()
+    after = datetime.now(timezone.utc)
     doc_arg = collection.replace_one.call_args[0][1]
     expires = doc_arg["expires_at"]
     assert isinstance(expires, datetime)
+    assert expires.tzinfo is not None  # 4.7: timezone-aware
     assert before + timedelta(seconds=3600 - 2) <= expires <= after + timedelta(seconds=3600 + 2)
 
 
@@ -100,6 +104,8 @@ def test_save_without_ttl_omits_expires_at() -> None:
 
 
 def test_load_json_doc_rebuilds_envelope() -> None:
+    from datetime import timezone
+
     client, collection = _mock_client_collection()
     backend = MongoBackend(mongodb_client=client)
     collection.find_one.return_value = {
@@ -115,7 +121,8 @@ def test_load_json_doc_rebuilds_envelope() -> None:
     assert out is not None
     assert out["data"] == {"k": "v", "n": 42}
     assert out["metadata"] == {"src": "test"}
-    assert out["timestamp"] == datetime(2026, 5, 23)
+    # 4.7: backend normalizes loaded timestamps to tz-aware UTC
+    assert out["timestamp"] == datetime(2026, 5, 23, tzinfo=timezone.utc)
     assert out["backend"] == "mongodb"
 
 

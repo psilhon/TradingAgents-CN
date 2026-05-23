@@ -1,13 +1,20 @@
-"""`Cache` — unified cache public API (sub-stage 4.4).
+"""`Cache` — unified cache public API.
 
-Replaces the two-layer wrapping (`IntegratedCacheManager` boolean-branch on
-`use_adaptive` + `AdaptiveCacheSystem` primary/fallback routing) with a single
-class that owns envelope construction, primary-backend routing, fallback
-selection, and TTL inference.
+Single facade that owns envelope construction, primary-backend routing,
+fallback selection, TTL inference, and persistence-format-specific tagging
+(stock_data vs fundamentals_data vs news_data). Three pluggable backends
+(File / Redis / Mongo) implement the `Backend` Protocol for actual storage.
 
-Old classes (`IntegratedCacheManager` / `AdaptiveCacheSystem`) remain available
-with a DeprecationWarning on construction — they're removed in 4.6 after an
-observation window.
+Cache key format is byte-compatible with the historical
+`IntegratedCacheManager`+`AdaptiveCacheSystem` chain so that pre-existing
+cache files remain readable after upgrade:
+
+    md5(f"{symbol}_{start_date}_{end_date}_{data_source}_{data_type}")
+
+with `data_type` ∈ {"stock_data", "news_data", "fundamentals_data"} — note
+the `_data` suffix on the non-stock variants, kept for that compatibility.
+TTL lookup strips the `_data` suffix because the configured TTL keys use
+the stem form (`us_fundamentals`, `china_news`, etc.).
 
 Defined per `docs/specs/dataflow-caching/spec.md` Requirement "统一 Cache 类
 （公开 API 单一实现）".
@@ -34,6 +41,19 @@ class Cache:
         redis_backend: RedisBackend | None = None,
         mongo_backend: MongoBackend | None = None,
     ) -> None:
+        # Refuse mis-wired instances at construction time — silent fallback
+        # would mask the misconfiguration until a cache-hit-rate alarm fires.
+        if config.primary_backend == "redis" and redis_backend is None:
+            raise ValueError(
+                "Cache config.primary_backend='redis' but redis_backend is None; "
+                "either provide a RedisBackend instance or change primary_backend"
+            )
+        if config.primary_backend == "mongodb" and mongo_backend is None:
+            raise ValueError(
+                "Cache config.primary_backend='mongodb' but mongo_backend is None; "
+                "either provide a MongoBackend instance or change primary_backend"
+            )
+
         self._logger = logging.getLogger(__name__)
         self.file_backend = file_backend
         self.redis_backend = redis_backend
@@ -54,16 +74,48 @@ class Cache:
         return hashlib.md5(key_data.encode()).hexdigest()
 
     def _get_ttl_seconds(self, symbol: str, data_type: str = "stock_data") -> int:
-        # A 股代码：6 位纯数字
+        # A-share code: 6 pure digits → china market; otherwise us.
         market = "china" if (len(symbol) == 6 and symbol.isdigit()) else "us"
-        ttl_key = f"{market}_{data_type}"
+        # Cache key uses suffixed data_type values ("fundamentals_data", "news_data")
+        # for byte-compat with the historical IntegratedCacheManager, but the
+        # TTL config keys (_DEFAULT_TTL_SETTINGS) use the stem form
+        # ("us_fundamentals", "china_news"). Strip the _data suffix when
+        # looking up so fundamentals/news get their configured TTL instead of
+        # the 7200s default — fixes a pre-existing bug in AdaptiveCacheSystem
+        # where data_type="fundamentals_data" silently fell back to 7200s.
+        stem = data_type[:-5] if data_type.endswith("_data") and data_type != "stock_data" else data_type
+        ttl_key = f"{market}_{stem}"
         return self.config.ttl_settings.get(ttl_key, 7200)
 
     @staticmethod
     def _is_fresh(cache_time: datetime | None, ttl_seconds: int) -> bool:
         if cache_time is None:
             return False
-        return datetime.now() < cache_time + timedelta(seconds=ttl_seconds)
+        # Normalize tz-aware (e.g. from MongoBackend UTC) vs naive (file/redis
+        # backends still use naive local time) for comparison. Treat naive
+        # values as the same wall clock as `datetime.now()`.
+        if cache_time.tzinfo is not None:
+            from datetime import timezone as _tz
+
+            now = datetime.now(_tz.utc)
+        else:
+            now = datetime.now()
+        return now < cache_time + timedelta(seconds=ttl_seconds)
+
+    def _envelope_is_fresh(self, env: dict) -> bool:
+        """Check if an envelope is still within its configured TTL.
+
+        Reads `metadata.symbol` and `metadata.data_type` from the envelope
+        to derive the correct TTL bucket — this is the canonical freshness
+        check for entries loaded via `load_*` / `find_cached_*`. Falls back
+        to a 2h TTL if metadata is missing so a malformed envelope is treated
+        as stale rather than indefinitely fresh.
+        """
+        metadata = env.get("metadata") or {}
+        symbol = metadata.get("symbol", "")
+        data_type = metadata.get("data_type", "stock_data")
+        ttl_seconds = self._get_ttl_seconds(symbol, data_type)
+        return self._is_fresh(env.get("timestamp"), ttl_seconds)
 
     def _primary_backend(self) -> Any:
         """Return the configured primary backend instance, or None if unavailable."""
@@ -146,6 +198,8 @@ class Cache:
         env = self._load_routed(cache_key)
         if env is None:
             return None
+        if not self._envelope_is_fresh(env):
+            return None
         return env.get("data")
 
     def find_cached_stock_data(
@@ -166,10 +220,14 @@ class Cache:
         env = self._load_routed(cache_key)
         if env is None:
             return None
-        # Optional explicit max_age_hours overrides config TTL
+        # max_age_hours, if given, overrides the configured TTL. Otherwise we
+        # enforce the same TTL the load path uses (4.7 修订: pre-4.7 a None
+        # max_age_hours silently returned arbitrarily old keys).
         if max_age_hours is not None:
             if not self._is_fresh(env.get("timestamp"), max_age_hours * 3600):
                 return None
+        elif not self._envelope_is_fresh(env):
+            return None
         return cache_key
 
     # ----- public API: fundamentals_data -----
@@ -180,14 +238,15 @@ class Cache:
         data: Any,
         data_source: str | None = None,
     ) -> str:
-        # 4.5: 默认 "default"（与 IntegratedCacheManager.save_fundamentals_data
-        # 默认值字节级对齐，不是 4.4 时写的 "unknown"）
+        # data_type uses the "_data" suffix to stay byte-compatible with
+        # the historical IntegratedCacheManager → AdaptiveCacheSystem.save_data
+        # cache key formula. TTL lookup strips the suffix (see _get_ttl_seconds).
         data_source = data_source or "default"
-        cache_key = self._get_cache_key(symbol, "", "", data_source, "fundamentals")
+        cache_key = self._get_cache_key(symbol, "", "", data_source, "fundamentals_data")
         metadata = {
             "symbol": symbol,
             "data_source": data_source,
-            "data_type": "fundamentals",
+            "data_type": "fundamentals_data",
         }
         envelope = {
             "data": data,
@@ -195,7 +254,7 @@ class Cache:
             "timestamp": datetime.now(),
             "backend": self.config.primary_backend,
         }
-        ttl_seconds = self._get_ttl_seconds(symbol, "fundamentals")
+        ttl_seconds = self._get_ttl_seconds(symbol, "fundamentals_data")
         ok = self._save_routed(cache_key, envelope, ttl_seconds)
         if ok:
             self._logger.debug(f"cache save fundamentals_data: {symbol} -> {cache_key}")
@@ -207,6 +266,8 @@ class Cache:
         env = self._load_routed(cache_key)
         if env is None:
             return None
+        if not self._envelope_is_fresh(env):
+            return None
         return env.get("data")
 
     def find_cached_fundamentals_data(
@@ -215,14 +276,15 @@ class Cache:
         data_source: str | None = None,
         max_age_hours: int | None = None,
     ) -> str | None:
-        # 4.5: 与 save_fundamentals_data 默认对齐（"default"，不是 4.4 时写的 "unknown"）
-        cache_key = self._get_cache_key(symbol, "", "", data_source or "default", "fundamentals")
+        cache_key = self._get_cache_key(symbol, "", "", data_source or "default", "fundamentals_data")
         env = self._load_routed(cache_key)
         if env is None:
             return None
         if max_age_hours is not None:
             if not self._is_fresh(env.get("timestamp"), max_age_hours * 3600):
                 return None
+        elif not self._envelope_is_fresh(env):
+            return None
         return cache_key
 
     # ----- public API: is_cache_valid -----
@@ -236,29 +298,95 @@ class Cache:
         env = self._load_routed(cache_key)
         if env is None:
             return False
-        # 默认 stock_data TTL；symbol 决定 market
-        ttl_seconds = self._get_ttl_seconds(symbol or "", data_type or "stock_data")
+        # Prefer the envelope's recorded metadata so we pick the right TTL
+        # bucket regardless of what the caller passes. Caller-provided symbol
+        # / data_type are fallbacks for envelopes missing metadata (which
+        # shouldn't happen for entries we wrote ourselves).
+        metadata = env.get("metadata") or {}
+        effective_symbol = metadata.get("symbol") or symbol or ""
+        effective_data_type = metadata.get("data_type") or data_type or "stock_data"
+        ttl_seconds = self._get_ttl_seconds(effective_symbol, effective_data_type)
         return self._is_fresh(env.get("timestamp"), ttl_seconds)
+
+    # ----- public API: metadata_dir compatibility -----
+
+    @property
+    def metadata_dir(self):
+        """Compat shim for callers that used to access `StockDataCache.metadata_dir`.
+
+        Older callsites in `optimized_china_data._try_get_old_cache` /
+        `providers/us/optimized._try_get_old_cache` do `self.cache.metadata_dir.glob("*_meta.json")`
+        to scan for legacy double-file metadata entries. The new Cache stores
+        envelopes inline (no separate `_meta.json`), so we return a Path
+        pointing at a never-created subdirectory — the glob yields nothing
+        and the callers' `try / except` paths degrade gracefully to None
+        (the "use stale cache as last-ditch fallback" feature is silently
+        disabled under the new Cache; restoring it is a future sub-stage).
+        """
+        return self.file_backend.cache_dir / ".compat_empty_metadata"
 
     # ----- public API: stats + info -----
 
     def get_cache_stats(self) -> dict[str, Any]:
-        # file backend 文件目录统计（与 4.4 前 AdaptiveCacheSystem.get_cache_stats 同源）
+        """File backend directory stats + per-type counts.
+
+        Counts only `*.json.gz` entries written by the file backend; redis /
+        mongo entries are not included because there's no cheap way to size
+        them per data_type without round-tripping each key. Per-type counts
+        decode each envelope's metadata.data_type — O(N) per stats call, but
+        the endpoint is hit interactively, not in hot paths.
+
+        Field names match the historical `app/routers/cache.py:32-46`
+        contract (`total_size`, `stock_data_count`, `news_count`,
+        `fundamentals_count`) so the admin UI sees real numbers instead of
+        silent zeros.
+        """
         cache_dir = self.file_backend.cache_dir
         total_files = 0
         total_size_bytes = 0
-        try:
-            for f in cache_dir.glob("*.json.gz"):
+        stock_data_count = 0
+        news_count = 0
+        fundamentals_count = 0
+        for f in cache_dir.glob("*.json.gz"):
+            # Per-file try so one concurrently-deleted entry doesn't abort
+            # the whole walk (4.7 修订: pre-4.7 had try around the loop).
+            try:
                 total_files += 1
                 total_size_bytes += f.stat().st_size
-        except Exception as e:
-            self._logger.warning(f"cache stats walk failed: {e}")
+                try:
+                    env = self.file_backend.load(f.stem.removesuffix(".json"))
+                    if env is not None:
+                        meta_dt = (env.get("metadata") or {}).get("data_type", "")
+                        if meta_dt == "stock_data":
+                            stock_data_count += 1
+                        elif meta_dt == "news_data":
+                            news_count += 1
+                        elif meta_dt == "fundamentals_data":
+                            fundamentals_count += 1
+                except Exception:
+                    # Couldn't decode envelope — count it as a file but not
+                    # in any per-type bucket; the file is still on disk.
+                    self._logger.debug(f"cache stats: envelope decode skip {f.name}")
+            except FileNotFoundError:
+                # Concurrent unlink between glob and stat — skip, continue walk
+                total_files -= 1
+                continue
+            except Exception:
+                self._logger.exception(f"cache stats skip {f.name}")
         return {
             "primary_backend": self.config.primary_backend,
             "fallback_enabled": self.config.fallback_enabled,
             "total_files": total_files,
+            # Both keys point at the same number — `total_size_bytes` is the
+            # explicit-unit name; `total_size` is the legacy alias the admin
+            # router reads (kept for byte-compat with the pre-4.4 contract).
+            "total_size": total_size_bytes,
             "total_size_bytes": total_size_bytes,
             "total_size_mb": round(total_size_bytes / (1024 * 1024), 2),
+            # Per-type counts decode each envelope's metadata.data_type.
+            "stock_data_count": stock_data_count,
+            "news_count": news_count,
+            "fundamentals_count": fundamentals_count,
             "cache_dir": str(cache_dir),
             "backend_info": self.get_cache_backend_info(),
         }
@@ -275,19 +403,29 @@ class Cache:
     # ----- public API: clear_old_cache -----
 
     def clear_old_cache(self, max_age_days: int = 7) -> None:
-        cache_dir = self.file_backend.cache_dir
-        cutoff = datetime.now() - timedelta(days=max_age_days)
-        cleared = 0
+        """Clear aged cache across all configured backends.
+
+        Delegates per-backend cleanup via the Backend Protocol's `clear`
+        method (added in 4.7) so Redis (flushdb on max_age_days=0) and
+        Mongo (delete_many) are also touched, not just the file backend.
+        Pre-4.7 `clear_old_cache` only walked `*.json.gz` files — the
+        `/api/cache/clear` admin endpoint promised "清空所有缓存" but
+        left Redis + Mongo entries alive.
+        """
+        # File backend: always
         try:
-            for f in cache_dir.glob("*.json.gz"):
-                try:
-                    mtime = datetime.fromtimestamp(f.stat().st_mtime)
-                    if mtime < cutoff:
-                        f.unlink()
-                        cleared += 1
-                except Exception as e:
-                    self._logger.warning(f"clear_old_cache skip {f}: {e}")
-        except Exception as e:
-            self._logger.warning(f"clear_old_cache walk failed: {e}")
-        if cleared:
-            self._logger.info(f"cleared {cleared} aged cache files (>{max_age_days}d)")
+            self.file_backend.clear(max_age_days)
+        except Exception:
+            self._logger.exception("clear_old_cache: file backend clear failed")
+        # Redis backend: optional
+        if self.redis_backend is not None:
+            try:
+                self.redis_backend.clear(max_age_days)
+            except Exception:
+                self._logger.exception("clear_old_cache: redis backend clear failed")
+        # Mongo backend: optional
+        if self.mongo_backend is not None:
+            try:
+                self.mongo_backend.clear(max_age_days)
+            except Exception:
+                self._logger.exception("clear_old_cache: mongo backend clear failed")
