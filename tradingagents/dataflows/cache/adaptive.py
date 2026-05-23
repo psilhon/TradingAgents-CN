@@ -6,6 +6,7 @@
 
 import hashlib
 import logging
+import warnings
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,12 @@ class AdaptiveCacheSystem:
     """自适应缓存系统"""
 
     def __init__(self, cache_dir: str | None = None, config: CacheConfig | None = None):
+        warnings.warn(
+            "AdaptiveCacheSystem is deprecated; use Cache from tradingagents.dataflows.cache instead. Will be removed in sub-stage 4.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         self.logger = logging.getLogger(__name__)
 
         # 获取数据库管理器

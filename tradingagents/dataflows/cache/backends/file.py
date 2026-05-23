@@ -27,6 +27,11 @@ class FileBackend:
         self._cache_dir = Path(cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
 
+    @property
+    def cache_dir(self) -> Path:
+        """Directory where envelopes are persisted (read-only)."""
+        return self._cache_dir
+
     def save(self, key: str, envelope: dict, ttl_seconds: int | None = None) -> bool:
         """Persist `envelope` under `key` as `{cache_dir}/{key}.json.gz`.
 
