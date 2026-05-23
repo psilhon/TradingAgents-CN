@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Removed
+
+- **删除 deprecated IntegratedCacheManager + AdaptiveCacheSystem（cache-layer-consolidation epic 收尾）**（change `cache-backend-unification` sub-stage 4.6）：4.4 引入新 `Cache` 类时给 `IntegratedCacheManager` / `AdaptiveCacheSystem` 加 `DeprecationWarning`，经 4.5 字节级 cache_key 兼容守护 + 观察期，4.6 拆除两个 deprecated 类。**删除文件**：`tradingagents/dataflows/cache/{adaptive,integrated}.py`（共 725 行）+ `tests/test_cache_deprecation.py`（84 行）。**清理 `cache/__init__.py`**：删除两个 deprecated 类的 `try-import` 块 + `ADAPTIVE_CACHE_AVAILABLE` / `INTEGRATED_CACHE_AVAILABLE` flag + `__all__` 4 个条目。净 -830 行代码。**StockDataCache 保留**（`TA_CACHE_STRATEGY=file` 路径 + `_compat_imports.py` / `providers/us/optimized.py` 2 个外部依赖），未在 4.4 deprecate。grep 验证 0 业务代码引用、0 isinstance 类型断言；`just ci` 367 passed（371 → -4 deprecation tests）。**`cache-layer-consolidation` epic 收尾完成**：6 个 sub-stage 累计 ~89 个 cache unit test 守护，cache 层最终拓扑收敛为 `Cache` 单一公开 API + 3 个 pluggable backends + `CacheConfig` + `StockDataCache`（file 策略备用）。
+
 ### Added
 
 - **Cache 公开 API None-safe 签名 + 历史 cache_key 字节级兼容**（change `cache-backend-unification` sub-stage 4.5）：4.4 写 `Cache` 类时部分公开方法签名（`save_stock_data` / `save_fundamentals_data` / `find_cached_*`）不接受 `None` 入参 + 默认值与 `IntegratedCacheManager` 漂移（`save_fundamentals_data` 默认 `"unknown"` vs `"default"`）。callsite 真实形式 `data_source_manager._save_to_cache(start_date: str | None = None)` 透传 `None` 时 f-string 渲染 `"None"` 字面量产生与历史不同的 cache_key——历史 IntegratedCacheManager 写入的 cache 文件全部 miss + 触发上游 API 重新拉取。修复：公开 API 签名加 `str | None = None` 类型 + 函数体顶 `start_date = start_date or ""` / `data_source = data_source or "default"` normalize，与 4.4 前 IntegratedCacheManager 字节级一致。8 个新 unit test（含 legacy cache_key md5 字节级守护：`md5("AAPL___finnhub_stock_data")` MUST 与新 Cache 对 `(None, None, "finnhub")` 的 cache_key 字节级相同）。零 callsite 改动；371 passed CI。
