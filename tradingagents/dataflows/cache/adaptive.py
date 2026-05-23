@@ -5,15 +5,18 @@
 """
 
 import hashlib
+import json
 import logging
-import pickle
 from datetime import datetime, timedelta
+from io import StringIO
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
 from tradingagents.config.database_manager import get_database_manager
+
+from ._serialize import decode_envelope, encode_envelope
 
 
 class AdaptiveCacheSystem:
@@ -73,11 +76,11 @@ class AdaptiveCacheSystem:
     def _save_to_file(self, cache_key: str, data: Any, metadata: dict) -> bool:
         """保存到文件缓存"""
         try:
-            cache_file = self.cache_dir / f"{cache_key}.pkl"
+            cache_file = self.cache_dir / f"{cache_key}.json.gz"
             cache_data = {"data": data, "metadata": metadata, "timestamp": datetime.now(), "backend": "file"}
 
             with open(cache_file, "wb") as f:
-                pickle.dump(cache_data, f)
+                f.write(encode_envelope(cache_data))
 
             self.logger.debug(f"文件缓存保存成功: {cache_key}")
             return True
@@ -89,12 +92,12 @@ class AdaptiveCacheSystem:
     def _load_from_file(self, cache_key: str) -> dict | None:
         """从文件缓存加载"""
         try:
-            cache_file = self.cache_dir / f"{cache_key}.pkl"
+            cache_file = self.cache_dir / f"{cache_key}.json.gz"
             if not cache_file.exists():
                 return None
 
             with open(cache_file, "rb") as f:
-                cache_data = pickle.load(f)
+                cache_data = decode_envelope(f.read())
 
             self.logger.debug(f"文件缓存加载成功: {cache_key}")
             return cache_data
@@ -110,10 +113,9 @@ class AdaptiveCacheSystem:
             return False
 
         try:
-            cache_data = {"data": data, "metadata": metadata, "timestamp": datetime.now().isoformat(), "backend": "redis"}
+            cache_data = {"data": data, "metadata": metadata, "timestamp": datetime.now(), "backend": "redis"}
 
-            serialized_data = pickle.dumps(cache_data)
-            redis_client.setex(cache_key, ttl_seconds, serialized_data)
+            redis_client.setex(cache_key, ttl_seconds, encode_envelope(cache_data))
 
             self.logger.debug(f"Redis缓存保存成功: {cache_key}")
             return True
@@ -133,11 +135,7 @@ class AdaptiveCacheSystem:
             if not serialized_data:
                 return None
 
-            cache_data = pickle.loads(serialized_data)
-
-            # 转换时间戳
-            if isinstance(cache_data["timestamp"], str):
-                cache_data["timestamp"] = datetime.fromisoformat(cache_data["timestamp"])
+            cache_data = decode_envelope(serialized_data)
 
             self.logger.debug(f"Redis缓存加载成功: {cache_key}")
             return cache_data
@@ -161,8 +159,8 @@ class AdaptiveCacheSystem:
                 serialized_data = data.to_json()
                 data_type = "dataframe"
             else:
-                serialized_data = pickle.dumps(data).hex()
-                data_type = "pickle"
+                serialized_data = json.dumps(data, default=str)
+                data_type = "json"
 
             cache_doc = {
                 "_id": cache_key,
@@ -204,9 +202,14 @@ class AdaptiveCacheSystem:
 
             # 反序列化数据
             if doc["data_type"] == "dataframe":
-                data = pd.read_json(doc["data"])
+                data = pd.read_json(StringIO(doc["data"]))
+            elif doc["data_type"] == "json":
+                data = json.loads(doc["data"])
             else:
-                data = pickle.loads(bytes.fromhex(doc["data"]))
+                # legacy data_type == "pickle"：禁止 unpickle，删 doc 后 cache miss
+                collection.delete_one({"_id": cache_key})
+                self.logger.info(f"删除 legacy pickle MongoDB 缓存条目: {cache_key}")
+                return None
 
             cache_data = {"data": data, "metadata": doc["metadata"], "timestamp": doc["timestamp"], "backend": "mongodb"}
 
@@ -387,12 +390,12 @@ class AdaptiveCacheSystem:
         """清理过期缓存"""
         self.logger.info("开始清理过期缓存...")
 
-        # 清理文件缓存
+        # 清理文件缓存（新格式 .json.gz）
         cleared_files = 0
-        for cache_file in self.cache_dir.glob("*.pkl"):
+        for cache_file in self.cache_dir.glob("*.json.gz"):
             try:
                 with open(cache_file, "rb") as f:
-                    cache_data = pickle.load(f)
+                    cache_data = decode_envelope(f.read())
 
                 symbol = cache_data["metadata"].get("symbol", "")
                 data_type = cache_data["metadata"].get("data_type", "stock_data")
@@ -404,6 +407,17 @@ class AdaptiveCacheSystem:
 
             except Exception as e:
                 self.logger.error(f"清理缓存文件失败 {cache_file}: {e}")
+
+        # Legacy sweep：老 .pkl 文件无脑删除（禁止 pickle.load）
+        legacy_removed = 0
+        for legacy_file in self.cache_dir.glob("*.pkl"):
+            try:
+                legacy_file.unlink()
+                legacy_removed += 1
+            except Exception as e:
+                self.logger.error(f"删除 legacy pickle 文件失败 {legacy_file}: {e}")
+        if legacy_removed:
+            self.logger.info(f"清理 legacy .pkl 缓存文件 {legacy_removed} 个（不反序列化）")
 
         self.logger.info(f"文件缓存清理完成，删除 {cleared_files} 个过期文件")
 
