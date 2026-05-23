@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **yfinance.Ticker LRU 缓存**（change `dataflows-reliability-hardening` sub-stage 1.4）：`tradingagents/dataflows/providers/us/yfinance.py` 此前 3 处构造 `yf.Ticker(symbol)`——`init_ticker` decorator wrapping `YFinanceUtils` 全部方法（line 46）+ `get_YFin_data_online`（line 163）+ 技术指标函数（line 272）——每次方法调用重建 ticker，yfinance 内部 session setup（HTTP client / cookie / proxy detection）每次重做。同一 agent 请求会对同 ticker 调多个方法（fetch price + info + dividends + financials），重复构造开销可观。引入 module-level `_get_ticker(symbol)` helper 走 `functools.lru_cache(maxsize=128)` 缓存 + 内部 normalize 模式（`_get_ticker_cached(normalized_symbol)` 真正缓存，`_get_ticker` 先 `.upper()` 后委派——避免 `"aapl"`/`"AAPL"`/`"AaPl"` 占 3 个 cache 槽）。3 处构造点全部改调 helper；公开 API 行为零变化（yfinance Ticker 内部数据 lazy load + 自带 TTL，复用安全）。grep 守护：`yf.Ticker(` 全文件命中 MUST = 1（仅在 `_get_ticker_cached` helper 内）。7 个新 unit test（helper 存在 + lru_cache 装饰 + 同 symbol cache hit + 不同 symbol 独立 + case-insensitive 合并 + init_ticker decorator 路由 + source-level grep 守护防回归），`just ci` 448 passed（+7 vs 1.1 baseline 441）。
+
 ### Fixed
 
 - **realtime_news 3 处 requests.get 加 timeout**（change `dataflows-reliability-hardening` sub-stage 1.1）：`tradingagents/dataflows/news/realtime_news.py` 内 `RealtimeNewsAggregator._get_finnhub_realtime_news` (line 162) / `_get_alpha_vantage_news` (line 204) / `_get_newsapi_news` (line 260) 三处 `requests.get(url, params=params, headers=self.headers)` 均缺 `timeout` 参数——FinnHub / Alpha Vantage / NewsAPI 故障 / 网络分区 / DNS 失败时 `requests.get` 默认无限阻塞，作为 user-facing 路径（agent 节点直接调用）会拖死整条 agent 链。每处加 `timeout=(10, 30)` 元组（与 `news/google_news.py:46` 同惯例：connect 10s + read 30s）；超时触发的 `requests.Timeout` 已被原有 `except Exception` 接住 → 返 `[]` 空列表（fallback 语义不变）。新建 capability spec `docs/specs/dataflows-reliability/spec.md`（4 Requirement + 7 Scenario：HTTP timeout / 进程级副作用收敛 / session 单例线程安全 / client 实例缓存），立 epic `dataflows-reliability-hardening`（4 sub-stage 蓝本，本项为 1.1）。新增 4 个 unit test（含 source-level grep 守护，防新增 fetch 方法漏 timeout 回归）；`just ci` 441 passed / 2 skipped（+4 vs v1.3.5 baseline 437）。

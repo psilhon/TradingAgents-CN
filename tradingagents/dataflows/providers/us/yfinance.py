@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 from datetime import datetime
-from functools import wraps
+from functools import lru_cache, wraps
 from typing import Annotated, Any
 
 import pandas as pd
@@ -38,12 +38,58 @@ def get_cache():
     return _cache_module() if _cache_module else None
 
 
+@lru_cache(maxsize=128)
+def _get_ticker_cached(normalized_symbol: str) -> "yf.Ticker":
+    """LRU-cached factory keyed on the already-normalized (uppercase) symbol.
+
+    Wrapped by `_get_ticker` which applies `.upper()` before this call,
+    so `_get_ticker_cached("aapl")` cannot happen — `_get_ticker_cached`
+    only ever sees the canonical uppercase form, giving a single cache
+    slot per symbol regardless of caller-side case.
+
+    maxsize=128 covers > typical single-process active stock count; LRU
+    eviction handles the long tail.
+    """
+    return yf.Ticker(normalized_symbol)
+
+
+def _get_ticker(symbol: str) -> "yf.Ticker":
+    """Cached Ticker factory — case-insensitive on symbol.
+
+    Ticker construction isn't free: yfinance internal session setup
+    (HTTP client / cookie / proxy detection) runs each ctor call. A typical
+    agent request touches `history` + `info` + `dividends` + `financials`
+    on the same ticker; caching lets all of these share one Ticker instance.
+
+    Case-insensitive: `_get_ticker("aapl")` and `_get_ticker("AAPL")` hit
+    the same cache slot — yfinance accepts either case but the symbols are
+    semantically identical, so the normalize-then-cache pattern collapses
+    them.
+
+    Defined per `docs/specs/dataflows-reliability/spec.md` Requirement
+    「第三方 client 实例须缓存」。
+    """
+    return _get_ticker_cached(symbol.upper())
+
+
+# Expose lru_cache introspection on the public name so tests and ops can
+# call `_get_ticker.cache_info()` / `.cache_clear()` without knowing about
+# the internal `_get_ticker_cached` wrapping layer.
+_get_ticker.cache_info = _get_ticker_cached.cache_info  # type: ignore[attr-defined]
+_get_ticker.cache_clear = _get_ticker_cached.cache_clear  # type: ignore[attr-defined]
+
+
 def init_ticker(func: Callable) -> Callable:
-    """Decorator to initialize yf.Ticker and pass it to the function."""
+    """Decorator: resolve Ticker via the cached `_get_ticker` helper.
+
+    Routes through `_get_ticker(symbol)` rather than constructing a new
+    Ticker per call so that repeated method invocations on the same symbol
+    share an instance.
+    """
 
     @wraps(func)
     def wrapper(symbol: Annotated[str, "ticker symbol"], *args, **kwargs) -> Any:
-        ticker = yf.Ticker(symbol)
+        ticker = _get_ticker(symbol)
         return func(ticker, *args, **kwargs)
 
     return wrapper
@@ -159,8 +205,8 @@ def get_stock_data_with_indicators(
         datetime.strptime(start_date, "%Y-%m-%d")
         datetime.strptime(end_date, "%Y-%m-%d")
 
-        # 创建 ticker 对象
-        ticker = yf.Ticker(symbol.upper())
+        # 创建 ticker 对象（经 _get_ticker LRU 复用同 symbol 实例）
+        ticker = _get_ticker(symbol)
 
         # 获取历史数据
         data = ticker.history(start=start_date, end=end_date)
@@ -269,7 +315,7 @@ def get_technical_indicator(
 
         # 获取股票数据
         logger.info(f"📊 [yfinance] 获取 {symbol} 技术指标 {indicator}，日期范围: {start_date} 至 {curr_date}")
-        ticker = yf.Ticker(symbol.upper())
+        ticker = _get_ticker(symbol)
         data = ticker.history(start=start_date, end=curr_date)
 
         if data.empty:
