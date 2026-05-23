@@ -62,6 +62,7 @@
 
 - `save(key: str, envelope: dict, ttl_seconds: int | None = None) -> bool` — 将 envelope dict 写入后端；`ttl_seconds` 是 backend native TTL（redis `setex` / mongo `expires_at`），`None` 表示不设过期或后端无 native TTL（file 后端忽略）；成功返回 `True`，失败返回 `False`（不 raise）
 - `load(key: str) -> dict | None` — 从后端读取 envelope dict；不存在 / 读取失败返回 `None`（不 raise）
+- `clear(max_age_days: int) -> None` — 清理过期数据（4.7 起加入）：`max_age_days=0` 表示清空全部；非 0 表示删除超过 `max_age_days` 天的条目。各后端语义：File 删 mtime 早于 cutoff 的 `*.json.gz`；Redis `max_age_days=0` 调 `flushdb()`，非 0 时 no-op（Redis 自有 native TTL）；Mongo `max_age_days=0` 调 `delete_many({})`，非 0 时 `delete_many({"timestamp": {"$lt": cutoff}})`
 
 Protocol MUST NOT 包含：
 
@@ -158,13 +159,15 @@ Protocol MUST NOT 包含：
   - DataFrame `data` 字段 → `df.to_json(orient='split')` + `data_type="dataframe"`
   - 其它 `data` 字段 → `json.dumps(default=str)` + `data_type="json"`
   - 含 `_id=key` / `metadata` / `timestamp` / `expires_at`（仅 `ttl_seconds` 非 None 时设置）/ `backend="mongodb"`
+  - 所有 `datetime` 值（`timestamp` / `expires_at`）MUST 使用 `datetime.now(timezone.utc)`（4.7 起 timezone-aware UTC，与 BSON 存储语义一致；避免 naive local 与 pymongo 默认 naive UTC 反序列化的时区漂移）
   - `replace_one({"_id": key}, doc, upsert=True)`
 - `load(key) -> dict | None` — `find_one({"_id": key})`：
   - doc 不存在 → 返 `None`
-  - `expires_at` 已过期 → 删 doc + 返 `None`
+  - `expires_at` 已过期 → 删 doc + 返 `None`（4.7 起：read 时若 `expires_at` 为 naive 则视作 UTC 处理；比对用 `datetime.now(timezone.utc)`）
   - `data_type="dataframe"` → `pd.read_json(StringIO(data))` 重建 DataFrame
   - `data_type="json"` → `json.loads(data)` 重建
   - `data_type="pickle"`（legacy） → 删 doc + log + 返 `None`，**MUST NOT** 调任何 `pickle.load*` / `pickle.loads`
+  - 未识别 `data_type`（其它值） → 4.7 起 MUST `delete_one` + warn + 返 `None`（消除 zombie 累积；4.6 前仅 warn 不删）
   - 重建为 envelope `{data, metadata, timestamp, backend="mongodb"}` 返回
 
 `MongoBackend` MUST：
@@ -209,10 +212,12 @@ Protocol MUST NOT 包含：
 - `@dataclass(frozen=True)` 修饰，构造后字段不可变（赋值 MUST raise `dataclasses.FrozenInstanceError`）
 - 字段：
   - `cache_strategy: Literal["integrated", "adaptive", "file"]` — 顶层 instantiation 决策（`get_cache()` 用），folded `TA_CACHE_STRATEGY` env
-  - `primary_backend: Literal["redis", "mongodb", "file"]` — `AdaptiveCacheSystem` 首选 backend，由 db_manager 检测可用性派生
+  - `primary_backend: Literal["redis", "mongodb", "file"]` — `Cache` 首选 backend，由 db_manager 检测可用性派生
   - `fallback_enabled: bool` — 主 backend 失败时是否降级到 file
-  - `ttl_settings: Mapping[str, int]` — `{market}_{data_type}` → TTL seconds，MUST 含 6 个标准 key（`us_stock_data` / `us_news` / `us_fundamentals` / `china_stock_data` / `china_news` / `china_fundamentals`）
+  - `ttl_settings: Mapping[str, int]` — `{market}_{data_type_stem}` → TTL seconds，MUST 含 6 个标准 key（`us_stock_data` / `us_news` / `us_fundamentals` / `china_stock_data` / `china_news` / `china_fundamentals`）。注意 key 用 stem（无 `_data` 后缀）即使消费方传入 `"fundamentals_data"` / `"news_data"`（`Cache._get_ttl_seconds` 自动 strip suffix；见 Cache Requirement）
 - `from_environment(db_manager) -> CacheConfig` classmethod：从 env + db_manager 检测结果构造 CacheConfig 的产线工厂
+- `__post_init__` 4.7 起 MUST 运行时校验 Literal 字段（`cache_strategy` ∈ {integrated, adaptive, file}，`primary_backend` ∈ {redis, mongodb, file}），非法值 MUST raise `ValueError`（不再依赖类型检查工具——`CacheConfig(primary_backend="postgres")` 直接构造也要 raise）
+- 显式 `eq=True, unsafe_hash=False` + 自定义 `__hash__` 基于 `(cache_strategy, primary_backend, fallback_enabled, tuple(sorted(ttl_settings.items())))`（4.7 起；`Mapping` 默认不 hashable，dataclass 自动派生的 `__hash__` 会 raise TypeError）
 
 `CacheConfig` MUST NOT 含：
 
@@ -279,8 +284,14 @@ Protocol MUST NOT 包含：
 - envelope 构建（`{data, metadata, timestamp, backend}` dict）
 - 路由：按 `config.primary_backend` 选 primary backend 调 save/load
 - fallback：primary 失败时 if `config.fallback_enabled` 降到 `file_backend`
-- TTL 推断：`config.ttl_settings.get(f"{market}_{data_type}", 7200)`
-- cache_key 生成：md5 hash(symbol + dates + data_source + data_type)
+- TTL 推断：`config.ttl_settings.get(f"{market}_{data_type_stem}", 7200)`。**4.7 修订**：`data_type_stem` 为 caller 传入 `data_type` 去掉可能的 `_data` 后缀（与历史 IntegratedCacheManager 一致：`"fundamentals_data" → "us_fundamentals"`；`"news_data" → "us_news"`；`"stock_data"` 不变）
+- cache_key 生成：md5 hash(symbol + dates + data_source + data_type)。**4.7 修订**：fundamentals / news 路径 MUST 使用 `"fundamentals_data"` / `"news_data"` 作 data_type（与历史 IntegratedCacheManager → AdaptiveCacheSystem.save_data 字节级一致）
+- **load 路径 TTL 强制**（4.7 起）：`load_stock_data` / `load_fundamentals_data` MUST 在返回 envelope.data 前用 `_get_ttl_seconds(metadata.symbol, metadata.data_type)` 派生 TTL，检查 envelope.timestamp 是否 fresh；过期 → 返 None
+- **find_cached_\* TTL 强制**（4.7 起）：`find_cached_stock_data` / `find_cached_fundamentals_data` 在 `max_age_hours=None` 时使用上述 default TTL；非 None 时使用 `max_age_hours * 3600`
+- **is_cache_valid 读 envelope metadata**（4.7 起）：MUST 优先从 envelope.metadata.symbol / metadata.data_type 派生 TTL bucket，caller 传的 symbol/data_type 仅作 fallback
+- **Cache.__init__ 一致性校验**（4.7 起）：`config.primary_backend == "redis"` 且 `redis_backend is None` MUST raise `ValueError`；mongo 同
+- **metadata_dir 兼容属性**（4.7 起）：Cache MUST 暴露 `metadata_dir` property 指向 `file_backend.cache_dir / ".compat_empty_metadata"`（不实际创建），让历史 callsite `cache.metadata_dir.glob("*_meta.json")`（StockDataCache 时代留下的兜底路径）不再 raise AttributeError，行为退化为 silent return None（恢复 stale-cache fallback 留待未来 sub-stage）
+- `get_cache_stats` 返回 dict（4.7 修订）MUST 含字段：`primary_backend` / `fallback_enabled` / `total_files` / `total_size` (bytes，**字段名字节级匹配** `app/routers/cache.py:38` 消费) / `total_size_bytes` (alias) / `total_size_mb` / `cache_dir` / `backend_info` / `stock_data_count` / `news_count` / `fundamentals_count`（per-type count 由 file_backend 解 envelope.metadata.data_type 累加；redis/mongo primary 时返 0）
 
 `Cache` MUST NOT：
 
@@ -329,4 +340,107 @@ Protocol MUST NOT 包含：
 - **WHEN** 调用 `Cache.find_cached_stock_data("AAPL")` 仅传 symbol（其它 optional 全 None）
 - **THEN** MUST NOT raise + 走与 `(symbol, "", "", "default", None)` 等价路径
 
-> **历史注记**：4.4 加入「Requirement: IntegratedCacheManager / AdaptiveCacheSystem 标记 deprecated」+ 2 个相关 Scenario；4.6（commit pending）随删除两个 deprecated 类一并删除该 Requirement。两个类在 4.6 后从 cache 层彻底拆除——见 `docs/specs/cache-backend-unification/4.6-remove-deprecated-layers/proposal.md`。`StockDataCache` 在 4.4 未 deprecate，4.6 保留（`TA_CACHE_STRATEGY=file` 路径 + 2 个外部 import 依赖）。
+> **历史注记**：4.4 加入「Requirement: IntegratedCacheManager / AdaptiveCacheSystem 标记 deprecated」+ 2 个相关 Scenario；4.6 随删除两个 deprecated 类一并删除该 Requirement。两个类在 4.6 后从 cache 层彻底拆除。`StockDataCache` 在 4.4 未 deprecate，4.6 保留（`TA_CACHE_STRATEGY=file` 路径 + 2 个外部 import 依赖）。
+
+### Requirement: get_cache 工厂线程安全 + 失败实例不缓存
+
+`tradingagents/dataflows/cache/__init__.py` 的 `get_cache()` 工厂（4.7 起）MUST：
+
+- 单例访问受 `threading.Lock` 保护（FastAPI 异步 handler + Uvicorn worker 多线程下避免冷启动 race 双重 instantiate backends）
+- 首次构造若走 fallback 路径（`Cache` init 失败 → `StockDataCache`）MUST NOT 缓存该 fallback 实例，下次 `get_cache()` 重试主路径
+- 主路径成功构造的 `Cache` 实例 MUST 缓存（避免重复创建 db client）
+- 暴露 `reset_cache()` 模块级函数，清除单例（测试 + 运维 reload 用）
+
+#### Scenario: get_cache 线程安全
+
+- **WHEN** N 个线程同时调首次 `get_cache()`
+- **THEN** 全部线程 MUST 返回同一 `Cache` 实例（`id()` 相等）
+- **AND** `FileBackend.__init__` / `RedisBackend.__init__` / `MongoBackend.__init__` 各 MUST 仅被调用一次
+
+#### Scenario: fallback 实例不持久化
+
+- **WHEN** `Cache` 初始化抛异常（e.g. `db_manager` 不可用），`get_cache()` 返 `StockDataCache` fallback 实例
+- **AND** 后续条件改善（`db_manager` 恢复）
+- **AND** 再次 `get_cache()`
+- **THEN** MUST 重新尝试 `Cache` 主路径（不返回先前 fallback 缓存）
+
+#### Scenario: reset_cache 清除单例
+
+- **WHEN** `get_cache()` 已返回缓存实例
+- **AND** 调 `reset_cache()`
+- **AND** 再次 `get_cache()`
+- **THEN** MUST 构造新实例（不返回先前缓存）
+
+### Requirement: Cache 公开 API 4.7 修订汇总
+
+下列 Scenarios 守护 4.7 引入 / 修订的 Cache 行为。
+
+#### Scenario: Cache.load_stock_data 强制 TTL
+
+- **WHEN** 调 `cache.save_stock_data("AAPL", data, ...)` 得 cache_key
+- **AND** 模拟时间快进超过 `us_stock_data=7200s` TTL
+- **AND** 调 `cache.load_stock_data(cache_key)`
+- **THEN** MUST 返 `None`（4.7 前会返 stale data）
+
+#### Scenario: Cache.find_cached_*(max_age_hours=None) 走 default TTL
+
+- **WHEN** save 一个 12 小时前的 stock_data envelope（us 股，TTL=2h）
+- **AND** 调 `find_cached_stock_data("AAPL", ..., data_source="...", max_age_hours=None)`
+- **THEN** MUST 返 `None`（envelope 已超 default TTL；4.7 前 max_age_hours=None 跳过 TTL 检查）
+
+#### Scenario: Cache.is_cache_valid 优先读 envelope.metadata
+
+- **WHEN** save 一个 A 股 fundamentals envelope（`metadata.symbol="000001"` / `metadata.data_type="fundamentals_data"`），90 分钟前
+- **AND** 调 `cache.is_cache_valid(cache_key)` 不传 symbol / data_type
+- **THEN** MUST 从 envelope.metadata 读出 symbol/data_type → 计算 `china_fundamentals=43200s` TTL → 返 True
+- **AND** **不应** 回退到 default `us_stock_data` bucket（4.7 前 bug 路径）
+
+#### Scenario: Cache.save_fundamentals_data 字节级回退到 fundamentals_data data_type
+
+- **WHEN** `cache.save_fundamentals_data("AAPL", report, "finnhub")`
+- **THEN** cache_key MUST == `md5("AAPL___finnhub_fundamentals_data")` (与 4.6 前 IntegratedCacheManager → adaptive_cache.save_data(data_type="fundamentals_data") 字节级一致)
+- **AND** `_get_ttl_seconds("AAPL", "fundamentals_data")` MUST 派生 `us_fundamentals=86400s`（strip `_data` suffix 查找）
+
+#### Scenario: Backend.clear 跨后端清理
+
+- **WHEN** `cache.clear_old_cache(0)` 调用，primary=redis with fallback file
+- **THEN** MUST 调 `file_backend.clear(0)` + `redis_backend.clear(0)` + `mongo_backend.clear(0)`（若 mongo_backend 非 None）
+- **AND** `redis_backend.clear(0)` MUST 调 underlying `redis_client.flushdb()`
+- **AND** `mongo_backend.clear(0)` MUST 调 underlying `collection.delete_many({})`
+- **AND** `file_backend.clear(0)` MUST 删除全部 `*.json.gz`
+
+#### Scenario: Cache.get_cache_stats 字段完整
+
+- **WHEN** save 3 个 stock_data + 1 个 news_data + 2 个 fundamentals_data envelope
+- **AND** 调 `cache.get_cache_stats()`
+- **THEN** 返 dict MUST 含 `total_size` (字节，与 4.6 前 IntegratedCacheManager 字段名一致 — `app/routers/cache.py:39` 消费) / `stock_data_count=3` / `news_count=1` / `fundamentals_count=2`
+- **AND** MUST 同时含 4.6 字段 `total_size_bytes` / `total_size_mb` / `total_files=6` / `primary_backend` / `fallback_enabled` / `cache_dir` / `backend_info`
+
+#### Scenario: Cache.__init__ 一致性校验
+
+- **WHEN** 构造 `Cache(file_backend=fb, config=CacheConfig(primary_backend="redis", ...), redis_backend=None)`
+- **THEN** MUST raise `ValueError`（明示 redis_backend 不可缺）
+- **WHEN** 构造 `Cache(file_backend=fb, config=CacheConfig(primary_backend="mongodb", ...), mongo_backend=None)`
+- **THEN** 同样 raise
+
+#### Scenario: Cache.metadata_dir 兼容属性
+
+- **WHEN** 访问 `cache.metadata_dir`
+- **THEN** MUST 返回 `Path` 对象（指向 `file_backend.cache_dir / ".compat_empty_metadata"`，不实际创建该目录）
+- **AND** `cache.metadata_dir.glob("*_meta.json")` MUST 返回空迭代器（不 raise）
+- **AND** 历史 callsite `_try_get_old_cache` 经此 path silent 退化为 return None（不再 AttributeError）
+
+#### Scenario: CacheConfig __post_init__ Literal 校验
+
+- **WHEN** 构造 `CacheConfig(cache_strategy="bogus", primary_backend="redis", fallback_enabled=True, ttl_settings={})`
+- **THEN** MUST raise `ValueError`
+- **WHEN** `CacheConfig(cache_strategy="integrated", primary_backend="postgres", ...)` 
+- **THEN** 同样 raise
+- **AND** 错误 message MUST 命名非法字段 + 列出允许值
+
+#### Scenario: CacheConfig 可 hash
+
+- **WHEN** 构造 `CacheConfig(...)` 实例
+- **AND** 调 `hash(config)`
+- **THEN** MUST 返 int（不 raise TypeError）
+- **AND** 两个字段相等的 CacheConfig 实例 MUST hash 相等
