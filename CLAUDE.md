@@ -87,6 +87,11 @@ just clean       # 实际清理
 - **commit message 风格**：跟上游保持中英混合（`feat:` / `fix:` / `chore:` 前缀 + 中英文 body），看 `git log --oneline` 学。
 - **Python 包用 flat layout**（`tradingagents/` 而非 `src/tradingagents/`）—— `pyproject.toml [tool.setuptools.packages.find]` 已配 `include = ["tradingagents*"]`。`project-audit` 报 `src/` 缺失为**已知误报**，不要建 `src/`。
 - **`pre-commit` hook 处于 STRICT 模式**：3 个 hook（ruff-check / ruff-format / pyright）pre-commit 阻塞，pytest -m unit 在 pre-push 阻塞。所有 hook 0 errors 才能 commit/push。详见 `openspec/specs/lint-policy/spec.md`。
+- **codegraph 使用纪律**：本仓装了 `.codegraph/` 索引（参 `~/.claude/templates/codegraph.md`）。**已知失败模式**：WASM SQLite 后端多 CC 会话并发时 DB 被锁，`Stop → sync-if-dirty` 静默失败；外部改动（`git pull` / 别 IDE）不触发 mark-dirty。结果是索引可静默过期数天，`codegraph_search` 返回错误的"无结果"，模型误判"代码不存在"。**纪律**：
+    - SessionStart hook `~/.claude/hooks/codegraph-freshness-check.sh` 会在会话开头自动告警；**hook 静默 = 索引健康**（判据：DB mtime 距 `git log -1 --format=%ct` < 48h 且 indexed files ≥ 实际 `*.{py,ts,tsx,js,jsx}` 90%）
+    - hook 告警时：把后续 `mcp__codegraph__*` 结果当"可能不完整"，优先 `grep + Read` 复核；或先 `kill <codegraph serve --mcp PID>` + `codegraph index --force` 重建（MCP 自动重连）
+    - `codegraph_search` 返回空时，**先怀疑索引覆盖**，不要直接断言符号不存在
+    - codegraph 可能索引到 `app/` / `frontend/src/` 等专有授权目录——查询结果可读，但**不基于 codegraph 命中对这两个目录做修改建议**（保持上文「完全不动」边界）
 
 ## Fork patch 清单（哪些上游 tracked 文件可改 / 必须改 / 不动）
 
