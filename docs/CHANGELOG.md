@@ -8,6 +8,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **agents**: `Toolkit` config 跨请求串味（cross-request config bleed）修复 —— `tradingagents/agents/utils/agent_utils.py` 此前用**类级共享可变 dict** `_config` 持有 config，`update_config` 做 `cls._config.update()` in-place 改写全进程共享 dict，并发分析（每次 `Toolkit(config)` 新建）互相覆盖配置（如 `research_depth`）。新增 `tradingagents/agents/utils/toolkit_config.py` 用 `contextvars.ContextVar` 持有请求级 config（`set_toolkit_config` 永远写新 dict 合并 `DEFAULT_CONFIG`，绝不 mutate 共享态；`get_toolkit_config` 命中 ContextVar 否则回退 DEFAULT_CONFIG 副本）；`Toolkit.__init__` / `config` property / 唯一消费点（基本面工具 `research_depth` 读取）改走 helper。分析在 worker 线程内执行，每线程独立 ContextVar context → 天然隔离。`_config` 类属性 + `update_config` classmethod 保留作兼容兜底（标 deprecated）。6 个新 unit 测试（跨线程隔离回归 + 默认兜底 + 不污染 DEFAULT_CONFIG + merge + property 一致性 + 消费点路径）。来源：2026-05-30 全项目 code review（HIGH/CONFIRMED）。见 `docs/specs/toolkit-config-isolation/`。
+
+- **dataflows**: `optimized_china_data._get_real_financial_metrics` async 事件循环安全桥接 —— 此前用 `asyncio.get_event_loop().run_until_complete()` 驱动 async provider（AKShare/Tushare）；从已运行的事件循环（async FastAPI 路由 / LangGraph async 节点）调用时抛 `RuntimeError("This event loop is already running")`，被宽 `except` 吞掉 → 真实财务数据静默退化为 None（落回"无财务数据"估算模板）。新增 `tradingagents/utils/async_bridge.run_coro_blocking`（循环已运行时 offload 到独立线程的新循环，否则 `asyncio.run`）；4 处 `run_until_complete` 全部改用之。4 个新 unit 测试（循环内/外 × 成功/异常路径）。来源：同上 code review（HIGH/CONFIRMED）。
+
 ## [1.4.0] — 2026-05-30
 
 **Fork minor release** —— M3「全面 code & 安全审计加固 + dataflows 可靠性/schema 一致性 epic 收尾」。本次发版滚入累积的 `dataflows-reliability-hardening`（1.1-1.4：HTTP timeout / AKShare 限流线程安全 / baostock session 生命周期 / yfinance LRU）+ `dataflows-schema-consistency-hardening`（2.1-2.3：交易所后缀统一 / trade_date ISO 8601 / full_symbol invariant），并叠加一轮 5 路并行 code & 安全审计的修复。**无用户可见 API 行为变化**（密码哈希为内部迁移，对存量用户透明）。
