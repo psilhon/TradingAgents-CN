@@ -7,6 +7,7 @@
 import hashlib
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -189,7 +190,11 @@ class StockDataCache:
 
         # 使用MD5生成短的唯一标识
         cache_key = hashlib.md5(params_str.encode()).hexdigest()[:12]
-        return f"{symbol}_{data_type}_{cache_key}"
+        # symbol 来自外部/LLM 工具参数，会逐字进入缓存文件名（见 _get_cache_path）。
+        # 不做字符白名单时，形如 "../../etc/x" 的 symbol 可越出 base_dir（路径遍历）。
+        # 仅净化进入文件名的部分；market 分类仍用原始 symbol，行为不变。
+        safe_symbol = re.sub(r"[^A-Za-z0-9._-]", "_", symbol)
+        return f"{safe_symbol}_{data_type}_{cache_key}"
 
     def _get_cache_path(self, data_type: str, cache_key: str, file_format: str = "json", symbol: str | None = None) -> Path:
         """获取缓存文件路径 - 支持市场分类"""
