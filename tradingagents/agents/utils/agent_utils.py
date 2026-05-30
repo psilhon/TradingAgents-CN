@@ -5,6 +5,7 @@ from langchain_core.messages import HumanMessage, RemoveMessage
 from langchain_core.tools import tool
 
 import tradingagents.dataflows.interface as interface
+from tradingagents.agents.utils.toolkit_config import get_toolkit_config, set_toolkit_config
 from tradingagents.default_config import DEFAULT_CONFIG
 
 # 导入日志模块
@@ -31,21 +32,26 @@ def create_msg_delete():
 
 
 class Toolkit:
+    # 类属性保留作 ContextVar 未 set 时的默认兜底来源（不再承载请求级状态）。
     _config = DEFAULT_CONFIG.copy()
 
     @classmethod
     def update_config(cls, config):
-        """Update the class-level configuration."""
-        cls._config.update(config)
+        """Set request-scoped config via ContextVar.
+
+        Deprecated（命名保留兼容）：此前 in-place mutate 类级共享 dict，导致
+        并发分析跨请求串味。现转调 set_toolkit_config，写请求级 ContextVar。
+        """
+        set_toolkit_config(config)
 
     @property
     def config(self):
-        """Access the configuration."""
-        return self._config
+        """Access the current request-scoped configuration."""
+        return get_toolkit_config()
 
     def __init__(self, config=None):
         if config:
-            self.update_config(config)
+            set_toolkit_config(config)
 
     @staticmethod
     @tool
@@ -689,7 +695,7 @@ class Toolkit:
         logger.info(f"📊 [统一基本面工具] 分析股票: {ticker}")
 
         # 🔧 获取分析级别配置，支持基于级别的数据获取策略
-        research_depth = Toolkit._config.get("research_depth", "标准")
+        research_depth = get_toolkit_config().get("research_depth", "标准")
         logger.info(f"🔧 [分析级别] 当前分析级别: {research_depth}")
 
         # 数字等级到中文等级的映射
