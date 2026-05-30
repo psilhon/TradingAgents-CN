@@ -181,6 +181,11 @@ ${G}✅ 本地部署模式初始化完成${N}
                    $MONGO_APP_USER / $MONGO_APP_PASS @ $MONGO_DB
   Redis            密码 tradingagents123              ← 127.0.0.1:$REDIS_PORT
 
+${G}⚠️  安全提示${N}
+  上述 admin/admin123 仅为本地 loopback 学习环境的默认弱口令。
+  若本机会被他人访问、或将服务暴露到非 loopback 网络，请立即登录后修改密码
+  （Web 端 → 账户设置 → 修改密码），否则任何能访问 54301 端口的人都能用默认口令登录。
+
 特点：
   - 不使用 brew services，PID 由项目自管，多实例可并存
   - 数据存项目内 data/mongodb 和 data/redis
