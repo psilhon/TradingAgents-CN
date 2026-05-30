@@ -14,6 +14,8 @@
 
 - **dataflows**: `optimized_china_data._get_real_financial_metrics` async 事件循环安全桥接 —— 此前用 `asyncio.get_event_loop().run_until_complete()` 驱动 async provider（AKShare/Tushare）；从已运行的事件循环（async FastAPI 路由 / LangGraph async 节点）调用时抛 `RuntimeError("This event loop is already running")`，被宽 `except` 吞掉 → 真实财务数据静默退化为 None（落回"无财务数据"估算模板）。新增 `tradingagents/utils/async_bridge.run_coro_blocking`（循环已运行时 offload 到独立线程的新循环，否则 `asyncio.run`）；4 处 `run_until_complete` 全部改用之。4 个新 unit 测试（循环内/外 × 成功/异常路径）。来源：同上 code review（HIGH/CONFIRMED）。
 
+- **indicators**: RSI 全涨窗口返 NaN 修复 —— `tradingagents/tools/analysis/indicators.py` 的 `rsi()` 在窗口内全程上涨（`avg_loss==0`）时，`rs = avg_gain / avg_loss.replace(0, NaN)` 使 `rs=NaN` → `RSI=NaN`，丢失"满超买"语义（下游技术分析拿到 NaN）。按标准 RSI 约定补：零损失且有增益 = 100，零损失且零增益（无变化）= 50。3 个 method（ema/sma/china）均覆盖。4 个新 unit 测试（全涨=100 参数化 + 混合走势落在开区间）。来源：同上 code review（MEDIUM/CONFIRMED）。
+
 ## [1.4.0] — 2026-05-30
 
 **Fork minor release** —— M3「全面 code & 安全审计加固 + dataflows 可靠性/schema 一致性 epic 收尾」。本次发版滚入累积的 `dataflows-reliability-hardening`（1.1-1.4：HTTP timeout / AKShare 限流线程安全 / baostock session 生命周期 / yfinance LRU）+ `dataflows-schema-consistency-hardening`（2.1-2.3：交易所后缀统一 / trade_date ISO 8601 / full_symbol invariant），并叠加一轮 5 路并行 code & 安全审计的修复。**无用户可见 API 行为变化**（密码哈希为内部迁移，对存量用户透明）。

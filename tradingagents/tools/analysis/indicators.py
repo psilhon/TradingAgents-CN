@@ -119,6 +119,10 @@ def rsi(close: pd.Series, n: int = 14, method: str = "ema") -> pd.Series:
 
     rs = avg_gain / (avg_loss.replace(0, np.nan))
     rsi_val = 100 - (100 / (1 + rs))
+    # avg_loss==0（窗口内全程上涨）时 rs=NaN -> rsi=NaN，丢失语义。
+    # 标准 RSI 约定：零损失 = 100（最大超买）；零增益且零损失（无变化）= 中性 50。
+    rsi_val = rsi_val.mask((avg_loss == 0) & (avg_gain > 0), 100.0)
+    rsi_val = rsi_val.mask((avg_loss == 0) & (avg_gain == 0), 50.0)
     return rsi_val
 
 
