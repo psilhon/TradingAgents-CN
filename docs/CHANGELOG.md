@@ -8,6 +8,26 @@
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-05-30
+
+**Fork minor release** —— M3「全面 code & 安全审计加固 + dataflows 可靠性/schema 一致性 epic 收尾」。本次发版滚入累积的 `dataflows-reliability-hardening`（1.1-1.4：HTTP timeout / AKShare 限流线程安全 / baostock session 生命周期 / yfinance LRU）+ `dataflows-schema-consistency-hardening`（2.1-2.3：交易所后缀统一 / trade_date ISO 8601 / full_symbol invariant），并叠加一轮 5 路并行 code & 安全审计的修复。**无用户可见 API 行为变化**（密码哈希为内部迁移，对存量用户透明）。
+
+### Security
+
+- **真实 API Key 泄漏清除（审计 CRITICAL）**：4 个 tracked 文件残留**真实格式**密钥（源自上游 `hsliuping`，含上游 "修复API密钥泄露" commit 未清干净的部分）——`tests/_legacy/testgoogle.py`（Google）、`scripts/test_api_key_validation.py`（DeepSeek×2 + Google + 千帆 + OpenRouter 共 5 个，**审计初判正则漏了千帆/OpenRouter 两个，多格式复扫后补全**）、`docs/archive/legacy-upstream/SILICONFLOW_SETUP_GUIDE.md`、`docs/archive/dev-history/fixes/2025-10-21-config-validation-placeholder-detection.md`。全部替换为同格式合成占位符。⚠️ **密钥轮换须在各厂商控制台（Google Cloud / DeepSeek / SiliconFlow / 千帆 / OpenRouter）手动执行**；git 历史清除（filter-repo + force-push）属 HARD-GATE，待单独授权。
+
+- **file_cache 路径遍历加固**：`tradingagents/dataflows/cache/file_cache.py` 的 `_generate_cache_key` 把 `symbol` 逐字拼进缓存文件名，外部 / LLM 工具参数形如 `../../etc/x` 时可越出缓存 base_dir。加 `re.sub(r"[^A-Za-z0-9._-]", "_", symbol)` 字符白名单（market 分类仍用原始 symbol，行为不变）。默认 `integrated` 策略走纯 MD5 本不可达，但 `file` 策略或 mongo/redis 抖动降级到 `StockDataCache` 时可达。7 个新测试（源码守护 + 4 恶意 symbol 无路径分隔符 + 路径解析不逃逸 base_dir 不变量 + 合法 symbol 保留）。`just ci` 500 passed（+7 vs 493 baseline）。
+
+- **app/ 数据库管理路由 admin 守卫**（专有授权代码，用户本轮显式授权）：`app/routers/database.py` 的 7 个破坏性 / 全库级端点（`/backup` `/import` `/export` `/backups/{id}`(DELETE) `/cleanup` `/cleanup/analysis` `/cleanup/logs`）此前只验"登录"不验 admin，任一登录用户可覆盖任意 collection、导出全库、批量清理。新增 `_require_admin` 守卫并置于 `try` **之前**——否则 `except Exception` 会把 `HTTPException(403)` 吞成 500 导致鉴权失效。
+
+- **app/ 密码哈希 SHA-256 → bcrypt**（专有授权代码，用户本轮显式授权）：`app/services/user_service.py` 此前用**无盐 SHA-256**（彩虹表 / 撞库友好），且 `authenticate_user` 日志打印输入/存储哈希前缀（削弱密钥强度）。改用 bcrypt（带盐 + `settings.BCRYPT_ROUNDS` 自适应成本）；`verify_password` 兼容历史 SHA-256 哈希、登录成功后**透明 rehash 到 bcrypt**（一次性平滑迁移，存量用户无感）；移除全部哈希日志泄漏。bcrypt 已在 `pyproject.toml` 声明（`bcrypt>=4.0.0`），无新依赖。
+
+- **`.env.example` loopback + 端口段位纠正（⏳ 待用户应用）**：模板默认 `API_HOST=0.0.0.0` / `HOST=0.0.0.0` / `ALLOWED_HOSTS=["*"]` 违反 loopback HARD-GATE（`cp .env.example .env` 即绑全网卡），端口 `27017/6379/8000` 偏离 54300-54309 段位。应改为 `127.0.0.1` + `["127.0.0.1","localhost"]` + `54302/54303/54301`。**因 `.env` 读写护栏拦截助手访问 `.env.example`，此项由用户手动跑 sed 应用**（见发版说明），实际运行时已被 `dev.sh` 的 `--host 127.0.0.1` 覆盖、影响 LOW。
+
+- **`setup-native.sh` 默认弱口令改密提示**：部署完成横幅追加安全提示，提醒 `admin/admin123` 仅供本地 loopback 学习环境，公开 / 多人环境须立即登录改密。
+
+> **审计未处置（记录待办，非本次发版范围）**：① `app/routers/reports.py` 报告资源 IDOR——`analysis_reports` 文档无 owner 字段且存在两套 task 子系统（`"user"` vs `"user_id"`）owner 命名不一致，正确修复需 writer 写 owner + 存量回填迁移 + reader 过滤三部分，半修会让所有报告查不到（静默 partial 失败），需单独一轮带验证的迁移改造。② 依赖 CVE：urllib3 / starlette / pillow / langchain 生态 / pyjwt / python-multipart 等 20+ 包有已知 CVE（`pip-audit` 实测），升级会撞 uv.lock 过时 + qianfan py3.13 不可用坑，需单独一轮依赖收敛。③ 上游遗留死脚本（`scripts/startup/*` 0.0.0.0:8000 启动脚本、违反"不 sync upstream"约定的 `scripts/git/*`）建议清理，删除属 HARD-GATE 待授权。
+
 ### Added
 
 - **stock_basic_info full_symbol invariant 守护（epic 收尾）**（change `dataflows-schema-consistency-hardening` sub-stage 2.3）：audit-2026-05-23 复检初判 stock_basic_info 5846 docs 缺 `full_symbol`，深入查后确认是 grep 误命中 `ts_code` 字段（已废弃 alias 全 null）—— **`full_symbol` 字段实际全部存在且全为 `.SH/.SZ/.BJ` canonical**（mongo 实跑 `db.stock_basic_info.countDocuments({full_symbol: /^\d{6}\.(SH|SZ|BJ)$/})` = 5846/5846）。两个 writer 早已就位：`app/services/basics_sync_service.py:265-280` + `multi_source_basics_sync_service.py:259-281` 均经 `_generate_full_symbol(code)` 派生 + 写入 doc，stage 2.1 后 helper 返 canonical form。**本 sub-stage 实质零代码改造**——加 7 个 spec invariant 测试（4 source-level grep × 两个 writer 含 `"full_symbol":` field + `_generate_full_symbol` helper；2 行为测试验证 helper 返 `.SH/.SZ/.BJ`；1 audit script 存在性测试）+ `scripts/migrations/2.3_audit_full_symbol.js` audit-only script（mongo 实跑断 0 anomalies，CI gate 友好 exit code）。`just ci` 493 passed（+7 vs 2.2 baseline 486）。**epic dataflows-schema-consistency-hardening 收尾**：3 sub-stage 累计 +29 测试（2.1×14 + 2.2×8 + 2.3×7），schema 漂移 root cause 全清；mongo 端待用户 1-click 跑 2.1 / 2.2 migration 完成数据 backfill。
