@@ -22,11 +22,13 @@
 
 - **app/ 密码哈希 SHA-256 → bcrypt**（专有授权代码，用户本轮显式授权）：`app/services/user_service.py` 此前用**无盐 SHA-256**（彩虹表 / 撞库友好），且 `authenticate_user` 日志打印输入/存储哈希前缀（削弱密钥强度）。改用 bcrypt（带盐 + `settings.BCRYPT_ROUNDS` 自适应成本）；`verify_password` 兼容历史 SHA-256 哈希、登录成功后**透明 rehash 到 bcrypt**（一次性平滑迁移，存量用户无感）；移除全部哈希日志泄漏。bcrypt 已在 `pyproject.toml` 声明（`bcrypt>=4.0.0`），无新依赖。
 
+- **app/ 报告资源 owner 隔离（reports IDOR 修复）**（专有授权代码，用户本轮显式授权）：`app/routers/reports.py` 此前对 `analysis_reports` 无 owner 校验——任一登录用户可凭 `report_id` 读 / 下载 / **删除**他人报告，`/list` 直接返回全库。修复三部分：① **writer** `app/services/simple_analysis_service.py` 保存报告时按 `task_id` 反查关联 task 的 owner（`user_id` 主 / `user` 兼容）写入 `analysis_reports.user_id`；② **reader** reports.py 全部 5 个读/删端点（list/detail/content/delete/download）+ detail 的 analysis_tasks 兜底路径经 `_owner_scope` / `_scoped_report_query` 对非 admin 强制 owner 过滤，**admin 看全部**；③ **回填迁移** `scripts/migrations/2.4_backfill_report_owner.js`（dry-run 默认）按 `task_id` 回填存量报告 owner。**安全权衡**：无 owner 的 legacy / orphan 报告对非 admin **不可见**（仅 admin）——绝不放行 owner-less 给所有人（那等于对 legacy 报告重新 IDOR）；**回填迁移跑完后 owner 恢复可见**，本 fork 主用户通常是 admin、回填前后均可见全部，多人场景须部署后尽快跑回填。7 个源码守护测试（owner 助手存在 + admin 旁路 + 无裸 query 绕过 + list/兜底/writer 过滤 + 迁移 dry-run）。`just ci` 507 passed（+7）。
+
 - **`.env.example` loopback + 端口段位纠正（⏳ 待用户应用）**：模板默认 `API_HOST=0.0.0.0` / `HOST=0.0.0.0` / `ALLOWED_HOSTS=["*"]` 违反 loopback HARD-GATE（`cp .env.example .env` 即绑全网卡），端口 `27017/6379/8000` 偏离 54300-54309 段位。应改为 `127.0.0.1` + `["127.0.0.1","localhost"]` + `54302/54303/54301`。**因 `.env` 读写护栏拦截助手访问 `.env.example`，此项由用户手动跑 sed 应用**（见发版说明），实际运行时已被 `dev.sh` 的 `--host 127.0.0.1` 覆盖、影响 LOW。
 
 - **`setup-native.sh` 默认弱口令改密提示**：部署完成横幅追加安全提示，提醒 `admin/admin123` 仅供本地 loopback 学习环境，公开 / 多人环境须立即登录改密。
 
-> **审计未处置（记录待办，非本次发版范围）**：① `app/routers/reports.py` 报告资源 IDOR——`analysis_reports` 文档无 owner 字段且存在两套 task 子系统（`"user"` vs `"user_id"`）owner 命名不一致，正确修复需 writer 写 owner + 存量回填迁移 + reader 过滤三部分，半修会让所有报告查不到（静默 partial 失败），需单独一轮带验证的迁移改造。② 依赖 CVE：urllib3 / starlette / pillow / langchain 生态 / pyjwt / python-multipart 等 20+ 包有已知 CVE（`pip-audit` 实测），升级会撞 uv.lock 过时 + qianfan py3.13 不可用坑，需单独一轮依赖收敛。③ 上游遗留死脚本（`scripts/startup/*` 0.0.0.0:8000 启动脚本、违反"不 sync upstream"约定的 `scripts/git/*`）建议清理，删除属 HARD-GATE 待授权。
+> **审计未处置（记录待办，非本次发版范围）**：① 依赖 CVE：urllib3 / starlette / pillow / langchain 生态 / pyjwt / python-multipart 等 20+ 包有已知 CVE（`pip-audit` 实测），升级会撞 uv.lock 过时 + qianfan py3.13 不可用坑，需单独一轮依赖收敛。② 上游遗留死脚本（`scripts/startup/*` 0.0.0.0:8000 启动脚本、违反"不 sync upstream"约定的 `scripts/git/*`）建议清理，删除属 HARD-GATE 待授权。③ `analysis_reports` 存量报告 owner 回填：部署后跑 `scripts/migrations/2.4_backfill_report_owner.js`（dry-run → commit），回填前非 admin 用户看不到 legacy 报告。
 
 ### Added
 
