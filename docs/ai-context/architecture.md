@@ -1,7 +1,7 @@
 # architecture.md
 
 > AI prime context — 架构摘要 + 二开关注点。
-> **本文件描述跨 capability 的横切关系**；单一 capability 的功能事实见 [`openspec/specs/`](../../openspec/specs/)（22 条，下文「capability 索引」给出完整列表）。
+> **本文件描述跨 capability 的横切关系**；单一 capability 的功能事实 SSOT 见 [`docs/specs/`](../specs/)（2026-05-23 起新事实）→ 回退 [`openspec/specs/`](../../openspec/specs/)（2026-05-23 前冻结档案；下文「capability 索引」的 23 条仍在此）。
 > 详细补充见 [`../architecture/`](../architecture/) 技术参考目录。
 
 ## 三层 + 数据存储 + LLM 抽象
@@ -27,8 +27,8 @@
 │             ↓ 读                                            │
 ├─────────────────────────────────────────────────────────────┤
 │  数据 / 缓存                                                │
-│  ├─ MongoDB 4.4   股票数据 / 用户 / analysis 结果  :54302   │
-│  └─ Redis 7       缓存 / 会话 / SSE 通知            :54303   │
+│  ├─ MongoDB 7.0   股票数据 / 用户 / analysis 结果  :54302   │
+│  └─ Redis 8       缓存 / 会话 / SSE 通知            :54303   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -163,7 +163,7 @@ stock_zh_a_hist
 
 ## v1.3.x 已固化 capability 索引
 
-> **本节是 architecture.md 到 [`openspec/specs/`](../../openspec/specs/) 的索引**——单一 capability 的 Requirements / Scenarios 见各 `spec.md`，本表只给一句话定位。
+> **本节是 architecture.md 到 [`openspec/specs/`](../../openspec/specs/)（2026-05-23 前冻结档案）的索引**——单一 capability 的 Requirements / Scenarios 见各 `spec.md`，本表只给一句话定位。
 
 | Capability | 一句话定位 | Spec |
 |---|---|---|

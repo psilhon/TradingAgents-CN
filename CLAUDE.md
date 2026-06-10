@@ -37,7 +37,8 @@ cd frontend && npm install && npm run dev -- --port 54300
 # 测试（conftest.py 已把项目根加进 sys.path；marker 体系见 pyproject.toml [tool.pytest.ini_options]）
 .venv/bin/pytest -m unit          # 纯逻辑用例（pre-push hook + just test 跑这套，最快）
 .venv/bin/pytest -m integration   # 集成测试（需 mongo / redis）
-# 全跑去掉 -m；marker 还有 "not requires_env and not requires_network"（跳 .env key / 公网）；单文件/用例用标准 pytest 语法
+.venv/bin/pytest tests/test_trade_date_iso.py::test_iso_date_normalizes_yyyymmdd -v   # 单文件::单用例（标准 pytest 语法）
+# 全跑去掉 -m；marker 还有 "not requires_env and not requires_network"（跳 .env key / 公网）
 
 # 重建 venv（依赖装漂了用）
 rm -rf .venv
